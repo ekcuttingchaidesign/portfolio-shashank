@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400;500;600&family=Tiro+Devanagari+Hindi:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Anton&display=swap" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie_svg.min.js"></script><script src="./image-slot.js"></script><style>
+html,body{margin:0;padding:0;background:#05070d;overscroll-behavior:none}
+a{color:#a9c4ff;text-decoration:none}a:hover{color:#eef1f6}
+@keyframes om-bob{0%,100%{transform:translateY(0);opacity:.55}50%{transform:translateY(7px);opacity:1}}
+@keyframes om-travel{0%{transform:translateY(-18px);opacity:0}18%{opacity:1}82%{opacity:1}100%{transform:translateY(30px);opacity:0}}
+@keyframes om-track{0%,100%{opacity:.25}50%{opacity:.7}}
+@keyframes om-pulse{0%,100%{opacity:.45;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes om-dust{0%{transform:translate3d(0,0,0);opacity:0}10%{opacity:.5}80%{opacity:.35}100%{transform:translate3d(52vw,-9vh,0);opacity:0}}
+</style></helmet>
+<div ref="{{ rootRef }}" style="position:relative;width:100%;height:100vh;overflow:hidden;background:#05070d;color:#eef1f6;font-family:Manrope,system-ui,sans-serif;touch-action:none;user-select:none">
+
+  <canvas ref="{{ c1Ref }}" width="1280" height="720" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;will-change:transform,filter"></canvas>
+
+  <div style="position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 45%,rgba(5,7,13,0) 35%,rgba(5,7,13,.5) 78%,rgba(5,7,13,.88) 100%);pointer-events:none"></div>
+
+  <div ref="{{ navRef }}" style="position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:30px 44px;z-index:6;pointer-events:none">
+    <div style="display:flex;align-items:baseline;gap:10px">
+      <span style="font-family:'Instrument Serif',serif;font-size:22px;letter-spacing:.01em">Shashank</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:rgba(238,241,246,.45)">Portfolio 2026</span>
+    </div>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:rgba(238,241,246,.5)">Connect</span>
+  </div>
+
+  <div ref="{{ textRef }}" style="position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 8vw;pointer-events:none;perspective:900px">
+    <div ref="{{ l1Ref }}" style="will-change:transform,opacity">
+      <div style="position:relative;margin-bottom:16px">
+        <div ref="{{ enEyebrowRef }}" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(238,241,246,.62);transition:opacity .7s ease,transform .7s ease,filter .7s ease">Hey there! I am</div>
+        <div ref="{{ hiEyebrowRef }}" style="position:absolute;inset:0;font-family:'Tiro Devanagari Hindi',serif;font-size:13px;letter-spacing:.14em;color:rgba(238,241,246,.62);opacity:0;transform:translateY(10px);filter:blur(5px);transition:opacity .7s ease,transform .7s ease,filter .7s ease">नमस्ते! मैं हूँ</div>
+      </div>
+    </div>
+    <div ref="{{ l2Ref }}" style="will-change:transform,opacity">
+      <div style="position:relative;margin:0 0 18px">
+        <div ref="{{ nameRef }}" style="font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(70px,10vw,172px);line-height:.88;letter-spacing:-.02em;transition:opacity .8s ease,transform .8s ease,filter .8s ease">Shashank</div>
+        <div ref="{{ hiNameRef }}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:inherit;font-family:'Tiro Devanagari Hindi',serif;font-size:clamp(66px,9.4vw,162px);line-height:1;letter-spacing:-.01em;opacity:0;transform:translateY(16px);filter:blur(9px);transition:opacity .8s ease,transform .8s ease,filter .8s ease">शशांक</div>
+      </div>
+    </div>
+    <div ref="{{ l3Ref }}" style="will-change:transform,opacity">
+      <div style="font-size:clamp(15px,1.35vw,21px);font-weight:300;color:rgba(238,241,246,.82)">Product &amp; Motion Designer.</div>
+    </div>
+    <div ref="{{ ctaRef }}" style="margin-top:36px;pointer-events:auto;will-change:transform,opacity">
+      <button onClick="{{ onCta }}" style="display:inline-flex;align-items:center;gap:14px;padding:15px 26px 15px 28px;border:1px solid rgba(238,241,246,.22);border-radius:999px;background:rgba(238,241,246,.05);backdrop-filter:blur(10px);color:#eef1f6;font-family:Manrope,sans-serif;font-size:13.5px;font-weight:500;letter-spacing:.04em;white-space:nowrap;cursor:pointer;transition:background .25s,border-color .25s,gap .25s" style-hover="background:rgba(238,241,246,.12);border-color:rgba(238,241,246,.45);gap:20px">
+        Check Work
+        <span style="display:inline-block;width:24px;height:1px;background:currentColor;opacity:.7"></span>
+      </button>
+    </div>
+  </div>
+
+  <div ref="{{ hintRef }}" style="position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:6;display:flex;flex-direction:column;align-items:center;gap:9px;pointer-events:none">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(238,241,246,.5);animation:om-track 2.6s ease-in-out infinite">Scroll to enter</span>
+    <span style="position:relative;display:block;width:1px;height:34px;background:linear-gradient(rgba(238,241,246,.28),rgba(238,241,246,.02));overflow:visible">
+      <span style="position:absolute;left:-1.5px;top:0;width:4px;height:4px;border-radius:50%;background:#eef1f6;box-shadow:0 0 10px rgba(169,196,255,.9);animation:om-travel 2.2s cubic-bezier(.5,0,.5,1) infinite"></span>
+    </span>
+  </div>
+
+  <video ref="{{ vidRef }}" src="uploads/space%20travel.mp4" muted="{{ true }}" playsInline="{{ true }}" preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:7;opacity:0;pointer-events:none;display:block;will-change:opacity,transform"></video>
+
+  <div ref="{{ tunnelRef }}" style="position:absolute;inset:0;z-index:9;opacity:0;pointer-events:none;perspective:800px;overflow:hidden;background:transparent">
+    <div ref="{{ scrimRef }}" style="position:absolute;inset:0;background:#06080f;opacity:0"></div>
+    <div ref="{{ lottieRef }}" style="position:absolute;inset:0;will-change:transform,opacity"></div>
+    <div ref="{{ coreRef }}" style="position:absolute;left:50%;top:50%;width:64vmax;height:64vmax;margin:-32vmax;border-radius:50%;background:radial-gradient(closest-side,#fff,rgba(255,255,255,.32) 38%,rgba(255,255,255,0) 70%);opacity:0;will-change:transform,opacity"></div>
+  </div>
+
+  <div ref="{{ beamRef }}" style="position:absolute;inset:0;z-index:9;opacity:0;pointer-events:none;overflow:hidden;background:transparent">
+    <div ref="{{ beamScrimRef }}" style="position:absolute;inset:0;background:#06080f;opacity:0"></div>
+    <div ref="{{ beamStreaksRef }}" style="position:absolute;left:0;right:0;top:50%;height:0;transform:translateY(-50%);opacity:0;will-change:transform,opacity">
+      <div style="position:absolute;left:-10%;top:-31vh;width:120%;height:1px;background:linear-gradient(90deg,transparent,rgba(169,196,255,.55),transparent)"></div>
+      <div style="position:absolute;left:-10%;top:-19vh;width:120%;height:2px;background:linear-gradient(90deg,transparent,rgba(238,241,246,.6),transparent)"></div>
+      <div style="position:absolute;left:-10%;top:-11vh;width:120%;height:1px;background:linear-gradient(90deg,transparent,rgba(169,196,255,.4),transparent)"></div>
+      <div style="position:absolute;left:-10%;top:-4vh;width:120%;height:3px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent)"></div>
+      <div style="position:absolute;left:-10%;top:3vh;width:120%;height:1px;background:linear-gradient(90deg,transparent,rgba(238,241,246,.5),transparent)"></div>
+      <div style="position:absolute;left:-10%;top:12vh;width:120%;height:2px;background:linear-gradient(90deg,transparent,rgba(169,196,255,.45),transparent)"></div>
+      <div style="position:absolute;left:-10%;top:22vh;width:120%;height:1px;background:linear-gradient(90deg,transparent,rgba(238,241,246,.4),transparent)"></div>
+      <div style="position:absolute;left:-10%;top:33vh;width:120%;height:1px;background:linear-gradient(90deg,transparent,rgba(169,196,255,.3),transparent)"></div>
+    </div>
+    <div ref="{{ beamBarRef }}" style="position:absolute;left:50%;top:50%;width:3px;height:0;transform:translate(-50%,-50%);border-radius:50%;background:linear-gradient(90deg,rgba(169,196,255,0),rgba(207,220,255,.85) 42%,#fff 50%,rgba(207,220,255,.85) 58%,rgba(169,196,255,0));box-shadow:0 0 90px rgba(169,196,255,.55);will-change:width,height,filter"></div>
+    <div ref="{{ beamFlashRef }}" style="position:absolute;inset:0;background:radial-gradient(60% 120% at 50% 50%,#fff,rgba(207,220,255,.7) 55%,rgba(169,196,255,0) 100%);opacity:0;will-change:opacity"></div>
+  </div>
+
+  <div ref="{{ workRef }}" style="position:absolute;inset:0;z-index:8;opacity:0;pointer-events:none;overflow:hidden;background:linear-gradient(180deg,#170c30 0%,#2e1740 20%,#5b2d49 42%,#9c4f45 63%,#cf7a45 81%,#f0c188 100%)">
+
+    <div ref="{{ starsRef }}" style="position:absolute;left:-5%;right:-5%;top:0;height:64%;background-image:url('uploads/sstarfield.png');background-size:cover;background-position:center top;opacity:.85;will-change:transform"></div>
+
+    <div ref="{{ sunRef }}" style="position:absolute;left:50%;bottom:4%;width:130vw;height:54vh;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(255,214,150,.5),rgba(255,180,110,.13) 55%,rgba(255,160,90,0) 100%);pointer-events:none"></div>
+
+    <div ref="{{ ridgeRef }}" style="position:absolute;left:-10%;right:-10%;bottom:31%;height:22%;background-image:url('uploads/Side%20rocks%20high.png');background-size:100% auto;background-position:center bottom;background-repeat:no-repeat;opacity:0;filter:blur(3px) saturate(.5) brightness(1.2);will-change:transform,opacity"></div>
+
+    <div ref="{{ bedRef }}" style="position:absolute;left:-6%;right:-6%;bottom:0;height:100%;background-image:url('uploads/rock%20bed.png');background-size:cover;background-position:center bottom;opacity:0;will-change:transform,opacity"></div>
+
+    <div style="position:absolute;inset:0;background:radial-gradient(130% 95% at 50% 42%,rgba(10,3,16,0) 40%,rgba(10,3,16,.42) 82%,rgba(8,2,14,.7) 100%);pointer-events:none"></div>
+
+    <div ref="{{ cardWrapRef }}" style="position:absolute;inset:0;pointer-events:none;will-change:transform,opacity">
+      <div ref="{{ marsCardRef }}" style="position:absolute;top:6.5vh;bottom:7vh;left:5vw;right:5vw;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:2.2vh;will-change:transform">
+
+        <div style="position:absolute;width:22px;height:22px;border-color:rgba(255,228,200,.35);pointer-events:none;top:-14px;left:-14px;border-top:1px solid;border-left:1px solid"></div>
+        <div style="position:absolute;width:22px;height:22px;border-color:rgba(255,228,200,.35);pointer-events:none;top:-14px;right:-14px;border-top:1px solid;border-right:1px solid"></div>
+        <div style="position:absolute;width:22px;height:22px;border-color:rgba(255,228,200,.35);pointer-events:none;bottom:-14px;left:-14px;border-bottom:1px solid;border-left:1px solid"></div>
+        <div style="position:absolute;width:22px;height:22px;border-color:rgba(255,228,200,.35);pointer-events:none;bottom:-14px;right:-14px;border-bottom:1px solid;border-right:1px solid"></div>
+
+        <div ref="{{ marsTitleRef }}" style="display:flex;align-items:flex-end;justify-content:space-between;gap:5vw;transform-origin:0% 130%;will-change:transform,opacity">
+          <div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55);margin-bottom:12px">Selected work &nbsp;·&nbsp; 2019 — 2026</div>
+            <div style="font-family:Anton,Impact,sans-serif;font-size:clamp(30px,3.6vw,64px);line-height:.94;letter-spacing:.012em;text-transform:uppercase;color:#fff4ea;text-shadow:0 12px 48px rgba(30,6,44,.5)">25 Versions Later</div>
+          </div>
+          <div ref="{{ titleMetaRef }}" style="display:flex;align-items:center;gap:26px;opacity:0;padding-bottom:6px">
+            <div style="max-width:34ch;text-align:right;font-family:Manrope,sans-serif;font-size:clamp(12px,1.02vw,16px);font-weight:300;line-height:1.5;color:rgba(255,236,222,.72);text-wrap:pretty">This is what shipping actually looks like — seven things that survived the cutting room.</div>
+            <div style="display:flex;align-items:center;gap:9px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55);white-space:nowrap">
+              <span data-accent="d" style="width:6px;height:6px;border-radius:50%;background:#f2a65a;box-shadow:0 0 14px #f2a65a;animation:om-pulse 2.4s ease-in-out infinite"></span>
+              Open for work
+            </div>
+          </div>
+        </div>
+
+        <div ref="{{ gridRef }}" onClick="{{ onGridClick }}" style="min-height:0;overflow:hidden;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:1.18fr minmax(0,.86fr) minmax(0,.78fr);gap:14px;perspective:1500px;pointer-events:auto">
+
+          <div data-z=".95" style="min-width:0;min-height:0;opacity:0;will-change:transform,opacity;grid-column:1 / span 2;grid-row:1 / span 2">
+            <div data-key="orbit" data-label="Case study 01 · Product design" data-title="Orbit — rebuilding onboarding for 2M riders" data-desc="Four months, twenty-five versions, one shipped flow. A six-screen setup wizard became a single progressive sheet; first-run drop-off fell from 41% to 12%." data-tags="Product · Research · Motion · 2025" style="position:relative;width:100%;height:100%;overflow:hidden;border:1px solid rgba(255,232,208,.3);border-radius:20px;background:linear-gradient(180deg,rgba(20,8,24,.62),rgba(12,4,16,.88));backdrop-filter:blur(18px) saturate(1.2);box-shadow:inset 0 1px 0 rgba(255,240,225,.18),0 26px 60px rgba(30,8,34,.34);cursor:pointer;transition:transform .5s cubic-bezier(.2,.8,.2,1),border-color .4s,box-shadow .5s,background .4s" style-hover="transform:translateY(-8px);border-color:rgba(255,224,190,.6);box-shadow:inset 0 1px 0 rgba(255,240,225,.3),0 40px 80px rgba(30,8,34,.46);background:linear-gradient(180deg,rgba(52,22,44,.66),rgba(14,5,18,.9))">
+              <div style="position:absolute;inset:0"><image-slot id="mars-work-orbit" shape="rect" placeholder="Drop the Orbit case shot"></image-slot></div>
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,4,18,0) 38%,rgba(14,4,18,.82) 100%);pointer-events:none"></div>
+              <div style="position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;gap:8px;padding:26px">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55)">Case study 01</div>
+                <div style="font-family:'Instrument Serif',serif;line-height:1.04;color:#fff4ea;font-size:clamp(21px,2.1vw,38px);max-width:20ch">Orbit — rebuilding onboarding for 2M riders</div>
+              </div>
+            </div>
+          </div>
+
+          <div data-z=".7" style="min-width:0;min-height:0;opacity:0;will-change:transform,opacity;grid-column:3 / span 2;grid-row:1">
+            <div data-key="kinetic" data-label="Case study 02 · Motion system" data-title="Kinetic — one motion language, sixty surfaces" data-desc="A spring-based motion spec with three durations and two easings, shipped as tokens the engineers actually kept using." data-tags="Motion · Design systems · 2024" style="position:relative;width:100%;height:100%;overflow:hidden;border:1px solid rgba(255,232,208,.3);border-radius:20px;background:linear-gradient(180deg,rgba(20,8,24,.62),rgba(12,4,16,.88));backdrop-filter:blur(18px) saturate(1.2);box-shadow:inset 0 1px 0 rgba(255,240,225,.18),0 26px 60px rgba(30,8,34,.34);cursor:pointer;transition:transform .5s cubic-bezier(.2,.8,.2,1),border-color .4s,box-shadow .5s,background .4s" style-hover="transform:translateY(-8px);border-color:rgba(255,224,190,.6);box-shadow:inset 0 1px 0 rgba(255,240,225,.3),0 40px 80px rgba(30,8,34,.46);background:linear-gradient(180deg,rgba(52,22,44,.66),rgba(14,5,18,.9))">
+              <div style="position:absolute;inset:0"><image-slot id="mars-work-kinetic" shape="rect" placeholder="Drop a motion still"></image-slot></div>
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,4,18,0) 40%,rgba(14,4,18,.8) 100%);pointer-events:none"></div>
+              <div style="position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:22px">
+                <div style="display:flex;flex-direction:column;gap:7px">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55)">Case study 02</div>
+                  <div style="font-family:'Instrument Serif',serif;line-height:1.04;color:#fff4ea;font-size:clamp(17px,1.5vw,27px)">Kinetic — a motion language</div>
+                </div>
+                <div data-accent="c" style="font-family:'JetBrains Mono',monospace;font-size:17px;color:#f2a65a">&#8599;</div>
+              </div>
+            </div>
+          </div>
+
+          <div data-z=".45" style="min-width:0;min-height:0;opacity:0;will-change:transform,opacity;grid-column:3;grid-row:2">
+            <div data-key="versions" data-label="Working method" data-title="25 versions, one that survived" data-desc="Every project here ran the same loop: build it rough, put it in front of someone, throw most of it away. The number is the point." data-tags="Craft · Iteration" style="position:relative;width:100%;height:100%;overflow:hidden;border:1px solid rgba(255,232,208,.3);border-radius:20px;background:linear-gradient(180deg,rgba(20,8,24,.62),rgba(12,4,16,.88));backdrop-filter:blur(18px) saturate(1.2);box-shadow:inset 0 1px 0 rgba(255,240,225,.18),0 26px 60px rgba(30,8,34,.34);cursor:pointer;transition:transform .5s cubic-bezier(.2,.8,.2,1),border-color .4s,box-shadow .5s,background .4s;display:flex;flex-direction:column;justify-content:space-between;padding:20px" style-hover="transform:translateY(-8px);border-color:rgba(255,224,190,.6);box-shadow:inset 0 1px 0 rgba(255,240,225,.3),0 40px 80px rgba(30,8,34,.46);background:linear-gradient(180deg,rgba(52,22,44,.66),rgba(14,5,18,.9))">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55)">Versions shipped</div>
+              <div style="display:flex;align-items:flex-end;gap:10px">
+                <span data-accent="c" style="font-family:Anton,Impact,sans-serif;font-size:clamp(38px,4.2vw,74px);line-height:.78;color:#f2a65a">25</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55);padding-bottom:6px">one kept</span>
+              </div>
+            </div>
+          </div>
+
+          <div data-z=".45" style="min-width:0;min-height:0;opacity:0;will-change:transform,opacity;grid-column:4;grid-row:2">
+            <div data-key="halo" data-label="Design systems" data-title="Halo — a system that survived three redesigns" data-desc="Component library, tokens and docs for a 40-person product org. Adoption went from 20% to 94% in two quarters." data-tags="Design systems · Tooling · 2023" style="position:relative;width:100%;height:100%;overflow:hidden;border:1px solid rgba(255,232,208,.3);border-radius:20px;background:linear-gradient(180deg,rgba(20,8,24,.62),rgba(12,4,16,.88));backdrop-filter:blur(18px) saturate(1.2);box-shadow:inset 0 1px 0 rgba(255,240,225,.18),0 26px 60px rgba(30,8,34,.34);cursor:pointer;transition:transform .5s cubic-bezier(.2,.8,.2,1),border-color .4s,box-shadow .5s,background .4s;display:flex;flex-direction:column;justify-content:space-between;padding:20px" style-hover="transform:translateY(-8px);border-color:rgba(255,224,190,.6);box-shadow:inset 0 1px 0 rgba(255,240,225,.3),0 40px 80px rgba(30,8,34,.46);background:linear-gradient(180deg,rgba(52,22,44,.66),rgba(14,5,18,.9))">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55)">Design systems</div>
+              <div style="font-family:'Instrument Serif',serif;line-height:1.04;color:#fff4ea;font-size:clamp(15px,1.3vw,23px)">Halo — tokens, docs, adoption</div>
+            </div>
+          </div>
+
+          <div data-z=".2" style="min-width:0;min-height:0;opacity:0;will-change:transform,opacity;grid-column:1;grid-row:3">
+            <div data-key="ferry" data-label="Product design" data-title="Ferry — payments in three taps" data-desc="A nine-step cross-border checkout rebuilt into three taps. Support tickets about failed payments halved." data-tags="Product · Fintech · 2024" style="position:relative;width:100%;height:100%;overflow:hidden;border:1px solid rgba(255,232,208,.3);border-radius:20px;background:linear-gradient(180deg,rgba(20,8,24,.62),rgba(12,4,16,.88));backdrop-filter:blur(18px) saturate(1.2);box-shadow:inset 0 1px 0 rgba(255,240,225,.18),0 26px 60px rgba(30,8,34,.34);cursor:pointer;transition:transform .5s cubic-bezier(.2,.8,.2,1),border-color .4s,box-shadow .5s,background .4s;display:flex;flex-direction:column;justify-content:space-between;padding:18px" style-hover="transform:translateY(-8px);border-color:rgba(255,224,190,.6);box-shadow:inset 0 1px 0 rgba(255,240,225,.3),0 40px 80px rgba(30,8,34,.46);background:linear-gradient(180deg,rgba(52,22,44,.66),rgba(14,5,18,.9))">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55)">Product</div>
+              <div style="font-family:'Instrument Serif',serif;line-height:1.04;color:#fff4ea;font-size:clamp(14px,1.2vw,21px)">Ferry — payments in three taps</div>
+            </div>
+          </div>
+
+          <div data-z=".2" style="min-width:0;min-height:0;opacity:0;will-change:transform,opacity;grid-column:2;grid-row:3">
+            <div data-key="playground" data-label="Prototypes" data-title="Playground — forty prototypes in public" data-desc="Weekly interaction studies built in code. Half of them were bad; three became product features." data-tags="Prototyping · Motion · Ongoing" style="position:relative;width:100%;height:100%;overflow:hidden;border:1px solid rgba(255,232,208,.3);border-radius:20px;background:linear-gradient(180deg,rgba(20,8,24,.62),rgba(12,4,16,.88));backdrop-filter:blur(18px) saturate(1.2);box-shadow:inset 0 1px 0 rgba(255,240,225,.18),0 26px 60px rgba(30,8,34,.34);cursor:pointer;transition:transform .5s cubic-bezier(.2,.8,.2,1),border-color .4s,box-shadow .5s,background .4s;display:flex;flex-direction:column;justify-content:space-between;padding:18px" style-hover="transform:translateY(-8px);border-color:rgba(255,224,190,.6);box-shadow:inset 0 1px 0 rgba(255,240,225,.3),0 40px 80px rgba(30,8,34,.46);background:linear-gradient(180deg,rgba(52,22,44,.66),rgba(14,5,18,.9))">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55)">Prototypes</div>
+              <div style="font-family:'Instrument Serif',serif;line-height:1.04;color:#fff4ea;font-size:clamp(14px,1.2vw,21px)">Playground — 40 studies</div>
+            </div>
+          </div>
+
+          <div data-z=".2" style="min-width:0;min-height:0;opacity:0;will-change:transform,opacity;grid-column:3 / span 2;grid-row:3">
+            <div data-key="contact" data-label="Say hello" data-title="Taking on one project for Q4" data-desc="Product and motion work end to end, or a short engagement to get a system unstuck. Tell me what you are building." data-tags="Available · Remote · Worldwide" style="position:relative;width:100%;height:100%;overflow:hidden;border:1px solid rgba(255,232,208,.3);border-radius:20px;background:linear-gradient(180deg,rgba(20,8,24,.62),rgba(12,4,16,.88));backdrop-filter:blur(18px) saturate(1.2);box-shadow:inset 0 1px 0 rgba(255,240,225,.18),0 26px 60px rgba(30,8,34,.34);cursor:pointer;transition:transform .5s cubic-bezier(.2,.8,.2,1),border-color .4s,box-shadow .5s,background .4s;display:flex;align-items:center;justify-content:space-between;padding:0 24px" style-hover="transform:translateY(-8px);border-color:rgba(255,224,190,.6);box-shadow:inset 0 1px 0 rgba(255,240,225,.3),0 40px 80px rgba(30,8,34,.46);background:linear-gradient(180deg,rgba(52,22,44,.66),rgba(14,5,18,.9))">
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55)">Currently</div>
+                <div style="font-family:'Instrument Serif',serif;line-height:1.04;color:#fff4ea;font-size:clamp(15px,1.3vw,23px)">Taking on one project for Q4</div>
+              </div>
+              <div data-accent="c" style="font-family:'JetBrains Mono',monospace;font-size:19px;color:#f2a65a">&#8599;</div>
+            </div>
+          </div>
+        </div>
+
+        <div ref="{{ footerRef }}" style="display:flex;justify-content:space-between;align-items:center;opacity:0;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55);will-change:transform,opacity">
+          <span>Click a tile to expand &nbsp;·&nbsp; keep scrolling to leave orbit</span>
+          <div style="display:flex;gap:26px;pointer-events:auto">
+            <a href="#" style="color:rgba(255,232,208,.7)">Email</a>
+            <a href="#" style="color:rgba(255,232,208,.7)">LinkedIn</a>
+            <a href="#" style="color:rgba(255,232,208,.7)">Dribbble</a>
+          </div>
+        </div>
+
+        <div ref="{{ detailRef }}" style="position:absolute;left:0;right:0;bottom:0;height:66%;z-index:6;opacity:0;pointer-events:none;transform:translateY(40px);transition:opacity .4s ease,transform .6s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;justify-content:flex-end;gap:16px;padding:42px;border:1px solid rgba(255,228,200,.3);border-radius:26px;background:linear-gradient(180deg,rgba(16,5,20,.7),rgba(16,5,20,.94));backdrop-filter:blur(26px) saturate(1.15);box-shadow:0 -30px 90px rgba(20,4,26,.5)">
+          <button onClick="{{ onDetailClose }}" style="position:absolute;top:26px;right:26px;padding:10px 16px;border:1px solid rgba(255,232,208,.3);border-radius:999px;background:rgba(255,232,208,.06);color:rgba(255,240,228,.85);font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:background .3s,border-color .3s" style-hover="background:rgba(255,232,208,.18);border-color:rgba(255,232,208,.6)">Close</button>
+          <div ref="{{ dLabelRef }}" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55)"></div>
+          <div ref="{{ dTitleRef }}" style="font-family:'Instrument Serif',serif;line-height:1.04;color:#fff4ea;font-size:clamp(28px,3.4vw,60px);max-width:18ch"></div>
+          <div ref="{{ dDescRef }}" style="max-width:60ch;font-family:Manrope,sans-serif;font-size:clamp(13px,1.05vw,18px);font-weight:300;line-height:1.55;color:rgba(255,238,226,.84);text-wrap:pretty"></div>
+          <div style="display:flex;align-items:center;gap:26px;margin-top:8px">
+            <a href="#" data-accent="c" style="display:inline-flex;align-items:center;gap:10px;font-family:Manrope,sans-serif;font-size:14px;font-weight:500;color:#f2a65a">Open case study <span>&#8599;</span></a>
+            <div ref="{{ dTagsRef }}" style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,222,196,.55);color:rgba(255,222,196,.42)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div ref="{{ sideRef }}" style="position:absolute;left:0;right:0;bottom:0;height:58%;background-image:url('uploads/Side%20rocks%20high.png');background-size:100% auto;background-position:center bottom;background-repeat:no-repeat;transform-origin:50% 100%;will-change:transform,opacity"></div>
+
+    <div ref="{{ dustRef }}" style="position:absolute;inset:0;pointer-events:none;overflow:hidden">
+      <span style="position:absolute;left:-4vw;top:62%;width:5px;height:5px;border-radius:50%;background:rgba(255,224,190,.7);filter:blur(1px);animation:om-dust 17s linear infinite"></span>
+      <span style="position:absolute;left:2vw;top:74%;width:3px;height:3px;border-radius:50%;background:rgba(255,224,190,.6);filter:blur(.6px);animation:om-dust 13s linear 2.5s infinite"></span>
+      <span style="position:absolute;left:-6vw;top:83%;width:7px;height:7px;border-radius:50%;background:rgba(255,214,176,.5);filter:blur(2px);animation:om-dust 21s linear 5s infinite"></span>
+      <span style="position:absolute;left:12vw;top:55%;width:3px;height:3px;border-radius:50%;background:rgba(255,232,205,.55);filter:blur(.8px);animation:om-dust 15s linear 8s infinite"></span>
+      <span style="position:absolute;left:38vw;top:88%;width:6px;height:6px;border-radius:50%;background:rgba(255,214,176,.45);filter:blur(2.4px);animation:om-dust 19s linear 1.5s infinite"></span>
+      <span style="position:absolute;left:26vw;top:68%;width:4px;height:4px;border-radius:50%;background:rgba(255,224,190,.5);filter:blur(1.2px);animation:om-dust 24s linear 11s infinite"></span>
+    </div>
+
+    <div ref="{{ hazeRef }}" style="position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,rgba(242,201,141,0),rgba(238,170,120,.34));pointer-events:none"></div>
+  </div>
+
+  <canvas ref="{{ c2Ref }}" width="1152" height="648" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:10;opacity:0;pointer-events:none;display:block"></canvas>
+
+  <div ref="{{ connectRef }}" style="position:absolute;inset:0;z-index:11;opacity:0;pointer-events:none;background:#000;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:26px">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:rgba(238,241,246,.5)">Connect with me</div>
+    <div style="font-family:'Instrument Serif',serif;font-size:clamp(40px,6vw,92px);line-height:1;text-align:center">Let's make it move.</div>
+    <div style="display:flex;gap:28px;font-size:13.5px;color:rgba(238,241,246,.7)"><span>Email</span><span>LinkedIn</span><span>X</span><span>Dribbble</span></div>
+  </div>
+
+  <div ref="{{ barRef }}" style="position:absolute;left:0;bottom:0;height:2px;width:0%;background:linear-gradient(90deg,rgba(169,196,255,.2),#a9c4ff);z-index:12;pointer-events:none"></div>
+
+  <div onMouseEnter="{{ onRailIn }}" onMouseLeave="{{ onRailOut }}" style="position:absolute;bottom:0;right:0;z-index:20;margin:16px;padding:11px 13px;border:1px solid rgba(238,241,246,.14);border-radius:12px;background:rgba(8,11,18,.78);backdrop-filter:blur(14px);display:flex;flex-direction:column;gap:12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:rgba(238,241,246,.75);opacity:.45;transition:opacity .25s" style-hover="opacity:1">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:14px"><span style="text-transform:uppercase;letter-spacing:.2em;color:rgba(238,241,246,.4)">Options</span><span ref="{{ stageRef }}" style="color:#a9c4ff">loading</span></div>
+    <div ref="{{ railBodyRef }}" style="display:none;flex-direction:column;gap:12px;min-width:206px">
+    <div style="display:flex;gap:6px">
+      <button onClick="{{ onL1 }}" ref="{{ b1aRef }}" style="flex:1;padding:7px 0;border:1px solid rgba(238,241,246,.16);border-radius:7px;background:none;color:inherit;font:inherit;cursor:pointer">1a</button>
+      <button onClick="{{ onL2 }}" ref="{{ b1bRef }}" style="flex:1;padding:7px 0;border:1px solid rgba(238,241,246,.16);border-radius:7px;background:none;color:inherit;font:inherit;cursor:pointer">1b</button>
+      <button onClick="{{ onL3 }}" ref="{{ b1cRef }}" style="flex:1;padding:7px 0;border:1px solid rgba(238,241,246,.16);border-radius:7px;background:none;color:inherit;font:inherit;cursor:pointer">1c</button>
+    </div>
+    <div style="text-transform:uppercase;letter-spacing:.2em;color:rgba(238,241,246,.4)">Transition</div>
+    <div style="display:flex;gap:6px">
+      <button onClick="{{ onT1 }}" ref="{{ b2aRef }}" style="flex:1;padding:7px 0;border:1px solid rgba(238,241,246,.16);border-radius:7px;background:none;color:inherit;font:inherit;cursor:pointer">2a tunnel</button>
+      <button onClick="{{ onT2 }}" ref="{{ b2bRef }}" style="flex:1;padding:7px 0;border:1px solid rgba(238,241,246,.16);border-radius:7px;background:none;color:inherit;font:inherit;cursor:pointer">2b beam</button>
+    </div>
+    <div style="text-transform:uppercase;letter-spacing:.2em;color:rgba(238,241,246,.4)">Text exit</div>
+    <div style="display:flex;gap:6px">
+      <button onClick="{{ onE1 }}" ref="{{ b1dRef }}" style="flex:1;padding:7px 0;border:1px solid rgba(238,241,246,.16);border-radius:7px;background:none;color:inherit;font:inherit;cursor:pointer">1d</button>
+      <button onClick="{{ onE2 }}" ref="{{ b1eRef }}" style="flex:1;padding:7px 0;border:1px solid rgba(238,241,246,.16);border-radius:7px;background:none;color:inherit;font:inherit;cursor:pointer">1e</button>
+      <button onClick="{{ onE3 }}" ref="{{ b1fRef }}" style="flex:1;padding:7px 0;border:1px solid rgba(238,241,246,.16);border-radius:7px;background:none;color:inherit;font:inherit;cursor:pointer">1f</button>
+    </div>
+    <div ref="{{ railNoteRef }}" style="line-height:1.5;color:rgba(238,241,246,.5);letter-spacing:0">1b · Centred, monitor eye-line · 1d · rise &amp; dissolve</div>
+    <button onClick="{{ onReplay }}" style="padding:8px 0;border:1px solid rgba(169,196,255,.35);border-radius:7px;background:rgba(169,196,255,.08);color:#cfdcff;font:inherit;cursor:pointer">Replay from top</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#f2a65a&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#f2a65a&quot;,&quot;#ffd8a8&quot;,&quot;#e2725b&quot;,&quot;#c9b8ff&quot;],&quot;section&quot;:&quot;Work screen&quot;},&quot;showDust&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Work screen&quot;},&quot;parallax&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0,&quot;max&quot;:2,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Work screen&quot;}}">
+class Component extends DCLogic {
+  N1 = 91; N2 = 46; MAX = 4.7;
+  mx = 0; my = 0; px = 0; py = 0;
+  V0 = 0.91; V1 = 1.60;   // space-travel video occupies this scroll span (3s of footage)
+  cur = 0; target = 0; auto = null; layout = 'B'; exit = 'dissolve'; trans = 'beam';
+  imgs1 = []; imgs2 = []; last1 = -1; last2 = -1; loaded = 0; lang = 0;
+  R = {};
+  ref(n){ this.R[n] = this.R[n] || React.createRef(); return this.R[n]; }
+  cl(v,a,b){ return Math.min(b, Math.max(a, v)); }
+  seg(v,a,b){ return this.cl((v-a)/(b-a),0,1); }
+
+  componentDidMount(){
+    const el = this.R.root.current;
+    this.ctx1 = this.R.c1.current.getContext('2d');
+    this.ctx2 = this.R.c2.current.getContext('2d');
+    const load = (src, arr, i, first) => { const im = new Image(); im.decoding='sync';
+      im.onload = ()=>{ this.loaded++; if(first){ this.last1=-1; } };
+      im.src = src; arr[i] = im; };
+    for(let i=0;i<this.N1;i++) load('frames/f'+String(i).padStart(3,'0')+'.jpg', this.imgs1, i, i===0);
+    for(let i=0;i<this.N2;i++) load('frames2/g'+String(i).padStart(3,'0')+'.jpg', this.imgs2, i, false);
+
+    this.onWheel = (e)=>{ e.preventDefault(); this.auto=null;
+      const d = e.deltaMode===1 ? e.deltaY*16 : e.deltaMode===2 ? e.deltaY*400 : e.deltaY;
+      this.target = this.cl(this.target + this.cl(Math.abs(d),0,160)*Math.sign(d)*0.00026, 0, this.MAX); };
+    this.onTouchStart = (e)=>{ this.ty = e.touches[0].clientY; this.auto=null; };
+    this.onTouchMove = (e)=>{ const y=e.touches[0].clientY; this.target=this.cl(this.target+(this.ty-y)*0.0009,0,this.MAX); this.ty=y; e.preventDefault(); };
+    this.onKey = (e)=>{ const k=e.key;
+      if(k==='ArrowDown'||k===' '||k==='PageDown'){ this.auto=null; this.target=this.cl(this.target+0.09,0,this.MAX); e.preventDefault(); }
+      if(k==='ArrowUp'||k==='PageUp'){ this.auto=null; this.target=this.cl(this.target-0.09,0,this.MAX); e.preventDefault(); }
+      if(k==='Escape') this.closeDetail(); };
+    this.onMove = (e)=>{ const r = el.getBoundingClientRect();
+      this.mx = ((e.clientX-r.left)/r.width - 0.5)*2; this.my = ((e.clientY-r.top)/r.height - 0.5)*2; };
+    el.addEventListener('mousemove', this.onMove, {passive:true});
+    el.addEventListener('wheel', this.onWheel, {passive:false});
+    el.addEventListener('touchstart', this.onTouchStart, {passive:true});
+    el.addEventListener('touchmove', this.onTouchMove, {passive:false});
+    window.addEventListener('keydown', this.onKey);
+    if(window.lottie){
+      this.anim = window.lottie.loadAnimation({ container:this.R.lottie.current, renderer:'svg', loop:false, autoplay:false,
+        path:'uploads/Triangle_tunnel_FIXED.json', rendererSettings:{ preserveAspectRatio:'xMidYMid slice', className:'om-lottie' } });
+      this.anim.addEventListener('DOMLoaded', ()=>{ this.animFrames = this.anim.totalFrames || 37;
+        const svg = this.R.lottie.current.querySelector('svg');
+        if(svg){ svg.style.width='100%'; svg.style.height='100%'; svg.style.display='block'; } });
+    }
+    const v = this.R.vid.current;
+    if(v){ v.muted = true; v.playsInline = true;
+      v.addEventListener('loadedmetadata', ()=>{ this.vdur = v.duration || 3; });
+      const p = v.play(); if(p && p.then) p.then(()=>v.pause()).catch(()=>{}); }
+    this.langTimer = setInterval(()=>{ if(this.cur > 0.06) return; this.lang = this.lang ? 0 : 1; this.applyLang(); }, 4200);
+    this.applyLayout(); this.markRail(); this.applyAccent();
+    this.tick = ()=>{ this.frame = requestAnimationFrame(this.tick); this.step(); };
+    this.kick = ()=>{ cancelAnimationFrame(this.frame); this.frame = requestAnimationFrame(this.tick); };
+    this.kick();
+    document.addEventListener('visibilitychange', this.kick);
+    window.addEventListener('focus', this.kick);
+    window.addEventListener('pageshow', this.kick);
+    this.heal = setInterval(()=>{ if(document.visibilityState==='visible' && performance.now()-(this.lastFrame||0) > 400) this.kick(); }, 700);
+  }
+  componentWillUnmount(){
+    cancelAnimationFrame(this.frame); clearInterval(this.heal); clearInterval(this.langTimer);
+    if(this.anim) this.anim.destroy();
+    document.removeEventListener('visibilitychange', this.kick);
+    window.removeEventListener('focus', this.kick);
+    window.removeEventListener('pageshow', this.kick);
+    const el = this.R.root.current;
+    if(el){ el.removeEventListener('mousemove', this.onMove); el.removeEventListener('wheel', this.onWheel); el.removeEventListener('touchstart', this.onTouchStart); el.removeEventListener('touchmove', this.onTouchMove); }
+    window.removeEventListener('keydown', this.onKey);
+  }
+
+  draw(ctx, imgs, idx, whichLast){
+    if(this[whichLast] === idx) return;
+    const im = imgs[idx];
+    if(!im || !im.complete || !im.naturalWidth) return;
+    ctx.drawImage(im, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    this[whichLast] = idx;
+  }
+
+  step(){
+    const now = performance.now();
+    this.lastFrame = now;
+    if(this.auto){ const t=this.cl((now-this.auto.t0)/this.auto.dur,0,1); const e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+      this.cur = this.auto.from + (this.auto.to-this.auto.from)*e; this.target=this.cur; if(t>=1) this.auto=null; }
+    else { this.cur += (this.target-this.cur)*0.085; }
+    const p = this.cur, S=(a,b)=>this.seg(p,a,b), set=(n,o)=>{ const el=this.R[n] && this.R[n].current; if(el) Object.assign(el.style,o); };
+
+    this.draw(this.ctx1, this.imgs1, Math.round(this.cl(p,0,1)*(this.N1-1)), 'last1');
+    if(p>3.55) this.draw(this.ctx2, this.imgs2, Math.round(S(3.62,4.42)*(this.N2-1)), 'last2');
+
+    // space travel — scrubbed frame-accurately across V0..V1
+    const vEl = this.R.vid.current, vp = S(this.V0, this.V1);
+    if(vEl){
+      const vis = this.cl(this.seg(p,this.V0-0.07,this.V0+0.01),0,1) * (1 - S(1.76,1.88));
+      set('vid',{opacity:String(vis), transform:`scale(${(1+vp*0.06).toFixed(4)})`});
+      if(vis>0.005 && vEl.readyState>=2 && !vEl.seeking){
+        const t = vp * ((this.vdur || vEl.duration || 3) - 0.05);
+        if(Math.abs(vEl.currentTime - t) > 0.02) vEl.currentTime = t;
+      }
+    }
+
+    // hero type exit
+    const te = S(0, 0.44);
+    for(let i=0;i<3;i++){
+      const t = this.cl((te - i*0.09)/0.66, 0, 1), n = 'l'+(i+1);
+      if(this.exit==='dissolve') set(n,{opacity:String(1-t), transform:`translate3d(0,${-t*110}px,0)`, filter:`blur(${t*16}px)`});
+      else if(this.exit==='push'){ set(n,{opacity:String(1-Math.pow(t,1.4)), transform:`translate3d(${-t*60}px,${-t*30}px,0) scale(${1+t*(2.4+i*0.5)})`, filter:`blur(${t*10}px)`}); }
+      else { const dir=[-1,0,1][i]; set(n,{opacity:String(1-this.cl(t*1.25,0,1)), transform:`translate3d(${dir*t*90}px,${dir*t*140}px,0) scale(${i===1?1+t*1.9:1}) rotate(${dir*t*2.5}deg)`, filter:`blur(${t*12}px)`}); }
+    }
+    const ct = S(0,0.16);
+    set('cta',{opacity:String(1-ct), transform:`translate3d(0,${ct*40}px,0)`, pointerEvents: ct>0.4?'none':'auto'});
+    set('hint',{opacity:String(1-S(0,0.12))});
+    set('nav',{opacity:String(1-S(0,0.3))});
+
+    // tunnel travel — starts only once the fly-in has landed on the last frame
+    const tt = S(1.37, 1.80);                  // beam fires 2s into the 3s space-travel clip
+    const tunnelOut = 1 - S(1.74, 1.86);
+    const dim = S(0.86, 0.98);                 // room dims as the travel clip takes over
+    const beamMode = this.trans === 'beam';
+    const T = this.cl(tt,0,1);
+    set('c1',{transform:`scale(${1+dim*0.32})`, filter:`blur(${dim*18}px) brightness(${1-dim})`});
+    const scrimOp = '0';                       // beam rides ON the travel clip, never blacks it out
+
+    if(beamMode){
+      set('tunnel',{opacity:'0'});
+      const g1 = this.cl(T/0.30,0,1);                       // slit opens vertically
+      const g2 = this.cl((T-0.26)/0.50,0,1);                // beam widens
+      const g3 = this.cl((T-0.70)/0.30,0,1);                // whiteout
+      set('beam',{opacity:String(this.cl(tt/0.04,0,1) * tunnelOut)});
+      set('beamScrim',{opacity:scrimOp});
+      set('beamBar',{height:(4+Math.pow(g1,0.7)*126)+'vh', width:(3+g2*g2*210)+'vh',
+        filter:`blur(${(1.5+g2*26).toFixed(1)}px)`, opacity:String(0.35+g1*0.65)});
+      set('beamStreaks',{opacity:String(this.cl((T-0.10)/0.18,0,1) * (1-this.cl((T-0.80)/0.20,0,1)) * 0.9),
+        transform:`translateY(-50%) scaleX(${(0.15+g2*3.4).toFixed(3)}) scaleY(${(1+g2*0.6).toFixed(3)})`});
+      set('beamFlash',{opacity:String(Math.pow(g3,1.2) * (1 - S(1.84,1.96)))});
+    } else {
+      set('beam',{opacity:'0'});
+      set('tunnel',{opacity:String(this.cl(tt/0.05,0,1) * tunnelOut)});
+      set('scrim',{opacity:scrimOp});
+      if(this.anim && this.animFrames) this.anim.goToAndStop(T*(this.animFrames-1), true);
+      set('lottie',{transform:`scale(${(1.55 + T*2.6).toFixed(3)})`});
+      set('core',{opacity:String(Math.pow(this.cl((T-0.62)/0.38,0,1),1.6) * tunnelOut * 0.85), transform:`scale(${0.12+T*1.5})`});
+    }
+
+    // ── Mars: arrival → camera push → bento reveal → dwell → exit
+    const wt = S(1.70, 1.86) * (1 - S(3.62, 3.74));
+    const wp = S(1.72, 2.02);
+    set('work',{opacity:String(this.cl(wt*1.6,0,1)),
+      filter:'brightness('+(1+(1-wp)*2.2).toFixed(3)+') saturate('+(0.4+wp*0.6).toFixed(3)+') blur('+((1-wp)*5).toFixed(2)+'px)',
+      transform:'scale('+(1.07-wp*0.07).toFixed(4)+')'});
+
+    const a0 = S(1.98, 2.58), a = a0*a0*(3-2*a0);      // camera push toward the panel
+    const dr = S(2.50, 3.50);                           // slow dwell drift
+    const x0 = S(3.40, 3.66), x = x0*x0*(3-2*x0);       // exit
+    const depth = (this.props.parallax == null ? 1 : this.props.parallax);
+    this.px += ((this.mx||0) - this.px)*0.055; this.py += ((this.my||0) - this.py)*0.055;
+    const gate = a*(1-x)*depth, pX = this.px*gate, pY = this.py*gate;
+
+    set('side',{transform:'translate3d('+(pX*2.6).toFixed(2)+'vh,'+(a*56 + dr*1.5).toFixed(2)+'vh,0) scale('+(1+a*0.58).toFixed(4)+')', opacity:(1-a*0.98).toFixed(3)});
+    set('bed',{opacity:this.cl(a*1.5,0,1).toFixed(3), transform:'translate3d('+(pX*1.5).toFixed(2)+'vh,'+((1-a)*24 - dr*2.4 + pY*0.7).toFixed(2)+'vh,0) scale('+(1.14-a*0.12+dr*0.04).toFixed(4)+')'});
+    set('ridge',{opacity:(a*0.55).toFixed(3), transform:'translate3d('+(pX*0.9).toFixed(2)+'vh,'+((1-a)*8 - dr*1.0).toFixed(2)+'vh,0)'});
+    set('stars',{transform:'translate3d('+(pX*0.5).toFixed(2)+'vh,'+(-a*7 - dr*1.3 + pY*0.4).toFixed(2)+'vh,0) scale('+(1+a*0.05).toFixed(4)+')'});
+    set('haze',{opacity:(0.28+a*0.5).toFixed(3)});
+
+    set('cardWrap',{transform:'translate3d(0,'+(-x*24).toFixed(2)+'vh,0)', opacity:(1-x).toFixed(3), pointerEvents:(a>0.9 && x<0.06) ? 'auto' : 'none'});
+    set('marsTitle',{opacity:(this.cl(S(1.90,2.10),0,1)*(1-x)).toFixed(3), transform:'translate3d('+((1-a)*4).toFixed(2)+'vw,'+((1-a)*26).toFixed(2)+'vh,0) scale('+(1+(1-a)*0.52).toFixed(3)+')'});
+    set('titleMeta',{opacity:(S(2.50,2.72)*(1-x)).toFixed(3)});
+    set('marsCard',{opacity:this.cl(a*1.6,0,1).toFixed(3),
+      transform:'perspective(1800px) translate3d('+(pX*0.5).toFixed(2)+'vh,'+((1-a)*5 + x*5 + pY*0.3).toFixed(2)+'vh,0) rotateX('+((1-a)*9 - pY*0.9).toFixed(2)+'deg) rotateY('+(pX*1.1).toFixed(2)+'deg) scale('+(0.94+a*0.06).toFixed(4)+')'});
+    const fo = S(2.86,3.08);
+    set('footer',{opacity:(fo*(1-x)).toFixed(3), transform:'translate3d(0,'+((1-fo)*2.5).toFixed(2)+'vh,0)'});
+
+    // tiles assemble out of depth, each on its own z-plane, then parallax individually
+    const grid = this.R.grid && this.R.grid.current, cs = S(2.32, 3.04);
+    if(grid){ for(let i=0;i<grid.children.length;i++){
+        const node = grid.children[i], z = parseFloat(node.getAttribute('data-z')||'.5');
+        const t = this.cl((cs - i*0.05)/0.52,0,1), ee = t*t*(3-2*t), st = node.style;
+        const dx = pX*(7 + z*26), dy = pY*(4 + z*13);
+        st.opacity = ee.toFixed(3);
+        st.transform = 'translate3d('+(dx + (1-ee)*(z-0.5)*90).toFixed(1)+'px,'+(dy + (1-ee)*(70+z*90)).toFixed(1)+'px,'+(-(1-ee)*(420+z*420)).toFixed(0)+'px) rotateX('+((1-ee)*13).toFixed(2)+'deg)';
+        st.filter = ee > 0.995 ? 'none' : 'blur('+((1-ee)*8).toFixed(2)+'px)';
+      } }
+    if(x > 0.15 || a < 0.6) this.closeDetail();
+
+    set('c2',{opacity: p>3.60?'1':'0'});
+    set('connect',{opacity:String(S(4.34,4.58)), pointerEvents: p>4.5?'auto':'none'});
+    set('bar',{width:(p/this.MAX*100).toFixed(2)+'%'});
+
+    const stage = this.loaded<12 ? 'loading' : p<0.91?'fly-in':p<1.37?'space travel':p<1.62?'beam':p<3.6?'mars · work':p<4.3?'pulling out':'connect';
+    const sEl = this.R.stage.current; if(sEl && sEl.textContent!==stage) sEl.textContent = stage;
+  }
+
+  applyAccent(){
+    const c = this.props.accent || '#f2a65a', root = this.R.work && this.R.work.current;
+    if(!root) return;
+    root.querySelectorAll('[data-accent="c"]').forEach(n=>{ n.style.color = c; });
+    root.querySelectorAll('[data-accent="d"]').forEach(n=>{ n.style.background = c; n.style.boxShadow = '0 0 14px ' + c; });
+    const d = this.R.dust && this.R.dust.current;
+    if(d) d.style.display = (this.props.showDust === false) ? 'none' : 'block';
+  }
+  componentDidUpdate(){ this.applyAccent(); }
+  openDetail(el){
+    const d = this.R.detail && this.R.detail.current; if(!d) return;
+    const put = (k,attr)=>{ const n = this.R[k] && this.R[k].current; if(n) n.textContent = el.getAttribute(attr) || ''; };
+    put('dLabel','data-label'); put('dTitle','data-title'); put('dDesc','data-desc'); put('dTags','data-tags');
+    Object.assign(d.style,{opacity:'1', pointerEvents:'auto', transform:'translateY(0)'});
+    this.detailOpen = true;
+  }
+  closeDetail(){
+    if(!this.detailOpen) return;
+    const d = this.R.detail && this.R.detail.current;
+    if(d) Object.assign(d.style,{opacity:'0', pointerEvents:'none', transform:'translateY(26px)'});
+    this.detailOpen = false;
+  }
+  applyLang(){
+    const hi = this.lang === 1;
+    const show = {opacity:'1', transform:'translateY(0)', filter:'blur(0px)'};
+    const hideUp = {opacity:'0', transform:'translateY(-12px)', filter:'blur(7px)'};
+    const hideDown = {opacity:'0', transform:'translateY(14px)', filter:'blur(9px)'};
+    const s=(n,o)=>{ const el=this.R[n] && this.R[n].current; if(el) Object.assign(el.style,o); };
+    s('name', hi ? hideUp : show);
+    s('hiName', hi ? {opacity:'1', transform:'translateY(11%)', filter:'blur(0px)'} : hideDown);
+    s('enEyebrow', hi ? hideUp : show); s('hiEyebrow', hi ? show : hideDown);
+  }
+  applyLayout(){
+    const L = {
+      A:{ box:{justifyContent:'flex-end',alignItems:'flex-start',textAlign:'left',padding:'0 0 12vh 7vw'}, name:'clamp(76px,11.5vw,196px)', note:'1a · Bottom-left editorial' },
+      B:{ box:{justifyContent:'center',alignItems:'center',textAlign:'center',padding:'0 8vw'}, name:'clamp(70px,10vw,172px)', note:'1b · Centred, monitor eye-line' },
+      C:{ box:{justifyContent:'flex-end',alignItems:'flex-end',textAlign:'right',padding:'0 6vw 14vh 0'}, name:'clamp(88px,14vw,250px)', note:'1c · Oversized right-aligned' }
+    }[this.layout];
+    const box = this.R.text.current, name = this.R.name.current;
+    if(box) Object.assign(box.style, L.box);
+    if(name) name.style.fontSize = L.name;
+    const align = {A:['flex-start','left'],B:['center','center'],C:['flex-end','right']}[this.layout];
+    const hn = this.R.hiName && this.R.hiName.current; if(hn) hn.style.justifyContent = align[0];
+    const he = this.R.hiEyebrow && this.R.hiEyebrow.current; if(he) he.style.textAlign = align[1];
+    const n = this.R.railNote.current;
+    if(n) n.textContent = L.note + '  ·  ' + {dissolve:'1d · rise & dissolve',push:'1e · push through camera',peel:'1f · peel by depth'}[this.exit] + '  ·  ' + {tunnel:'2a · lottie tunnel',beam:'2b · light beam'}[this.trans];
+  }
+  markRail(){
+    const map={A:'b1a',B:'b1b',C:'b1c'}, emap={dissolve:'b1d',push:'b1e',peel:'b1f'}, tmap={tunnel:'b2a',beam:'b2b'};
+    ['b1a','b1b','b1c','b1d','b1e','b1f','b2a','b2b'].forEach(k=>{ const el=this.R[k] && this.R[k].current; if(el){ el.style.background='none'; el.style.borderColor='rgba(238,241,246,.16)'; el.style.color='rgba(238,241,246,.75)'; }});
+    [map[this.layout], emap[this.exit], tmap[this.trans]].forEach(k=>{ const el=this.R[k] && this.R[k].current; if(el){ el.style.background='#a9c4ff'; el.style.borderColor='#a9c4ff'; el.style.color='#05070d'; }});
+  }
+  pick(kind,val){ if(kind==='layout') this.layout=val; else if(kind==='trans') this.trans=val; else this.exit=val; this.auto={t0:performance.now(),dur:600,from:this.cur,to:0}; this.applyLayout(); this.markRail(); }
+
+  renderVals(){
+    return {
+      rootRef:this.ref('root'), c1Ref:this.ref('c1'), c2Ref:this.ref('c2'), navRef:this.ref('nav'),
+      textRef:this.ref('text'), l1Ref:this.ref('l1'), l2Ref:this.ref('l2'), l3Ref:this.ref('l3'),
+      nameRef:this.ref('name'), ctaRef:this.ref('cta'), hintRef:this.ref('hint'),
+      tunnelRef:this.ref('tunnel'), lottieRef:this.ref('lottie'), coreRef:this.ref('core'),
+      enEyebrowRef:this.ref('enEyebrow'), hiEyebrowRef:this.ref('hiEyebrow'), hiNameRef:this.ref('hiName'),
+      workRef:this.ref('work'), connectRef:this.ref('connect'), vidRef:this.ref('vid'),
+      starsRef:this.ref('stars'), sunRef:this.ref('sun'), bedRef:this.ref('bed'), sideRef:this.ref('side'),
+      ridgeRef:this.ref('ridge'), dustRef:this.ref('dust'), gridRef:this.ref('grid'), footerRef:this.ref('footer'),
+      titleMetaRef:this.ref('titleMeta'), detailRef:this.ref('detail'),
+      dLabelRef:this.ref('dLabel'), dTitleRef:this.ref('dTitle'), dDescRef:this.ref('dDesc'), dTagsRef:this.ref('dTags'),
+      onGridClick:(e)=>{ if(e.target.closest('image-slot')) return;
+        const t = e.target.closest('[data-key]'); if(t) this.openDetail(t); },
+      onDetailClose:()=>this.closeDetail(),
+      cardWrapRef:this.ref('cardWrap'), marsCardRef:this.ref('marsCard'), marsTitleRef:this.ref('marsTitle'), hazeRef:this.ref('haze'),
+      barRef:this.ref('bar'), railNoteRef:this.ref('railNote'), stageRef:this.ref('stage'), railBodyRef:this.ref('railBody'),
+      onRailIn:()=>{ const b=this.R.railBody.current; if(b) b.style.display='flex'; },
+      onRailOut:()=>{ const b=this.R.railBody.current; if(b) b.style.display='none'; },
+      b1aRef:this.ref('b1a'), b1bRef:this.ref('b1b'), b1cRef:this.ref('b1c'),
+      b1dRef:this.ref('b1d'), b1eRef:this.ref('b1e'), b1fRef:this.ref('b1f'),
+      b2aRef:this.ref('b2a'), b2bRef:this.ref('b2b'),
+      beamRef:this.ref('beam'), beamScrimRef:this.ref('beamScrim'), beamBarRef:this.ref('beamBar'),
+      beamStreaksRef:this.ref('beamStreaks'), beamFlashRef:this.ref('beamFlash'),
+      onT1:()=>this.pick('trans','tunnel'), onT2:()=>this.pick('trans','beam'),
+      onCta:()=>{ this.auto={t0:performance.now(),dur:4600,from:this.cur,to:2.66}; },
+      onReplay:()=>{ this.auto={t0:performance.now(),dur:900,from:this.cur,to:0}; },
+      onL1:()=>this.pick('layout','A'), onL2:()=>this.pick('layout','B'), onL3:()=>this.pick('layout','C'),
+      onE1:()=>this.pick('exit','dissolve'), onE2:()=>this.pick('exit','push'), onE3:()=>this.pick('exit','peel')
+    };
+  }
+}
+</script>
+</body>
+</html>
