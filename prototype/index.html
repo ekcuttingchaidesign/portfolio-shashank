@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scroll-scrub prototype — Shashank portfolio</title>
+
+<!-- Devanagari + Latin. Swap for the real typeface once it's picked in Figma. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #f2f0ec;
+    --dim: #8b8781;
+    --bg: #000;
+    --accent: #ff5c2b;
+    --nav-h: 56px;
+
+    /* One place to change the type. Devanagari fallbacks cover
+       Windows (Nirmala UI) and macOS (Kohinoor) if webfonts fail. */
+    --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-deva: "Noto Sans Devanagari", "Nirmala UI", "Kohinoor Devanagari",
+                 "Devanagari Sangam MN", var(--font);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- film layer ---------- */
+  .film { position: fixed; inset: 0; z-index: 0; background: #000; overflow: hidden; }
+  .film video {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0; will-change: opacity;
+  }
+  .film video.live { opacity: 1; }
+
+  .track { position: relative; z-index: 1; }
+
+  #s-enter { height: 120vh; }
+  #s-exit  { height: 170vh; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: sticky; top: 0;
+    height: 100vh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 6vw 10vh;
+    gap: .4rem;
+    pointer-events: none;           /* film stays scrollable... */
+    will-change: opacity, transform;
+  }
+  .hero > * { pointer-events: auto; }   /* ...but the CTA is clickable */
+
+  /* Fixed-height swap boxes — Devanagari is taller than Latin, so
+     without this the layout jumps every time the language flips. */
+  .swap {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+  .swap > span {
+    position: absolute;
+    left: 0; bottom: 0;
+    display: block;
+    opacity: 0;
+    transform: translateY(.22em);
+    transition: opacity .5s ease, transform .5s cubic-bezier(.22,1,.36,1);
+    white-space: nowrap;
+  }
+  .swap > span.on { opacity: 1; transform: none; }
+  .swap [lang="hi"] { font-family: var(--font-deva); }
+
+  .greet { height: 1.5em; font-size: clamp(1rem, 2.2vw, 1.4rem); color: var(--dim); }
+  .greet > span { line-height: 1.5; }
+
+  .name  { height: 1.15em; font-size: clamp(2.4rem, 7.5vw, 5.5rem); font-weight: 700; letter-spacing: -.03em; }
+  .name > span { line-height: 1.15; text-shadow: 0 2px 40px rgba(0,0,0,.55); }
+  /* Devanagari needs a touch more room above for the shirorekha */
+  .name [lang="hi"] { font-size: .88em; letter-spacing: 0; }
+
+  .role {
+    font-size: clamp(.9rem, 1.6vw, 1.05rem);
+    color: var(--dim);
+    margin: .6rem 0 1.6rem;
+    letter-spacing: .01em;
+  }
+
+  .cta {
+    align-self: flex-start;
+    display: inline-flex; align-items: center; gap: .6rem;
+    font: inherit; font-size: .95rem; font-weight: 600;
+    color: #14100e;
+    background: var(--ink);
+    border: 0; border-radius: 100px;
+    padding: .85rem 1.5rem;
+    cursor: pointer;
+    transition: background .25s ease, transform .25s ease;
+  }
+  .cta:hover, .cta:focus-visible { background: var(--accent); color: #fff; transform: translateY(-2px); }
+  .cta[disabled] { opacity: .45; cursor: default; transform: none; }
+  .cta .arrow { transition: transform .25s ease; }
+  .cta:hover .arrow { transform: translateX(4px); }
+
+  .hint {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--dim); margin: 1.4rem 0 0;
+  }
+
+  /* ---------- content ---------- */
+  .panel {
+    min-height: 100vh; background: #0a0a0a;
+    padding: calc(var(--nav-h) + 6vh) 6vw 8vh;
+    display: flex; flex-direction: column; justify-content: center; gap: 1.5rem;
+  }
+  .tag { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .7rem;
+         letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
+  h2 { font-size: clamp(1.8rem, 5vw, 3rem); margin: 0; letter-spacing: -.02em; }
+  .note { color: var(--dim); max-width: 46ch; line-height: 1.6; margin: 0; font-size: .95rem; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 1rem; margin-top: 1rem; }
+  .card { aspect-ratio: 4/3; border: 1px dashed #3a3a3a; border-radius: 4px;
+          display: grid; place-items: center; color: #55514c; font-size: .8rem;
+          font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .rail { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 1rem; scroll-snap-type: x mandatory; }
+  .rail .card { min-width: 260px; scroll-snap-align: start; aspect-ratio: 3/4; }
+
+  #s-connect { min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+               padding: 0 6vw; gap: 1.25rem; background: transparent; }
+
+  /* ---------- nav ---------- */
+  nav { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 10;
+        display: flex; align-items: center; gap: .25rem; padding: 0 6vw;
+        backdrop-filter: blur(12px); background: rgba(0,0,0,.35);
+        border-bottom: 1px solid rgba(255,255,255,.08); }
+  nav .brand { font-weight: 700; letter-spacing: -.02em; margin-right: auto; font-size: .95rem; }
+  nav button { background: none; border: 0; color: var(--dim); font: inherit; font-size: .82rem;
+               padding: .5rem .7rem; cursor: pointer; border-radius: 4px; }
+  nav button:hover, nav button:focus-visible { color: var(--ink); }
+  nav button[aria-current="true"] { color: var(--ink); }
+  nav button[aria-current="true"]::before { content: "● "; color: var(--accent); font-size: .6em; vertical-align: middle; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .hud { position: fixed; right: 10px; bottom: 10px; z-index: 20;
+         font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 10px; line-height: 1.5;
+         color: #7cf; background: rgba(0,0,0,.7); border: 1px solid #234; border-radius: 3px;
+         padding: 6px 8px; white-space: pre; pointer-events: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #s-enter, #s-exit { height: 100vh; }
+    .film video { opacity: 0 !important; }
+    .film { background: #0a0a0a; }
+    .swap > span { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">Shashank</span>
+  <button data-goto="s-work">Work</button>
+  <button data-goto="s-experience">Experience</button>
+  <button data-goto="s-connect">Let's connect</button>
+</nav>
+
+<div class="film" aria-hidden="true">
+  <video id="v-enter" src="../public/video/into-the-screen.mp4"   muted playsinline preload="auto"></video>
+  <video id="v-exit"  src="../public/video/out-of-the-screen.mp4" muted playsinline preload="auto"></video>
+</div>
+
+<div class="track">
+
+  <section id="s-enter" class="scrub">
+    <div class="hero" id="hero">
+      <!-- Screen readers get one clean sentence; the flipping copy is decorative. -->
+      <h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">
+        Hey there, I am Shashank — Product Designer
+      </h1>
+
+      <span class="swap greet" aria-hidden="true">
+        <span lang="en" class="on">Hey there,</span>
+        <span lang="hi">नमस्ते,</span>
+      </span>
+
+      <span class="swap name" aria-hidden="true">
+        <span lang="en" class="on">I am Shashank</span>
+        <span lang="hi">मैं शशांक हूँ</span>
+      </span>
+
+      <p class="role" id="role">Product Designer</p>
+
+      <button class="cta" id="cta">
+        <span id="cta-label">Step inside</span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
+
+      <p class="hint">or scroll ↓</p>
+    </div>
+  </section>
+
+  <section id="s-work" class="panel">
+    <span class="tag">01 / Work</span>
+    <h2>Selected case studies</h2>
+    <p class="note">Placeholder. Proposed treatment: vertical depth — scroll keeps pushing forward
+    along the axis the entry established.</p>
+    <div class="cards">
+      <div class="card">case study 01</div><div class="card">case study 02</div>
+      <div class="card">case study 03</div><div class="card">case study 04</div>
+    </div>
+  </section>
+
+  <section id="s-experience" class="panel">
+    <span class="tag">02 / Experience</span>
+    <h2>Where I've worked</h2>
+    <p class="note">Placeholder. Proposed treatment: horizontal rail — the axis flip signals the
+    section change with no chrome.</p>
+    <div class="rail">
+      <div class="card">role 01</div><div class="card">role 02</div><div class="card">role 03</div>
+      <div class="card">role 04</div><div class="card">role 05</div>
+    </div>
+  </section>
+
+  <section id="s-exit" class="scrub"></section>
+
+  <section id="s-connect">
+    <span class="tag">03 / Let's connect</span>
+    <h2>Say hello.</h2>
+    <p class="note">Fades up during the table rotation, not after it.</p>
+  </section>
+
+</div>
+
+<div class="hud" id="hud"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ==========================================================
+     EDIT THESE — I can't see your Figma, so these are guesses.
+     ========================================================== */
+  const COPY = {
+    role:  'Product Designer',
+    cta:   'Step inside',
+    greet: { en: 'Hey there,',    hi: 'नमस्ते,' },
+    name:  { en: 'I am Shashank', hi: 'मैं शशांक हूँ' }
+  };
+
+  const SWAP_INTERVAL = 3200;   // ms each language holds
+  const SWAP_STAGGER  = 140;    // ms the name lags the greeting
+  const ROTATION_START = 0.45;  // where the table rotation starts in the out-video
+  const JUMP_MS = 900;          // nav jump duration
+  /* ========================================================== */
+
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const enter  = document.getElementById('v-enter');
+  const exitV  = document.getElementById('v-exit');
+  const hud    = document.getElementById('hud');
+  const sEnter = document.getElementById('s-enter');
+  const sExit  = document.getElementById('s-exit');
+  const connect= document.getElementById('s-connect');
+  const hero   = document.getElementById('hero');
+  const cta    = document.getElementById('cta');
+
+  // apply editable copy
+  document.getElementById('role').textContent = COPY.role;
+  document.getElementById('cta-label').textContent = COPY.cta;
+  const greetBox = document.querySelector('.greet');
+  const nameBox  = document.querySelector('.name');
+  greetBox.querySelector('[lang=en]').textContent = COPY.greet.en;
+  greetBox.querySelector('[lang=hi]').textContent = COPY.greet.hi;
+  nameBox.querySelector('[lang=en]').textContent  = COPY.name.en;
+  nameBox.querySelector('[lang=hi]').textContent  = COPY.name.hi;
+
+  /* ---------- bilingual alternation ---------- */
+  // Pauses while off-screen and during entry — no point animating
+  // something nobody can see.
+  let lang = 'en', swapTimer = null;
+
+  function showLang(box, which) {
+    box.querySelectorAll('span').forEach(s =>
+      s.classList.toggle('on', s.getAttribute('lang') === which));
+  }
+  function flip() {
+    lang = lang === 'en' ? 'hi' : 'en';
+    showLang(greetBox, lang);
+    setTimeout(() => showLang(nameBox, lang), SWAP_STAGGER);
+  }
+  function startSwap() {
+    if (reduced || swapTimer) return;
+    swapTimer = setInterval(flip, SWAP_INTERVAL);
+  }
+  function stopSwap() {
+    clearInterval(swapTimer);
+    swapTimer = null;
+  }
+  startSwap();
+
+  /* ---------- scrub engine ---------- */
+  const SEEK_EPSILON = 1 / 60;
+  function makeScrubber(video) {
+    let target = 0, applied = -1, pending = false;
+    function apply() {
+      pending = false;
+      if (!video.duration || !isFinite(video.duration)) return;
+      const t = Math.min(Math.max(target, 0), video.duration - 0.001);
+      if (Math.abs(t - applied) < SEEK_EPSILON) return;
+      applied = t;
+      try { video.currentTime = t; } catch (e) {}
+    }
+    return {
+      set(p) {
+        if (!video.duration || !isFinite(video.duration)) return;
+        target = p * video.duration;
+        if (!pending) { pending = true; requestAnimationFrame(apply); }
+      },
+      get time() { return applied; }
+    };
+  }
+  const scrubEnter = makeScrubber(enter);
+  const scrubExit  = makeScrubber(exitV);
+
+  function progressOf(el) {
+    const r = el.getBoundingClientRect();
+    const travel = r.height - innerHeight;
+    if (travel <= 0) return r.top <= 0 ? 1 : 0;
+    return Math.min(Math.max(-r.top / travel, 0), 1);
+  }
+
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { ticking = false; update(); });
+  };
+
+  function update() {
+    const pEnter = progressOf(sEnter);
+    const pExit  = progressOf(sExit);
+    const exitVisible = sExit.getBoundingClientRect().top < innerHeight;
+
+    if (!reduced) {
+      if (exitVisible) {
+        exitV.classList.add('live'); enter.classList.remove('live');
+        scrubExit.set(pExit);
+      } else {
+        enter.classList.add('live'); exitV.classList.remove('live');
+        scrubEnter.set(pEnter);
+      }
+    }
+
+    // Hero clears out early so the copy isn't riding the whole dive.
+    const heroOut = Math.min(pEnter / 0.35, 1);
+    hero.style.opacity = (1 - heroOut).toFixed(3);
+    hero.style.transform = `translateY(${(-heroOut * 40).toFixed(1)}px)`;
+    if (heroOut > 0.9) { stopSwap(); cta.disabled = true; }
+    else { startSwap(); cta.disabled = false; }
+
+    const rot = pExit <= ROTATION_START ? 0 : (pExit - ROTATION_START) / (1 - ROTATION_START);
+    connect.style.opacity = reduced ? 1 : Math.min(rot * 1.6, 1).toFixed(3);
+
+    updateNav();
+    hud.textContent =
+      `enter ${pEnter.toFixed(2)}  t=${scrubEnter.time.toFixed(2)}s\n` +
+      `exit  ${pExit.toFixed(2)}  t=${scrubExit.time.toFixed(2)}s\n` +
+      `rotate ${rot.toFixed(2)}   ${exitVisible ? '[out]' : '[in]'}  lang=${lang}`;
+  }
+
+  /* ---------- scroll animation (shared by CTA + nav) ---------- */
+  // Animating scrollY *is* playback: the scrub follows scroll, so a
+  // linear scroll across the entry region renders the clip at exactly
+  // 1x. One mechanism instead of a separate "play" path that could
+  // drift out of sync with the page.
+  let animating = false;
+  function animateScrollTo(to, ms, easing) {
+    const from = scrollY, delta = to - from, t0 = performance.now();
+    animating = true;
+    const cancel = () => { animating = false; };
+    ['wheel', 'touchstart', 'keydown'].forEach(e =>
+      addEventListener(e, cancel, { once: true, passive: true }));
+    (function step(now) {
+      if (!animating) return;
+      const k = Math.min((now - t0) / ms, 1);
+      scrollTo(0, from + delta * easing(k));
+      if (k < 1) requestAnimationFrame(step);
+      else animating = false;
+    })(performance.now());
+  }
+  const linear   = t => t;
+  const easeInOut= t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+
+  cta.addEventListener('click', () => {
+    prime();
+    const end = scrollY + sEnter.getBoundingClientRect().top
+              + (sEnter.offsetHeight - innerHeight);
+    const dur = (enter.duration && isFinite(enter.duration) ? enter.duration : 3) * 1000;
+    if (reduced) { scrollTo(0, end); return; }
+    animateScrollTo(end, dur, linear);   // linear = true 1x playback
+  });
+
+  /* ---------- nav ---------- */
+  const sections = ['s-work', 's-experience', 's-connect'];
+  const buttons = [...document.querySelectorAll('nav button')];
+  function updateNav() {
+    let current = null;
+    for (const id of sections) {
+      if (document.getElementById(id).getBoundingClientRect().top <= innerHeight * .5) current = id;
+    }
+    buttons.forEach(b => b.setAttribute('aria-current', String(b.dataset.goto === current)));
+  }
+  buttons.forEach(b => b.addEventListener('click', () => {
+    prime();
+    const to = scrollY + document.getElementById(b.dataset.goto).getBoundingClientRect().top;
+    if (reduced) { scrollTo(0, to); return; }
+    animateScrollTo(to, JUMP_MS, easeInOut);
+  }));
+
+  /* ---------- boot ---------- */
+  let primed = false;
+  function prime() {
+    if (primed) return;
+    primed = true;
+    [enter, exitV].forEach(v => {
+      const p = v.play();
+      if (p && p.then) p.then(() => v.pause()).catch(() => {});
+      else v.pause();
+    });
+  }
+  ['touchstart', 'pointerdown', 'keydown', 'wheel'].forEach(e =>
+    addEventListener(e, prime, { once: true, passive: true }));
+
+  let ready = 0;
+  [enter, exitV].forEach(v =>
+    v.addEventListener('loadedmetadata', () => { if (++ready === 2) update(); }));
+
+  addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', onScroll, { passive: true });
+  document.addEventListener('visibilitychange', () =>
+    document.hidden ? stopSwap() : startSwap());
+  update();
+})();
+</script>
+</body>
+</html>
