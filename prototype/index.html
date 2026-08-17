@@ -265,6 +265,43 @@
   }
   @keyframes caret { 0%, 50% { opacity: 1 } 50.01%, 100% { opacity: 0 } }
 
+  /* ---------- scroll cue ----------
+     Deliberately NOT inside .stage. The terminal hint is printed on the monitor and
+     rides the glass with everything else; this one belongs to the room, so it stays
+     anchored to the viewport's bottom-centre where a scroll cue is expected to be —
+     and it stays there whatever the window aspect does to the film's cover rect.
+
+     A mouse outline with its wheel rolling: down, back to centre, up, back to centre.
+     The wheel starts at the body's midpoint rather than the top so it has equal room
+     to travel both ways — which is the point, since the entry now takes either
+     direction. The body stays still and dim; only the wheel moves. */
+  .scroll-cue {
+    position: absolute;
+    left: 50%; bottom: clamp(20px, 4.5vh, 44px);
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    gap: 10px;
+    color: var(--hint);
+    pointer-events: none;
+    will-change: opacity;
+  }
+  .scroll-cue .label {
+    font-size: 10px; font-weight: 400; line-height: 1;
+    letter-spacing: .3em; text-transform: uppercase;
+    padding-left: .3em;   /* optical: the tracking leaves a trailing gap on the last letter */
+    opacity: .8;
+  }
+  /* 1:1 with the viewBox, so the keyframe translations below are real pixels. */
+  .scroll-cue .mouse { width: 24px; height: 38px; }
+  .scroll-cue .body  { opacity: .45; }
+  .scroll-cue .wheel { animation: cue-wheel 3s cubic-bezier(.45,0,.25,1) infinite; }
+  @keyframes cue-wheel {
+    0%, 100% { transform: translateY(0);      opacity: .35 }
+    22%      { transform: translateY(5.5px);  opacity: 1   }
+    50%      { transform: translateY(0);      opacity: .35 }
+    72%      { transform: translateY(-5.5px); opacity: 1   }
+  }
+
   /* ---------- content ---------- */
   .panel {
     min-height: 100vh; background: #0a0a0a;
@@ -299,6 +336,9 @@
     .film { background: #0a0a0a; }
     .swap > span { transition: none; }
     .hint .caret { animation: none; }   /* a blinking cursor is exactly what this setting means */
+    /* Cue stays — it's the only thing telling you the page moves — but the wheel
+       parks at centre instead of rolling. */
+    .scroll-cue .wheel { animation: none; opacity: .8; }
   }
 </style>
 </head>
@@ -349,6 +389,17 @@
           <span class="prompt" aria-hidden="true">&gt;</span>scroll to enter<span class="caret" aria-hidden="true"></span>
         </p>
        </div>
+      </div>
+
+      <!-- Room-level, so it's a sibling of .stage rather than a child. -->
+      <div class="scroll-cue" id="scroll-cue" aria-hidden="true">
+        <svg class="mouse" viewBox="0 0 24 38" fill="none">
+          <rect class="body" x=".8" y=".8" width="22.4" height="36.4" rx="11.2"
+                stroke="currentColor" stroke-width="1.4"/>
+          <rect class="wheel" x="10.75" y="15.5" width="2.5" height="7" rx="1.25"
+                fill="currentColor"/>
+        </svg>
+        <span class="label">Scroll</span>
       </div>
     </div>
   </section>
@@ -417,6 +468,14 @@
   // The click-to-dive plays this many times faster than 1x. 1.0 is the film's
   // true speed (what it was doing before, and what read as sluggish).
   const CTA_RATE = 1.6;
+
+  // Scrolling UP at the top of the page dives in too, so the hero has no dead
+  // direction. It can't scrub frame-by-frame the way scrolling down does — there is
+  // no scroll room above the hero to map the film onto — so an upward gesture fires
+  // the same animated dive the CTA runs. The threshold is what keeps a trackpad
+  // twitch or a rubber-band overscroll from launching it by accident.
+  const UP_ENTER_DELTA = 90;    // px of accumulated upward intent before the dive fires
+  const UP_ENTER_RESET = 400;   // ms of stillness that clears the accumulator
 
   // Hero exit timing, lifted from the Claude Design build (Landing.dc.html). Its
   // timeline runs 0-4.7 and the room fly-in occupies 0-1 — which is exactly what our
@@ -605,6 +664,7 @@
     cta:     cta
   };
   const hint = document.getElementById('hint');
+  const cue  = document.getElementById('scroll-cue');
 
   // Linear clamped ramp — the source's seg(). Deliberately not eased.
   function seg(p, a, b) { return Math.min(1, Math.max(0, (p - a) / (b - a))); }
@@ -627,8 +687,12 @@
       el.style.filter = t > .002 ? `blur(${(t * HERO_BLUR).toFixed(2)}px)` : '';
     });
 
-    // The hint goes first and fastest — the moment you scroll, it has done its job.
-    hint.style.opacity = reduced ? 1 : (1 - seg(p, 0, HINT_EXIT)).toFixed(3);
+    // Both prompts go first and fastest — the moment you scroll, they've done their
+    // job. Same ramp for both so they leave together rather than in a stagger nobody
+    // asked for.
+    const hintV = reduced ? '1' : (1 - seg(p, 0, HINT_EXIT)).toFixed(3);
+    hint.style.opacity = hintV;
+    cue.style.opacity  = hintV;
 
     // CTA runs on its own, much shorter window, and drops instead of lifting.
     const ct = seg(p, 0, CTA_EXIT);
@@ -722,18 +786,56 @@
   // 1x. One mechanism instead of a separate "play" path that could
   // drift out of sync with the page.
   let animating = false;
-  function animateScrollTo(to, ms, easing) {
+
+  /* A dive launched BY a scroll gesture is a special case. The flick that started it
+     is still throwing deltas at the page, and a passive listener can't stop them — so
+     native scroll and the animation fight frame for frame, which reads as the hero
+     fading out, snapping back and fading again. Cancel-on-input is no help either:
+     it's the launching gesture's own momentum that trips it.
+
+     So for those, lock native scrolling for the length of the dive. It's ~2s of motion
+     the user just asked for, and nothing else needs to move the page during it. The
+     timeout is a failsafe — rAF stops in a hidden tab, and the lock must not outlive
+     the animation if you switch away mid-dive. */
+  let scrollLocked = false;
+  // Keys only — blocking every keydown would swallow tabbing and shortcuts for 2s.
+  const SCROLL_KEYS = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' ']);
+  const blockScroll = e => {
+    if (!scrollLocked) return;
+    if (e.type === 'keydown' && !SCROLL_KEYS.has(e.key)) return;
+    e.preventDefault();
+  };
+  function lockScroll(on) {
+    if (on === scrollLocked) return;
+    scrollLocked = on;
+    const fn = on ? addEventListener : removeEventListener;
+    fn('wheel',     blockScroll, { passive: false });
+    fn('touchmove', blockScroll, { passive: false });
+    fn('keydown',   blockScroll, { passive: false });
+  }
+
+  function animateScrollTo(to, ms, easing, opts) {
+    const lock = !!(opts && opts.lock);
     const from = scrollY, delta = to - from, t0 = performance.now();
     animating = true;
-    const cancel = () => { animating = false; };
-    ['wheel', 'touchstart', 'keydown'].forEach(e =>
-      addEventListener(e, cancel, { once: true, passive: true }));
+
+    if (lock) {
+      lockScroll(true);
+      setTimeout(() => lockScroll(false), ms + 400);
+    } else {
+      // Unlocked dives stay interruptible, as the CTA's always has been.
+      const cancel = () => { animating = false; };
+      ['wheel', 'touchstart', 'keydown'].forEach(e =>
+        addEventListener(e, cancel, { once: true, passive: true }));
+    }
+
+    const stop = () => { animating = false; if (lock) lockScroll(false); };
     (function step(now) {
-      if (!animating) return;
+      if (!animating) { if (lock) lockScroll(false); return; }
       const k = Math.min((now - t0) / ms, 1);
       scrollTo(0, from + delta * easing(k));
       if (k < 1) requestAnimationFrame(step);
-      else animating = false;
+      else stop();
     })(performance.now());
   }
   const linear    = t => t;
@@ -747,9 +849,10 @@
     animateScrollTo(to, JUMP_MS, easeInOut);
   };
 
-  // "Check Work" plays the dive-in and lands you at the top of Work, which is
-  // exactly where the entry region ends.
-  cta.addEventListener('click', () => {
+  // Plays the dive-in and lands you at the top of Work, which is exactly where the
+  // entry region ends. Two ways in: the "Check Work" button, and an upward scroll at
+  // the top of the page.
+  function diveIn(opts) {
     prime();
     const end = scrollY + sEnter.getBoundingClientRect().top
               + (sEnter.offsetHeight - innerHeight);
@@ -759,7 +862,53 @@
     // the entry region renders the film at a constant rate. CTA_RATE is that rate.
     // Easing here would speed the film up and slow it down mid-dive, fighting the
     // pacing already baked into the render.
-    animateScrollTo(end, (secs / CTA_RATE) * 1000, linear);
+    animateScrollTo(end, (secs / CTA_RATE) * 1000, linear, opts);
+  }
+  cta.addEventListener('click', () => diveIn());
+
+  /* ---------- scroll up to enter ----------
+     Only fires from a standing start at the very top. Once you're into the entry
+     region, up means what it always meant: back out, scrubbing the film in reverse. */
+  let upAcc = 0, upAt = 0;
+
+  function atTop() {
+    return !animating && scrollY <= 1 && progressOf(sEnter) <= 0.001;
+  }
+  function upIntent(px) {
+    if (!atTop()) { upAcc = 0; return; }
+    const now = performance.now();
+    if (now - upAt > UP_ENTER_RESET) upAcc = 0;   // a new gesture, not a continuing one
+    upAt = now;
+    upAcc += px;
+    if (upAcc >= UP_ENTER_DELTA) { upAcc = 0; diveIn({ lock: true }); }
+  }
+
+  // deltaY isn't always pixels: a real mouse wheel often reports lines (deltaMode 1,
+  // ~3 per notch), which would need thirty notches to clear a 90px threshold. Convert
+  // to something px-ish first so trackpads and wheels need the same amount of intent.
+  const WHEEL_PX = [1, 40, innerHeight];   // indexed by deltaMode: pixel, line, page
+  addEventListener('wheel', e => {
+    if (e.deltaY < 0) upIntent(-e.deltaY * (WHEEL_PX[e.deltaMode] || 1));
+  }, { passive: true });
+
+  // Touch: a downward swipe is a request to scroll up.
+  let touchY = null;
+  addEventListener('touchstart', e => { touchY = e.touches[0].clientY; }, { passive: true });
+  addEventListener('touchmove', e => {
+    if (touchY === null) return;
+    const y = e.touches[0].clientY;
+    if (y > touchY) upIntent(y - touchY);
+    touchY = y;
+  }, { passive: true });
+  addEventListener('touchend', () => { touchY = null; upAcc = 0; }, { passive: true });
+
+  // Keyboard has no momentum to accumulate, so one press is the whole gesture. Locked
+  // like the others, otherwise a held ArrowUp's key-repeat cancels the dive it started.
+  addEventListener('keydown', e => {
+    if ((e.key === 'ArrowUp' || e.key === 'PageUp') && atTop()) {
+      e.preventDefault();
+      diveIn({ lock: true });
+    }
   });
 
   /* ---------- boot ---------- */
