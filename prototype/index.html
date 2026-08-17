@@ -5,24 +5,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Scroll-scrub prototype — Shashank portfolio</title>
 
-<!-- Devanagari + Latin. Swap for the real typeface once it's picked in Figma. -->
+<!-- Figma faces: Instrument Serif (name), Manrope (eyebrow + role), IBM Plex Sans (CTA).
+     Devanagari partners: Noto Serif Devanagari pairs with the serif name, Noto Sans
+     Devanagari with the Manrope lines. Instrument Serif has no Devanagari coverage,
+     so the Hindi name needs its own serif or it silently falls back to a system sans. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@500&family=Instrument+Serif&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@300;400&family=Noto+Sans+Devanagari:wght@400&family=Noto+Serif+Devanagari:wght@400&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --ink: #f2f0ec;
-    --dim: #8b8781;
+    /* Straight off the Figma frame */
+    --ink:     #ffffff;   /* Shashank */
+    --eyebrow: #cecece;   /* HEY THERE! I AM */
+    --role:    #aeaeae;   /* Product & Motion Designer */
+    --cta-bg:     rgba(255,255,255,.10);
+    --cta-border: #505050;
+    --hint:       rgba(242,240,236,.52);
     --bg: #000;
-    --accent: #ff5c2b;
-    --nav-h: 56px;
 
-    /* One place to change the type. Devanagari fallbacks cover
-       Windows (Nirmala UI) and macOS (Kohinoor) if webfonts fail. */
-    --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    --font-deva: "Noto Sans Devanagari", "Nirmala UI", "Kohinoor Devanagari",
-                 "Devanagari Sangam MN", var(--font);
+    /* The monitor glass, measured off frame 0 of into-the-screen.mp4. These are in the
+       screen's own FLAT coordinate space — the homography's source rect — not where
+       the edges land on screen after projection. Offsets from them are therefore real
+       distances "on the monitor", which is what you want when positioning against an
+       edge; measuring against the rendered edge instead loses part of the inset to the
+       perspective. The person's head rises into the screen from y ~505 flat, so the
+       clean band for anything unobstructed is roughly 210-505. */
+    --glass-top:    210px;
+    --glass-left:   484px;
+    --glass-clear:  505px;   /* where the head starts intruding */
+
+    /* Placeholder-panel greys. Nothing below the hero is designed yet, so these are
+       deliberately neutral — the old orange accent wasn't in the Figma. */
+    --dim:  #8b8781;
+    --tag:  #8a8a8a;
+
+    /* One dial for the whole hero. 1.0 = the Claude Design type scale as measured
+       against its own viewport. 0.83 is what makes the copy sit in the same
+       proportion to the monitor in OUR film, which frames the room wider than
+       theirs does — see the note on .hero-block. Every size and gap below derives
+       from this, so nudge here and the whole block stays in proportion. */
+    --hero-scale: 0.83;
+
+    --font-sans:  "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+    --font-cta:   "IBM Plex Sans", var(--font-sans);
+    --font-mono:  "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --font-deva-sans:  "Noto Sans Devanagari", "Nirmala UI", "Kohinoor Devanagari", var(--font-sans);
+    --font-deva-serif: "Noto Serif Devanagari", "Nirmala UI", "Kohinoor Devanagari", var(--font-serif);
   }
 
   * { box-sizing: border-box; }
@@ -30,7 +60,7 @@
     margin: 0;
     background: var(--bg);
     color: var(--ink);
-    font-family: var(--font);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 
@@ -46,86 +76,205 @@
 
   .track { position: relative; z-index: 1; }
 
-  #s-enter { height: 120vh; }
-  #s-exit  { height: 170vh; }
+  /* Scrub travel = height - 100vh, so these are (100vh + film length x SCRUB_VH_PER_SEC).
+     JS overwrites them from the real durations once metadata lands; these values are
+     the no-JS fallback, sized for the clips we currently ship (3.0s and 3.7s). */
+  #s-enter { height: 370vh; }
+  #s-exit  { height: 435vh; }
 
   /* ---------- hero ---------- */
   .hero {
     position: sticky; top: 0;
     height: 100vh;
-    display: flex; flex-direction: column; justify-content: flex-end;
-    padding: 0 6vw 10vh;
-    gap: .4rem;
-    pointer-events: none;           /* film stays scrollable... */
-    will-change: opacity, transform;
+    overflow: hidden;
+    pointer-events: none;            /* film stays scrollable... */
   }
-  .hero > * { pointer-events: auto; }   /* ...but the CTA is clickable */
+  .hero .cta { pointer-events: auto; }   /* ...but the CTA is clickable */
 
-  /* Fixed-height swap boxes — Devanagari is taller than Latin, so
-     without this the layout jumps every time the language flips. */
-  .swap {
-    position: relative;
-    display: block;
-    width: 100%;
+  /* The stage is a 1920x1080 canvas laid out in exact Figma pixels, then scaled and
+     offset by JS to sit precisely on top of the video's object-fit:cover rect. That
+     keeps the copy locked inside the monitor at any window aspect ratio, instead of
+     drifting off the screen the moment the window isn't 16:9. */
+  .stage {
+    position: absolute; top: 0; left: 0;
+    width: 1920px; height: 1080px;
+    transform-origin: 0 0;
   }
-  .swap > span {
+
+  /* The four lines that animate out on scroll. */
+  .eyebrow, .name, .role, .cta { will-change: opacity, transform, filter; }
+
+  /* Everything that should read as being ON the monitor lives in here. JS projects it
+     onto the glass quad with a matrix3d homography (see GLASS in the script), so the
+     copy leans with the screen instead of sitting flat on top of the frame. */
+  .screen { position: absolute; inset: 0; transform-origin: 0 0; }
+
+  /* Laid out in flow and centred as a block rather than pinned to the Figma's absolute
+     y-coordinates — those were spaced for a 150px name, and at 172px the name would
+     collide with the designation. The block's optical centre still sits where the
+     Figma put it (472.5 of 1080), so the copy holds the same monitor eye-line, and
+     the spacing (16 / 18 / 36) comes from the Claude Design build. */
+  .hero-block {
     position: absolute;
-    left: 0; bottom: 0;
+    left: 0; right: 0;
+    top: 472.5px;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+  }
+
+  /* Fixed-height swap boxes — Devanagari is taller than Latin, so without this the
+     layout jumps every time the language flips. */
+  .swap { position: relative; display: block; width: 100%; }
+  .swap > span {
+    position: absolute; left: 50%; top: 0;
     display: block;
     opacity: 0;
-    transform: translateY(.22em);
+    transform: translate(-50%, .22em);
     transition: opacity .5s ease, transform .5s cubic-bezier(.22,1,.36,1);
     white-space: nowrap;
   }
-  .swap > span.on { opacity: 1; transform: none; }
-  .swap [lang="hi"] { font-family: var(--font-deva); }
+  .swap > span.on { opacity: 1; transform: translate(-50%, 0); }
 
-  .greet { height: 1.5em; font-size: clamp(1rem, 2.2vw, 1.4rem); color: var(--dim); }
-  .greet > span { line-height: 1.5; }
+  .eyebrow {
+    height: 2em; margin-bottom: calc(16px * var(--hero-scale));
+    font-size: calc(11px * var(--hero-scale)); line-height: 2;
+    letter-spacing: .24em; text-transform: uppercase;
+    color: var(--eyebrow);
+  }
+  /* Baseline-aligned, not ink-aligned: this line's vowel signs (ू, े) hang above and
+     below, so matching ink bounds would shove the base body off the Latin's line.
+     Devanagari baseline sits 2.5px high at 16px, hence the nudge. Tracking goes to
+     zero — spacing Devanagari breaks the shirorekha that joins the letters. */
+  .eyebrow [lang="hi"] {
+    font-family: var(--font-deva-sans);
+    font-size: calc(13px * var(--hero-scale));   /* 11 Latin : 13 Deva, per the source */
+    letter-spacing: 0;
+    margin-top: -.077em;                 /* 1px up: the 13px Deva line box sits a touch low */
+  }
 
-  .name  { height: 1.15em; font-size: clamp(2.4rem, 7.5vw, 5.5rem); font-weight: 700; letter-spacing: -.03em; }
-  .name > span { line-height: 1.15; text-shadow: 0 2px 40px rgba(0,0,0,.55); }
-  /* Devanagari needs a touch more room above for the shirorekha */
-  .name [lang="hi"] { font-size: .88em; letter-spacing: 0; }
+  .name {
+    height: .88em; margin-bottom: calc(18px * var(--hero-scale));
+    font-family: var(--font-serif);
+    font-size: calc(172px * var(--hero-scale)); font-weight: 400; line-height: .88;
+    letter-spacing: -.02em;
+    color: var(--ink);
+  }
+  /* Both of these are measured, not eyeballed.
+     0.90em: at 135px, "शशांक" has an ink height of 113px — identical to "Shashank"
+     at 150px, so the two languages read at the same optical size.
+     Re-measured for the 172px Latin: 155px Devanagari (0.901em) gives an ink height of
+     130px against the Latin's 129px.
+     0.2742em: Noto Serif Devanagari reserves a deep descent for hanging vowel signs
+     (ु, ृ) that this name doesn't use. That empty reserve pushes the glyphs up inside
+     the line box, opening a gap above the designation on the Hindi state only. Pushing
+     back down by 42.5px lands both languages on the same ink bounds. */
+  .name [lang="hi"] {
+    font-family: var(--font-deva-serif);
+    font-size: .901em;
+    letter-spacing: 0;
+    margin-top: .2742em;
+  }
 
   .role {
-    font-size: clamp(.9rem, 1.6vw, 1.05rem);
-    color: var(--dim);
-    margin: .6rem 0 1.6rem;
-    letter-spacing: .01em;
+    margin: 0;
+    font-size: calc(21px * var(--hero-scale)); font-weight: 300; line-height: 1.4;
+    letter-spacing: .04em;
+    color: var(--role);
+    white-space: nowrap;
   }
 
+  /* Sized by padding rather than a fixed 200x60 box: at this type scale a fixed box
+     leaves the label marooned in the middle. Same approach as the source. */
   .cta {
-    align-self: flex-start;
-    display: inline-flex; align-items: center; gap: .6rem;
-    font: inherit; font-size: .95rem; font-weight: 600;
-    color: #14100e;
-    background: var(--ink);
-    border: 0; border-radius: 100px;
-    padding: .85rem 1.5rem;
+    margin-top: calc(36px * var(--hero-scale));
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: .74em;
+    padding: calc(15px * var(--hero-scale)) calc(26px * var(--hero-scale));
+    font-family: var(--font-cta);
+    font-size: calc(13.5px * var(--hero-scale)); font-weight: 500; line-height: 1;
+    letter-spacing: .04em;
+    color: #fff;
+    background: var(--cta-bg);
+    border: 2px solid var(--cta-border);
+    border-radius: 999px;
     cursor: pointer;
-    transition: background .25s ease, transform .25s ease;
+    transition: background .25s ease, border-color .25s ease;
   }
-  .cta:hover, .cta:focus-visible { background: var(--accent); color: #fff; transform: translateY(-2px); }
-  .cta[disabled] { opacity: .45; cursor: default; transform: none; }
-  .cta .arrow { transition: transform .25s ease; }
-  .cta:hover .arrow { transform: translateX(4px); }
+  /* Figma shows one state only — this hover is a neutral guess, not a spec. */
+  .cta:hover, .cta:focus-visible { background: rgba(255,255,255,.18); border-color: #7a7a7a; }
+  .cta[disabled] { opacity: .45; cursor: default; }
+  /* em-sized so the arrow tracks the label through --hero-scale */
+  .cta svg { width: 1.26em; height: .6em; transition: transform .25s ease; }
+  .cta:hover svg { transform: translateX(4px); }
 
-  .hint {
-    font-family: ui-monospace, Menlo, Consolas, monospace;
-    font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
-    color: var(--dim); margin: 1.4rem 0 0;
+  /* ---------- hero, narrow screens ----------
+     The Figma is a 1920 desktop frame. Below 900px the 1:1 scale would blow the name
+     past the viewport, so the stage unpins into a normal centred column. */
+  @media (max-width: 899px) {
+    .stage {
+      position: absolute; inset: 0;
+      width: auto; height: 100%;
+      transform: none !important;
+    }
+    /* No film-locked composition on narrow screens, so no perspective either. */
+    .screen { transform: none !important; }
+    .hero-block { top: 50%; padding: 0 6vw; }
+    .eyebrow { font-size: clamp(9px, 2.6vw, calc(11px * var(--hero-scale))); }
+    .name    { font-size: clamp(52px, 15vw, calc(172px * var(--hero-scale))); }
+    .role    { font-size: clamp(13px, 3.6vw, calc(21px * var(--hero-scale))); white-space: normal; }
+    .cta     { font-size: clamp(12px, 3vw, calc(13.5px * var(--hero-scale))); }
   }
+
+  /* ---------- terminal hint ----------
+     Lives INSIDE .stage, in design pixels, so it rides the monitor: the stage is
+     locked to the film's cover rect, so as the camera pushes in, the hint scales and
+     tracks with the screen exactly like the rest of the copy.
+
+     It sits in the clean band at the TOP of the glass, not the bottom. The bottom of
+     the screen is where the person's head is (from y 514), so a hint down there would
+     be printed across their hair. The copy block below starts at y 339, leaving a
+     comfortable gap.
+
+     Left-aligned to the glass, not centred: a command prompt starts at the left edge
+     of its terminal. The 40px is the screen's own padding. */
+  .hint {
+    position: absolute;
+    left: calc(var(--glass-left) + 40px);
+    top: calc(var(--glass-top) + 36px);
+    display: inline-flex; align-items: center;
+    margin: 0;   /* a <p>'s default 1em would fight the `top` above */
+    font-family: var(--font-mono);
+    font-size: calc(15px * var(--hero-scale));
+    font-weight: 400;
+    letter-spacing: .14em;
+    color: var(--hint);
+    white-space: nowrap;
+    will-change: opacity;
+  }
+  .hint .prompt { color: #f2f0ec; margin-right: .75em; }
+  /* A block caret sized off the text, so it tracks the font rather than being a
+     magic pixel value. steps(1) gives the hard on/off of a real terminal — a
+     smooth fade reads as a pulsing dot, not a cursor. */
+  .hint .caret {
+    display: inline-block;
+    width: .58em; height: 1.15em;
+    margin-left: .5em;
+    background: currentColor;
+    animation: caret 1.06s steps(1) infinite;
+  }
+  @keyframes caret { 0%, 50% { opacity: 1 } 50.01%, 100% { opacity: 0 } }
 
   /* ---------- content ---------- */
   .panel {
     min-height: 100vh; background: #0a0a0a;
-    padding: calc(var(--nav-h) + 6vh) 6vw 8vh;
+    padding: 12vh 6vw 8vh;
     display: flex; flex-direction: column; justify-content: center; gap: 1.5rem;
   }
   .tag { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .7rem;
-         letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
-  h2 { font-size: clamp(1.8rem, 5vw, 3rem); margin: 0; letter-spacing: -.02em; }
+         letter-spacing: .2em; text-transform: uppercase; color: var(--tag); }
+  h2 { font-family: var(--font-serif); font-weight: 400;
+       font-size: clamp(2rem, 5.5vw, 3.4rem); margin: 0; letter-spacing: -.01em; }
   .note { color: var(--dim); max-width: 46ch; line-height: 1.6; margin: 0; font-size: .95rem; }
   .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 1rem; margin-top: 1rem; }
   .card { aspect-ratio: 4/3; border: 1px dashed #3a3a3a; border-radius: 4px;
@@ -137,18 +286,7 @@
   #s-connect { min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
                padding: 0 6vw; gap: 1.25rem; background: transparent; }
 
-  /* ---------- nav ---------- */
-  nav { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 10;
-        display: flex; align-items: center; gap: .25rem; padding: 0 6vw;
-        backdrop-filter: blur(12px); background: rgba(0,0,0,.35);
-        border-bottom: 1px solid rgba(255,255,255,.08); }
-  nav .brand { font-weight: 700; letter-spacing: -.02em; margin-right: auto; font-size: .95rem; }
-  nav button { background: none; border: 0; color: var(--dim); font: inherit; font-size: .82rem;
-               padding: .5rem .7rem; cursor: pointer; border-radius: 4px; }
-  nav button:hover, nav button:focus-visible { color: var(--ink); }
-  nav button[aria-current="true"] { color: var(--ink); }
-  nav button[aria-current="true"]::before { content: "● "; color: var(--accent); font-size: .6em; vertical-align: middle; }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
   .hud { position: fixed; right: 10px; bottom: 10px; z-index: 20;
          font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 10px; line-height: 1.5;
@@ -160,17 +298,15 @@
     .film video { opacity: 0 !important; }
     .film { background: #0a0a0a; }
     .swap > span { transition: none; }
+    .hint .caret { animation: none; }   /* a blinking cursor is exactly what this setting means */
   }
 </style>
 </head>
 <body>
 
-<nav>
-  <span class="brand">Shashank</span>
-  <button data-goto="s-work">Work</button>
-  <button data-goto="s-experience">Experience</button>
-  <button data-goto="s-connect">Let's connect</button>
-</nav>
+<!-- No nav yet — the full-width bar is gone and the floating version isn't decided.
+     Sections are reachable by scrolling; goTo('s-work') below wires up a nav in one
+     line whenever you land on a treatment. -->
 
 <div class="film" aria-hidden="true">
   <video id="v-enter" src="../public/video/into-the-screen.mp4"   muted playsinline preload="auto"></video>
@@ -182,28 +318,38 @@
   <section id="s-enter" class="scrub">
     <div class="hero" id="hero">
       <!-- Screen readers get one clean sentence; the flipping copy is decorative. -->
-      <h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">
-        Hey there, I am Shashank — Product Designer
+      <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">
+        Hey there! I am Shashank — Product &amp; Motion Designer
       </h1>
 
-      <span class="swap greet" aria-hidden="true">
-        <span lang="en" class="on">Hey there,</span>
-        <span lang="hi">नमस्ते,</span>
-      </span>
+      <div class="stage" id="stage" aria-hidden="true">
+       <div class="screen" id="screen">
+        <div class="hero-block">
+        <span class="swap eyebrow">
+          <span lang="en" class="on">HEY THERE! I AM</span>
+          <span lang="hi">नमस्ते! मैं हूँ</span>
+        </span>
 
-      <span class="swap name" aria-hidden="true">
-        <span lang="en" class="on">I am Shashank</span>
-        <span lang="hi">मैं शशांक हूँ</span>
-      </span>
+        <span class="swap name">
+          <span lang="en" class="on">Shashank</span>
+          <span lang="hi">शशांक</span>
+        </span>
 
-      <p class="role" id="role">Product Designer</p>
+        <p class="role" id="role">Product &amp; Motion Designer</p>
 
-      <button class="cta" id="cta">
-        <span id="cta-label">Step inside</span>
-        <span class="arrow" aria-hidden="true">→</span>
-      </button>
+        <button class="cta" id="cta">
+          <span id="cta-label">Check Work</span>
+          <svg width="17" height="8" viewBox="0 0 17 8" fill="none" aria-hidden="true">
+            <path d="M0 4h15.4M12.6 1 16 4l-3.4 3" stroke="currentColor" stroke-width="1.4"/>
+          </svg>
+        </button>
+        </div>
 
-      <p class="hint">or scroll ↓</p>
+        <p class="hint" id="hint">
+          <span class="prompt" aria-hidden="true">&gt;</span>scroll to enter<span class="caret" aria-hidden="true"></span>
+        </p>
+       </div>
+      </div>
     </div>
   </section>
 
@@ -246,19 +392,63 @@
   'use strict';
 
   /* ==========================================================
-     EDIT THESE — I can't see your Figma, so these are guesses.
+     COPY — matches the Figma frame (node 2190:540).
      ========================================================== */
   const COPY = {
-    role:  'Product Designer',
-    cta:   'Step inside',
-    greet: { en: 'Hey there,',    hi: 'नमस्ते,' },
-    name:  { en: 'I am Shashank', hi: 'मैं शशांक हूँ' }
+    eyebrow: { en: 'HEY THERE! I AM', hi: 'नमस्ते! मैं हूँ' },
+    name:    { en: 'Shashank',        hi: 'शशांक' },
+    role:    'Product & Motion Designer',
+    cta:     'Check Work'
   };
 
-  const SWAP_INTERVAL = 3200;   // ms each language holds
-  const SWAP_STAGGER  = 140;    // ms the name lags the greeting
+  const SWAP_INTERVAL = 4200;   // ms each language holds (matches langTimer in the source)
+  const SWAP_STOP_AT  = 0.06;   // entry progress past which the swap pauses
+  const SWAP_STAGGER  = 140;    // ms the name lags the eyebrow
   const ROTATION_START = 0.45;  // where the table rotation starts in the out-video
-  const JUMP_MS = 900;          // nav jump duration
+  const JUMP_MS = 900;          // section jump duration
+
+  /* ---- PACING. The two dials you'll actually want to turn. ---- */
+
+  // How much scroll one second of film costs. This is the scrub speed:
+  // HIGHER = slower, more deliberate scrub. LOWER = film races past.
+  // 90vh/s means a 3s clip takes ~2.7 screens of scrolling to play through.
+  const SCRUB_VH_PER_SEC = 90;
+
+  // The click-to-dive plays this many times faster than 1x. 1.0 is the film's
+  // true speed (what it was doing before, and what read as sluggish).
+  const CTA_RATE = 1.6;
+
+  // Hero exit timing, lifted from the Claude Design build (Landing.dc.html). Its
+  // timeline runs 0-4.7 and the room fly-in occupies 0-1 — which is exactly what our
+  // entry scrub is — so the hero numbers port across 1:1.
+  //
+  // The copy clears early and the dive finishes alone: CTA gone by p=0.16, all three
+  // lines by p=0.37, leaving the remaining 63% of the fly-in with a clean frame.
+  //
+  // These ramps are LINEAR. seg() in the source is a plain clamped divide and the
+  // per-line t is another plain divide on top of it — there is no easing anywhere in
+  // the hero exit. Nor is there any scale: the dissolve variant is opacity, rise and
+  // blur only (scale belongs to the 'push' variant, which isn't the default).
+  const HERO_EXIT_SPAN    = 0.44;  // te = S(0, 0.44)
+  const HERO_LINE_STAGGER = 0.09;  // each line trails the one above by this much of te
+  const HERO_LINE_SPAN    = 0.66;  // how much of te one line takes to leave
+  const HERO_RISE         = 110;   // px upward, all three lines
+  const HERO_BLUR         = 16;    // px at full exit
+  const CTA_EXIT          = 0.16;  // ct = S(0, 0.16)
+  const CTA_DROP          = 40;    // px downward — the CTA drops as the copy lifts
+  const CTA_DEAD_AT       = 0.40;  // ct past this and the button stops taking clicks
+  const HINT_EXIT         = 0.12;  // set('hint', 1 - S(0, 0.12)) — first thing to go
+  const DESIGN_W = 1920, DESIGN_H = 1080;   // the Figma frame
+
+  // The monitor glass, measured off frame 0 by scanning for the black region and
+  // line-fitting each of the four edges. It is NOT a rectangle: the top edge rises
+  // 15px to the right, the left edge leans 34px inward on the way down, and the
+  // bottom is 44px narrower than the top. Re-measure these if the film is re-rendered.
+  const GLASS = {
+    TL: [ 466.9, 217.7 ], TR: [ 1425.8, 202.3 ],
+    BL: [ 501.2, 625.5 ], BR: [ 1415.9, 616.6 ]
+  };
+  const STAGE_BREAKPOINT = 900; // below this the stage unpins (see CSS)
   /* ========================================================== */
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -270,17 +460,81 @@
   const sExit  = document.getElementById('s-exit');
   const connect= document.getElementById('s-connect');
   const hero   = document.getElementById('hero');
+  const stage  = document.getElementById('stage');
+  const screenEl = document.getElementById('screen');
   const cta    = document.getElementById('cta');
 
   // apply editable copy
   document.getElementById('role').textContent = COPY.role;
   document.getElementById('cta-label').textContent = COPY.cta;
-  const greetBox = document.querySelector('.greet');
-  const nameBox  = document.querySelector('.name');
-  greetBox.querySelector('[lang=en]').textContent = COPY.greet.en;
-  greetBox.querySelector('[lang=hi]').textContent = COPY.greet.hi;
-  nameBox.querySelector('[lang=en]').textContent  = COPY.name.en;
-  nameBox.querySelector('[lang=hi]').textContent  = COPY.name.hi;
+  const eyeBox  = document.querySelector('.eyebrow');
+  const nameBox = document.querySelector('.name');
+  eyeBox.querySelector('[lang=en]').textContent  = COPY.eyebrow.en;
+  eyeBox.querySelector('[lang=hi]').textContent  = COPY.eyebrow.hi;
+  nameBox.querySelector('[lang=en]').textContent = COPY.name.en;
+  nameBox.querySelector('[lang=hi]').textContent = COPY.name.hi;
+
+  /* ---------- scrub pacing ----------
+     The two clips aren't the same length (3.0s vs 3.7s), so a fixed section height
+     would scrub them at different speeds. Sizing each section from its own duration
+     keeps one consistent "scroll per second of film" across both. */
+  function sizeScrubSections() {
+    if (reduced) return;                 // reduced-motion CSS pins both to 100vh
+    const fit = (el, secs) => {
+      if (!secs || !isFinite(secs)) return;
+      el.style.height = (100 + secs * SCRUB_VH_PER_SEC) + 'vh';
+    };
+    fit(sEnter, enter.duration);
+    fit(sExit,  exitV.duration);
+  }
+
+  /* ---------- screen perspective ----------
+     Solves the homography that maps flat layout space onto the glass quad, then hands
+     it to CSS as a matrix3d. The source rect is the quad's own average box, so the map
+     is near-identity in the middle of the screen and only bites toward the edges —
+     which is exactly where the mismatch showed, on the left-aligned prompt.
+
+     Run once: the quad is a property of the film's first frame, not of the viewport. */
+  function fitScreenToGlass() {
+    const { TL, TR, BR, BL } = GLASS;
+    const L = (TL[0] + BL[0]) / 2, R = (TR[0] + BR[0]) / 2;
+    const T = (TL[1] + TR[1]) / 2, B = (BL[1] + BR[1]) / 2;
+    const src = [[L,T],[R,T],[R,B],[L,B]], dst = [TL, TR, BR, BL];
+
+    // 8 equations, 8 unknowns (h33 pinned to 1), solved by Gauss-Jordan
+    const A = [], y = [];
+    for (let k = 0; k < 4; k++) {
+      const [sx, sy] = src[k], [dx, dy] = dst[k];
+      A.push([sx, sy, 1, 0, 0, 0, -sx*dx, -sy*dx]); y.push(dx);
+      A.push([0, 0, 0, sx, sy, 1, -sx*dy, -sy*dy]); y.push(dy);
+    }
+    for (let i = 0; i < 8; i++) {
+      let p = i;
+      for (let r = i + 1; r < 8; r++) if (Math.abs(A[r][i]) > Math.abs(A[p][i])) p = r;
+      [A[i], A[p]] = [A[p], A[i]]; [y[i], y[p]] = [y[p], y[i]];
+      for (let r = 0; r < 8; r++) {
+        if (r === i) continue;
+        const f = A[r][i] / A[i][i];
+        for (let c = i; c < 8; c++) A[r][c] -= f * A[i][c];
+        y[r] -= f * y[i];
+      }
+    }
+    const [a, b, c, d, e, f, g, h] = y.map((v, i) => v / A[i][i]);
+    // matrix3d is column-major; a 2D homography sits in rows/cols 1,2 and 4
+    screenEl.style.transform =
+      `matrix3d(${a},${d},0,${g},${b},${e},0,${h},0,0,1,0,${c},${f},0,1)`;
+  }
+
+  /* ---------- stage fit ----------
+     Reproduce object-fit:cover's maths so the copy lands on the same pixels of the
+     film that it sits on in the Figma frame. */
+  function fitStage() {
+    if (innerWidth < STAGE_BREAKPOINT) { stage.style.transform = ''; return; }
+    const scale = Math.max(innerWidth / DESIGN_W, innerHeight / DESIGN_H);
+    const x = (innerWidth  - DESIGN_W * scale) / 2;
+    const y = (innerHeight - DESIGN_H * scale) / 2;
+    stage.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+  }
 
   /* ---------- bilingual alternation ---------- */
   // Pauses while off-screen and during entry — no point animating
@@ -293,7 +547,7 @@
   }
   function flip() {
     lang = lang === 'en' ? 'hi' : 'en';
-    showLang(greetBox, lang);
+    showLang(eyeBox, lang);
     setTimeout(() => showLang(nameBox, lang), SWAP_STAGGER);
   }
   function startSwap() {
@@ -337,16 +591,104 @@
     return Math.min(Math.max(-r.top / travel, 0), 1);
   }
 
-  let ticking = false;
-  const onScroll = () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => { ticking = false; update(); });
-  };
+  /* ---------- hero exit ----------
+     An eased 0-1 ramp across a window of scroll progress. */
+  function ramp(p, a, b) {
+    const k = Math.min(1, Math.max(0, (p - a) / (b - a)));
+    return k < .5 ? 4*k*k*k : 1 - Math.pow(-2*k + 2, 3) / 2;
+  }
 
-  function update() {
-    const pEnter = progressOf(sEnter);
-    const pExit  = progressOf(sExit);
+  const exitEls = {
+    eyebrow: document.querySelector('.eyebrow'),
+    name:    document.querySelector('.name'),
+    role:    document.querySelector('.role'),
+    cta:     cta
+  };
+  const hint = document.getElementById('hint');
+
+  // Linear clamped ramp — the source's seg(). Deliberately not eased.
+  function seg(p, a, b) { return Math.min(1, Math.max(0, (p - a) / (b - a))); }
+
+  function applyHeroMotion(p) {
+    // The three copy lines lift, blur and dissolve together, each trailing the one
+    // above it. Order is eyebrow, name, designation — top-down.
+    const te = seg(p, 0, HERO_EXIT_SPAN);
+    const lines = [exitEls.eyebrow, exitEls.name, exitEls.role];
+    let nameV = 1;
+
+    lines.forEach((el, i) => {
+      const t = Math.min(1, Math.max(0, (te - i * HERO_LINE_STAGGER) / HERO_LINE_SPAN));
+      if (i === 1) nameV = 1 - t;
+      if (reduced) { el.style.opacity = 1; el.style.transform = ''; el.style.filter = ''; return; }
+      el.style.opacity = (1 - t).toFixed(3);
+      el.style.transform = `translate3d(0,${(-t * HERO_RISE).toFixed(1)}px,0)`;
+      // Dropping the filter entirely at rest keeps the text crisply rasterised —
+      // even blur(0) forces the element onto its own composited layer.
+      el.style.filter = t > .002 ? `blur(${(t * HERO_BLUR).toFixed(2)}px)` : '';
+    });
+
+    // The hint goes first and fastest — the moment you scroll, it has done its job.
+    hint.style.opacity = reduced ? 1 : (1 - seg(p, 0, HINT_EXIT)).toFixed(3);
+
+    // CTA runs on its own, much shorter window, and drops instead of lifting.
+    const ct = seg(p, 0, CTA_EXIT);
+    const btn = exitEls.cta;
+    if (reduced) {
+      btn.style.opacity = 1; btn.style.transform = ''; btn.style.pointerEvents = 'auto';
+      btn.disabled = false;
+    } else {
+      btn.style.opacity = (1 - ct).toFixed(3);
+      btn.style.transform = `translate3d(0,${(ct * CTA_DROP).toFixed(1)}px,0)`;
+      // pointerEvents per the source; `disabled` on top so it can't be tabbed to
+      // once it's on its way out.
+      const live = ct <= CTA_DEAD_AT;
+      btn.style.pointerEvents = live ? 'auto' : 'none';
+      btn.disabled = !live;
+    }
+    return nameV;
+  }
+
+  /* ---------- inertial smoothing ----------
+     The Claude Design build never reads scroll position directly: it accumulates
+     wheel deltas into a target and eases a `cur` value toward it every frame at
+     0.085, which is where its glide comes from. We keep native scroll — scrollbar,
+     keyboard paging, mobile fling all still work — and apply the same easing to the
+     value we feed the scrub. Everything downstream lags the scrollbar slightly and
+     coasts to a stop instead of halting dead with your finger.
+
+     The loop parks itself once the smoothed value has caught up, so a still page
+     costs nothing; any scroll kicks it awake. */
+  const SMOOTH = 0.085;
+  const SETTLED = 0.0002;   // close enough to snap and stop
+  const IDLE_FRAMES = 20;   // frames of stillness before parking the loop
+
+  let curEnter = 0, curExit = 0, rafId = 0, idle = 0;
+
+  function frame() {
+    const tEnter = progressOf(sEnter), tExit = progressOf(sExit);
+
+    if (reduced) { curEnter = tEnter; curExit = tExit; }
+    else {
+      curEnter += (tEnter - curEnter) * SMOOTH;
+      curExit  += (tExit  - curExit ) * SMOOTH;
+      if (Math.abs(tEnter - curEnter) < SETTLED) curEnter = tEnter;
+      if (Math.abs(tExit  - curExit ) < SETTLED) curExit  = tExit;
+    }
+
+    update(curEnter, curExit);
+
+    const moving = curEnter !== tEnter || curExit !== tExit;
+    idle = moving ? 0 : idle + 1;
+    rafId = idle > IDLE_FRAMES ? 0 : requestAnimationFrame(frame);
+  }
+
+  function kick() { if (!rafId) { idle = 0; rafId = requestAnimationFrame(frame); } }
+  const onScroll = kick;
+
+  function update(pEnter, pExit) {
+    // Which clip is on screen stays keyed to the real rect, not the smoothed value:
+    // the two sections are ~200vh apart, so the smoothing has long settled by the
+    // time the swap happens.
     const exitVisible = sExit.getBoundingClientRect().top < innerHeight;
 
     if (!reduced) {
@@ -360,23 +702,21 @@
     }
 
     // Hero clears out early so the copy isn't riding the whole dive.
-    const heroOut = Math.min(pEnter / 0.35, 1);
-    hero.style.opacity = (1 - heroOut).toFixed(3);
-    hero.style.transform = `translateY(${(-heroOut * 40).toFixed(1)}px)`;
-    if (heroOut > 0.9) { stopSwap(); cta.disabled = true; }
-    else { startSwap(); cta.disabled = false; }
+    applyHeroMotion(pEnter);
+    // The source gates its langTimer on `cur > 0.06` — once you've started moving,
+    // the copy is on its way out and a mid-exit language flip just reads as a glitch.
+    if (pEnter > SWAP_STOP_AT) stopSwap(); else startSwap();
 
     const rot = pExit <= ROTATION_START ? 0 : (pExit - ROTATION_START) / (1 - ROTATION_START);
     connect.style.opacity = reduced ? 1 : Math.min(rot * 1.6, 1).toFixed(3);
 
-    updateNav();
     hud.textContent =
       `enter ${pEnter.toFixed(2)}  t=${scrubEnter.time.toFixed(2)}s\n` +
       `exit  ${pExit.toFixed(2)}  t=${scrubExit.time.toFixed(2)}s\n` +
       `rotate ${rot.toFixed(2)}   ${exitVisible ? '[out]' : '[in]'}  lang=${lang}`;
   }
 
-  /* ---------- scroll animation (shared by CTA + nav) ---------- */
+  /* ---------- scroll animation ---------- */
   // Animating scrollY *is* playback: the scrub follows scroll, so a
   // linear scroll across the entry region renders the clip at exactly
   // 1x. One mechanism instead of a separate "play" path that could
@@ -396,34 +736,31 @@
       else animating = false;
     })(performance.now());
   }
-  const linear   = t => t;
-  const easeInOut= t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+  const linear    = t => t;
+  const easeInOut = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
 
+  // Ready for whatever the floating nav turns into: goTo('s-work') and it just works.
+  window.goTo = function (id) {
+    prime();
+    const to = scrollY + document.getElementById(id).getBoundingClientRect().top;
+    if (reduced) { scrollTo(0, to); return; }
+    animateScrollTo(to, JUMP_MS, easeInOut);
+  };
+
+  // "Check Work" plays the dive-in and lands you at the top of Work, which is
+  // exactly where the entry region ends.
   cta.addEventListener('click', () => {
     prime();
     const end = scrollY + sEnter.getBoundingClientRect().top
               + (sEnter.offsetHeight - innerHeight);
-    const dur = (enter.duration && isFinite(enter.duration) ? enter.duration : 3) * 1000;
+    const secs = (enter.duration && isFinite(enter.duration) ? enter.duration : 3);
     if (reduced) { scrollTo(0, end); return; }
-    animateScrollTo(end, dur, linear);   // linear = true 1x playback
+    // Stays linear on purpose: the scrub follows scroll, so a linear scroll across
+    // the entry region renders the film at a constant rate. CTA_RATE is that rate.
+    // Easing here would speed the film up and slow it down mid-dive, fighting the
+    // pacing already baked into the render.
+    animateScrollTo(end, (secs / CTA_RATE) * 1000, linear);
   });
-
-  /* ---------- nav ---------- */
-  const sections = ['s-work', 's-experience', 's-connect'];
-  const buttons = [...document.querySelectorAll('nav button')];
-  function updateNav() {
-    let current = null;
-    for (const id of sections) {
-      if (document.getElementById(id).getBoundingClientRect().top <= innerHeight * .5) current = id;
-    }
-    buttons.forEach(b => b.setAttribute('aria-current', String(b.dataset.goto === current)));
-  }
-  buttons.forEach(b => b.addEventListener('click', () => {
-    prime();
-    const to = scrollY + document.getElementById(b.dataset.goto).getBoundingClientRect().top;
-    if (reduced) { scrollTo(0, to); return; }
-    animateScrollTo(to, JUMP_MS, easeInOut);
-  }));
 
   /* ---------- boot ---------- */
   let primed = false;
@@ -441,13 +778,23 @@
 
   let ready = 0;
   [enter, exitV].forEach(v =>
-    v.addEventListener('loadedmetadata', () => { if (++ready === 2) update(); }));
+    v.addEventListener('loadedmetadata', () => {
+      if (++ready === 2) { sizeScrubSections(); kick(); }
+    }));
 
   addEventListener('scroll', onScroll, { passive: true });
-  addEventListener('resize', onScroll, { passive: true });
-  document.addEventListener('visibilitychange', () =>
-    document.hidden ? stopSwap() : startSwap());
-  update();
+  addEventListener('resize', () => { sizeScrubSections(); fitStage(); kick(); }, { passive: true });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stopSwap();
+    else { startSwap(); kick(); }   // rAF is paused while hidden — restart on return
+  });
+
+  fitScreenToGlass();
+  fitStage();
+  curEnter = progressOf(sEnter);    // start settled, so a mid-page reload doesn't ease in
+  curExit  = progressOf(sExit);
+  update(curEnter, curExit);        // paint the right state now, not on the first frame
+  kick();
 })();
 </script>
 </body>
