@@ -57,206 +57,167 @@
   makeGrain();
 
   /* ========================================================================
-     1 · THE BOOT
+     1 · THE APPROACH
      ========================================================================
-     Each line is revealed by clipping a span that is already in the DOM, so the
-     text is present for screen readers and crawlers from first paint and there
-     is zero per-frame layout.
+     The film's camera travels along Z and then stops dead at the glass. This
+     carries that motion past the end of the film: specks keep coming at you
+     while the hero assembles behind them, so the seam between a video and a DOM
+     section has something moving across it instead of a cut.
+
+     Canvas rather than elements. A few hundred of these redrawn every frame is
+     nothing for a canvas and a great deal of compositor work for the DOM.
+
+     Nothing here integrates. A speck's depth is a pure function of the scroll
+     number, so there is no velocity to reverse and no state to get out of step:
+     scroll back and the field simply IS what it was there, flying away from you
+     again. That is the same discipline as the rest of the page, and it is why
+     this can sit on a scrub without fighting it.
      ====================================================================== */
 
-  /* The terminal lives inside the landing's hero. The landing's scrub loop arms
-     it when the film hits its last ten frames; from there it runs on a clock. */
-  const termLayer = document.getElementById('sx-term-layer');
-  const bootLines = termLayer ? [...termLayer.querySelectorAll('.sx-line')] : [];
-  const bootCaret = document.getElementById('sx-caret');
-  const bootProg = termLayer ? termLayer.querySelector('.sx-boot-prog') : null;
+  const dustCv = document.getElementById('sx-dust');
 
-  /* Typing completes at 82% of the run, leaving the last fifth as a held frame
-     — a beat of stillness before the hero, the same pause the camera takes at
-     the end of the dive. */
-  const BOOT_TYPED_BY = 0.82;
+  /* Fractions of the APPROACH, which the landing normalises for us: 0 is a
+     little before the film's last frames, 1 is the hero all but arrived. Not
+     entry progress — that moved the moment the section grew a hold at the end,
+     and these are tuned against the two beats, not against the scrollbar. */
+  const DUST_IN  = [0.00, 0.34];
+  const DUST_OUT = [0.68, 1.00];
+  const DUST_COUNT = 240;
+  /* Depth range. NEAR is where a speck passes the camera and is recycled. */
+  const DUST_NEAR = 0.07, DUST_FAR = 1;
+  /* How many times the field cycles across the entry. This is the speed dial. */
+  const DUST_LOOPS = 6.2;
+  /* How far back a speck's streak reaches, in depth. Constant in depth means the
+     streak projects LONGER the closer it gets, which is what speed looks like. */
+  const DUST_TRAIL = 0.055;
+  /* The bloom around each streak: how much wider than the core, and at what
+     fraction of its alpha. Keep the alpha low — this is light spilling off a
+     speck, and the moment it reads as a second stroke it stops being glow. */
+  const GLOW_SPREAD = 5.5, GLOW_ALPHA = 0.16;
 
-  /* Full rendered width of each line, measured once.
-
-     The reveal clips the span rather than truncating its text, and clip-path
-     does not affect layout — so the span always occupies its FULL width and a
-     caret appended after it lands at the end of text that hasn't been typed
-     yet. The caret has to be positioned at the clip edge instead, which means
-     knowing how wide the finished line is. Measured on load, after webfonts
-     settle, and on resize; never per frame. */
-  let bootMetrics = [];
-  function measureBoot() {
-    bootMetrics = bootLines.map(l => {
-      const inner = l.firstElementChild;
-      if (!inner) return null;
-      const r = inner.getBoundingClientRect();
-      const lh = parseFloat(getComputedStyle(l).lineHeight) || 0;
-      return {
-        w: r.width,
-        /* A wrapped line has no single caret position. Rather than draw the
-           caret in the wrong place, don't draw it — the text still types. */
-        wrapped: lh > 0 && r.height > lh * 1.4
-      };
-    });
-  }
-
-  function paintBoot(p) {
-    if (!bootLines.length) return;
-
-    if (termLayer) {
-      const vis = reduced ? 1 : Math.min(p / (FILM_TAIL * 0.8), 1);
-      termLayer.style.opacity = vis.toFixed(3);
-      termLayer.style.pointerEvents = vis > 0.6 ? 'auto' : 'none';
-    }
-
-    const n = bootLines.length;
-    const span = BOOT_TYPED_BY / n;
-    let active = 0, activeT = 1;
-
-    for (let i = 0; i < n; i++) {
-      const t = reduced ? 1 : seg(p, i * span, (i + 1) * span);
-      const inner = bootLines[i].firstElementChild;
-      if (inner) inner.style.setProperty('--sx-clip', ((1 - t) * 100).toFixed(2) + '%');
-      if (t > 0) { active = i; activeT = t; }
-    }
-
-    if (bootCaret) {
-      const host = bootLines[active];
-      if (bootCaret.parentNode !== host) host.appendChild(bootCaret);
-      const m = bootMetrics[active];
-      if (m && !m.wrapped) {
-        bootCaret.style.setProperty('--sx-caret-x', (m.w * activeT).toFixed(1) + 'px');
-        bootCaret.style.visibility = '';
-      } else {
-        bootCaret.style.visibility = 'hidden';
-      }
-    }
-    if (bootProg) bootProg.style.setProperty('--sx-boot-p', (clamp01(p / BOOT_TYPED_BY) * 100).toFixed(1) + '%');
-  }
-
-  /* ------------------------------------------------------------------------
-     Running the loader.
-
-     This is a LOADER, so it runs itself. The previous version drove the typing
-     from scroll position, which meant it only finished if you kept scrolling —
-     the reader had to operate the loading screen. Wrong on its face: a loader's
-     whole promise is that it is doing something for you.
-
-     So: the landing's scrub loop calls arm() once the film reaches its last ten
-     frames, and from there this owns the moment. Scroll is held for the ~2.4s
-     the sequence takes, then released into the hero. Held, not hijacked — the
-     skip is on screen the entire time and any key or click takes it.
-     ---------------------------------------------------------------------- */
-  const BOOT_MS = 2600;
-  /* The film's last ten frames are scrubbed across the first slice of the run,
-     so the camera arrives at black while the terminal is already waking. */
-  const FILM_TAIL = 0.26;
-  let bootState = 'idle';        // idle -> running -> done
-  let bootAnim = null;
-  let bootHooks = null;
-  let termRetired = false;
-  let lastFilmQ = -1;
-  const BOOT_LEAD_FRAMES = 30;
-
-  function lockScroll(on) {
-    document.documentElement.style.overflow = on ? 'hidden' : '';
-    document.body.style.overflow = on ? 'hidden' : '';
-  }
-
-  function finishBoot() {
-    if (bootState === 'done') return;
-    bootState = 'done';
-    if (bootAnim) { try { bootAnim.stop(); } catch (e) {} bootAnim = null; }
-    paintBoot(1);
-    lockScroll(false);
-    removeEventListener('keydown', skipKey);
-
-    /* Park the film on its final frame and hand the page back. No
-       scrollIntoView: the hero starts on the same black the film ends on, so
-       the reader simply keeps scrolling and it rises out of the frame. */
-    if (bootHooks) {
-      if (bootHooks.setFilm) bootHooks.setFilm(1);
-      if (bootHooks.finish) bootHooks.finish();
-    }
-    /* Fade the terminal out only after the hero is on its way, so the two
-       overlap rather than leaving a beat of empty black between them. */
-    if (termLayer && !reduced) {
-      setTimeout(() => {
-        if (M) M.animate(termLayer, { opacity: 0 }, { duration: .5, ease: [.22, 1, .36, 1] });
-        else termLayer.style.opacity = '0';
-      }, 260);
-    } else if (termLayer) {
-      termLayer.style.opacity = '0';
-    }
-    /* Once the loader is done it stays gone, including on the way back up —
-       a terminal reappearing behind a receding hero would be a ghost. */
-    if (termLayer) termLayer.style.pointerEvents = 'none';
-  }
-
-  function skipKey(e) {
-    if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') finishBoot();
-  }
-
-  function armBoot(hooks) {
-    if (bootState !== 'idle') return;
-    bootState = 'running';
-    bootHooks = hooks || null;
-
-    if (reduced) { finishBoot(); return; }
-
-    lockScroll(true);
-    addEventListener('keydown', skipKey);
-
-    /* motion's animate() on a plain object gives a real timeline — pausable,
-       stoppable, and driven by the same frame loop as everything else here,
-       instead of a hand-rolled rAF counter racing the compositor. */
-    if (M) {
-      const box = { p: 0 };
-      bootAnim = M.animate(box, { p: 1 }, {
-        duration: BOOT_MS / 1000,
-        /* Slightly eased-out: the first lines rattle off, the last one lands.
-           Linear typing reads as a progress bar wearing a costume. */
-        ease: [.32, .12, .2, 1],
-        onUpdate: () => {
-          /* First quarter of the run belongs to the camera: the film finishes
-             its push into the glass while the terminal fades up over it. */
-          if (bootHooks && bootHooks.setFilm) {
-            /* Quantised to whole frames. Asking for a new time every animation
-               frame queues seeks faster than the decoder retires them, and the
-               dropped ones are what desynced the playhead. */
-            const k = Math.min(box.p / FILM_TAIL, 1);
-            const q = Math.round(k * BOOT_LEAD_FRAMES) / BOOT_LEAD_FRAMES;
-            if (q !== lastFilmQ) { lastFilmQ = q; bootHooks.setFilm(q); }
-          }
-          paintBoot(box.p);
-        },
-        onComplete: () => finishBoot()
+  function makeDust() {
+    /* Deterministic, so the field is the same field on every load. A portfolio
+       that reshuffles its own starfield each visit is a portfolio that cannot
+       be art-directed. */
+    let seed = 20260820;
+    const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+    const out = [];
+    for (let i = 0; i < DUST_COUNT; i++) {
+      const a = rnd() * Math.PI * 2;
+      /* Biased outward: a field with as many specks in the middle as at the
+         edges reads as noise over the type rather than as travel past it. */
+      const r = 0.10 + Math.pow(rnd(), 0.55) * 1.25;
+      out.push({
+        x: Math.cos(a) * r,
+        y: Math.sin(a) * r * 0.7,      // the frame is wide, so the field is too
+        z: rnd(),
+        s: 0.35 + rnd() * 0.95,
+        warm: rnd() < 0.34             // a third in the portrait's vermilion
       });
-    } else {
-      const t0 = performance.now();
-      (function step(now) {
-        if (bootState !== 'running') return;
-        const p = Math.min((now - t0) / BOOT_MS, 1);
-        if (bootHooks && bootHooks.setFilm) bootHooks.setFilm(Math.min(p / FILM_TAIL, 1));
-        paintBoot(p);
-        if (p < 1) requestAnimationFrame(step); else finishBoot();
-      })(performance.now());
     }
+    return out;
   }
 
-  measureBoot();
-  addEventListener('resize', measureBoot, { passive: true });
-  /* Webfonts land after first paint and change every one of these widths. */
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => { measureBoot(); kick(); });
+  const dust = dustCv ? makeDust() : null;
+  const dctx = dustCv ? dustCv.getContext('2d') : null;
+  let dustW = 0, dustH = 0;
+
+  function sizeDust() {
+    if (!dustCv) return;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const w = dustCv.clientWidth, h = dustCv.clientHeight;
+    if (!w || !h) return;
+    dustW = w; dustH = h;
+    dustCv.width = Math.round(w * dpr);
+    dustCv.height = Math.round(h * dpr);
+    dctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  /* Skip = scroll to the end of the entry section, which is where the film and
-     the boot both finish. Not a class that hides it: the boot is part of the
-     scroll spine, so leaving it means moving down the page, and anything else
-     would desync the scrollbar from what is on screen. */
-  const skipBtn = document.getElementById('sx-skip');
-  if (skipBtn) skipBtn.addEventListener('click', () => finishBoot());
+  function paintDust(p) {
+    if (!dctx) return;
+    if (!dustW || !dustH) sizeDust();
+    if (!dustW || !dustH) return;
+
+    dctx.clearRect(0, 0, dustW, dustH);
+    if (reduced) return;
+
+    const amp = seg(p, DUST_IN[0], DUST_IN[1]) * (1 - seg(p, DUST_OUT[0], DUST_OUT[1]));
+    if (amp <= 0.002) return;
+
+    /* 46% rather than 50%: the vanishing point sits where the film's own does,
+       so the specks come out of the same place the camera has been heading. */
+    const cx = dustW / 2, cy = dustH * 0.46;
+    const focal = Math.min(dustW, dustH) * 0.92;
+
+    /* The field DECELERATES. The film's camera has just come to rest against
+       the glass, so specks still tearing past at full speed behind a stopped
+       camera would contradict the shot. Travel eases out across the approach:
+       quick while the last frames are still running, and by the time the hero
+       has assembled the specks are barely drifting — dust hanging in the room
+       rather than stars going by. */
+    const u = seg(p, DUST_IN[0], DUST_OUT[1]);
+    const travel = (1 - Math.pow(1 - u, 2.2)) * DUST_LOOPS;
+
+    /* A streak is a speck's own speed drawn out, so it has to shorten as the
+       field slows or the deceleration would only be half-said. */
+    const trail = DUST_TRAIL * (0.1 + 0.9 * Math.pow(1 - u, 1.2));
+
+    dctx.globalCompositeOperation = 'lighter';   // specks add on black
+    dctx.lineCap = 'round';
+
+    for (const d of dust) {
+      /* Wrapped into [0,1): 1 is the far plane, 0 is the camera. Subtracting
+         travel walks each speck toward you; the wrap puts it back at the far
+         plane when it passes. */
+      let z = d.z - travel;
+      z -= Math.floor(z);
+
+      const near = DUST_NEAR + z * (DUST_FAR - DUST_NEAR);
+      const far  = near + trail;
+      const kn = focal / near, kf = focal / far;
+
+      const x1 = cx + d.x * kn, y1 = cy + d.y * kn;
+      const x2 = cx + d.x * kf, y2 = cy + d.y * kf;
+
+      /* Up out of the far plane, and out again as it reaches the camera —
+         otherwise specks pop into and out of existence at both ends. */
+      const a = amp * clamp01((1 - z) * 4.5) * clamp01(z * 7);
+      if (a <= 0.004) continue;
+
+      const rgb = d.warm ? '224,84,42' : '253,248,207';
+      const wCore = Math.max(0.55, Math.min(d.s * focal / near * 0.0016, 3.4));
+
+      dctx.beginPath();
+      dctx.moveTo(x2, y2);
+      dctx.lineTo(x1, y1);
+
+      /* The glow is a second, much wider stroke at a fraction of the alpha,
+         under the sharp one. Two passes rather than ctx.shadowBlur: the shadow
+         is a real blur, and asking for one of those a few hundred times a frame
+         is the difference between free and dropping frames. Under 'lighter' the
+         two add, so the wide pass reads as bloom around the core. */
+      dctx.strokeStyle = 'rgba(' + rgb + ',' + (a * GLOW_ALPHA).toFixed(3) + ')';
+      dctx.lineWidth = wCore * GLOW_SPREAD;
+      dctx.stroke();
+
+      dctx.strokeStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
+      dctx.lineWidth = wCore;
+      dctx.stroke();
+    }
+
+    dctx.globalCompositeOperation = 'source-over';
+  }
+
+  if (dustCv) {
+    sizeDust();
+    addEventListener('resize', () => { sizeDust(); }, { passive: true });
+  }
+
+  /* The one seam between this module and the landing's scrub engine: the
+     landing owns the scroll spine, so it owns the number; this owns what the
+     approach does with it. */
+  window.SX = window.SX || {};
+  window.SX.dust = paintDust;
 
   /* ========================================================================
      2 · REVEALS
@@ -512,28 +473,319 @@
      Windows are [start, end] fractions of the arrival. Everything is derived
      from one number, so it is exact in both directions — scrolling back takes
      the whole thing apart in reverse rather than fading it out. */
+  /* Periphery first, then the sentence, then the things that hang off it. The
+     furniture of the frame — corners, rules, marks — is in before a word of the
+     headline starts, so the composition has edges to assemble inside rather
+     than type appearing in a void.
+
+     The windows overlap heavily on purpose: at any point in the arrival three
+     or four pieces are in motion, which is what makes it read as one move
+     rather than as a queue. */
   const HERO_STEPS = [
-    ['.sx-corner[data-at="tl"]', .00, .28],
-    ['.sx-corner[data-at="tr"]', .04, .32],
-    ['.sx-rules',                .00, .40],
-    ['.sx-mark',                 .10, .45],
-    ['.sx-w1',                   .12, .44],
-    ['.sx-face',                 .26, .62],
-    ['.sx-w2',                   .34, .64],
-    ['.sx-w3',                   .42, .72],
-    ['.sx-em',                   .54, .88],
-    ['.sx-hero-sub',             .66, .94],
-    ['.sx-stamp',                .78, 1.0],
-    ['.sx-ticker',               .82, 1.0]
+    ['.sx-corner[data-at="tl"]', .00, .26],
+    ['.sx-corner[data-at="tr"]', .03, .29],
+    ['.sx-rules',                .00, .34],
+    ['.sx-mark',                 .06, .36],
+    /* Scoped to the first copy. The other two are stacked in the same cell and
+       must stay at nothing until the rotator has the floor — an unscoped
+       selector here would arrive all three sentences on top of each other. */
+    ['.sx-copy[data-copy="0"] .sx-w1',  .16, .44],
+    ['.sx-face',                        .28, .58],
+    ['.sx-copy[data-copy="0"] .sx-w2',  .36, .64],
+    ['.sx-copy[data-copy="0"] .sx-w3',  .44, .72],
+    ['.sx-copy[data-copy="0"] .sx-em',  .54, .92],
+    ['.sx-hero-sub',             .68, .94],
+    ['.sx-stamp',                .80, 1.0],
+    ['.sx-ticker',               .84, 1.0]
   ];
   const heroNodes = HERO_STEPS.map(([sel, a, b]) => ({
-    els: heroLayer ? [...heroLayer.querySelectorAll(sel)] : [], a, b
+    els: heroLayer ? [...heroLayer.querySelectorAll(sel)] : [], a, b,
+    /* Whose value is this once the hero has landed? Anything inside a copy is
+       handed to the rotator; everything else stays the arrival's for good. */
+    copyOwned: sel.indexOf('.sx-copy') === 0
   }));
 
   const easeOut = t => 1 - Math.pow(1 - t, 3);
   /* A little overshoot on the pieces that should feel like they land rather
      than glide — the portrait and the last word. */
   const backOut = t => { const c = 1.9; const u = t - 1; return 1 + (c + 1) * u * u * u + c * u * u; };
+
+  /* --- springs, sampled by PROGRESS ---
+     Motion's spring is a time integrator, and none of this runs on time: every
+     number here is a function of where the scrollbar is, or the reveal could
+     not be run backwards. So the spring is written closed-form instead — a
+     damped oscillator settling on 1 — which gives the same overshoot-and-settle
+     read while staying a pure function of t.
+
+     `decay` is damping (higher = calmer) and `freq` is stiffness (higher =
+     more bounces before it rests). */
+  function springAt(t, decay, freq) {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    return 1 - Math.exp(-decay * t) * Math.cos(freq * t);
+  }
+  /* Words: one soft overshoot, ~8%. Enough to read as landing, not as bouncing. */
+  const wordSpring = t => springAt(t, 7.5, 9.5);
+  /* "move." gets a looser, louder one — ~20% over, and it rings twice. */
+  const moveSpring = t => springAt(t, 5.2, 11.2);
+
+  /* "move." travels to get where it is going, letter by letter. Each letter is
+     a step behind the one before it, so the word arrives as a run rather than
+     as a block — which is the only reason to have split it. */
+  const emLetters = heroLayer ? [...heroLayer.querySelectorAll('.sx-copy[data-copy="0"] .sx-em > i')] : [];
+  /* The cascade has to fit its window whatever the word is. "move." was five
+     letters; "experiences" is eleven, and a fixed per-letter stagger ran the
+     last of them off the end of the window so the word never finished arriving.
+     Budget a fixed share of the window to the whole run and divide it up. */
+  const EM_SPAN   = 0.58;     // how much of the window one letter takes
+  const EM_SPREAD = 0.42;     // how much of it the stagger as a whole may use
+  const emStep = HERO_STEPS.find(s => s[0] === '.sx-copy[data-copy="0"] .sx-em');
+
+  /* One ramp, sliced across the letters, written once. Each letter paints a
+     gradient sized to the whole word and offset to its own position in it, so
+     the five of them still read as one sweep however far apart they fly. */
+  if (heroLayer) {
+    heroLayer.querySelectorAll('.sx-em').forEach(em => {
+      const L = [...em.children], n = L.length;
+      L.forEach((el, i) => {
+        el.style.setProperty('--gs', (n * 100) + '%');
+        el.style.setProperty('--gp', (n > 1 ? (i / (n - 1)) * 100 : 0).toFixed(2) + '%');
+      });
+    });
+  }
+
+  /* --- the portrait's place in each sentence ---
+     One portrait, three layouts. Each copy carries an invisible slot where the
+     portrait belongs in that line; this measures all three against the stack and
+     parks the real one on the active copy's. Measured, never guessed: the slots
+     are laid out by the same text engine that lays out the words, so they are
+     right at any viewport and in any font.
+
+     Re-measured on resize and after webfonts land, because both move the slot. */
+  const copies    = heroLayer ? [...heroLayer.querySelectorAll('.sx-copy')] : [];
+  const copiesBox = document.getElementById('sx-copies');
+  const faceEl    = document.getElementById('sx-face');
+  let facePos = [];
+  let activeCopy = 0;
+
+  /* Offsets accumulate up the offsetParent chain to a given ancestor.
+
+     offsetLeft alone is relative to the nearest POSITIONED ancestor, and
+     .sx-line-1 is position:relative — so a slot's offsetLeft is measured from
+     its own copy, not from the stack. The three copies are different widths and
+     each is centred in the column, so their origins differ by up to 130px:
+     reading offsetLeft directly put the portrait on top of the last two letters
+     of "capture". Only the widest copy, whose left edge is 0, came out right —
+     which is exactly the one copy that got checked. */
+  function offsetIn(el, ancestor) {
+    let x = 0, y = 0, n = el;
+    while (n && n !== ancestor) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+    return { x: x, y: y };
+  }
+
+  function measureFace() {
+    if (!copiesBox || !copies.length) return;
+    /* Layout offsets, NOT getBoundingClientRect. The stack lives inside
+       .sx-hero-depth, which spends the whole arrival at translateZ(-560px) —
+       rect coordinates there are perspective-scaled, so measuring at init put
+       the portrait 190px adrift. Offsets are layout, and layout does not care
+       what the camera is doing. */
+    facePos = copies.map(c => {
+      const slot = c.querySelector('.sx-face-slot');
+      return slot ? offsetIn(slot, copiesBox) : { x: 0, y: 0 };
+    });
+    placeFace(activeCopy);
+  }
+
+  function placeFace(i) {
+    const at = facePos[i];
+    if (!faceEl || !at) return;
+    faceEl.style.setProperty('--fx', at.x.toFixed(1) + 'px');
+    faceEl.style.setProperty('--fy', at.y.toFixed(1) + 'px');
+  }
+
+  if (copiesBox) {
+    measureFace();
+    addEventListener('resize', measureFace, { passive: true });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureFace, () => {});
+  }
+
+  /* ========================================================================
+     THE THREE SENTENCES
+     ========================================================================
+     Once the hero has landed, the headline cycles. The rules that make it
+     smooth rather than merely animated:
+
+     1. Nothing relayouts. The three copies are stacked in one grid cell, so a
+        change is only ever opacity and transform on boxes that were already
+        laid out. No text is retyped and no width is animated.
+     2. Everything goes through the SAME custom-property pipeline the arrival
+        uses. Motion drives a plain object and this writes --t/--s/--dir; it
+        never sets element.style.opacity. An inline opacity outranks the
+        stylesheet rule, and one Motion animation touching it directly would
+        permanently sever `opacity: var(--t)` and freeze the arrival.
+     3. One owner at a time. While the rotator has the floor the arrival skips
+        every copy-owned value, and the moment the reader scrolls back the
+        rotator stands down and hands them back.
+     ====================================================================== */
+
+  const SWAP_HOLD = 2600;   // ms a sentence holds, fully arrived and readable
+  const SWAP_MS   = 950;    // ms the change itself takes
+  /* The two halves overlap: the incoming words are already rising while the
+     outgoing ones are still leaving, so the line is never empty and the eye is
+     never given a gap to notice. */
+  const OUT_END   = 0.54;
+  const IN_START  = 0.30;
+  const OUT_STAGGER = 0.10;
+  const IN_STAGGER  = 0.14;
+
+  /* Leaving accelerates away; arriving lands on the spring. A word that sprang
+     on the way out would wobble as it left, which reads as indecision. */
+  const outEase   = t => t * t;
+  /* The portrait travels WITH the sentence, so it wants a slow start and a slow
+     stop — not a spring. A spring is 86% of the way there a sixth of the way
+     in, which had it sitting in its new place waiting for the words to catch
+     up. Ease-in-out is what an object moving between two points looks like. */
+  const glideEase = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+
+  const copyParts = copies.map(c => {
+    const em = c.querySelector('.sx-em');
+    return {
+      el: c,
+      words: [...c.querySelectorAll('.sx-w1, .sx-w2, .sx-w3, .sx-em')],
+      em: em,
+      letters: em ? [...em.children] : []
+    };
+  });
+
+  let swapAnim = null, holdTimer = 0, rotating = false;
+
+  /* v is presence: 1 is fully here, 0 is fully gone. Words run front-first in
+     both directions, so the sentence leaves the way it arrived. */
+  function paintCopy(i, v, leaving) {
+    const P = copyParts[i];
+    if (!P) return;
+    const n = P.words.length;
+    const stag = leaving ? OUT_STAGGER : IN_STAGGER;
+    const span = Math.max(0.2, 1 - stag * (n - 1));
+
+    for (let w = 0; w < n; w++) {
+      const off = (leaving ? (n - 1 - w) : w) * stag;
+      const t = clamp01((v - off) / span);
+      const el = P.words[w];
+
+      if (el === P.em) {
+        /* The emphasis keeps its letter cascade on every entrance, not just the
+           first — it is the payoff word in all three sentences. */
+        const L = P.letters, ln = L.length;
+        const lstep = ln > 1 ? EM_SPREAD / (ln - 1) : 0;
+        for (let j = 0; j < ln; j++) {
+          const lt = clamp01((t - j * lstep) / EM_SPAN);
+          L[j].style.setProperty('--t', lt.toFixed(3));
+          L[j].style.setProperty('--s', (leaving ? outEase(lt) : moveSpring(lt)).toFixed(3));
+        }
+      } else {
+        el.style.setProperty('--t', t.toFixed(3));
+        el.style.setProperty('--s', (leaving ? outEase(t) : wordSpring(t)).toFixed(3));
+      }
+    }
+  }
+
+  function paintSwap(from, to, v) {
+    copyParts[from].el.style.setProperty('--dir', '-1');   // out goes up and left
+    copyParts[to].el.style.setProperty('--dir', '1');
+    paintCopy(from, 1 - seg(v, 0, OUT_END), true);
+    paintCopy(to, seg(v, IN_START, 1), false);
+
+    /* The portrait does not crossfade — there is only one of it. It travels to
+       its place in the new sentence, which is the whole reason it was lifted
+       out of the flow. */
+    const a = facePos[from], b = facePos[to];
+    if (faceEl && a && b) {
+      const g = glideEase(seg(v, 0.06, 0.94));
+      faceEl.style.setProperty('--fx', (a.x + (b.x - a.x) * g).toFixed(1) + 'px');
+      faceEl.style.setProperty('--fy', (a.y + (b.y - a.y) * g).toFixed(1) + 'px');
+    }
+  }
+
+  /* The exact end state, set outright rather than left wherever the animation
+     stopped — a swap that ends on 0.998 leaves a copy fractionally blurred. */
+  function settleCopies() {
+    for (let i = 0; i < copyParts.length; i++) {
+      copyParts[i].el.style.setProperty('--dir', '1');
+      paintCopy(i, i === activeCopy ? 1 : 0, false);
+    }
+    placeFace(activeCopy);
+  }
+
+  function heroOnScreen() {
+    if (!heroLayer) return false;
+    const r = heroLayer.getBoundingClientRect();
+    return r.bottom > 0 && r.top < innerHeight;
+  }
+
+  function queueSwap() {
+    clearTimeout(holdTimer);
+    if (!rotating) return;
+    holdTimer = setTimeout(function () {
+      if (!rotating) return;
+      /* Off screen or in a background tab: hold the current sentence and check
+         again. Cycling a headline nobody is looking at is work for nothing, and
+         it would also mean coming back to a page mid-transition. */
+      if (document.hidden || !heroOnScreen()) { queueSwap(); return; }
+      runSwap(activeCopy, (activeCopy + 1) % copyParts.length);
+    }, SWAP_HOLD);
+  }
+
+  function runSwap(from, to) {
+    const box = { v: 0 };
+    const finish = () => {
+      swapAnim = null;
+      activeCopy = to;
+      settleCopies();
+      queueSwap();
+    };
+    if (M) {
+      swapAnim = M.animate(box, { v: 1 }, {
+        /* Linear, because every curve in the change is applied per word inside
+           paintSwap. Easing the clock as well would ease them twice. */
+        duration: SWAP_MS / 1000,
+        ease: 'linear',
+        onUpdate: () => paintSwap(from, to, box.v),
+        onComplete: finish
+      });
+    } else {
+      const t0 = performance.now();
+      (function step(now) {
+        if (!rotating) return;
+        const v = Math.min((now - t0) / SWAP_MS, 1);
+        paintSwap(from, to, v);
+        if (v < 1) requestAnimationFrame(step); else finish();
+      })(performance.now());
+    }
+  }
+
+  function setRotating(on) {
+    if (on === rotating) return;
+    rotating = on;
+    if (on) { queueSwap(); return; }
+
+    /* Standing down. Stop where we are, put the first sentence back, and give
+       the copy-owned values to the arrival — which will paint them from the
+       scroll position on the very next frame. */
+    clearTimeout(holdTimer);
+    if (swapAnim) { try { swapAnim.stop(); } catch (e) {} swapAnim = null; }
+    activeCopy = 0;
+    for (let i = 0; i < copyParts.length; i++) {
+      copyParts[i].el.style.setProperty('--dir', '1');
+      if (i) paintCopy(i, 0, false);
+    }
+    placeFace(0);
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && rotating) queueSwap();
+  });
 
   function paintHero(p) {
     if (!heroLayer || !heroDepth) return;
@@ -552,21 +804,32 @@
 
     if (!reduced) {
       for (const n of heroNodes) {
+        if (rotating && n.copyOwned) continue;
         const t = clamp01((k - n.a) / (n.b - n.a));
         for (const el of n.els) {
           el.style.setProperty('--t', t.toFixed(3));
           el.style.setProperty('--e', easeOut(t).toFixed(3));
           el.style.setProperty('--b', (t <= 0 ? 0 : t >= 1 ? 1 : backOut(t)).toFixed(3));
+          /* --s is the spring: the same progress, arriving instead of easing. */
+          el.style.setProperty('--s', wordSpring(t).toFixed(3));
+        }
+      }
+
+      /* The word the sentence is for, one letter at a time. */
+      if (emLetters.length && emStep && !rotating) {
+        const T = clamp01((k - emStep[1]) / (emStep[2] - emStep[1]));
+        const step = emLetters.length > 1 ? EM_SPREAD / (emLetters.length - 1) : 0;
+        for (let i = 0; i < emLetters.length; i++) {
+          const lt = clamp01((T - i * step) / EM_SPAN);
+          emLetters[i].style.setProperty('--t', lt.toFixed(3));
+          emLetters[i].style.setProperty('--s', moveSpring(lt).toFixed(3));
         }
       }
     }
 
-    if (termLayer && bootState !== 'running') {
-      if (k > 0.5) termRetired = true;
-      const v = (bootState === 'idle' || termRetired) ? 0 : (1 - clamp01(k / 0.34));
-      termLayer.style.opacity = v.toFixed(3);
-      termLayer.style.pointerEvents = 'none';
-    }
+    /* The handover. The rotator may only have the headline once the arrival has
+       finished with it, and loses it the instant the reader scrolls back. */
+    setRotating(!reduced && k >= 0.999);
   }
 
   window.SX = window.SX || {};
@@ -766,13 +1029,6 @@
       reelOn = true; curve();
     }
   }
-
-  /* The one seam between this module and the landing's scrub engine: the
-     landing owns the scroll spine and the film, so it owns the number; this
-     module owns what the terminal does with it. */
-  window.SX = window.SX || {};
-  window.SX.armBoot = armBoot;
-  paintBoot(0);
 
   /* ------------------------------------------------------------------------
      Case study buttons.

@@ -92,7 +92,7 @@
   /* 100vh + film (3.0s x 90) + HERO_VH. JS overwrites this from the real
      duration once metadata lands; this is the no-JS / pre-metadata fallback and
      it has to include the boot tail or the terminal types at the wrong rate. */
-  #s-enter { height: 513vh; }
+  #s-enter { height: 783vh; }
   #s-exit  { height: 435vh; }
 
   /* ---------- hero ---------- */
@@ -449,32 +449,18 @@
         <span class="label">Scroll</span>
       </div>
 
-      <!-- The boot terminal. It lives INSIDE the hero, not in a section of its
-           own, because it has to type during the dive's last frames rather
-           than after them — one continuous scroll, no second gesture. Its
-           progress is handed down by the landing's own scrub loop. -->
-      <div class="sx-term-layer" id="sx-term-layer">
+      <!-- ---------- THE APPROACH ----------
+           The film's camera travels along Z and then stops dead at the glass.
+           This carries that motion past the end of the film: specks keep coming
+           at you while the hero assembles behind them, so the seam between a
+           video and a DOM section has something moving across it instead of a
+           cut. It replaces the boot terminal, which was a second thing to read
+           at the exact moment there was already something to look at.
 
-      <div class="sx-term">
-        <div class="sx-term-bar">
-          <span class="sx-dot"></span>
-          <span>tty0 — inside the screen</span>
-          <span class="sx-sp"></span>
-          <span>30 fps</span>
-        </div>
-
-        <span class="sx-line" data-kind="cmd"><span>&gt; shashank --boot --sections=work,experience</span></span>
-        <span class="sx-line" data-kind="ok"><span>[<span class="sx-key">ok</span>] glass <span class="sx-mute">·····················</span> breached</span></span>
-        <span class="sx-line" data-kind="ok"><span>[<span class="sx-key">ok</span>] mounting /work <span class="sx-mute">············</span> 3 case studies</span></span>
-        <span class="sx-line" data-kind="ok"><span>[<span class="sx-key">ok</span>] mounting /archive <span class="sx-mute">·········</span> 19 artefacts</span></span>
-        <span class="sx-line" data-kind="ok"><span>[<span class="sx-key">ok</span>] mounting /experience <span class="sx-mute">······</span> 2016 → 2026</span></span>
-        <span class="sx-line" data-kind="warm"><span>[<span class="sx-key">ok</span>] loadout <span class="sx-mute">···················</span> mouse → tablet → kit → motion</span></span>
-        <span class="sx-line" data-kind="cmd"><span>ready. keep scrolling.</span><i class="sx-caret" id="sx-caret"></i></span>
-      </div>
-
-      <button class="sx-skip" id="sx-skip" type="button">Skip the boot</button>
-      <div class="sx-boot-prog"><i></i></div>
-      </div>
+           Canvas rather than elements: a few hundred of these redrawn every
+           frame is nothing for a canvas and a great deal of compositor work for
+           the DOM. Behaviour lives in ../assets/js/sections.js. -->
+      <canvas class="sx-dust" id="sx-dust" aria-hidden="true"></canvas>
 
       <!-- ---------- HERO ----------
            Inside the film's own sticky stage, not in a section below it. The
@@ -497,13 +483,38 @@
       <p class="sx-corner" data-at="tr">2016 — 2026 · Lead PD, Airtel</p>
 
       <div class="sx-wrap">
-        <h1 class="sx-line-1">
-          <span class="sx-w1">I</span> <span class="sx-w1">design</span>
-          <span class="sx-face" aria-hidden="true"><img src="../public/img/profile.jpeg"
+        <!-- Three sentences, STACKED in one grid cell rather than swapped in
+             and out of one. Nothing here ever reflows: each copy has its own
+             static layout and the transition only ever touches opacity and
+             transform, which is the whole reason it can be smooth. Retyping one
+             element would relayout a 112px display face every frame.
+
+             Line breaks are structural, not wrapped — "I <verb>" has to stay on
+             the first line in all three, and letting text-wrap decide that would
+             put "capture" on line two the moment the viewport got narrow. -->
+        <div class="sx-copies" id="sx-copies">
+          <h1 class="sx-line-1 sx-copy" data-copy="0">
+            <span class="sx-l1"><span class="sx-w1">I</span> <span class="sx-w1">craft</span><span class="sx-face-slot" aria-hidden="true"></span></span>
+            <span class="sx-l2"><span class="sx-w2">ideas</span> <span class="sx-w3">into</span> <em class="sx-em"><i>e</i><i>x</i><i>p</i><i>e</i><i>r</i><i>i</i><i>e</i><i>n</i><i>c</i><i>e</i><i>s</i></em></span>
+          </h1>
+
+          <p class="sx-line-1 sx-copy" aria-hidden="true" data-copy="1">
+            <span class="sx-l1"><span class="sx-w1">I</span> <span class="sx-w1">make</span><span class="sx-face-slot" aria-hidden="true"></span></span>
+            <span class="sx-l2"><span class="sx-w2">pixels</span> <span class="sx-w3">come</span> <em class="sx-em"><i>a</i><i>l</i><i>i</i><i>v</i><i>e</i></em></span>
+          </p>
+
+          <p class="sx-line-1 sx-copy" aria-hidden="true" data-copy="2">
+            <span class="sx-l1"><span class="sx-w1">I</span> <span class="sx-w1">capture</span><span class="sx-face-slot" aria-hidden="true"></span></span>
+            <span class="sx-l2"><span class="sx-w2">moments</span> <span class="sx-w3">that</span> <em class="sx-em"><i>s</i><i>t</i><i>a</i><i>y</i></em></span>
+          </p>
+
+          <!-- ONE portrait for all three. It is inline in the sentence, so its
+               place moves as the words change; each copy carries an invisible
+               slot marking where, and this glides between them. A second and a
+               third <img> crossfading at different x would read as a jump. -->
+          <span class="sx-face" id="sx-face" aria-hidden="true"><img src="../public/img/profile.jpeg"
                 alt="" width="1024" height="1024" decoding="async"></span>
-          <span class="sx-w2">products</span> <span class="sx-w3">that</span>
-          <em class="sx-em">move.</em>
-        </h1>
+        </div>
         <p class="sx-hero-sub">Ten years inside entertainment products —
           <b>gaming, music, streaming, live TV</b>. Mostly at scale, mostly in India,
           increasingly remote.</p>
@@ -1051,27 +1062,23 @@
   // 90vh/s means a 3s clip takes ~2.7 screens of scrolling to play through.
   const SCRUB_VH_PER_SEC = 90;
 
-  // The boot terminal types inside the entry section rather than in one of its
-  // own below it. That was the whole complaint about the first version: the
-  // film finished, and THEN you had to start scrolling again to watch a loader.
-  // Now the entry section carries the film plus this much extra scroll, the
-  // terminal starts typing while the last frames are still going black, and the
-  // reader never makes a second gesture.
-  // The film is 91 frames at 30fps (counted off the mp4's stts atom, not
-  // guessed). The loader takes over at frame 61 and drives the remaining thirty
-  // itself, so the camera finishes its move into black as the terminal wakes —
-  // one continuous beat rather than a film that stops and a loader that starts.
-  const BOOT_LEAD_FRAMES = 30;
-  const FILM_FPS = 30;
-
-  // Scroll spent on the hero's arrival along Z, after the film has finished.
-  // It lives inside the entry section so the whole entry — film, loader, hero —
-  // is one reversible timeline rather than a film followed by a page.
+  // Scroll spent on the hero's arrival along Z. It lives inside the entry
+  // section so the whole entry — film, approach, hero — is one timeline driven
+  // by one number, in both directions.
   const HERO_VH = 150;
-  // Scroll the loader's finished frame is held for before the hero starts
-  // arriving. Without it the hero begins the moment the terminal stops typing,
-  // and the two read as one continuous move instead of two beats.
-  const HOLD_VH = 90;
+  // Scroll the film's last frame is held for before the hero starts arriving.
+  // Zero: the approach already carries that beat, and any hold here is a
+  // screenful of scrolling on a black frame with nothing happening in it.
+  const HOLD_VH = 0;
+  // Scroll the FINISHED hero is held for, after the arrival and before the
+  // entry section lets go of the stage.
+  //
+  // Without this the headline completed on the last pixel of the section and the
+  // hero began scrolling away in the same gesture — there was nowhere to stand
+  // and look at it. That is also why the three sentences never cycled: rotation
+  // only starts once the arrival is complete, and until now "complete" and "gone"
+  // were the same scroll position.
+  const HERO_HOLD_VH = 260;
 
   // The click-to-dive plays this many times faster than 1x. 1.0 is the film's
   // true speed (what it was doing before, and what read as sluggish).
@@ -1143,7 +1150,7 @@
       if (!secs || !isFinite(secs)) return;
       el.style.height = (100 + secs * SCRUB_VH_PER_SEC + (extraVh || 0)) + 'vh';
     };
-    fit(sEnter, enter.duration, HOLD_VH + HERO_VH);
+    fit(sEnter, enter.duration, HOLD_VH + HERO_VH + HERO_HOLD_VH);
     fit(sExit,  exitV.duration, 0);
   }
 
@@ -1254,6 +1261,18 @@
   }
   const scrubEnter = makeScrubber(enter);
   const scrubExit  = makeScrubber(exitV);
+
+  /* How the entry section's scroll is divided up. One place, because the scrub
+     loop and the CTA dive both have to agree about where the hero finishes. */
+  function shares() {
+    const filmVh  = (enter.duration || 3.033) * SCRUB_VH_PER_SEC;
+    const totalVh = filmVh + HOLD_VH + HERO_VH + HERO_HOLD_VH;
+    return {
+      film:    filmVh / totalVh,
+      hold:    (filmVh + HOLD_VH) / totalVh,
+      heroEnd: (filmVh + HOLD_VH + HERO_VH) / totalVh
+    };
+  }
 
   function progressOf(el) {
     const r = el.getBoundingClientRect();
@@ -1371,46 +1390,24 @@
          pFilm — 0..1 across the film alone, which every hero-exit ramp and the
                  scrubber were tuned against
          pHero — 0..1 across the arrival, which runs after the film ends */
-    const filmVh    = (enter.duration || 3.033) * SCRUB_VH_PER_SEC;
-    const totalVh   = filmVh + HOLD_VH + HERO_VH;
-    const filmShare = filmVh / totalVh;
-    const holdShare = (filmVh + HOLD_VH) / totalVh;
-    const pVideo = Math.min(pEnter / filmShare, 1);
-    // The hold sits between them: the terminal rests on its finished frame
-    // before the hero begins to come forward.
-    const pHero  = Math.min(Math.max((pEnter - holdShare) / (1 - holdShare), 0), 1);
+    const S = shares();
+
+    const pVideo = Math.min(pEnter / S.film, 1);
+    // The arrival now ends BEFORE the section does — everything past S.heroEnd
+    // is the hold, where the headline sits finished and the sentences cycle.
+    const pHero  = Math.min(Math.max((pEnter - S.hold) / (S.heroEnd - S.hold), 0), 1);
 
     // The hero owns its own reveal; this just hands it the number, every frame,
     // in both directions.
     if (window.SX && window.SX.hero) window.SX.hero(pHero);
 
-    /* The camera has reached the glass. Hand the last ten frames to the loader,
-       once. It scrubs them itself while the terminal comes up, then hands back.
-
-       While it owns the film, the scroll loop must not also be writing to the
-       scrubber — two sources on one playhead is a fight nobody wins. */
-    const secs  = (enter.duration && isFinite(enter.duration)) ? enter.duration : 3.033;
-    const frames = Math.max(Math.round(secs * FILM_FPS), BOOT_LEAD_FRAMES + 1);
-    const armAt = (frames - BOOT_LEAD_FRAMES) / frames;
-
-    if (!bootOwnsFilm && pVideo >= armAt && window.SX && window.SX.armBoot) {
-      bootOwnsFilm = true;
-      window.SX.armBoot({
-        from: armAt,
-        // The loader scrubs the tail itself: 0 at frame 81, 1 at frame 91.
-        setFilm: (k) => scrubEnter.set(armAt + (1 - armAt) * k),
-        // Land the page exactly at the end of the entry section, so the hero —
-        // which starts on the same black — is already at the viewport edge.
-        finish: () => {
-          bootOwnsFilm = false;
-          // Land exactly where the film ends and the arrival begins, so the
-          // reader's next gesture starts the hero coming forward.
-          const travel = sEnter.offsetHeight - innerHeight;
-          const end = scrollY + sEnter.getBoundingClientRect().top + travel * filmShare;
-          void holdShare;
-          scrollTo(0, end);
-        }
-      });
+    // The approach bridges two beats — the film's last stretch and the hero's
+    // arrival — so it gets its own 0-1 across exactly that span. Handing it raw
+    // entry progress would mean re-tuning it every time the section's
+    // proportions moved, which is precisely what just happened.
+    if (window.SX && window.SX.dust) {
+      const a = S.film * 0.68, b = S.hold + (S.heroEnd - S.hold) * 0.92;
+      window.SX.dust(Math.min(Math.max((pEnter - a) / (b - a), 0), 1));
     }
 
     if (!reduced) {
@@ -1419,7 +1416,7 @@
         scrubExit.set(pExit);
       } else {
         enter.classList.add('live'); exitV.classList.remove('live');
-        if (!bootOwnsFilm) scrubEnter.set(pVideo);
+        scrubEnter.set(pVideo);
       }
     }
 
@@ -1445,9 +1442,6 @@
   // 1x. One mechanism instead of a separate "play" path that could
   // drift out of sync with the page.
   let animating = false;
-
-  // True only while the loader is scrubbing the film's last ten frames.
-  let bootOwnsFilm = false;
 
   function animateScrollTo(to, ms, easing) {
     const from = scrollY, delta = to - from, t0 = performance.now();
@@ -1483,8 +1477,11 @@
   // shortcut behind the "Check Work" button, which is its only caller.
   function diveIn() {
     prime();
-    const end = scrollY + sEnter.getBoundingClientRect().top
-              + (sEnter.offsetHeight - innerHeight);
+    /* Land where the arrival finishes, not at the end of the section: past that
+       point is the hold, and dropping the reader at the far end of it would put
+       them at the moment the hero starts to leave. */
+    const travel = sEnter.offsetHeight - innerHeight;
+    const end = scrollY + sEnter.getBoundingClientRect().top + travel * shares().heroEnd;
     const secs = (enter.duration && isFinite(enter.duration) ? enter.duration : 3.033)
                + HERO_VH / SCRUB_VH_PER_SEC;
     if (reduced) { scrollTo(0, end); return; }

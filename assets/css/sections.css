@@ -231,127 +231,25 @@
    never be.
    ------------------------------------------------------------------------- */
 
-/* The terminal is a layer INSIDE the landing's hero, not a section of its own.
-   Its progress is handed down by the landing's scrub loop, so it types while
-   the film's last frames are still going black — one continuous scroll rather
-   than "the film ends, now scroll again to watch a loader".
-
-   .hero sets pointer-events:none for the film; the layer turns them back on
-   for itself only once it is actually legible. */
-.sx-term-layer {
+/* ---------------------------------------------------------------------------
+   THE APPROACH
+   ---------------------------------------------------------------------------
+   A canvas of specks travelling toward the camera, filling the beat where the
+   film's move ends and the hero's begins. It sits ABOVE the film and BELOW the
+   hero layer (z-index 5), so the specks pass through the space between the
+   glass you just came through and the type coming forward to meet you — and
+   never over the headline, which has to stay readable.
+   ------------------------------------------------------------------------- */
+.sx-dust {
   position: absolute;
   inset: 0;
-  z-index: 4;
-  display: grid;
-  align-content: center;
-  padding-inline: var(--sx-gut);
-  opacity: 0;
-  pointer-events: none;
-  will-change: opacity;
-}
-
-.sx-term {
-  width: min(72ch, 100%);
-  margin: 0 auto;
-  font-family: var(--sx-mono);
-  font-size: clamp(.72rem, 1.16vw, .95rem);
-  line-height: 2.05;
-  letter-spacing: .015em;
-  color: rgba(237,239,242,.9);
-}
-
-/* The one piece of chrome: a window title bar, so the terminal reads as a thing
-   running on the machine you just fell into rather than text on a black page. */
-.sx-term-bar {
-  display: flex;
-  align-items: center;
-  gap: .8rem;
-  padding-bottom: .9rem;
-  margin-bottom: 1.4rem;
-  border-bottom: 1px solid rgba(233,162,59,.18);
-  color: rgba(237,239,242,.42);
-  font-size: var(--sx-t-mono);
-  letter-spacing: .18em;
-  text-transform: uppercase;
-}
-.sx-term-bar .sx-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(233,162,59,.5);
-  flex: none;
-}
-.sx-term-bar .sx-sp { flex: 1; }
-
-.sx-line { display: block; white-space: pre-wrap; position: relative; }
-
-/* Each line is revealed a character at a time by clipping, not by rewriting
-   textContent — the text stays in the DOM for screen readers and crawlers from
-   first paint, and there is no layout work per frame. */
-.sx-line > span {
-  display: inline-block;
-  clip-path: inset(0 var(--sx-clip, 100%) 0 0);
-  will-change: clip-path;
-}
-
-.sx-line[data-kind="cmd"]  { color: var(--sx-ice); }
-.sx-line[data-kind="ok"]   { color: rgba(237,239,242,.62); }
-.sx-line[data-kind="warm"] { color: var(--sx-chai); }   /* warmth #1 of 2 */
-.sx-line .sx-key { color: var(--sx-glow); }
-.sx-line .sx-mute { color: rgba(237,239,242,.34); }
-
-/* Block caret, steps(1) — a smooth fade reads as a pulsing dot, not a cursor.
-   Matches the hero's existing caret so the two terminals are the same terminal.
-
-   Absolutely positioned and driven to the clip edge by JS: the reveal clips the
-   span instead of truncating it, so the span keeps its full width and an inline
-   caret would sit at the end of text nobody has typed yet. */
-.sx-caret {
-  position: absolute;
-  left: 0; top: 50%;
-  width: .56em; height: 1.05em;
-  transform: translate(var(--sx-caret-x, 0px), -50%);
-  background: var(--sx-ice);
-  animation: sx-blink 1.06s steps(1) infinite;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  display: block;
   pointer-events: none;
 }
-@keyframes sx-blink { 0%,50% { opacity: 1 } 50.01%,100% { opacity: 0 } }
-
-/* Skip. Present from the first line — a loader you cannot leave is a gate. */
-.sx-skip {
-  position: absolute;
-  right: var(--sx-gut);
-  bottom: clamp(1.5rem, 5vh, 3rem);
-  display: inline-flex;
-  align-items: center;
-  gap: .6rem;
-  padding: .55rem .9rem;
-  font-family: var(--sx-ui);
-  font-weight: 500;
-  font-size: var(--sx-t-mono);
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: rgba(237,239,242,.5);
-  background: rgba(24,32,47,.5);
-  border: 1px solid rgba(233,162,59,.2);
-  border-radius: 3px;
-  cursor: pointer;
-  transition: color .22s var(--sx-ease), border-color .22s var(--sx-ease);
-}
-.sx-skip:hover { color: var(--sx-ice); border-color: rgba(233,162,59,.5); }
-
-/* The progress hairline is the loader's only literal "loading" affordance, and
-   it is the scrollbar's own progress through this section — not a fiction. */
-.sx-boot-prog {
-  position: absolute;
-  left: var(--sx-gut); right: var(--sx-gut);
-  bottom: clamp(1.5rem, 5vh, 3rem);
-  height: 1px;
-  background: rgba(233,162,59,.16);
-}
-.sx-boot-prog i {
-  display: block; height: 100%;
-  width: var(--sx-boot-p, 0%);
-  background: var(--sx-accent);
-}
+@media (prefers-reduced-motion: reduce) { .sx-dust { display: none; } }
 
 /* ---------------------------------------------------------------------------
    2 · WORK — dark. You are still inside the machine, looking at what it made.
@@ -900,8 +798,6 @@
   .sx-pair { grid-template-columns: 1fr; }
   .sx-facts { gap: 1.25rem 2rem; }
   .sx-facts div { flex: 1 1 40%; }
-  .sx-term { line-height: 1.9; }
-  .sx-skip { left: var(--sx-gut); right: auto; }
   .sx-stop:not(:last-child) { margin-bottom: 3rem; }
   .sx-slots { grid-template-columns: repeat(4, 1fr); gap: .3rem; }
   .sx-slot .sx-slot-l { display: none; }
@@ -921,9 +817,6 @@
    ------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
-  #sx-boot { height: 100vh; }
-  .sx-line > span { clip-path: none !important; }
-  .sx-caret { animation: none; }
   .sx-grain { animation: none; }
 
   .sx-js [data-reveal] { opacity: 1; transform: none; filter: none; }
@@ -1333,32 +1226,68 @@
   max-width: 15ch;
   text-wrap: balance;
 }
+/* The gradient lives on the LETTERS, not here — see the arrival further down.
+   Without scripting the letters never get their slice offsets, so this is the
+   fallback that keeps the word coloured at all. */
 .sx-line-1 em {
   font-style: italic;
   font-weight: 900;
   letter-spacing: -.05em;
+}
+.sx-line-1 em > i {
   background: var(--sx-chrome-text);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
-/* The portrait, set into the line as if it were a word. Circular, in colour,
-   at cap height — so it reads as part of the sentence rather than as an avatar
-   parked beside it. */
-.sx-face {
+/* ---- the three sentences ----
+   All three occupy the same grid cell, so the block is as tall and wide as it
+   needs to be for the longest and NOTHING moves when the copy changes. Only the
+   active one is painted; the others sit at --t 0 with nothing to composite. */
+.sx-copies {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+.sx-copies > .sx-copy { grid-area: 1 / 1; }
+
+/* The two lines are explicit rather than wrapped. "I <verb>" has to stay on the
+   first line in all three copies, and text-wrap would move "capture" down the
+   moment the viewport narrowed. */
+.sx-l1, .sx-l2 { display: block; }
+.sx-l1 { white-space: nowrap; }
+
+/* The portrait's place in the sentence, held open but never painted. Same box
+   as the real thing so the line measures identically either way. */
+.sx-face-slot {
   display: inline-block;
   vertical-align: -.16em;
   width: .92em; height: .92em;
+  margin: 0 .1em;
+}
+
+/* The portrait, set into the line as if it were a word. Circular, in colour,
+   at cap height — so it reads as part of the sentence rather than as an avatar
+   parked beside it.
+
+   Lifted out of the flow and positioned onto the active copy's slot, because
+   there is one portrait and three sentences: it glides to its new place in the
+   line as the words change rather than cutting to it. --fx/--fy are written by
+   JS from the measured slots. */
+.sx-face {
+  position: absolute;
+  left: 0; top: 0;
+  /* Out of the flow means out of the h1's font-size too, and .92em would then
+     resolve against the base and render a 15px portrait. */
+  font-size: var(--sx-t-hero);
+  width: .92em; height: .92em;
   border-radius: 50%;
   overflow: hidden;
-  margin: 0 .1em;
   box-shadow:
     0 0 0 1px rgba(244,241,236,.22),
     0 0 44px -6px rgba(224,84,42,.5);
-  /* Nudged by the pointer, at a fraction of the cursor's travel. */
-  transform: translate3d(calc(var(--sx-px,0) * .35px), calc(var(--sx-py,0) * .35px), 0);
-  will-change: transform;
+  will-change: transform, opacity;
 }
 .sx-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -1687,34 +1616,84 @@
 
 .sx-js .sx-hero-layer [style*="--t"] { will-change: transform, opacity; }
 
-/* The line, word by word: each rises out of its own baseline and clears. */
+/* The line, word by word: each rises out of its own baseline and clears.
+
+   On --s, the spring, rather than --e: the words now overshoot their resting
+   line by a hair and settle back onto it, which is the difference between type
+   that arrives and type that fades up. The rotation is tiny — under a degree —
+   and unwinds on the same curve, so each word rights itself as it lands. */
 .sx-line-1 .sx-w1,
 .sx-line-1 .sx-w2,
 .sx-line-1 .sx-w3 {
   display: inline-block;
+  transform-origin: 0 85%;
   opacity: var(--t, 0);
-  transform: translateY(calc((1 - var(--e, 0)) * 0.42em));
+  /* --dir is which way "not here yet" lies: +1 below the line (arriving), -1
+     above it (leaving). One transform serves both, so a word never jumps
+     between two different rules mid-change. */
+  transform:
+    translateY(calc((1 - var(--s, 0)) * 0.46em * var(--dir, 1)))
+    rotate(calc((1 - var(--s, 0)) * 1.1deg * var(--dir, 1)));
   filter: blur(calc((1 - var(--t, 0)) * 7px));
 }
 
 /* The portrait lands rather than fades: it drops in with a little overshoot
-   and a turn, because it is the one object in a line of type. */
+   and a turn, because it is the one object in a line of type.
+
+   --fx/--fy put it on the active copy's slot and are what it glides along when
+   the sentence changes; the pointer nudge rides on top of that. Order matters:
+   the slot translate has to come first, or the scale would multiply it. */
 .sx-face {
   opacity: var(--t, 0);
   transform:
-    translate3d(calc(var(--sx-px, 0) * .35px), calc(var(--sx-py, 0) * .35px), 0)
+    translate3d(calc(var(--fx, 0px) + var(--sx-px, 0) * .35px),
+                calc(var(--fy, 0px) + var(--sx-py, 0) * .35px), 0)
     scale(var(--b, 0))
     rotate(calc((1 - var(--b, 0)) * -22deg));
 }
 
-/* "move." is the word the sentence exists for, so it gets the loudest arrival:
-   it comes forward off the page and the chrome sweeps across it as it lands. */
-.sx-line-1 .sx-em {
+/* "move." is the word the sentence exists for, and it means motion — so it is
+   the one thing on the page that travels to get where it is going. Each letter
+   flies in from the right, a step behind the one before it, blurred by its own
+   speed, and lands on a spring that rings past the mark and settles back.
+
+   The word does nothing itself; every value is on the letters. */
+.sx-line-1 .sx-em { display: inline-block; }
+
+.sx-line-1 .sx-em > i {
   display: inline-block;
+  font-style: inherit;
+  transform-origin: 50% 60%;
+
+  /* background-clip:text paints only INSIDE the box, and an italic 900 glyph on
+     -.05em tracking overhangs its own advance width — as one word that overhang
+     landed inside the word's box, but letter by letter it falls outside it and
+     the paint stops at the edge. It chopped the arm off the "v" and half the
+     "e". The padding widens the paint box; the negative margin gives the space
+     straight back, so nothing moves. */
+  padding: 0 .16em;
+  margin: 0 -.16em;
+
+  /* The gradient moved off the word and onto the letters, because a letter that
+     transforms leaves its parent's background-clip:text behind — the paint
+     would stay put while the glyph flew. --gs and --gp are written once at
+     init: each letter carries a slice of one ramp sized to the whole word, so
+     five separately-painted letters still read as a single sweep. */
+  background: var(--sx-chrome-text);
+  background-size: var(--gs, 500%) 100%;
+  background-position: var(--gp, 0%) 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+
   opacity: var(--t, 0);
-  transform: scale(calc(0.72 + var(--b, 0) * 0.28));
-  background-size: 240% 100%;
-  background-position: calc((1 - var(--e, 0)) * 100%) 0;
+  /* Same --dir: the letters fly in from the right and, when the sentence is
+     replaced, carry on out to the left rather than reversing back the way they
+     came. The word keeps travelling in one direction the whole time it exists. */
+  transform:
+    translateX(calc((1 - var(--s, 0)) * 0.85em * var(--dir, 1)))
+    scale(calc(0.9 + var(--s, 0) * 0.1));
+  filter: blur(calc((1 - var(--t, 0)) * 9px));
 }
 
 .sx-hero-sub {
@@ -1733,7 +1712,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
-  .sx-line-1 .sx-em, .sx-face, .sx-hero-sub, .sx-corner,
+  .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub, .sx-corner,
   .sx-rules, .sx-mark, .sx-stamp, .sx-ticker {
     opacity: 1 !important; transform: none !important; filter: none !important;
   }
