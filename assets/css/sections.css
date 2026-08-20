@@ -1,0 +1,1018 @@
+/* ============================================================================
+   Work · Archive · Experience — the sections that live inside the screen.
+
+   Everything here is namespaced `sx-`. The landing file carries bare `h2` and
+   generic `.card` / `.panel` / `.rail` / `.tag` selectors from its placeholder
+   era; namespacing is what keeps the two from fighting.
+
+   Palette, type and the seven rules come from portfolio_spec.md, which read its
+   colours off the render rather than picking them. The two that shape most of
+   this file:
+     · surfaces are LIT, not bordered — a specular top edge and a shadow beneath,
+       never a 1px grey box
+     · highlight by DIMMING, never by adding glow — hover lowers the neighbours
+   ========================================================================== */
+
+:root {
+  /* --- the render's own colours --- */
+  --sx-void:    #04060C;   /* page floor, and the boot terminal */
+  --sx-wall:    #0A0F1C;   /* section grounds */
+  --sx-surface: #18202F;   /* lifted planes */
+  --sx-glow:    #5B8DEF;   /* the monitor LED. the accent. */
+  --sx-ice:     #C7DBFF;   /* highlights */
+  --sx-chai:    #D08544;   /* warmth. spent ONCE — the 2024 motion tool. */
+  --sx-poster:  #C2382F;   /* spent ONCE — the cancellation. */
+  --sx-paper:   #EDF1F8;   /* the light half of the site */
+
+  /* Ink, dark ground.
+     The muted steps are set by CONTRAST, not by eye: every one of these carries
+     real text (years, captions, acquisitions), most of it 11px mono, so each
+     needs 4.5:1 against its ground. The first pass used .38 for ink-3, which
+     measured 3.27:1 — comfortably under AA for text that size. ink-4 is the
+     only purely decorative step and is used for hairlines, never for type. */
+  --sx-ink:     #EDF1F8;
+  --sx-ink-2:   rgba(237,241,248,.72);   /* 9.6:1 on --sx-wall */
+  --sx-ink-3:   rgba(237,241,248,.55);   /* 5.1:1 on --sx-wall */
+  --sx-ink-4:   rgba(237,241,248,.16);   /* hairlines only */
+
+  /* Ink, paper ground. Experience runs light, so it needs its own ramp —
+     reusing the dark ramp at low alpha is how light sections end up grey-on-grey.
+     Same contrast rule as above; .42 for slate-3 measured 2.77:1. */
+  --sx-slate:   #0B1220;
+  --sx-slate-2: rgba(11,18,32,.74);   /* 8.0:1 on white */
+  --sx-slate-3: rgba(11,18,32,.60);   /* 4.9:1 on white */
+  --sx-slate-4: rgba(11,18,32,.13);   /* hairlines only */
+
+  /* The accent as TEXT on paper. #5B8DEF is the monitor LED and it is correct
+     against the dark ground, but it measures 3.23:1 on white — it cannot carry
+     a role label there. Same hue, taken down until it can. */
+  --sx-glow-ink: #2F5FC4;
+
+  /* The accent is a gradient, never flat blue (spec rule 2). */
+  --sx-accent: linear-gradient(104deg, #DCE9FF 0%, #8FB4F7 42%, #4F7BFF 100%);
+
+  /* Faces are the landing page's, so the new sections read as the same site you
+     just dove into. The machine speaks mono; the person speaks serif. */
+  --sx-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --sx-sans:  "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sx-mono:  "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Fluid scale. Clamped rather than stepped, because this page is scrubbed and
+     a breakpoint jump mid-scroll is visible. */
+  --sx-t-hero: clamp(2.6rem, 6.4vw, 5.6rem);
+  --sx-t-head: clamp(2rem, 4.2vw, 3.4rem);
+  --sx-t-sub:  clamp(1.4rem, 2.4vw, 2rem);
+  --sx-t-lede: clamp(1.05rem, 1.5vw, 1.3rem);
+  --sx-t-body: clamp(.98rem, 1.1vw, 1.07rem);
+  --sx-t-mono: clamp(.66rem, .78vw, .74rem);
+
+  --sx-gut: clamp(1.25rem, 5vw, 5rem);
+  --sx-max: 1440px;
+
+  /* Nothing snaps; everything arrives slightly late (spec rule 7). */
+  --sx-ease: cubic-bezier(.19,.68,.3,1);
+  --sx-ease-out: cubic-bezier(.22,1,.36,1);
+}
+
+/* ---------------------------------------------------------------------------
+   Shared shell
+   ------------------------------------------------------------------------- */
+
+.sx {
+  position: relative;
+  z-index: 1;
+  font-family: var(--sx-sans);
+  color: var(--sx-ink);
+  font-size: var(--sx-t-body);
+  line-height: 1.68;
+}
+.sx *, .sx *::before, .sx *::after { box-sizing: border-box; }
+
+.sx-wrap {
+  width: 100%;
+  max-width: var(--sx-max);
+  margin: 0 auto;
+  padding-inline: var(--sx-gut);
+}
+
+/* 12 columns on desktop, collapsing to one. Everything below positions against
+   this rather than inventing its own measure. */
+.sx-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: clamp(1rem, 1.7vw, 1.5rem);
+}
+
+.sx-mono {
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  font-weight: 400;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  margin: 0;
+}
+
+.sx-serif {
+  font-family: var(--sx-serif);
+  font-weight: 400;
+  letter-spacing: -.015em;
+  line-height: 1.04;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.sx-lede {
+  font-size: var(--sx-t-lede);
+  line-height: 1.55;
+  color: var(--sx-ink-2);
+  margin: 0;
+  max-width: 46ch;
+}
+
+.sx-p {
+  margin: 0 0 1.5rem;
+  color: var(--sx-ink-2);
+  max-width: 62ch;
+}
+
+/* Film grain — one texture over the renders AND the HTML, which is what glues
+   the video and the DOM into one image (spec rule 6). Generated, not fetched:
+   an external asset for this would be a request on the critical path.
+
+   `mix-blend-mode: overlay` at very low alpha; on top of everything, inert. */
+.sx-grain {
+  position: fixed;
+  inset: -120px;
+  z-index: 60;
+  pointer-events: none;
+  opacity: .32;
+  mix-blend-mode: overlay;
+  background-image: var(--sx-grain-src);
+  background-size: 180px 180px;
+  animation: sx-grain-shift 700ms steps(1) infinite;
+}
+@keyframes sx-grain-shift {
+  0%   { transform: translate(0, 0) }
+  25%  { transform: translate(-14px, 8px) }
+  50%  { transform: translate(9px, -12px) }
+  75%  { transform: translate(-6px, -5px) }
+  100% { transform: translate(0, 0) }
+}
+
+/* ---------------------------------------------------------------------------
+   1 · THE BOOT — the CLI loader on the black frame
+   ---------------------------------------------------------------------------
+   The dive ends with the monitor filling the viewport, fully black. This
+   section sits on that frame with NO background of its own, so the black you
+   are reading against is the last video frame rather than a CSS colour that
+   happens to match it. The film layer is fixed behind at z-index 0.
+
+   Typing is driven by scroll position, not a timer. Everything else on this
+   page is scrubbed, and a timed loader would be the one element racing ahead of
+   the scrollbar — it would read as a gate, which is exactly what a loader must
+   never be.
+   ------------------------------------------------------------------------- */
+
+#sx-boot {
+  position: relative;
+  height: 260vh;          /* the scroll budget the boot sequence types across */
+  background: transparent;
+}
+
+.sx-boot-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  align-content: center;
+  padding-inline: var(--sx-gut);
+}
+
+.sx-term {
+  width: min(72ch, 100%);
+  margin: 0 auto;
+  font-family: var(--sx-mono);
+  font-size: clamp(.72rem, 1.16vw, .95rem);
+  line-height: 2.05;
+  letter-spacing: .015em;
+  color: rgba(199,219,255,.9);
+}
+
+/* The one piece of chrome: a window title bar, so the terminal reads as a thing
+   running on the machine you just fell into rather than text on a black page. */
+.sx-term-bar {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  padding-bottom: .9rem;
+  margin-bottom: 1.4rem;
+  border-bottom: 1px solid rgba(91,141,239,.18);
+  color: rgba(199,219,255,.42);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.sx-term-bar .sx-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(91,141,239,.5);
+  flex: none;
+}
+.sx-term-bar .sx-sp { flex: 1; }
+
+.sx-line { display: block; white-space: pre-wrap; position: relative; }
+
+/* Each line is revealed a character at a time by clipping, not by rewriting
+   textContent — the text stays in the DOM for screen readers and crawlers from
+   first paint, and there is no layout work per frame. */
+.sx-line > span {
+  display: inline-block;
+  clip-path: inset(0 var(--sx-clip, 100%) 0 0);
+  will-change: clip-path;
+}
+
+.sx-line[data-kind="cmd"]  { color: var(--sx-ice); }
+.sx-line[data-kind="ok"]   { color: rgba(199,219,255,.62); }
+.sx-line[data-kind="warm"] { color: var(--sx-chai); }   /* warmth #1 of 2 */
+.sx-line .sx-key { color: var(--sx-glow); }
+.sx-line .sx-mute { color: rgba(199,219,255,.34); }
+
+/* Block caret, steps(1) — a smooth fade reads as a pulsing dot, not a cursor.
+   Matches the hero's existing caret so the two terminals are the same terminal.
+
+   Absolutely positioned and driven to the clip edge by JS: the reveal clips the
+   span instead of truncating it, so the span keeps its full width and an inline
+   caret would sit at the end of text nobody has typed yet. */
+.sx-caret {
+  position: absolute;
+  left: 0; top: 50%;
+  width: .56em; height: 1.05em;
+  transform: translate(var(--sx-caret-x, 0px), -50%);
+  background: var(--sx-ice);
+  animation: sx-blink 1.06s steps(1) infinite;
+  pointer-events: none;
+}
+@keyframes sx-blink { 0%,50% { opacity: 1 } 50.01%,100% { opacity: 0 } }
+
+/* Skip. Present from the first line — a loader you cannot leave is a gate. */
+.sx-skip {
+  position: absolute;
+  right: var(--sx-gut);
+  bottom: clamp(1.5rem, 5vh, 3rem);
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .55rem .9rem;
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(199,219,255,.5);
+  background: rgba(24,32,47,.5);
+  border: 1px solid rgba(91,141,239,.2);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color .22s var(--sx-ease), border-color .22s var(--sx-ease);
+}
+.sx-skip:hover { color: var(--sx-ice); border-color: rgba(91,141,239,.5); }
+
+/* The progress hairline is the loader's only literal "loading" affordance, and
+   it is the scrollbar's own progress through this section — not a fiction. */
+.sx-boot-prog {
+  position: absolute;
+  left: var(--sx-gut); right: var(--sx-gut);
+  bottom: clamp(1.5rem, 5vh, 3rem);
+  height: 1px;
+  background: rgba(91,141,239,.16);
+}
+.sx-boot-prog i {
+  display: block; height: 100%;
+  width: var(--sx-boot-p, 0%);
+  background: var(--sx-accent);
+}
+
+/* ---------------------------------------------------------------------------
+   2 · WORK — dark. You are still inside the machine, looking at what it made.
+   ---------------------------------------------------------------------------
+   The reveal is vertical DEPTH, not a slide-up: entries arrive by scaling from
+   0.94 with a blur clearing, which is what the dive itself does. The section
+   continues the camera move rather than starting a new grammar.
+   ------------------------------------------------------------------------- */
+
+#sx-work { background: var(--sx-wall); }
+
+/* The seam out of pure black. Without this the work section starts with a hard
+   edge against the video's last frame — the one place a cut would be visible. */
+.sx-seam-in {
+  height: 32vh;
+  background: linear-gradient(180deg, rgba(4,6,12,1) 0%, rgba(10,15,28,1) 100%);
+}
+
+.sx-sec-head {
+  padding-block: clamp(5rem, 12vh, 9rem) clamp(2rem, 5vh, 3.5rem);
+}
+.sx-sec-head h2 { font-size: var(--sx-t-head); margin-top: .8rem; }
+
+/* --- a single work entry --- */
+.sx-entry {
+  padding-block: clamp(4rem, 11vh, 8rem);
+  border-top: 1px solid var(--sx-ink-4);
+}
+.sx-entry:first-of-type { border-top: 0; }
+
+/* The kicker encodes something true: these ARE ordered, strongest-current last,
+   so the numbering carries information rather than decorating. */
+.sx-kicker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+.sx-kicker .sx-no {
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .2em;
+  color: var(--sx-glow);
+}
+.sx-kicker .sx-ln {
+  height: 1px; width: clamp(2rem, 7vw, 6rem);
+  background: linear-gradient(90deg, rgba(91,141,239,.55), transparent);
+}
+
+.sx-entry h3 {
+  grid-column: 1 / 10;
+  font-family: var(--sx-serif);
+  font-weight: 400;
+  font-size: var(--sx-t-hero);
+  line-height: 1.02;
+  letter-spacing: -.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.sx-entry-body { grid-column: 1 / 7; margin-top: clamp(1.5rem, 4vh, 2.5rem); }
+.sx-entry-aside { grid-column: 8 / 13; margin-top: clamp(1.5rem, 4vh, 2.5rem); }
+.sx-entry-vis  { grid-column: 1 / 13; margin-top: clamp(2rem, 5vh, 3rem); }
+
+/* The aside is the honest detail, in a different voice. Italic serif, because
+   it is the one place on the page that is not the machine talking. */
+.sx-aside-line {
+  font-family: var(--sx-serif);
+  font-style: italic;
+  font-size: var(--sx-t-sub);
+  line-height: 1.32;
+  color: var(--sx-ink);
+  margin: 0 0 .9rem;
+}
+.sx-aside-line em { font-style: normal; color: var(--sx-poster); }  /* the cancellation */
+
+/* --- lit surfaces ---
+   A plane is lifted by light: a specular top edge, a shadow beneath, and a
+   ground a shade above the section. Never a 1px grey border (spec rule 4). */
+.sx-slab {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(199,219,255,.055) 0%, rgba(199,219,255,0) 42%),
+    var(--sx-surface);
+  box-shadow:
+    inset 0 1px 0 rgba(199,219,255,.13),
+    0 24px 60px -30px rgba(0,0,0,.9);
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+  /* An aspect ratio alone gives a 16:7 plate 567px of height at 1440 — most of
+     a viewport, holding nothing yet. The cap keeps the ratio on smaller screens
+     and stops the plate dominating on large ones. */
+  max-height: 62vh;
+}
+
+/* Placeholder state. Reads as a deliberate reserved plate rather than a broken
+   image: a hairline cross-hatch, viewfinder crop marks at the corners, and the
+   mono caption naming what the slot is waiting for. Drop a real <img>/<video>
+   in and it covers all of this without a code change. */
+.sx-slab[data-empty]::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    /* crop marks — four corner brackets, drawn with gradients so the
+       placeholder still costs zero extra elements */
+    linear-gradient(90deg, rgba(199,219,255,.28) 0 18px, transparent 18px),
+    linear-gradient(180deg, rgba(199,219,255,.28) 0 18px, transparent 18px),
+    linear-gradient(270deg, rgba(199,219,255,.28) 0 18px, transparent 18px),
+    linear-gradient(0deg, rgba(199,219,255,.28) 0 18px, transparent 18px),
+    repeating-linear-gradient(
+      135deg, transparent 0 10px, rgba(199,219,255,.022) 10px 20px);
+  background-repeat: no-repeat;
+  background-position:
+    16px 16px, 16px 16px,
+    calc(100% - 16px) calc(100% - 16px), calc(100% - 16px) calc(100% - 16px),
+    0 0;
+  background-size: 18px 1px, 1px 18px, 18px 1px, 1px 18px, auto;
+}
+.sx-slab[data-empty]::after {
+  content: attr(data-empty);
+  position: relative;
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  text-align: center;
+  line-height: 2.1;
+  white-space: pre-line;
+  padding: 1.5rem;
+}
+.sx-slab > img, .sx-slab > video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* The pointer-tracked specular sweep. A light source that follows the cursor is
+   the same idea as the monitor lighting the room — it belongs here in a way a
+   generic "card glow" would not. Driven by --sx-mx/--sx-my from JS. */
+.sx-slab[data-lit]::after,
+.sx-slab[data-lit] .sx-sheen {
+  pointer-events: none;
+}
+.sx-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity .4s var(--sx-ease);
+  background: radial-gradient(
+    380px circle at var(--sx-mx, 50%) var(--sx-my, 50%),
+    rgba(199,219,255,.11), transparent 62%);
+}
+.sx-slab:hover .sx-sheen { opacity: 1; }
+
+/* --- fact row --- */
+.sx-facts {
+  grid-column: 1 / 13;
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  margin: clamp(1.75rem, 4vh, 2.5rem) 0 0;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--sx-ink-4);
+}
+.sx-facts div { min-width: 0; }
+.sx-facts dt {
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  margin: 0 0 .45rem;
+}
+.sx-facts dd { margin: 0; color: var(--sx-ink); font-size: .95rem; }
+
+/* --- the case-study button --- */
+.sx-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .8rem;
+  margin-top: .4rem;
+  padding: 0 0 .6rem;
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--sx-ink-4);
+  cursor: pointer;
+  transition: gap .3s var(--sx-ease), border-color .3s var(--sx-ease);
+}
+.sx-cta svg { flex: none; transition: transform .3s var(--sx-ease); }
+.sx-cta:hover { gap: 1.3rem; border-bottom-color: var(--sx-glow); }
+.sx-cta:hover svg { transform: translateX(3px); }
+
+/* --- the motion pair --- */
+.sx-pair { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 1.7vw, 1.5rem); }
+.sx-pair figcaption {
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  margin-top: .8rem;
+}
+.sx-pair figure { margin: 0; }
+
+/* ---------------------------------------------------------------------------
+   3 · ARCHIVE — the only crowded moment on the site.
+   Density is doing a job here: framed as "the rest of it", ten years of output
+   stops being clutter and becomes catalogue depth.
+   ------------------------------------------------------------------------- */
+
+#sx-archive { background: var(--sx-wall); padding-bottom: clamp(5rem, 12vh, 9rem); }
+
+.sx-arch-h {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin: clamp(2.5rem, 6vh, 4rem) 0 1.25rem;
+  padding-bottom: .8rem;
+  border-bottom: 1px solid var(--sx-ink-4);
+}
+.sx-arch-h h3 {
+  font-family: var(--sx-serif);
+  font-weight: 400;
+  font-size: var(--sx-t-sub);
+  margin: 0;
+}
+
+.sx-row { display: grid; gap: clamp(.7rem, 1.2vw, 1rem); }
+.sx-row[data-cols="3"] { grid-template-columns: repeat(3, 1fr); }
+.sx-row[data-cols="4"] { grid-template-columns: repeat(4, 1fr); }
+.sx-row[data-cols="6"] { grid-template-columns: repeat(6, 1fr); }
+.sx-row[data-cols="2"] { grid-template-columns: repeat(2, 1fr); }
+
+.sx-tile figcaption {
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .14em;
+  color: var(--sx-ink-3);
+  margin-top: .6rem;
+}
+.sx-tile { margin: 0; }
+
+/* Highlight by dimming (spec rule 5): hovering one tile lowers its neighbours
+   instead of lighting the target. The row gets brighter by getting darker. */
+.sx-row:hover .sx-tile { opacity: .42; transition: opacity .35s var(--sx-ease); }
+.sx-row:hover .sx-tile:hover { opacity: 1; }
+.sx-row .sx-tile { transition: opacity .35s var(--sx-ease); }
+
+/* ---------------------------------------------------------------------------
+   4 · EXPERIENCE — light. The tonal flip IS the section change.
+   ---------------------------------------------------------------------------
+   Work was the machine's output, so it ran on the machine's ground. This is ten
+   years of a person, so it runs on paper. The one thing that stays dark is the
+   figure's own panel — because he is still lit by a monitor. Light and dark are
+   nested here rather than sequential, which is what lets both exist on one page
+   without either looking like a theme toggle.
+   ------------------------------------------------------------------------- */
+
+/* Gradient bridge, ~36vh. A hard edge here would snap, and nothing snaps. */
+.sx-seam-paper {
+  height: 36vh;
+  background: linear-gradient(180deg,
+    var(--sx-wall) 0%, #2A3547 46%, #93A4C0 78%, var(--sx-paper) 100%);
+}
+
+#sx-exp {
+  background: var(--sx-paper);
+  color: var(--sx-slate);
+  padding-bottom: clamp(4rem, 10vh, 7rem);
+}
+#sx-exp .sx-mono { color: var(--sx-slate-3); }
+#sx-exp .sx-lede { color: var(--sx-slate-2); }
+#sx-exp h2 { color: var(--sx-slate); }
+
+.sx-exp-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 5fr) minmax(0, 7fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: start;
+}
+
+/* --- the pinned character panel --- */
+.sx-rig {
+  position: sticky;
+  top: max(4vh, calc(50vh - 300px));
+  border-radius: 6px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 8%, rgba(91,141,239,.16) 0%, transparent 58%),
+    linear-gradient(180deg, #0E1524 0%, var(--sx-void) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(199,219,255,.12),
+    0 40px 80px -40px rgba(11,18,32,.55);
+  padding: clamp(1.1rem, 2vw, 1.6rem);
+  color: var(--sx-ink);
+}
+
+.sx-rig-head {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  margin-bottom: .5rem;
+}
+.sx-rig-head .sx-sp { flex: 1; }
+/* The company is a proper noun. Uppercasing it turned "MediaAgility" into
+   "MEDIAAGILITY", which reads as a typo. */
+.sx-rig-head #sx-lv-name { text-transform: none; letter-spacing: .1em; color: var(--sx-ink-2); }
+
+/* The level readout. Tabular figures so the number cannot shift the layout when
+   it ticks — a counter that nudges its own label is the classic HUD bug. */
+.sx-lv {
+  font-family: var(--sx-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+  line-height: 1;
+  letter-spacing: -.02em;
+  color: var(--sx-ice);
+  display: flex;
+  align-items: baseline;
+  gap: .4rem;
+}
+.sx-lv small {
+  font-size: var(--sx-t-mono);
+  letter-spacing: .2em;
+  color: var(--sx-ink-3);
+  align-self: center;
+}
+
+/* The stage the figure is drawn on. Fixed aspect so the pinned panel never
+   changes height as the character upgrades — reserving the space is what keeps
+   the sticky column from jittering. */
+.sx-stage {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  margin: .9rem 0 1rem;
+}
+.sx-stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* --- loadout slots --- */
+.sx-slots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .5rem;
+}
+.sx-slot {
+  position: relative;
+  border-radius: 3px;
+  padding: .55rem .5rem .5rem;
+  background: rgba(199,219,255,.035);
+  box-shadow: inset 0 1px 0 rgba(199,219,255,.07);
+  text-align: center;
+  transition: background .5s var(--sx-ease), box-shadow .5s var(--sx-ease);
+}
+.sx-slot svg { width: 22px; height: 22px; display: block; margin: 0 auto .4rem; }
+.sx-slot .sx-slot-l {
+  font-family: var(--sx-mono);
+  font-size: 9px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  line-height: 1.3;
+  display: block;
+}
+.sx-slot [data-stroke] { stroke: var(--sx-ink-4); fill: none; transition: stroke .5s var(--sx-ease); }
+
+.sx-slot[data-on="1"] {
+  background: rgba(91,141,239,.12);
+  box-shadow: inset 0 1px 0 rgba(199,219,255,.18);
+}
+.sx-slot[data-on="1"] [data-stroke] { stroke: var(--sx-ice); }
+.sx-slot[data-on="1"] .sx-slot-l { color: var(--sx-ink-2); }
+
+/* --- the stops --- */
+.sx-stops { display: grid; gap: clamp(1rem, 2.5vh, 1.75rem); }
+
+.sx-stop {
+  position: relative;
+  padding: clamp(1.5rem, 3.5vw, 2.4rem);
+  border-radius: 5px;
+  background: #FFFFFF;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,1),
+    0 1px 2px rgba(11,18,32,.05),
+    0 18px 40px -28px rgba(11,18,32,.3);
+  transition: transform .6s var(--sx-ease), box-shadow .6s var(--sx-ease), opacity .6s var(--sx-ease);
+}
+
+/* Long stops need breathing room so the sticky rig has scroll to react to. */
+.sx-stop:not(:last-child) { margin-bottom: clamp(4rem, 14vh, 11rem); }
+
+/* The active stop is the one currently driving the character.
+   Emphasis is LIFT plus an accent rail — never a text fade. Dropping the whole
+   card to 50% opacity took its body copy from 7.4:1 to roughly 4.3:1, under AA,
+   and an unreadable card is a bad way to say "look at the other one". */
+.sx-stop::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 1.4rem; bottom: 1.4rem;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
+  background: var(--sx-accent);
+  opacity: 0;
+  transition: opacity .5s var(--sx-ease);
+}
+.sx-stop[data-active="1"]::before { opacity: 1; }
+.sx-stop[data-active="0"] {
+  transform: scale(.988);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,1),
+    0 1px 2px rgba(11,18,32,.04),
+    0 10px 24px -20px rgba(11,18,32,.22);
+}
+.sx-stop[data-active="1"] {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,1),
+    0 2px 4px rgba(11,18,32,.06),
+    0 28px 60px -30px rgba(11,18,32,.38);
+}
+
+.sx-stop .sx-yr {
+  font-family: var(--sx-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--sx-t-mono);
+  letter-spacing: .18em;
+  color: var(--sx-slate-3);
+  margin: 0 0 .55rem;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+.sx-stop .sx-yr i {
+  height: 1px; flex: 1; max-width: 3rem;
+  background: var(--sx-slate-4);
+  display: block;
+}
+.sx-stop h3 {
+  font-family: var(--sx-serif);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 3.1vw, 2.5rem);
+  line-height: 1.06;
+  letter-spacing: -.015em;
+  margin: 0 0 .3rem;
+  color: var(--sx-slate);
+}
+.sx-stop .sx-role {
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--sx-glow-ink);
+  margin: 0 0 .9rem;
+}
+.sx-stop p.sx-desc {
+  margin: 0;
+  color: var(--sx-slate-2);
+  max-width: 48ch;
+}
+
+/* The acquisition line. This is the sentence that makes the upgrade legible in
+   words as well as in the figure — three lines per card is the hard ceiling, or
+   people read cards instead of watching the character. */
+.sx-gain {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sx-slate-4);
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--sx-slate-3);
+}
+.sx-gain b { color: var(--sx-slate); font-weight: 500; }
+/* Airtel carries two gains. Only the first opens a rule — consecutive ones are
+   the same list continuing, not a new block. */
+.sx-gain + .sx-gain { border-top: 0; padding-top: 0; margin-top: .5rem; }
+.sx-gain .sx-plus { color: var(--sx-glow-ink); }
+
+/* 2024, the motion tool. The reinvention beat, and the only warm thing in the
+   light half of the site. Warmth appears twice site-wide; this is the second. */
+.sx-gain[data-warm] .sx-plus,
+.sx-gain[data-warm] b { color: var(--sx-chai); }
+
+/* ---------------------------------------------------------------------------
+   5 · HANDOFF — the light drains and the figure sits down at the monitor.
+   ---------------------------------------------------------------------------
+   The failure mode at this seam is a static thing abruptly becoming a moving
+   thing. This block is already receding before the video takes over, so there
+   is no cut to notice — just something moving away that keeps moving away.
+   ------------------------------------------------------------------------- */
+
+.sx-seam-out {
+  height: 40vh;
+  background: linear-gradient(180deg,
+    var(--sx-paper) 0%, #93A4C0 22%, #2A3547 54%, var(--sx-void) 100%);
+}
+
+#sx-hand {
+  position: relative;
+  min-height: 100vh;
+  background: var(--sx-void);
+  display: grid;
+  align-content: center;
+  padding-block: clamp(4rem, 10vh, 7rem);
+}
+.sx-hand-stage {
+  transform: scale(var(--sx-hand-s, 1)) translateY(var(--sx-hand-y, 0px));
+  opacity: var(--sx-hand-o, 1);
+  transform-origin: 50% 42%;
+  will-change: transform, opacity;
+}
+.sx-hand-line {
+  font-family: var(--sx-serif);
+  font-style: italic;
+  font-size: var(--sx-t-sub);
+  color: var(--sx-ink-2);
+  margin: clamp(1.5rem, 4vh, 2.5rem) 0 0;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Scroll reveal — depth, not slide.
+   Entries arrive by scaling up from 0.94 with a blur clearing, which is the
+   dive's own move continued. Set by JS adding [data-in]; the un-revealed state
+   is only applied when JS is present, so no-JS gets everything visible.
+   ------------------------------------------------------------------------- */
+
+.sx-js [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0) scale(.96);
+  filter: blur(9px);
+  will-change: opacity, transform, filter;
+}
+.sx-js [data-reveal][data-in] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition:
+    opacity .9s var(--sx-ease-out),
+    transform 1.05s var(--sx-ease-out),
+    filter .9s var(--sx-ease-out);
+  transition-delay: var(--sx-delay, 0ms);
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------------------- */
+
+@media (max-width: 1080px) {
+  .sx-entry h3,
+  .sx-entry-body,
+  .sx-entry-aside,
+  .sx-entry-vis { grid-column: 1 / 13; }
+
+  .sx-exp-layout { grid-template-columns: 1fr; }
+
+  /* The rig becomes a compact bar pinned to the top of the viewport rather than
+     a tall column. It has to stay SHORT: anything taller sits on top of the
+     card heading the reader is trying to get to, and the heading is the whole
+     point of the card. One row — figure, level, slots — and nothing else. */
+  .sx-rig {
+    top: 0;
+    z-index: 5;
+    display: grid;
+    /* Placed explicitly, not auto-flowed. Auto-flow follows source order — which
+       is level, figure, slots — so any change to the column count silently
+       reshuffles them into the wrong cells. */
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "fig lv"
+      "fig slots";
+    align-items: center;
+    column-gap: clamp(.7rem, 3vw, 1.1rem);
+    row-gap: .4rem;
+    padding: .6rem .85rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0 0 6px 6px;
+    /* Reads as a deliberate overlay rather than a collision with whatever card
+       happens to be passing under it. */
+    box-shadow:
+      inset 0 -1px 0 rgba(199,219,255,.1),
+      0 14px 28px -18px rgba(11,18,32,.5);
+  }
+  /* The label row is the first thing to go — "LOADOUT" and the company name are
+     both already said by the card the rig is reacting to. */
+  .sx-rig-head { display: none; }
+  .sx-stage {
+    grid-area: fig;
+    margin: 0;
+    width: clamp(72px, 20vw, 96px);
+    aspect-ratio: 16 / 10;   /* the figure's own proportion; 1:1 letterboxed it */
+  }
+  .sx-lv { grid-area: lv; font-size: clamp(1.25rem, 5vw, 1.6rem); }
+  .sx-slots { grid-area: slots; gap: .3rem; }
+  .sx-slot { padding: .35rem .25rem; }
+  .sx-slot svg { width: 18px; height: 18px; margin-bottom: 0; }
+
+  /* Anchoring and keyboard focus must clear the pinned bar, or jumping to a
+     stop lands it underneath. */
+  .sx-stop { scroll-margin-top: 7.5rem; }
+
+  .sx-row[data-cols="6"] { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 720px) {
+  .sx-row[data-cols="3"],
+  .sx-row[data-cols="4"],
+  .sx-row[data-cols="6"] { grid-template-columns: repeat(2, 1fr); }
+  .sx-pair { grid-template-columns: 1fr; }
+  .sx-facts { gap: 1.25rem 2rem; }
+  .sx-facts div { flex: 1 1 40%; }
+  .sx-term { line-height: 1.9; }
+  .sx-skip { left: var(--sx-gut); right: auto; }
+  .sx-stop:not(:last-child) { margin-bottom: 3rem; }
+  .sx-slots { grid-template-columns: repeat(4, 1fr); gap: .3rem; }
+  .sx-slot .sx-slot-l { display: none; }
+  .sx-slot svg { margin-bottom: 0; }
+}
+
+@media (max-width: 420px) {
+  .sx-stage { width: 64px; }
+  .sx-rig { padding: .5rem .65rem; }
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion.
+   Everything that MOVES stops. Everything that COMMUNICATES stays: the boot
+   text is fully typed, the character sits at its final loadout, reveals are
+   simply on. The section still tells the same story without animating it.
+   ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  #sx-boot { height: 100vh; }
+  .sx-line > span { clip-path: none !important; }
+  .sx-caret { animation: none; }
+  .sx-grain { animation: none; }
+
+  .sx-js [data-reveal] { opacity: 1; transform: none; filter: none; }
+  .sx-js [data-reveal][data-in] { transition: none; }
+
+  .sx-stop, .sx-slot, .sx-sheen, .sx-row .sx-tile { transition: none; }
+  .sx-stop[data-active="0"] { opacity: 1; }
+  .sx-hand-stage { transform: none; opacity: 1; }
+}
+
+/* ---------------------------------------------------------------------------
+   The figure
+   ---------------------------------------------------------------------------
+   Kit is toggled by [data-on] rather than by adding and removing nodes, so
+   every item is in the DOM from the start and scrolling back up puts it away
+   instead of destroying it. `transform-box: fill-box` is what makes
+   transform-origin behave inside SVG — without it every item scales about the
+   viewBox origin and flies in from the corner.
+   ------------------------------------------------------------------------- */
+
+#sx-figure [data-kit] {
+  opacity: 0;
+  transform: translateY(7px) scale(.86);
+  transform-box: fill-box;
+  transform-origin: 50% 70%;
+  transition:
+    opacity .55s var(--sx-ease-out),
+    transform .7s var(--sx-ease-out);
+}
+#sx-figure [data-kit][data-on="1"] { opacity: 1; transform: none; }
+
+/* The crown drops in from above rather than rising — it is placed on him. */
+#sx-figure [data-kit="crown"] { transform: translateY(-10px) scale(.8); }
+
+/* The second monitor slides in from the right edge, which is where a second
+   monitor actually comes from. */
+#sx-figure [data-kit="monitor2"] { transform: translateX(16px) scale(.94); }
+
+/* Posture. He sits fractionally taller at each stop — scaled about the seat so
+   the desk line stays exactly where it is. This is the content file's 34/38/44/52
+   figure heights expressed as a transform instead of four different drawings. */
+#sx-figure [data-body] {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform .9s var(--sx-ease-out);
+}
+#sx-figure[data-level="1"] [data-body] { transform: scale(1.015); }
+#sx-figure[data-level="2"] [data-body] { transform: scale(1.03); }
+#sx-figure[data-level="3"] [data-body] { transform: scale(1.05); }
+#sx-figure[data-level="4"] [data-body] { transform: scale(1.075); }
+
+/* The monitor spill brightens as the rig grows. The room is lit by the work. */
+#sx-figure .sx-spill {
+  opacity: .45;
+  transition: opacity 1s var(--sx-ease-out);
+}
+#sx-figure[data-level="1"] .sx-spill { opacity: .6; }
+#sx-figure[data-level="2"] .sx-spill { opacity: .72; }
+#sx-figure[data-level="3"] .sx-spill { opacity: .86; }
+#sx-figure[data-level="4"] .sx-spill { opacity: 1; }
+
+/* The 2024 line sits dimmed until the beat lands, so the last card visibly has
+   something still to come rather than showing both gains at once. */
+.sx-gain[data-warm] { transition: opacity .6s var(--sx-ease); }
+
+@media (prefers-reduced-motion: reduce) {
+  #sx-figure [data-kit],
+  #sx-figure [data-body],
+  #sx-figure .sx-spill,
+  .sx-gain[data-warm] { transition: none; }
+}
