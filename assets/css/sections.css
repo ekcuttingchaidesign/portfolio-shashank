@@ -1235,13 +1235,29 @@
    photograph, not a duotone of it.
    ------------------------------------------------------------------------- */
 
-#sx-hero {
-  position: relative;
-  min-height: 100vh;
-  background: var(--sx-black);
+/* The layer the hero arrives on. It sits in the film's own sticky stage, so
+   the film is behind it the whole way in and the whole way back out.
+
+   `perspective` here (not on the moving element) is what makes translateZ read
+   as real depth: the vanishing point belongs to the viewport, the way the
+   camera's does. */
+.sx-hero-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  perspective: 1100px;
+  perspective-origin: 50% 46%;
+  pointer-events: none;
+  background: rgba(0,0,0,0);
+}
+.sx-hero-depth {
+  position: absolute;
+  inset: 0;
   display: grid;
   align-content: center;
   padding-block: clamp(6rem, 14vh, 10rem) clamp(5rem, 12vh, 8rem);
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
   overflow: hidden;
 }
 
@@ -1302,6 +1318,8 @@
    Satoshi doing all of it: Light for the roman, Black Italic for the two words
    that carry the claim. `display:inline` on the emphasis keeps it inside the
    line's own rhythm rather than turning it into a separate block. */
+.sx-hero-depth .sx-wrap { display: grid; justify-items: center; text-align: center; }
+
 .sx-line-1 {
   position: relative;
   z-index: 2;
@@ -1312,7 +1330,7 @@
   letter-spacing: -.045em;
   color: var(--sx-ink);
   margin: 0;
-  max-width: 17ch;
+  max-width: 15ch;
   text-wrap: balance;
 }
 .sx-line-1 em {
@@ -1347,8 +1365,8 @@
 .sx-hero-sub {
   position: relative;
   z-index: 2;
-  margin: clamp(1.6rem, 4vh, 2.6rem) 0 0;
-  max-width: 42ch;
+  margin: clamp(1.6rem, 4vh, 2.6rem) auto 0;
+  max-width: 46ch;
   font-size: var(--sx-t-lede);
   line-height: 1.5;
   color: var(--sx-ink-2);
@@ -1592,4 +1610,105 @@
   .sx-reel-strip { animation: none; }
   .sx-cel-plate, .sx-cel, .sx-ai-shot img { transition: none; }
   .sx-reel:hover .sx-cel { opacity: 1; }
+}
+
+
+/* ---------------------------------------------------------------------------
+   THE REEL, curved.
+   ---------------------------------------------------------------------------
+   Cards on a cylinder rather than a flat strip: each cell is rotated about Y by
+   how far it sits from the centre of the viewport, so the run bends away at
+   both edges and only the middle of it faces you. JS writes one rotation per
+   visible cell per frame; the container owns the perspective so every card
+   shares one vanishing point.
+
+   Behind them, a second marquee of words runs the other way. The overlap is
+   the point — the strip reads as one moving object with depth rather than as a
+   row of cards with a caption.
+   ------------------------------------------------------------------------- */
+
+.sx-reel { perspective: 1500px; perspective-origin: 50% 50%; }
+
+.sx-reel-strip { transform-style: preserve-3d; }
+.sx-reel-run   { transform-style: preserve-3d; }
+
+.sx-cel {
+  transform-style: preserve-3d;
+  /* --sx-ry and --sx-tz are written per frame from the cell's live position. */
+  transform: rotateY(var(--sx-ry, 0deg)) translateZ(var(--sx-tz, 0px));
+  transition: none;
+}
+.sx-cel-plate { backface-visibility: hidden; }
+
+/* The words behind the cards. Runs opposite to the strip so the two read as
+   separate planes at different depths rather than one block sliding. */
+.sx-reel-words {
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  z-index: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.sx-reel-words-track {
+  display: flex;
+  width: max-content;
+  animation: sx-words-roll 42s linear infinite reverse;
+}
+.sx-reel:hover .sx-reel-words-track { animation-play-state: paused; }
+@keyframes sx-words-roll { to { transform: translateX(-50%) } }
+.sx-reel-words-track span {
+  display: flex; align-items: center; gap: 1.6rem;
+  padding-right: 1.6rem;
+  white-space: nowrap;
+  font-family: var(--sx-display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 6vw, 5.4rem);
+  letter-spacing: -.04em;
+  text-transform: uppercase;
+  color: rgba(244,241,236,.055);
+}
+.sx-reel-words-track span::after {
+  content: "✦";
+  font-size: .38em;
+  color: rgba(224,84,42,.4);
+  letter-spacing: 0;
+}
+
+/* The strip has to sit above the words. */
+.sx-reel-strip { position: relative; z-index: 1; }
+
+/* Centred heading, the way the reference frames it. */
+.sx-reel-head { text-align: center; margin-bottom: clamp(1.6rem, 4vh, 2.6rem); }
+.sx-reel-head h3 {
+  font-family: var(--sx-display);
+  font-weight: 300;
+  font-size: clamp(2rem, 4.6vw, 3.6rem);
+  letter-spacing: -.04em;
+  line-height: 1.02;
+  margin: 0;
+  color: var(--sx-ink);
+}
+.sx-reel-head h3 em {
+  font-style: italic; font-weight: 900;
+  background: var(--sx-chrome-text);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sx-reel-head p { margin: .7rem 0 0; }
+.sx-reel-chev {
+  display: block; margin: 1.1rem auto 0;
+  color: var(--sx-key);
+  animation: sx-chev 2.4s var(--sx-ease) infinite;
+}
+@keyframes sx-chev {
+  0%,100% { transform: translateY(0); opacity: .5 }
+  45%     { transform: translateY(6px); opacity: 1 }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-reel-words-track, .sx-reel-chev { animation: none; }
+  .sx-cel { transform: none; }
 }

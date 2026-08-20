@@ -89,10 +89,10 @@
   /* Scrub travel = height - 100vh, so these are (100vh + film length x SCRUB_VH_PER_SEC).
      JS overwrites them from the real durations once metadata lands; these values are
      the no-JS fallback, sized for the clips we currently ship (3.0s and 3.7s). */
-  /* 100vh + film (3.0s x 90). JS overwrites this from the real
+  /* 100vh + film (3.0s x 90) + HERO_VH. JS overwrites this from the real
      duration once metadata lands; this is the no-JS / pre-metadata fallback and
      it has to include the boot tail or the terminal types at the wrong rate. */
-  #s-enter { height: 370vh; }
+  #s-enter { height: 500vh; }
   #s-exit  { height: 435vh; }
 
   /* ---------- hero ---------- */
@@ -475,6 +475,60 @@
       <button class="sx-skip" id="sx-skip" type="button">Skip the boot</button>
       <div class="sx-boot-prog"><i></i></div>
       </div>
+
+      <!-- ---------- HERO ----------
+           Inside the film's own sticky stage, not in a section below it. The
+           camera in the film travels along Z; the hero therefore ARRIVES along
+           Z — it starts small and far, blurred, and comes forward to meet you
+           as the scroll continues. A section scrolling up from the bottom is a
+           Y move, which is what made it read as a sheet, and it also meant
+           scrolling back showed the hero's own black instead of the film.
+
+           Being a layer here makes the whole thing reversible: scroll back and
+           the hero recedes along Z and the frames come back underneath it. -->
+      <div class="sx-hero-layer" id="sx-hero-layer">
+        <div class="sx-hero-depth" id="sx-hero-depth">
+      <div class="sx-rules" aria-hidden="true"></div>
+      <span class="sx-mark" style="left:25%; top:26%" aria-hidden="true"></span>
+      <span class="sx-mark" style="left:75%; top:26%" aria-hidden="true"></span>
+      <span class="sx-mark" style="left:50%; top:74%" aria-hidden="true"></span>
+
+      <p class="sx-corner" data-at="tl"><i aria-hidden="true"></i> Inside the screen</p>
+      <p class="sx-corner" data-at="tr">2016 — 2026 · Lead PD, Airtel</p>
+
+      <div class="sx-wrap">
+        <h1 class="sx-line-1">
+          I design
+          <span class="sx-face" aria-hidden="true"><img src="../public/img/profile.jpeg"
+                alt="" width="1024" height="1024" decoding="async"></span>
+          products that <em>move.</em>
+        </h1>
+        <p class="sx-hero-sub">Ten years inside entertainment products —
+          <b>gaming, music, streaming, live TV</b>. Mostly at scale, mostly in India,
+          increasingly remote.</p>
+      </div>
+
+      <button class="sx-stamp" id="sx-to-work" type="button" aria-label="Go to the work">
+        <svg class="sx-stamp-ring" viewBox="0 0 100 100" aria-hidden="true">
+          <defs><path id="sx-ring" d="M50,50 m-37,0 a37,37 0 1,1 74,0 a37,37 0 1,1 -74,0"/></defs>
+          <text font-size="9.4" letter-spacing="2.5">
+            <textPath href="#sx-ring">SELECTED WORK · SCROLL DOWN · SELECTED WORK · </textPath>
+          </text>
+        </svg>
+        <span class="sx-stamp-dot" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2v11M3.5 8.5 8 13l4.5-4.5" stroke="currentColor"
+                  stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </button>
+
+      <!-- duplicated once so the loop can translate -50% seamlessly -->
+      <div class="sx-ticker" aria-hidden="true">
+        <div class="sx-ticker-track"><span>0 → 1 product</span><span>In-product motion</span><span>Ten years</span><span>Gaming</span><span>Music</span><span>Streaming</span><span>Live TV</span><span>Airtel</span><span>Gamezop</span><span>Open to remote</span><span>0 → 1 product</span><span>In-product motion</span><span>Ten years</span><span>Gaming</span><span>Music</span><span>Streaming</span><span>Live TV</span><span>Airtel</span><span>Gamezop</span><span>Open to remote</span></div>
+      </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -488,53 +542,6 @@
   <!-- ---------- 1 · THE BOOT ----------
        No background: the black you are reading against is the dive's last
        frame, still on screen behind this section. -->
-
-  <!-- ---------- HERO ----------
-       True black, edge to edge, continuous with the frame you arrived on. The
-       furniture is drafting furniture; the one typographic move is a line of
-       Satoshi that changes weight and slant mid-sentence, with the portrait set
-       into it as a word. -->
-  <section id="sx-hero">
-    <div class="sx-rules" aria-hidden="true"></div>
-    <span class="sx-mark" style="left:25%; top:26%" aria-hidden="true"></span>
-    <span class="sx-mark" style="left:75%; top:26%" aria-hidden="true"></span>
-    <span class="sx-mark" style="left:50%; top:74%" aria-hidden="true"></span>
-
-    <p class="sx-corner" data-at="tl"><i aria-hidden="true"></i> Inside the screen</p>
-    <p class="sx-corner" data-at="tr">2016 — 2026 · Lead PD, Airtel</p>
-
-    <div class="sx-wrap">
-      <h1 class="sx-line-1">
-        I design
-        <span class="sx-face" aria-hidden="true"><img src="../public/img/profile.jpeg"
-              alt="" width="1024" height="1024" decoding="async"></span>
-        products that <em>move.</em>
-      </h1>
-      <p class="sx-hero-sub">Ten years inside entertainment products —
-        <b>gaming, music, streaming, live TV</b>. Mostly at scale, mostly in India,
-        increasingly remote.</p>
-    </div>
-
-    <button class="sx-stamp" id="sx-to-work" type="button" aria-label="Go to the work">
-      <svg class="sx-stamp-ring" viewBox="0 0 100 100" aria-hidden="true">
-        <defs><path id="sx-ring" d="M50,50 m-37,0 a37,37 0 1,1 74,0 a37,37 0 1,1 -74,0"/></defs>
-        <text font-size="9.4" letter-spacing="2.5">
-          <textPath href="#sx-ring">SELECTED WORK · SCROLL DOWN · SELECTED WORK · </textPath>
-        </text>
-      </svg>
-      <span class="sx-stamp-dot" aria-hidden="true">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-          <path d="M8 2v11M3.5 8.5 8 13l4.5-4.5" stroke="currentColor"
-                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-    </button>
-
-    <!-- duplicated once so the loop can translate -50% seamlessly -->
-    <div class="sx-ticker" aria-hidden="true">
-      <div class="sx-ticker-track"><span>0 → 1 product</span><span>In-product motion</span><span>Ten years</span><span>Gaming</span><span>Music</span><span>Streaming</span><span>Live TV</span><span>Airtel</span><span>Gamezop</span><span>Open to remote</span><span>0 → 1 product</span><span>In-product motion</span><span>Ten years</span><span>Gaming</span><span>Music</span><span>Streaming</span><span>Live TV</span><span>Airtel</span><span>Gamezop</span><span>Open to remote</span></div>
-    </div>
-  </section>
 
   <!-- ---------- 2 · WORK ---------- -->
   <section id="sx-work">
@@ -635,12 +642,21 @@
            mixed ratio IS the texture, so nothing has to be cropped to fit a
            grid. It rolls on its own, pauses under the pointer, and each cell
            takes a <video> in place of its plate with no code change. -->
-      <div class="sx-arch-h" data-reveal>
-        <h3>Motion</h3>
-        <p class="sx-mono">14 pieces · product film &amp; in-product motion</p>
+      <div class="sx-reel-head" data-reveal>
+        <p class="sx-mono">The moving half</p>
+        <h3>Things I made <em>move.</em></h3>
+        <svg class="sx-reel-chev" width="26" height="15" viewBox="0 0 26 15" fill="none" aria-hidden="true">
+          <path d="M1 1l12 12L25 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
       </div>
 
-      <div class="sx-reel" data-reveal>
+      <div class="sx-reel" id="sx-reel" data-reveal>
+        <div class="sx-reel-words" aria-hidden="true">
+          <div class="sx-reel-words-track">
+            <span>In-product motion</span><span>Product film</span><span>Idents</span><span>Micro-interaction</span>
+            <span>In-product motion</span><span>Product film</span><span>Idents</span><span>Micro-interaction</span>
+          </div>
+        </div>
         <div class="sx-reel-strip">
           <div class="sx-reel-run">
             <figure class="sx-cel" data-ar="16x9">
@@ -1053,6 +1069,11 @@
   const BOOT_LEAD_FRAMES = 10;
   const FILM_FPS = 30;
 
+  // Scroll spent on the hero's arrival along Z, after the film has finished.
+  // It lives inside the entry section so the whole entry — film, loader, hero —
+  // is one reversible timeline rather than a film followed by a page.
+  const HERO_VH = 130;
+
   // The click-to-dive plays this many times faster than 1x. 1.0 is the film's
   // true speed (what it was doing before, and what read as sluggish).
   const CTA_RATE = 1.6;
@@ -1123,7 +1144,7 @@
       if (!secs || !isFinite(secs)) return;
       el.style.height = (100 + secs * SCRUB_VH_PER_SEC + (extraVh || 0)) + 'vh';
     };
-    fit(sEnter, enter.duration, 0);
+    fit(sEnter, enter.duration, HERO_VH);
     fit(sExit,  exitV.duration, 0);
   }
 
@@ -1335,7 +1356,18 @@
     // time the swap happens.
     const exitVisible = sExit.getBoundingClientRect().top < innerHeight;
 
-    const pVideo = pEnter;
+    /* The entry section is film + hero arrival. Split its progress:
+         pFilm — 0..1 across the film alone, which every hero-exit ramp and the
+                 scrubber were tuned against
+         pHero — 0..1 across the arrival, which runs after the film ends */
+    const filmVh    = (enter.duration || 3.033) * SCRUB_VH_PER_SEC;
+    const filmShare = filmVh / (filmVh + HERO_VH);
+    const pVideo = Math.min(pEnter / filmShare, 1);
+    const pHero  = Math.min(Math.max((pEnter - filmShare) / (1 - filmShare), 0), 1);
+
+    // The hero owns its own reveal; this just hands it the number, every frame,
+    // in both directions.
+    if (window.SX && window.SX.hero) window.SX.hero(pHero);
 
     /* The camera has reached the glass. Hand the last ten frames to the loader,
        once. It scrubs them itself while the terminal comes up, then hands back.
@@ -1356,8 +1388,10 @@
         // which starts on the same black — is already at the viewport edge.
         finish: () => {
           bootOwnsFilm = false;
-          const end = scrollY + sEnter.getBoundingClientRect().top
-                    + (sEnter.offsetHeight - innerHeight);
+          // Land exactly where the film ends and the arrival begins, so the
+          // reader's next gesture starts the hero coming forward.
+          const travel = sEnter.offsetHeight - innerHeight;
+          const end = scrollY + sEnter.getBoundingClientRect().top + travel * filmShare;
           scrollTo(0, end);
         }
       });
@@ -1384,7 +1418,7 @@
     connect.style.opacity = reduced ? 1 : Math.min(rot * 1.6, 1).toFixed(3);
 
     hud.textContent =
-      `enter ${pEnter.toFixed(2)}  armAt ${armAt.toFixed(2)}  t=${scrubEnter.time.toFixed(2)}s\n` +
+      `enter ${pEnter.toFixed(2)}  film ${pVideo.toFixed(2)}  hero ${pHero.toFixed(2)}  t=${scrubEnter.time.toFixed(2)}s\n` +
       `exit  ${pExit.toFixed(2)}  t=${scrubExit.time.toFixed(2)}s\n` +
       `rotate ${rot.toFixed(2)}   ${exitVisible ? '[out]' : '[in]'}  lang=${lang}`;
   }
@@ -1435,7 +1469,8 @@
     prime();
     const end = scrollY + sEnter.getBoundingClientRect().top
               + (sEnter.offsetHeight - innerHeight);
-    const secs = (enter.duration && isFinite(enter.duration) ? enter.duration : 3);
+    const secs = (enter.duration && isFinite(enter.duration) ? enter.duration : 3.033)
+               + HERO_VH / SCRUB_VH_PER_SEC;
     if (reduced) { scrollTo(0, end); return; }
     // Stays linear on purpose: the scrub follows scroll, so a linear scroll across
     // the entry region renders the film at a constant rate. CTA_RATE is that rate.

@@ -154,6 +154,7 @@
   let bootState = 'idle';        // idle -> running -> done
   let bootAnim = null;
   let bootHooks = null;
+  let termRetired = false;
 
   function lockScroll(on) {
     document.documentElement.style.overflow = on ? 'hidden' : '';
@@ -185,6 +186,9 @@
     } else if (termLayer) {
       termLayer.style.opacity = '0';
     }
+    /* Once the loader is done it stays gone, including on the way back up —
+       a terminal reappearing behind a receding hero would be a ghost. */
+    if (termLayer) termLayer.style.pointerEvents = 'none';
   }
 
   function skipKey(e) {
@@ -482,7 +486,48 @@
      as a widget. And the stamp takes you to the work.
      ====================================================================== */
 
-  const heroEl = document.getElementById('sx-hero');
+  /* --- the arrival ---
+     The film's camera travels along Z, so the hero arrives along Z: it starts
+     small and far with the frame blurred behind it, and comes forward. Driven
+     by the landing's scroll number every frame, so scrolling back sends it away
+     again and the film comes back underneath. */
+  const heroLayer = document.getElementById('sx-hero-layer');
+  const heroDepth = document.getElementById('sx-hero-depth');
+
+  function paintHero(p) {
+    if (!heroLayer || !heroDepth) return;
+    const k = reduced ? 1 : clamp01(p);
+    /* Eased so the last stretch settles rather than arriving at constant speed
+       — the camera does the same at the end of the dive. */
+    const e = k < .5 ? 4*k*k*k : 1 - Math.pow(-2*k + 2, 3) / 2;
+
+    heroDepth.style.transform = `translateZ(${(-620 * (1 - e)).toFixed(1)}px)`;
+    heroDepth.style.opacity = Math.min(e * 1.5, 1).toFixed(3);
+    heroDepth.style.filter = e > .985 ? '' : `blur(${((1 - e) * 13).toFixed(2)}px)`;
+
+    /* The ground arrives with it, so the film is visible through the hero for
+       the whole approach and only sealed off once it has landed. */
+    heroLayer.style.background = `rgba(0,0,0,${(e * e).toFixed(3)})`;
+    heroLayer.style.pointerEvents = e > .9 ? 'auto' : 'none';
+
+    /* The terminal's visibility is a pure function of state, evaluated every
+       frame — not a timer that can be interrupted, and not something the boot
+       leaves behind. Before the loader has armed it is simply absent; while it
+       runs, paintBoot owns it; once the hero starts arriving it clears, and
+       once the hero has properly landed it is retired for good so it can never
+       reappear behind a receding hero on the way back up. */
+    if (termLayer && bootState !== 'running') {
+      if (k > 0.5) termRetired = true;
+      const v = (bootState === 'idle' || termRetired) ? 0 : (1 - clamp01(k / 0.34));
+      termLayer.style.opacity = v.toFixed(3);
+      termLayer.style.pointerEvents = 'none';
+    }
+  }
+  window.SX = window.SX || {};
+  window.SX.hero = paintHero;
+  paintHero(0);
+
+  const heroEl = document.getElementById('sx-hero-layer');
   if (heroEl && !reduced && matchMedia('(pointer: fine)').matches) {
     let px = 0, py = 0, tx = 0, ty = 0, raf = 0;
     const ease = () => {
@@ -631,6 +676,45 @@
       cta.addEventListener('click', () => {
         work.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
       });
+    }
+  }
+
+  /* ========================================================================
+     THE REEL — cards on a cylinder
+     ========================================================================
+     Each cell rotates about Y by how far its centre sits from the middle of the
+     viewport, so the strip bends away at both edges. Written per frame, but
+     only for cells actually on screen, and only while the reel is in view —
+     off-screen it costs nothing.
+     ====================================================================== */
+
+  const reel = document.getElementById('sx-reel');
+  if (reel && !reduced) {
+    const cels = [...reel.querySelectorAll('.sx-cel')];
+    let reelRaf = 0, reelOn = false;
+
+    const curve = () => {
+      const mid = innerWidth / 2;
+      for (const c of cels) {
+        const r = c.getBoundingClientRect();
+        if (r.right < -240 || r.left > innerWidth + 240) continue;
+        /* -1 at the left edge, 0 dead centre, +1 at the right. */
+        const d = Math.max(-1.4, Math.min(1.4, ((r.left + r.width / 2) - mid) / mid));
+        c.style.setProperty('--sx-ry', (-d * 26).toFixed(2) + 'deg');
+        /* Pushed back as it turns, so the bend reads as a cylinder rather than
+           as cards shearing in place. */
+        c.style.setProperty('--sx-tz', (-Math.abs(d) * 120).toFixed(1) + 'px');
+      }
+      reelRaf = reelOn ? requestAnimationFrame(curve) : 0;
+    };
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => {
+        reelOn = e.isIntersecting;
+        if (reelOn && !reelRaf) reelRaf = requestAnimationFrame(curve);
+      }, { rootMargin: '150px 0px' }).observe(reel);
+    } else {
+      reelOn = true; curve();
     }
   }
 
