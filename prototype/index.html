@@ -11,7 +11,10 @@
      so the Hindi name needs its own serif or it silently falls back to a system sans. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif&family=Manrope:wght@200..800&family=Noto+Sans+Devanagari:wght@400&family=Noto+Serif+Devanagari:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif&family=Manrope:wght@300;400&family=Noto+Sans+Devanagari:wght@400&family=Noto+Serif+Devanagari:wght@400&display=swap" rel="stylesheet">
+<!-- Satoshi is self-hosted from assets/fonts (woff2, 259KB for ten cuts). -->
+<link rel="preload" as="font" type="font/woff2" href="../assets/fonts/Satoshi-Light.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../assets/fonts/Satoshi-BlackItalic.woff2" crossorigin>
 
 <!-- Work · Archive · Experience. Kept out of this file so the hero above stays
      readable — the two never share a selector (everything below is `sx-`). -->
@@ -70,6 +73,9 @@
 
   /* ---------- film layer ---------- */
   .film { position: fixed; inset: 0; z-index: 0; background: #000; overflow: hidden; }
+  /* Everything below the film starts on this exact black, so the first section
+     rises out of the last frame instead of sliding over it like a sheet. */
+  body { background: #000; }
   .film video {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
@@ -483,87 +489,50 @@
        No background: the black you are reading against is the dive's last
        frame, still on screen behind this section. -->
 
-  <!-- ---------- HERO · the bento ----------
-       Eight plates in a chassis. The reader assembles the person out of small
-       facts rather than reading a paragraph about him. Every tile is metal:
-       a chrome edge, a sheen that follows the pointer, contents drifting at
-       their own depth. -->
+  <!-- ---------- HERO ----------
+       True black, edge to edge, continuous with the frame you arrived on. The
+       furniture is drafting furniture; the one typographic move is a line of
+       Satoshi that changes weight and slant mid-sentence, with the portrait set
+       into it as a word. -->
   <section id="sx-hero">
+    <div class="sx-rules" aria-hidden="true"></div>
+    <span class="sx-mark" style="left:25%; top:26%" aria-hidden="true"></span>
+    <span class="sx-mark" style="left:75%; top:26%" aria-hidden="true"></span>
+    <span class="sx-mark" style="left:50%; top:74%" aria-hidden="true"></span>
+
+    <p class="sx-corner" data-at="tl"><i aria-hidden="true"></i> Inside the screen</p>
+    <p class="sx-corner" data-at="tr">2016 — 2026 · Lead PD, Airtel</p>
+
     <div class="sx-wrap">
-      <div class="sx-bento" id="sx-bento">
+      <h1 class="sx-line-1">
+        I design
+        <span class="sx-face" aria-hidden="true"><img src="../public/img/profile.jpeg"
+              alt="" width="1024" height="1024" decoding="async"></span>
+        products that <em>move.</em>
+      </h1>
+      <p class="sx-hero-sub">Ten years inside entertainment products —
+        <b>gaming, music, streaming, live TV</b>. Mostly at scale, mostly in India,
+        increasingly remote.</p>
+    </div>
 
-        <!-- his own rule, out of portfolio_spec.md -->
-        <article class="sx-tile sx-t-quote" data-tile>
-          <p class="sx-tile-l">The rule</p>
-          <blockquote class="sx-layer" style="--sx-depth:.9">
-            <p>Every transition must be caused by something in the world.
-               <em>Nothing appears for decorative reasons.</em></p>
-          </blockquote>
-          <cite>Written for the film you just fell through</cite>
-        </article>
+    <button class="sx-stamp" id="sx-to-work" type="button" aria-label="Go to the work">
+      <svg class="sx-stamp-ring" viewBox="0 0 100 100" aria-hidden="true">
+        <defs><path id="sx-ring" d="M50,50 m-37,0 a37,37 0 1,1 74,0 a37,37 0 1,1 -74,0"/></defs>
+        <text font-size="9.4" letter-spacing="2.5">
+          <textPath href="#sx-ring">SELECTED WORK · SCROLL DOWN · SELECTED WORK · </textPath>
+        </text>
+      </svg>
+      <span class="sx-stamp-dot" aria-hidden="true">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2v11M3.5 8.5 8 13l4.5-4.5" stroke="currentColor"
+                stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </button>
 
-        <figure class="sx-tile sx-t-port" data-tile>
-          <div class="sx-port-frame sx-layer" style="--sx-depth:-2.2">
-            <img src="../profile_pic.jpeg" alt="Shashank" width="1024" height="1024"
-                 loading="lazy" decoding="async">
-          </div>
-          <span class="sx-port-tint" aria-hidden="true"></span>
-          <span class="sx-port-scan" aria-hidden="true"></span>
-          <figcaption class="sx-layer" style="--sx-depth:1.4">
-            <span class="sx-port-name">Shashank</span>
-            <span class="sx-port-role">Product &amp; motion</span>
-          </figcaption>
-        </figure>
-
-        <article class="sx-tile sx-t-now" data-tile>
-          <p class="sx-tile-l"><i class="sx-dot-live" aria-hidden="true"></i> Now</p>
-          <p class="sx-now-v sx-layer" style="--sx-depth:.7">Lead Product Designer
-            <span>Airtel · India, open to remote</span></p>
-        </article>
-
-        <article class="sx-tile sx-t-clock" data-tile>
-          <p class="sx-tile-l">Local</p>
-          <div class="sx-layer" style="--sx-depth:.7">
-            <span class="sx-clock-v" id="sx-clock">--:--:--</span>
-            <span class="sx-clock-z">IST · UTC+5:30</span>
-          </div>
-        </article>
-
-        <article class="sx-tile sx-t-stat" data-tile>
-          <p class="sx-tile-l">Designing since</p>
-          <p class="sx-layer" style="--sx-depth:1.1">
-            <span class="sx-stat-v" data-count="10" data-suffix="">0</span>
-            <span class="sx-stat-u">years · 2016 → now</span></p>
-        </article>
-
-        <article class="sx-tile sx-t-stat" data-tile>
-          <p class="sx-tile-l">Shipped</p>
-          <p class="sx-layer" style="--sx-depth:1.1">
-            <span class="sx-stat-v" data-count="19" data-suffix="">0</span>
-            <span class="sx-stat-u">products, films &amp; shorts</span></p>
-        </article>
-
-        <!-- duplicated once so the loop can translate -50% seamlessly -->
-        <article class="sx-tile sx-t-reel" data-tile>
-          <p class="sx-tile-l">Loadout</p>
-          <div class="sx-reel-mask">
-            <div class="sx-reel-track" id="sx-reel">
-              <span>Figma</span><span>After Effects</span><span>Rive</span><span>Lottie</span><span>Blender</span><span>Principle</span><span>Cinema 4D</span>
-              <span>Figma</span><span>After Effects</span><span>Rive</span><span>Lottie</span><span>Blender</span><span>Principle</span><span>Cinema 4D</span>
-            </div>
-          </div>
-        </article>
-
-        <button class="sx-tile sx-t-cta" id="sx-to-work" type="button">
-          <span class="sx-cta-big">See the work</span>
-          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true">
-            <circle cx="17" cy="17" r="16" stroke="currentColor" stroke-opacity=".35"/>
-            <path d="M17 10v14M11.5 18.5 17 24l5.5-5.5" stroke="currentColor"
-                  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-
-      </div>
+    <!-- duplicated once so the loop can translate -50% seamlessly -->
+    <div class="sx-ticker" aria-hidden="true">
+      <div class="sx-ticker-track"><span>0 → 1 product</span><span>In-product motion</span><span>Ten years</span><span>Gaming</span><span>Music</span><span>Streaming</span><span>Live TV</span><span>Airtel</span><span>Gamezop</span><span>Open to remote</span><span>0 → 1 product</span><span>In-product motion</span><span>Ten years</span><span>Gaming</span><span>Music</span><span>Streaming</span><span>Live TV</span><span>Airtel</span><span>Gamezop</span><span>Open to remote</span></div>
     </div>
   </section>
 
@@ -660,33 +629,164 @@
         <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:4/3" data-empty="Xstream subscriptions"><span class="sx-sheen"></span></div><figcaption>2023 · Senior PD</figcaption></figure>
       </div>
 
-      <div class="sx-arch-h" data-reveal><h3>Film</h3><p class="sx-mono">8 · product &amp; campaign</p></div>
-      <div class="sx-row" data-cols="4" data-stagger="50">
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:16/9" data-empty="16:9"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:16/9" data-empty="16:9"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:16/9" data-empty="16:9"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:16/9" data-empty="16:9"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:16/9" data-empty="16:9"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:16/9" data-empty="16:9"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:16/9" data-empty="16:9"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:16/9" data-empty="16:9"><span class="sx-sheen"></span></div></figure>
+      <!-- ---------- MOTION ----------
+           Not two grids of empty boxes. Fourteen pieces run past on one strip,
+           16:9 and 9:16 sharing a baseline the way they do on a real reel — the
+           mixed ratio IS the texture, so nothing has to be cropped to fit a
+           grid. It rolls on its own, pauses under the pointer, and each cell
+           takes a <video> in place of its plate with no code change. -->
+      <div class="sx-arch-h" data-reveal>
+        <h3>Motion</h3>
+        <p class="sx-mono">14 pieces · product film &amp; in-product motion</p>
       </div>
 
-      <div class="sx-arch-h" data-reveal><h3>Shorts</h3><p class="sx-mono">6 · in-product motion</p></div>
-      <div class="sx-row" data-cols="6" data-stagger="50">
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:9/16" data-empty="9:16"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:9/16" data-empty="9:16"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:9/16" data-empty="9:16"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:9/16" data-empty="9:16"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:9/16" data-empty="9:16"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:9/16" data-empty="9:16"><span class="sx-sheen"></span></div></figure>
+      <div class="sx-reel" data-reveal>
+        <div class="sx-reel-strip">
+          <div class="sx-reel-run">
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Airtel UPI — payment receipt"><span class="sx-sheen"></span></div>
+              <figcaption>Airtel UPI — payment receipt</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Wynk — now playing"><span class="sx-sheen"></span></div>
+              <figcaption>Wynk — now playing</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Xstream — bundle switch"><span class="sx-sheen"></span></div>
+              <figcaption>Xstream — bundle switch</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Gaming — stream setup"><span class="sx-sheen"></span></div>
+              <figcaption>Gaming — stream setup</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Campaign film"><span class="sx-sheen"></span></div>
+              <figcaption>Campaign film</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="IPTV — pack compare"><span class="sx-sheen"></span></div>
+              <figcaption>IPTV — pack compare</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Product film"><span class="sx-sheen"></span></div>
+              <figcaption>Product film</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Skillclash — match found"><span class="sx-sheen"></span></div>
+              <figcaption>Skillclash — match found</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Onboarding"><span class="sx-sheen"></span></div>
+              <figcaption>Onboarding</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Wallet — top up"><span class="sx-sheen"></span></div>
+              <figcaption>Wallet — top up</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Brand ident"><span class="sx-sheen"></span></div>
+              <figcaption>Brand ident</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Live TV — channel hop"><span class="sx-sheen"></span></div>
+              <figcaption>Live TV — channel hop</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Xstream Play — masthead"><span class="sx-sheen"></span></div>
+              <figcaption>Xstream Play — masthead</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Rewards — unlock"><span class="sx-sheen"></span></div>
+              <figcaption>Rewards — unlock</figcaption>
+            </figure>
+          </div>
+          <div class="sx-reel-run" aria-hidden="true">
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Airtel UPI — payment receipt"><span class="sx-sheen"></span></div>
+              <figcaption>Airtel UPI — payment receipt</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Wynk — now playing"><span class="sx-sheen"></span></div>
+              <figcaption>Wynk — now playing</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Xstream — bundle switch"><span class="sx-sheen"></span></div>
+              <figcaption>Xstream — bundle switch</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Gaming — stream setup"><span class="sx-sheen"></span></div>
+              <figcaption>Gaming — stream setup</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Campaign film"><span class="sx-sheen"></span></div>
+              <figcaption>Campaign film</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="IPTV — pack compare"><span class="sx-sheen"></span></div>
+              <figcaption>IPTV — pack compare</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Product film"><span class="sx-sheen"></span></div>
+              <figcaption>Product film</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Skillclash — match found"><span class="sx-sheen"></span></div>
+              <figcaption>Skillclash — match found</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Onboarding"><span class="sx-sheen"></span></div>
+              <figcaption>Onboarding</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Wallet — top up"><span class="sx-sheen"></span></div>
+              <figcaption>Wallet — top up</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Brand ident"><span class="sx-sheen"></span></div>
+              <figcaption>Brand ident</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Live TV — channel hop"><span class="sx-sheen"></span></div>
+              <figcaption>Live TV — channel hop</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="16x9">
+              <div class="sx-cel-plate" data-empty="Xstream Play — masthead"><span class="sx-sheen"></span></div>
+              <figcaption>Xstream Play — masthead</figcaption>
+            </figure>
+            <figure class="sx-cel" data-ar="9x16">
+              <div class="sx-cel-plate" data-empty="Rewards — unlock"><span class="sx-sheen"></span></div>
+              <figcaption>Rewards — unlock</figcaption>
+            </figure>
+          </div>
+        </div>
+        <p class="sx-reel-hint"><span>Hover to hold</span></p>
       </div>
 
-      <div class="sx-arch-h" data-reveal><h3>Playable</h3><p class="sx-mono">2 · run inline</p></div>
+      <!-- ---------- BUILT WITH AI ---------- -->
+      <div class="sx-arch-h" data-reveal>
+        <h3>Built with AI</h3>
+        <p class="sx-mono">2 · run inline</p>
+      </div>
       <div class="sx-row" data-cols="2" data-stagger="90">
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:16/9" data-empty="Poprush — Rive"><span class="sx-sheen"></span></div></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:16/9" data-empty="upbusdriver.wtf"><span class="sx-sheen"></span></div></figure>
+        <figure class="sx-tile sx-ai" data-reveal data-tile>
+          <div class="sx-ai-shot">
+            <img src="../public/img/poprush-cover.png" alt="Poprush cover art"
+                 width="1672" height="941" loading="lazy" decoding="async">
+          </div>
+          <figcaption>
+            <span class="sx-ai-name">Poprush</span>
+            <span class="sx-mono">Rive · plays in the page</span>
+          </figcaption>
+        </figure>
+        <figure class="sx-tile sx-ai" data-reveal data-tile>
+          <div class="sx-ai-shot" data-empty="upbusdriver.wtf"><span class="sx-sheen"></span></div>
+          <figcaption>
+            <span class="sx-ai-name">upbusdriver.wtf</span>
+            <span class="sx-mono">Built and shipped solo</span>
+          </figcaption>
+        </figure>
       </div>
+
     </div>
   </section>
 
@@ -946,9 +1046,12 @@
   // Now the entry section carries the film plus this much extra scroll, the
   // terminal starts typing while the last frames are still going black, and the
   // reader never makes a second gesture.
-  // The boot no longer costs any scroll: it runs itself once the film reaches
-  // its last BOOT_LEAD_FRAMES. The entry section is the film's length again.
+  // The film is 91 frames at 30fps (counted off the mp4's stts atom, not
+  // guessed). The loader takes over at frame 81 and drives the remaining ten
+  // itself, so the camera finishes its move into black as the terminal wakes —
+  // one continuous beat rather than a film that stops and a loader that starts.
   const BOOT_LEAD_FRAMES = 10;
+  const FILM_FPS = 30;
 
   // The click-to-dive plays this many times faster than 1x. 1.0 is the film's
   // true speed (what it was doing before, and what read as sluggish).
@@ -1234,12 +1337,31 @@
 
     const pVideo = pEnter;
 
-    /* The camera has reached the glass and the screen is going black. Hand off
-       to the loader, once. From here it runs on its own clock — it is loading
-       the hero, not waiting for the reader to crank it. */
-    const secs  = (enter.duration && isFinite(enter.duration)) ? enter.duration : 3;
-    const armAt = 1 - (BOOT_LEAD_FRAMES / 30) / secs;
-    if (pVideo >= armAt && window.SX && window.SX.armBoot) window.SX.armBoot();
+    /* The camera has reached the glass. Hand the last ten frames to the loader,
+       once. It scrubs them itself while the terminal comes up, then hands back.
+
+       While it owns the film, the scroll loop must not also be writing to the
+       scrubber — two sources on one playhead is a fight nobody wins. */
+    const secs  = (enter.duration && isFinite(enter.duration)) ? enter.duration : 3.033;
+    const frames = Math.max(Math.round(secs * FILM_FPS), BOOT_LEAD_FRAMES + 1);
+    const armAt = (frames - BOOT_LEAD_FRAMES) / frames;
+
+    if (!bootOwnsFilm && pVideo >= armAt && window.SX && window.SX.armBoot) {
+      bootOwnsFilm = true;
+      window.SX.armBoot({
+        from: armAt,
+        // The loader scrubs the tail itself: 0 at frame 81, 1 at frame 91.
+        setFilm: (k) => scrubEnter.set(armAt + (1 - armAt) * k),
+        // Land the page exactly at the end of the entry section, so the hero —
+        // which starts on the same black — is already at the viewport edge.
+        finish: () => {
+          bootOwnsFilm = false;
+          const end = scrollY + sEnter.getBoundingClientRect().top
+                    + (sEnter.offsetHeight - innerHeight);
+          scrollTo(0, end);
+        }
+      });
+    }
 
     if (!reduced) {
       if (exitVisible) {
@@ -1247,7 +1369,7 @@
         scrubExit.set(pExit);
       } else {
         enter.classList.add('live'); exitV.classList.remove('live');
-        scrubEnter.set(pVideo);
+        if (!bootOwnsFilm) scrubEnter.set(pVideo);
       }
     }
 
@@ -1273,6 +1395,9 @@
   // 1x. One mechanism instead of a separate "play" path that could
   // drift out of sync with the page.
   let animating = false;
+
+  // True only while the loader is scrubbing the film's last ten frames.
+  let bootOwnsFilm = false;
 
   function animateScrollTo(to, ms, easing) {
     const from = scrollY, delta = to - from, t0 = performance.now();

@@ -104,7 +104,7 @@
     if (!bootLines.length) return;
 
     if (termLayer) {
-      const vis = reduced ? 1 : Math.min(p * 9, 1);
+      const vis = reduced ? 1 : Math.min(p / (FILM_TAIL * 0.8), 1);
       termLayer.style.opacity = vis.toFixed(3);
       termLayer.style.pointerEvents = vis > 0.6 ? 'auto' : 'none';
     }
@@ -147,16 +147,20 @@
      the sequence takes, then released into the hero. Held, not hijacked — the
      skip is on screen the entire time and any key or click takes it.
      ---------------------------------------------------------------------- */
-  const BOOT_MS = 2400;
+  const BOOT_MS = 2600;
+  /* The film's last ten frames are scrubbed across the first slice of the run,
+     so the camera arrives at black while the terminal is already waking. */
+  const FILM_TAIL = 0.26;
   let bootState = 'idle';        // idle -> running -> done
   let bootAnim = null;
+  let bootHooks = null;
 
   function lockScroll(on) {
     document.documentElement.style.overflow = on ? 'hidden' : '';
     document.body.style.overflow = on ? 'hidden' : '';
   }
 
-  function finishBoot(jump) {
+  function finishBoot() {
     if (bootState === 'done') return;
     bootState = 'done';
     if (bootAnim) { try { bootAnim.stop(); } catch (e) {} bootAnim = null; }
@@ -164,9 +168,12 @@
     lockScroll(false);
     removeEventListener('keydown', skipKey);
 
-    const hero = document.getElementById('sx-hero');
-    if (jump && hero) {
-      hero.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+    /* Park the film on its final frame and hand the page back. No
+       scrollIntoView: the hero starts on the same black the film ends on, so
+       the reader simply keeps scrolling and it rises out of the frame. */
+    if (bootHooks) {
+      if (bootHooks.setFilm) bootHooks.setFilm(1);
+      if (bootHooks.finish) bootHooks.finish();
     }
     /* Fade the terminal out only after the hero is on its way, so the two
        overlap rather than leaving a beat of empty black between them. */
@@ -181,14 +188,15 @@
   }
 
   function skipKey(e) {
-    if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') finishBoot(true);
+    if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') finishBoot();
   }
 
-  function armBoot() {
+  function armBoot(hooks) {
     if (bootState !== 'idle') return;
     bootState = 'running';
+    bootHooks = hooks || null;
 
-    if (reduced) { finishBoot(true); return; }
+    if (reduced) { finishBoot(); return; }
 
     lockScroll(true);
     addEventListener('keydown', skipKey);
@@ -203,16 +211,24 @@
         /* Slightly eased-out: the first lines rattle off, the last one lands.
            Linear typing reads as a progress bar wearing a costume. */
         ease: [.32, .12, .2, 1],
-        onUpdate: () => paintBoot(box.p),
-        onComplete: () => finishBoot(true)
+        onUpdate: () => {
+          /* First quarter of the run belongs to the camera: the film finishes
+             its push into the glass while the terminal fades up over it. */
+          if (bootHooks && bootHooks.setFilm) {
+            bootHooks.setFilm(Math.min(box.p / FILM_TAIL, 1));
+          }
+          paintBoot(box.p);
+        },
+        onComplete: () => finishBoot()
       });
     } else {
       const t0 = performance.now();
       (function step(now) {
         if (bootState !== 'running') return;
         const p = Math.min((now - t0) / BOOT_MS, 1);
+        if (bootHooks && bootHooks.setFilm) bootHooks.setFilm(Math.min(p / FILM_TAIL, 1));
         paintBoot(p);
-        if (p < 1) requestAnimationFrame(step); else finishBoot(true);
+        if (p < 1) requestAnimationFrame(step); else finishBoot();
       })(performance.now());
     }
   }
@@ -229,7 +245,7 @@
      scroll spine, so leaving it means moving down the page, and anything else
      would desync the scrollbar from what is on screen. */
   const skipBtn = document.getElementById('sx-skip');
-  if (skipBtn) skipBtn.addEventListener('click', () => finishBoot(true));
+  if (skipBtn) skipBtn.addEventListener('click', () => finishBoot());
 
   /* ========================================================================
      2 · REVEALS
@@ -457,6 +473,45 @@
   updateHandoff();
   kick();
 
+
+  /* ========================================================================
+     THE HERO
+     ========================================================================
+     Two things only. The portrait nudges toward the pointer at a fraction of
+     its travel — enough to feel alive in the line of type, not enough to read
+     as a widget. And the stamp takes you to the work.
+     ====================================================================== */
+
+  const heroEl = document.getElementById('sx-hero');
+  if (heroEl && !reduced && matchMedia('(pointer: fine)').matches) {
+    let px = 0, py = 0, tx = 0, ty = 0, raf = 0;
+    const ease = () => {
+      px += (tx - px) * 0.08;
+      py += (ty - py) * 0.08;
+      heroEl.style.setProperty('--sx-px', px.toFixed(2));
+      heroEl.style.setProperty('--sx-py', py.toFixed(2));
+      raf = (Math.abs(tx - px) > 0.01 || Math.abs(ty - py) > 0.01)
+        ? requestAnimationFrame(ease) : 0;
+    };
+    heroEl.addEventListener('pointermove', (e) => {
+      const r = heroEl.getBoundingClientRect();
+      tx = ((e.clientX - r.left) / r.width - 0.5) * 2 * 18;
+      ty = ((e.clientY - r.top) / r.height - 0.5) * 2 * 18;
+      if (!raf) raf = requestAnimationFrame(ease);
+    }, { passive: true });
+  }
+
+  const stamp = document.getElementById('sx-to-work');
+  const workSec = document.getElementById('sx-work');
+  if (stamp && workSec) {
+    stamp.addEventListener('click', () => {
+      workSec.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+    });
+    if (M && M.press) M.press(stamp, () => {
+      M.animate(stamp, { scale: .94 }, { duration: .12 });
+      return () => M.animate(stamp, { scale: 1 }, { type: 'spring', stiffness: 420, damping: 16 });
+    });
+  }
 
   /* ========================================================================
      THE BENTO
