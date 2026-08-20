@@ -21,6 +21,10 @@
      around to reveal it. Without scripting every section is simply visible. */
   root.classList.add('sx-js');
 
+  /* The vendored library. Everything that uses it falls back to plain CSS or a
+     rAF loop if it somehow didn't load, so the page never depends on it. */
+  const M = window.Motion || null;
+
   const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
   const seg = (p, a, b) => clamp01((p - a) / (b - a));
 
@@ -55,27 +59,21 @@
   /* ========================================================================
      1 · THE BOOT
      ========================================================================
-     Typed by scroll, not by a clock. The rest of the page is scrubbed; a timed
-     loader would be the single element racing ahead of the scrollbar, and that
-     is precisely what makes a loader feel like a gate.
-
      Each line is revealed by clipping a span that is already in the DOM, so the
      text is present for screen readers and crawlers from first paint and there
      is zero per-frame layout.
      ====================================================================== */
 
-  /* The terminal now lives inside the landing's hero, and its progress is
-     handed down by the landing's scrub loop through window.SX.boot(). It is no
-     longer a section with a scroll position of its own — that was the version
-     that made you scroll a second time to watch a loader. */
+  /* The terminal lives inside the landing's hero. The landing's scrub loop arms
+     it when the film hits its last ten frames; from there it runs on a clock. */
   const termLayer = document.getElementById('sx-term-layer');
   const bootLines = termLayer ? [...termLayer.querySelectorAll('.sx-line')] : [];
   const bootCaret = document.getElementById('sx-caret');
   const bootProg = termLayer ? termLayer.querySelector('.sx-boot-prog') : null;
 
-  /* The sequence finishes typing at 82% of the section, leaving the last fifth
-     as a held frame — a beat of stillness before Work arrives. The camera does
-     the same thing at the end of the dive. */
+  /* Typing completes at 82% of the run, leaving the last fifth as a held frame
+     — a beat of stillness before the hero, the same pause the camera takes at
+     the end of the dive. */
   const BOOT_TYPED_BY = 0.82;
 
   /* Full rendered width of each line, measured once.
@@ -102,12 +100,9 @@
     });
   }
 
-  function updateBoot(p) {
+  function paintBoot(p) {
     if (!bootLines.length) return;
 
-    /* The layer fades up fast — it is a machine waking, not a slow dissolve —
-       and goes inert entirely at rest so it can't eat clicks on the hero CTA
-       sitting underneath it. */
     if (termLayer) {
       const vis = reduced ? 1 : Math.min(p * 9, 1);
       termLayer.style.opacity = vis.toFixed(3);
@@ -125,9 +120,6 @@
       if (t > 0) { active = i; activeT = t; }
     }
 
-    /* The caret sits at the write head of the line currently being typed, which
-       is what makes the sequence read as one process writing rather than as
-       lines fading in one after another. */
     if (bootCaret) {
       const host = bootLines[active];
       if (bootCaret.parentNode !== host) host.appendChild(bootCaret);
@@ -142,6 +134,89 @@
     if (bootProg) bootProg.style.setProperty('--sx-boot-p', (clamp01(p / BOOT_TYPED_BY) * 100).toFixed(1) + '%');
   }
 
+  /* ------------------------------------------------------------------------
+     Running the loader.
+
+     This is a LOADER, so it runs itself. The previous version drove the typing
+     from scroll position, which meant it only finished if you kept scrolling —
+     the reader had to operate the loading screen. Wrong on its face: a loader's
+     whole promise is that it is doing something for you.
+
+     So: the landing's scrub loop calls arm() once the film reaches its last ten
+     frames, and from there this owns the moment. Scroll is held for the ~2.4s
+     the sequence takes, then released into the hero. Held, not hijacked — the
+     skip is on screen the entire time and any key or click takes it.
+     ---------------------------------------------------------------------- */
+  const BOOT_MS = 2400;
+  let bootState = 'idle';        // idle -> running -> done
+  let bootAnim = null;
+
+  function lockScroll(on) {
+    document.documentElement.style.overflow = on ? 'hidden' : '';
+    document.body.style.overflow = on ? 'hidden' : '';
+  }
+
+  function finishBoot(jump) {
+    if (bootState === 'done') return;
+    bootState = 'done';
+    if (bootAnim) { try { bootAnim.stop(); } catch (e) {} bootAnim = null; }
+    paintBoot(1);
+    lockScroll(false);
+    removeEventListener('keydown', skipKey);
+
+    const hero = document.getElementById('sx-hero');
+    if (jump && hero) {
+      hero.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+    }
+    /* Fade the terminal out only after the hero is on its way, so the two
+       overlap rather than leaving a beat of empty black between them. */
+    if (termLayer && !reduced) {
+      setTimeout(() => {
+        if (M) M.animate(termLayer, { opacity: 0 }, { duration: .5, ease: [.22, 1, .36, 1] });
+        else termLayer.style.opacity = '0';
+      }, 260);
+    } else if (termLayer) {
+      termLayer.style.opacity = '0';
+    }
+  }
+
+  function skipKey(e) {
+    if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') finishBoot(true);
+  }
+
+  function armBoot() {
+    if (bootState !== 'idle') return;
+    bootState = 'running';
+
+    if (reduced) { finishBoot(true); return; }
+
+    lockScroll(true);
+    addEventListener('keydown', skipKey);
+
+    /* motion's animate() on a plain object gives a real timeline — pausable,
+       stoppable, and driven by the same frame loop as everything else here,
+       instead of a hand-rolled rAF counter racing the compositor. */
+    if (M) {
+      const box = { p: 0 };
+      bootAnim = M.animate(box, { p: 1 }, {
+        duration: BOOT_MS / 1000,
+        /* Slightly eased-out: the first lines rattle off, the last one lands.
+           Linear typing reads as a progress bar wearing a costume. */
+        ease: [.32, .12, .2, 1],
+        onUpdate: () => paintBoot(box.p),
+        onComplete: () => finishBoot(true)
+      });
+    } else {
+      const t0 = performance.now();
+      (function step(now) {
+        if (bootState !== 'running') return;
+        const p = Math.min((now - t0) / BOOT_MS, 1);
+        paintBoot(p);
+        if (p < 1) requestAnimationFrame(step); else finishBoot(true);
+      })(performance.now());
+    }
+  }
+
   measureBoot();
   addEventListener('resize', measureBoot, { passive: true });
   /* Webfonts land after first paint and change every one of these widths. */
@@ -154,13 +229,7 @@
      scroll spine, so leaving it means moving down the page, and anything else
      would desync the scrollbar from what is on screen. */
   const skipBtn = document.getElementById('sx-skip');
-  const sEnter = document.getElementById('s-enter');
-  if (skipBtn && sEnter) {
-    skipBtn.addEventListener('click', () => {
-      const to = scrollY + sEnter.getBoundingClientRect().bottom - innerHeight;
-      scrollTo({ top: to, behavior: reduced ? 'auto' : 'smooth' });
-    });
-  }
+  if (skipBtn) skipBtn.addEventListener('click', () => finishBoot(true));
 
   /* ========================================================================
      2 · REVEALS
@@ -388,12 +457,134 @@
   updateHandoff();
   kick();
 
+
+  /* ========================================================================
+     THE BENTO
+     ========================================================================
+     Three behaviours, all of them cheap: plates arrive on a spring, their
+     contents drift at their own depth under the pointer, and two numbers count
+     themselves up the first time they are seen.
+     ====================================================================== */
+
+  const bento = document.getElementById('sx-bento');
+
+  if (bento) {
+    const tiles = [...bento.querySelectorAll('[data-tile], .sx-t-cta')];
+
+    /* --- entrance ---
+       Spring, not a duration curve: plates should land with a little weight
+       rather than glide to a stop. stagger() walks them in reading order.
+
+       Individual transform properties (y, scale), never a raw `transform`
+       string: passing ['translateY(26px) scale(.97)', 'none'] made Motion read
+       the 'none' keyword as scale 0, and every tile animated to zero size.
+       Fired on first sight rather than at load, so the stagger is something the
+       reader actually watches happen. */
+    if (M && !reduced) {
+      const enter = () => M.animate(tiles,
+        { opacity: [0, 1], y: [26, 0], scale: [.97, 1] },
+        { delay: M.stagger(0.055), type: 'spring', stiffness: 190, damping: 22, mass: .9 });
+      if (M.inView) M.inView(bento, () => { enter(); }, { amount: 0.15 });
+      else enter();
+    }
+
+    /* --- parallax ---
+       One pointer read for the whole grid, written as two custom properties on
+       the container. Each .sx-layer multiplies them by its own --sx-depth, so
+       the whole effect costs two setProperty calls per frame no matter how many
+       layers there are. Negative depths move against the pointer, which is what
+       puts the portrait behind its own frame. */
+    if (!reduced && matchMedia('(pointer: fine)').matches) {
+      let px = 0, py = 0, tx = 0, ty = 0, raf = 0;
+
+      const ease = () => {
+        px += (tx - px) * 0.09;
+        py += (ty - py) * 0.09;
+        bento.style.setProperty('--sx-px', px.toFixed(2));
+        bento.style.setProperty('--sx-py', py.toFixed(2));
+        raf = (Math.abs(tx - px) > 0.01 || Math.abs(ty - py) > 0.01)
+          ? requestAnimationFrame(ease) : 0;
+      };
+      const wake = () => { if (!raf) raf = requestAnimationFrame(ease); };
+
+      addEventListener('pointermove', (e) => {
+        const r = bento.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > innerHeight) return;   // off screen, don't bother
+        tx = ((e.clientX - r.left) / r.width - 0.5) * 2 * 14;
+        ty = ((e.clientY - r.top) / r.height - 0.5) * 2 * 14;
+        wake();
+      }, { passive: true });
+
+      /* Per-tile sheen. Same two properties the work slabs use. */
+      tiles.forEach(tile => {
+        tile.addEventListener('pointermove', (e) => {
+          const r = tile.getBoundingClientRect();
+          tile.style.setProperty('--sx-mx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+          tile.style.setProperty('--sx-my', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+        }, { passive: true });
+      });
+
+      /* Press feedback on the one tile that is a control. */
+      const cta = document.getElementById('sx-to-work');
+      if (M && cta) M.press(cta, () => {
+        M.animate(cta, { scale: 0.985 }, { duration: .12 });
+        return () => M.animate(cta, { scale: 1 }, { type: 'spring', stiffness: 420, damping: 18 });
+      });
+    }
+
+    /* --- counters ---
+       Counted from zero the first time the tile is seen. A static number is a
+       fact; a number that arrives is a small event, and the bento is built out
+       of small events. */
+    const counters = [...bento.querySelectorAll('[data-count]')];
+    const runCount = (el) => {
+      const to = parseFloat(el.getAttribute('data-count')) || 0;
+      const suffix = el.getAttribute('data-suffix') || '';
+      if (reduced || !M) { el.textContent = to + suffix; return; }
+      const box = { v: 0 };
+      M.animate(box, { v: to }, {
+        duration: 1.15, ease: [.22, 1, .36, 1],
+        onUpdate: () => { el.textContent = Math.round(box.v) + suffix; }
+      });
+    };
+    if (M && M.inView && !reduced) {
+      counters.forEach(el => M.inView(el, () => { runCount(el); }, { amount: 0.6 }));
+    } else {
+      counters.forEach(runCount);
+    }
+
+    /* --- the clock ---
+       Real IST, ticking. Computed from UTC rather than the visitor's clock, so
+       it says what time it is where he is — which is the only reason to put a
+       clock on a portfolio at all. */
+    const clock = document.getElementById('sx-clock');
+    if (clock) {
+      const tick = () => {
+        const n = new Date();
+        const ist = new Date(n.getTime() + (n.getTimezoneOffset() + 330) * 60000);
+        clock.textContent = [ist.getHours(), ist.getMinutes(), ist.getSeconds()]
+          .map(v => String(v).padStart(2, '0')).join(':');
+      };
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    /* --- the way down --- */
+    const cta = document.getElementById('sx-to-work');
+    const work = document.getElementById('sx-work');
+    if (cta && work) {
+      cta.addEventListener('click', () => {
+        work.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+      });
+    }
+  }
+
   /* The one seam between this module and the landing's scrub engine: the
      landing owns the scroll spine and the film, so it owns the number; this
      module owns what the terminal does with it. */
   window.SX = window.SX || {};
-  window.SX.boot = updateBoot;
-  updateBoot(0);
+  window.SX.armBoot = armBoot;
+  paintBoot(0);
 
   /* ------------------------------------------------------------------------
      Case study buttons.

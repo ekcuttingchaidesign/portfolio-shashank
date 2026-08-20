@@ -14,51 +14,69 @@
    ========================================================================== */
 
 :root {
-  /* --- the render's own colours --- */
-  --sx-void:    #04060C;   /* page floor, and the boot terminal */
-  --sx-wall:    #0A0F1C;   /* section grounds */
-  --sx-surface: #18202F;   /* lifted planes */
-  --sx-glow:    #5B8DEF;   /* the monitor LED. the accent. */
-  --sx-ice:     #C7DBFF;   /* highlights */
-  --sx-chai:    #D08544;   /* warmth. spent ONCE — the 2024 motion tool. */
-  --sx-poster:  #C2382F;   /* spent ONCE — the cancellation. */
-  --sx-paper:   #EDF1F8;   /* the light half of the site */
+  /* --- METAL ---------------------------------------------------------------
+     Black and machined grey. The blue is gone: it came from reading colours off
+     the render, and it made every surface look like the same lit plastic. This
+     is the other reading of the same room — the hardware rather than the glow.
 
-  /* Ink, dark ground.
-     The muted steps are set by CONTRAST, not by eye: every one of these carries
-     real text (years, captions, acquisitions), most of it 11px mono, so each
-     needs 4.5:1 against its ground. The first pass used .38 for ink-3, which
-     measured 3.27:1 — comfortably under AA for text that size. ink-4 is the
-     only purely decorative step and is used for hairlines, never for type. */
-  --sx-ink:     #EDF1F8;
-  --sx-ink-2:   rgba(237,241,248,.72);   /* 9.6:1 on --sx-wall */
-  --sx-ink-3:   rgba(237,241,248,.55);   /* 5.1:1 on --sx-wall */
-  --sx-ink-4:   rgba(237,241,248,.16);   /* hairlines only */
+     Neutrals are very slightly warm (a hair of yellow, no blue at all), because
+     a dead-neutral grey next to a true black reads as a rendering artefact.
+     -------------------------------------------------------------------------- */
+  --sx-void:    #08090B;   /* page floor */
+  --sx-wall:    #0E1013;   /* section ground */
+  --sx-surface: #16181C;   /* tiles */
+  --sx-raise:   #1D2025;   /* tiles, hovered */
 
-  /* Ink, paper ground. Experience runs light, so it needs its own ramp —
-     reusing the dark ramp at low alpha is how light sections end up grey-on-grey.
-     Same contrast rule as above; .42 for slate-3 measured 2.77:1. */
-  --sx-slate:   #0B1220;
-  --sx-slate-2: rgba(11,18,32,.74);   /* 8.0:1 on white */
-  --sx-slate-3: rgba(11,18,32,.60);   /* 4.9:1 on white */
-  --sx-slate-4: rgba(11,18,32,.13);   /* hairlines only */
+  /* Brushed metal. Used on edges and plates, never as a flat fill — a gradient
+     is the only thing that reads as metal rather than as grey. */
+  --sx-steel:  linear-gradient(135deg, #33373D 0%, #6C737D 34%, #24272B 58%, #4C525A 100%);
+  --sx-chrome: linear-gradient(135deg, #EDEFF2 0%, #A2A8B1 38%, #656B73 60%, #D6DAE0 100%);
+  /* Chrome for TYPE. The surface gradient above dips to #656B73 in the middle,
+     which is darker than the body ink — set emphasis in it and the emphasis
+     reads as the quietest thing on the tile. This one never goes below the
+     text it is meant to outrank. */
+  --sx-chrome-text: linear-gradient(140deg, #FFFFFF 0%, #E4E7EB 30%, #A8AEB7 62%, #F1F3F6 100%);
 
-  /* The accent as TEXT on paper. #5B8DEF is the monitor LED and it is correct
-     against the dark ground, but it measures 3.23:1 on white — it cannot carry
-     a role label there. Same hue, taken down until it can. */
-  --sx-glow-ink: #2F5FC4;
+  /* One colour on the whole page, and it is warm. Everything else is metal, so
+     the single amber carries every "this one matters" without competing. */
+  --sx-amber:    #E9A23B;
+  --sx-amber-ink:#8A5712;   /* the same accent where it has to sit on paper */
 
-  /* The accent is a gradient, never flat blue (spec rule 2). */
-  --sx-accent: linear-gradient(104deg, #DCE9FF 0%, #8FB4F7 42%, #4F7BFF 100%);
+  --sx-ink:   #F3F4F6;
+  --sx-ink-2: rgba(243,244,246,.72);   /* 9.4:1 on --sx-wall */
+  --sx-ink-3: rgba(243,244,246,.56);   /* 5.2:1 on --sx-wall */
+  --sx-ink-4: rgba(243,244,246,.13);   /* hairlines only, never type */
 
-  /* Faces are the landing page's, so the new sections read as the same site you
-     just dove into. The machine speaks mono; the person speaks serif. */
-  --sx-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
-  --sx-sans:  "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --sx-mono:  "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Paper half (Experience). Warm off-white, not the old blue-tinted sheet. */
+  --sx-paper:   #ECEBE7;
+  --sx-slate:   #111214;
+  --sx-slate-2: rgba(17,18,20,.74);    /* 8.0:1 on paper */
+  --sx-slate-3: rgba(17,18,20,.60);    /* 4.9:1 on paper */
+  --sx-slate-4: rgba(17,18,20,.13);
 
-  /* Fluid scale. Clamped rather than stepped, because this page is scrubbed and
-     a breakpoint jump mid-scroll is visible. */
+  /* Kept under their old names so the sections below don't all have to change;
+     they now point at metal instead of at blue. */
+  --sx-glow:     var(--sx-amber);
+  --sx-glow-ink: var(--sx-amber-ink);
+  --sx-ice:      #EDEFF2;
+  --sx-chai:     var(--sx-amber);
+  --sx-poster:   #C2382F;
+  --sx-accent:   var(--sx-chrome);
+
+  /* --- TYPE ----------------------------------------------------------------
+     Manrope primary, IBM Plex Sans secondary. Manrope carries display AND body:
+     at 200 with tight tracking it sets large headlines that no longer read as
+     the default editorial serif, and at 400-500 it is a clean text face. Plex
+     Sans takes every label, caption and control, so UI and prose never share a
+     voice. Plex Mono runs the terminal, because a CLI has to be monospaced and
+     it keeps that moment inside the Plex superfamily.
+     -------------------------------------------------------------------------- */
+  --sx-sans:    "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sx-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --sx-ui:      "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --sx-mono:    "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sx-serif:   var(--sx-display);   /* old name, now Manrope */
+
   --sx-t-hero: clamp(2.6rem, 6.4vw, 5.6rem);
   --sx-t-head: clamp(2rem, 4.2vw, 3.4rem);
   --sx-t-sub:  clamp(1.4rem, 2.4vw, 2rem);
@@ -69,7 +87,6 @@
   --sx-gut: clamp(1.25rem, 5vw, 5rem);
   --sx-max: 1440px;
 
-  /* Nothing snaps; everything arrives slightly late (spec rule 7). */
   --sx-ease: cubic-bezier(.19,.68,.3,1);
   --sx-ease-out: cubic-bezier(.22,1,.36,1);
 }
@@ -104,20 +121,22 @@
 }
 
 .sx-mono {
-  font-family: var(--sx-mono);
+  font-family: var(--sx-ui);
+  font-weight: 500;
   font-size: var(--sx-t-mono);
-  font-weight: 400;
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--sx-ink-3);
   margin: 0;
 }
 
-.sx-serif {
-  font-family: var(--sx-serif);
-  font-weight: 400;
-  letter-spacing: -.015em;
-  line-height: 1.04;
+/* Display Manrope: very light, tracked in tight. The weight is what keeps a
+   geometric sans from reading as a UI label at 80px. */
+.sx-serif, .sx-display {
+  font-family: var(--sx-display);
+  font-weight: 200;
+  letter-spacing: -.035em;
+  line-height: 1.02;
   margin: 0;
   text-wrap: balance;
 }
@@ -200,7 +219,7 @@
   font-size: clamp(.72rem, 1.16vw, .95rem);
   line-height: 2.05;
   letter-spacing: .015em;
-  color: rgba(199,219,255,.9);
+  color: rgba(237,239,242,.9);
 }
 
 /* The one piece of chrome: a window title bar, so the terminal reads as a thing
@@ -211,15 +230,15 @@
   gap: .8rem;
   padding-bottom: .9rem;
   margin-bottom: 1.4rem;
-  border-bottom: 1px solid rgba(91,141,239,.18);
-  color: rgba(199,219,255,.42);
+  border-bottom: 1px solid rgba(233,162,59,.18);
+  color: rgba(237,239,242,.42);
   font-size: var(--sx-t-mono);
   letter-spacing: .18em;
   text-transform: uppercase;
 }
 .sx-term-bar .sx-dot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(91,141,239,.5);
+  background: rgba(233,162,59,.5);
   flex: none;
 }
 .sx-term-bar .sx-sp { flex: 1; }
@@ -236,10 +255,10 @@
 }
 
 .sx-line[data-kind="cmd"]  { color: var(--sx-ice); }
-.sx-line[data-kind="ok"]   { color: rgba(199,219,255,.62); }
+.sx-line[data-kind="ok"]   { color: rgba(237,239,242,.62); }
 .sx-line[data-kind="warm"] { color: var(--sx-chai); }   /* warmth #1 of 2 */
 .sx-line .sx-key { color: var(--sx-glow); }
-.sx-line .sx-mute { color: rgba(199,219,255,.34); }
+.sx-line .sx-mute { color: rgba(237,239,242,.34); }
 
 /* Block caret, steps(1) — a smooth fade reads as a pulsing dot, not a cursor.
    Matches the hero's existing caret so the two terminals are the same terminal.
@@ -267,18 +286,19 @@
   align-items: center;
   gap: .6rem;
   padding: .55rem .9rem;
-  font-family: var(--sx-mono);
+  font-family: var(--sx-ui);
+  font-weight: 500;
   font-size: var(--sx-t-mono);
   letter-spacing: .16em;
   text-transform: uppercase;
-  color: rgba(199,219,255,.5);
+  color: rgba(237,239,242,.5);
   background: rgba(24,32,47,.5);
-  border: 1px solid rgba(91,141,239,.2);
+  border: 1px solid rgba(233,162,59,.2);
   border-radius: 3px;
   cursor: pointer;
   transition: color .22s var(--sx-ease), border-color .22s var(--sx-ease);
 }
-.sx-skip:hover { color: var(--sx-ice); border-color: rgba(91,141,239,.5); }
+.sx-skip:hover { color: var(--sx-ice); border-color: rgba(233,162,59,.5); }
 
 /* The progress hairline is the loader's only literal "loading" affordance, and
    it is the scrollbar's own progress through this section — not a fiction. */
@@ -287,7 +307,7 @@
   left: var(--sx-gut); right: var(--sx-gut);
   bottom: clamp(1.5rem, 5vh, 3rem);
   height: 1px;
-  background: rgba(91,141,239,.16);
+  background: rgba(233,162,59,.16);
 }
 .sx-boot-prog i {
   display: block; height: 100%;
@@ -317,59 +337,6 @@
 }
 .sx-sec-head h2 { font-size: var(--sx-t-head); margin-top: .8rem; }
 
-/* --- a single work entry --- */
-.sx-entry {
-  padding-block: clamp(4rem, 11vh, 8rem);
-  border-top: 1px solid var(--sx-ink-4);
-}
-.sx-entry:first-of-type { border-top: 0; }
-
-/* The kicker encodes something true: these ARE ordered, strongest-current last,
-   so the numbering carries information rather than decorating. */
-.sx-kicker {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.4rem;
-}
-.sx-kicker .sx-no {
-  font-family: var(--sx-mono);
-  font-size: var(--sx-t-mono);
-  letter-spacing: .2em;
-  color: var(--sx-glow);
-}
-.sx-kicker .sx-ln {
-  height: 1px; width: clamp(2rem, 7vw, 6rem);
-  background: linear-gradient(90deg, rgba(91,141,239,.55), transparent);
-}
-
-.sx-entry h3 {
-  grid-column: 1 / 10;
-  font-family: var(--sx-serif);
-  font-weight: 400;
-  font-size: var(--sx-t-hero);
-  line-height: 1.02;
-  letter-spacing: -.02em;
-  margin: 0;
-  text-wrap: balance;
-}
-
-.sx-entry-body { grid-column: 1 / 7; margin-top: clamp(1.5rem, 4vh, 2.5rem); }
-.sx-entry-aside { grid-column: 8 / 13; margin-top: clamp(1.5rem, 4vh, 2.5rem); }
-.sx-entry-vis  { grid-column: 1 / 13; margin-top: clamp(2rem, 5vh, 3rem); }
-
-/* The aside is the honest detail, in a different voice. Italic serif, because
-   it is the one place on the page that is not the machine talking. */
-.sx-aside-line {
-  font-family: var(--sx-serif);
-  font-style: italic;
-  font-size: var(--sx-t-sub);
-  line-height: 1.32;
-  color: var(--sx-ink);
-  margin: 0 0 .9rem;
-}
-.sx-aside-line em { font-style: normal; color: var(--sx-poster); }  /* the cancellation */
-
 /* --- lit surfaces ---
    A plane is lifted by light: a specular top edge, a shadow beneath, and a
    ground a shade above the section. Never a 1px grey border (spec rule 4). */
@@ -378,10 +345,10 @@
   border-radius: 4px;
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(199,219,255,.055) 0%, rgba(199,219,255,0) 42%),
+    linear-gradient(180deg, rgba(237,239,242,.055) 0%, rgba(237,239,242,0) 42%),
     var(--sx-surface);
   box-shadow:
-    inset 0 1px 0 rgba(199,219,255,.13),
+    inset 0 1px 0 rgba(237,239,242,.13),
     0 24px 60px -30px rgba(0,0,0,.9);
   display: grid;
   place-items: center;
@@ -402,12 +369,12 @@
   background-image:
     /* crop marks — four corner brackets, drawn with gradients so the
        placeholder still costs zero extra elements */
-    linear-gradient(90deg, rgba(199,219,255,.28) 0 18px, transparent 18px),
-    linear-gradient(180deg, rgba(199,219,255,.28) 0 18px, transparent 18px),
-    linear-gradient(270deg, rgba(199,219,255,.28) 0 18px, transparent 18px),
-    linear-gradient(0deg, rgba(199,219,255,.28) 0 18px, transparent 18px),
+    linear-gradient(90deg, rgba(237,239,242,.28) 0 18px, transparent 18px),
+    linear-gradient(180deg, rgba(237,239,242,.28) 0 18px, transparent 18px),
+    linear-gradient(270deg, rgba(237,239,242,.28) 0 18px, transparent 18px),
+    linear-gradient(0deg, rgba(237,239,242,.28) 0 18px, transparent 18px),
     repeating-linear-gradient(
-      135deg, transparent 0 10px, rgba(199,219,255,.022) 10px 20px);
+      135deg, transparent 0 10px, rgba(237,239,242,.022) 10px 20px);
   background-repeat: no-repeat;
   background-position:
     16px 16px, 16px 16px,
@@ -418,7 +385,8 @@
 .sx-slab[data-empty]::after {
   content: attr(data-empty);
   position: relative;
-  font-family: var(--sx-mono);
+  font-family: var(--sx-ui);
+  font-weight: 500;
   font-size: var(--sx-t-mono);
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -450,39 +418,20 @@
   transition: opacity .4s var(--sx-ease);
   background: radial-gradient(
     380px circle at var(--sx-mx, 50%) var(--sx-my, 50%),
-    rgba(199,219,255,.11), transparent 62%);
+    rgba(237,239,242,.11), transparent 62%);
 }
 .sx-slab:hover .sx-sheen { opacity: 1; }
 
-/* --- fact row --- */
-.sx-facts {
-  grid-column: 1 / 13;
-  display: flex;
-  flex-wrap: wrap;
-  gap: clamp(1.5rem, 4vw, 3.5rem);
-  margin: clamp(1.75rem, 4vh, 2.5rem) 0 0;
-  padding-top: 1.4rem;
-  border-top: 1px solid var(--sx-ink-4);
-}
-.sx-facts div { min-width: 0; }
-.sx-facts dt {
-  font-family: var(--sx-mono);
-  font-size: var(--sx-t-mono);
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--sx-ink-3);
-  margin: 0 0 .45rem;
-}
-.sx-facts dd { margin: 0; color: var(--sx-ink); font-size: .95rem; }
-
 /* --- the case-study button --- */
 .sx-cta {
+  font-family: var(--sx-ui);
   display: inline-flex;
   align-items: center;
   gap: .8rem;
   margin-top: .4rem;
   padding: 0 0 .6rem;
-  font-family: var(--sx-mono);
+  font-family: var(--sx-ui);
+  font-weight: 500;
   font-size: var(--sx-t-mono);
   letter-spacing: .16em;
   text-transform: uppercase;
@@ -496,18 +445,6 @@
 .sx-cta svg { flex: none; transition: transform .3s var(--sx-ease); }
 .sx-cta:hover { gap: 1.3rem; border-bottom-color: var(--sx-glow); }
 .sx-cta:hover svg { transform: translateX(3px); }
-
-/* --- the motion pair --- */
-.sx-pair { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1rem, 1.7vw, 1.5rem); }
-.sx-pair figcaption {
-  font-family: var(--sx-mono);
-  font-size: var(--sx-t-mono);
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--sx-ink-3);
-  margin-top: .8rem;
-}
-.sx-pair figure { margin: 0; }
 
 /* ---------------------------------------------------------------------------
    3 · ARCHIVE — the only crowded moment on the site.
@@ -594,11 +531,11 @@
   border-radius: 6px;
   overflow: hidden;
   background:
-    radial-gradient(120% 90% at 50% 8%, rgba(91,141,239,.16) 0%, transparent 58%),
-    linear-gradient(180deg, #0E1524 0%, var(--sx-void) 100%);
+    radial-gradient(120% 90% at 50% 8%, rgba(233,162,59,.16) 0%, transparent 58%),
+    linear-gradient(180deg, #131518 0%, var(--sx-void) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(199,219,255,.12),
-    0 40px 80px -40px rgba(11,18,32,.55);
+    inset 0 1px 0 rgba(237,239,242,.12),
+    0 40px 80px -40px rgba(17,18,20,.55);
   padding: clamp(1.1rem, 2vw, 1.6rem);
   color: var(--sx-ink);
 }
@@ -659,8 +596,8 @@
   position: relative;
   border-radius: 3px;
   padding: .55rem .5rem .5rem;
-  background: rgba(199,219,255,.035);
-  box-shadow: inset 0 1px 0 rgba(199,219,255,.07);
+  background: rgba(237,239,242,.035);
+  box-shadow: inset 0 1px 0 rgba(237,239,242,.07);
   text-align: center;
   transition: background .5s var(--sx-ease), box-shadow .5s var(--sx-ease);
 }
@@ -677,8 +614,8 @@
 .sx-slot [data-stroke] { stroke: var(--sx-ink-4); fill: none; transition: stroke .5s var(--sx-ease); }
 
 .sx-slot[data-on="1"] {
-  background: rgba(91,141,239,.12);
-  box-shadow: inset 0 1px 0 rgba(199,219,255,.18);
+  background: rgba(233,162,59,.12);
+  box-shadow: inset 0 1px 0 rgba(237,239,242,.18);
 }
 .sx-slot[data-on="1"] [data-stroke] { stroke: var(--sx-ice); }
 .sx-slot[data-on="1"] .sx-slot-l { color: var(--sx-ink-2); }
@@ -693,8 +630,8 @@
   background: #FFFFFF;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,1),
-    0 1px 2px rgba(11,18,32,.05),
-    0 18px 40px -28px rgba(11,18,32,.3);
+    0 1px 2px rgba(17,18,20,.05),
+    0 18px 40px -28px rgba(17,18,20,.3);
   transition: transform .6s var(--sx-ease), box-shadow .6s var(--sx-ease), opacity .6s var(--sx-ease);
 }
 
@@ -720,15 +657,15 @@
   transform: scale(.988);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,1),
-    0 1px 2px rgba(11,18,32,.04),
-    0 10px 24px -20px rgba(11,18,32,.22);
+    0 1px 2px rgba(17,18,20,.04),
+    0 10px 24px -20px rgba(17,18,20,.22);
 }
 .sx-stop[data-active="1"] {
   transform: translateY(-2px);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,1),
-    0 2px 4px rgba(11,18,32,.06),
-    0 28px 60px -30px rgba(11,18,32,.38);
+    0 2px 4px rgba(17,18,20,.06),
+    0 28px 60px -30px rgba(17,18,20,.38);
 }
 
 .sx-stop .sx-yr {
@@ -826,8 +763,8 @@
   will-change: transform, opacity;
 }
 .sx-hand-line {
-  font-family: var(--sx-serif);
-  font-style: italic;
+  font-family: var(--sx-display);
+  font-weight: 300;
   font-size: var(--sx-t-sub);
   color: var(--sx-ink-2);
   margin: clamp(1.5rem, 4vh, 2.5rem) 0 0;
@@ -894,8 +831,8 @@
     /* Reads as a deliberate overlay rather than a collision with whatever card
        happens to be passing under it. */
     box-shadow:
-      inset 0 -1px 0 rgba(199,219,255,.1),
-      0 14px 28px -18px rgba(11,18,32,.5);
+      inset 0 -1px 0 rgba(237,239,242,.1),
+      0 14px 28px -18px rgba(17,18,20,.5);
   }
   /* The label row is the first thing to go — "LOADOUT" and the company name are
      both already said by the card the rig is reacting to. */
@@ -1023,142 +960,297 @@
 
 
 /* ---------------------------------------------------------------------------
-   HERO — you have come through the glass and the machine has booted.
+   THE PLATE — the shared surface, used by both the bento and the work grid.
    ---------------------------------------------------------------------------
-   This is the first thing on the other side, and the first time the person
-   behind all of it appears. The portrait is treated as something being
-   DISPLAYED rather than printed: it sits on a lit plate, cooled toward the
-   monitor's own blue, with scanlines over it. That is the one idea here, and
-   everything else stays quiet around it.
+   Defined HERE, above every variant that modifies it. When this lived further
+   down the file it outranked `.sx-proj-media` on nothing but source order and
+   silently restored its own justify-content, dropping each project's claim to
+   the top of its plate.
    ------------------------------------------------------------------------- */
 
-#sx-hero {
+/* --- the plate ---
+   One shared surface treatment. Metal is a gradient plus an edge, never a flat
+   grey with a border. */
+.sx-tile {
   position: relative;
-  background: linear-gradient(180deg, var(--sx-void) 0%, var(--sx-wall) 62%);
-  padding-block: clamp(5rem, 16vh, 11rem) clamp(4rem, 12vh, 8rem);
-}
-
-.sx-hero-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: clamp(2rem, 6vw, 5rem);
-  align-items: center;
-}
-
-.sx-hero-h {
-  font-size: clamp(2.4rem, 5.6vw, 4.6rem);
-  margin: 1.1rem 0 0;
-  max-width: 18ch;
-}
-/* The second sentence is the one that separates him from every other product
-   designer, so it gets the emphasis rather than sharing the first's weight. */
-.sx-hero-h span { color: var(--sx-ink-2); display: block; }
-
-#sx-hero .sx-lede { margin-top: 1.5rem; }
-/* Grid, not flex-wrap: with four items and a wide first value, wrapping left
-   one fact stranded on a second row with three columns of empty beside it. */
-#sx-hero .sx-facts {
-  display: grid;
-  /* 2x2. Four across doesn't fit the 7-column copy well at any realistic width,
-     and auto-fit stranded the fourth fact alone on its own row. */
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 4vw, 3rem);
-  max-width: 30rem;
-  border-top-color: var(--sx-ink-4);
-}
-
-/* --- the portrait --- */
-.sx-portrait { margin: 0; }
-
-.sx-portrait-plate {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  border-radius: 5px;
   overflow: hidden;
-  isolation: isolate;
-  background: var(--sx-surface);
+  border-radius: 14px;
+  padding: clamp(1.1rem, 1.8vw, 1.6rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: .8rem;
+  background:
+    linear-gradient(180deg, rgba(243,244,246,.05) 0%, rgba(243,244,246,0) 40%),
+    var(--sx-surface);
   box-shadow:
-    inset 0 1px 0 rgba(199,219,255,.16),
-    0 40px 90px -40px rgba(0,0,0,.95);
-  /* Tilts a few degrees toward the pointer. Driven by --sx-tx/--sx-ty from JS. */
-  transform:
-    perspective(900px)
-    rotateX(calc(var(--sx-ty, 0) * -4deg))
-    rotateY(calc(var(--sx-tx, 0) * 5deg));
-  transition: transform .5s var(--sx-ease);
+    inset 0 1px 0 rgba(243,244,246,.11),
+    inset 0 0 0 1px rgba(243,244,246,.045),
+    0 22px 40px -28px rgba(0,0,0,.95);
+  isolation: isolate;
+  transition:
+    background-color .5s var(--sx-ease),
+    box-shadow .5s var(--sx-ease);
+}
+
+/* Brushed sheen, tracked to the pointer. This is the light source moving across
+   metal — the same idea as the monitor lighting the room in the film. */
+.sx-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .45s var(--sx-ease);
+  background: radial-gradient(
+    420px circle at var(--sx-mx, 50%) var(--sx-my, 50%),
+    rgba(243,244,246,.10), transparent 60%);
+}
+.sx-tile:hover::after { opacity: 1; }
+.sx-tile:hover { background-color: var(--sx-raise); }
+
+/* Everything inside a tile that should feel like it sits at a different depth.
+   --sx-depth is per element; JS multiplies the shared pointer offset by it. */
+.sx-layer {
+  transform: translate3d(
+    calc(var(--sx-px, 0) * var(--sx-depth, 0) * 1px),
+    calc(var(--sx-py, 0) * var(--sx-depth, 0) * 1px), 0);
   will-change: transform;
 }
-.sx-portrait-plate img {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-  /* Cooled toward the monitor's blue so he reads as lit by the screen you are
-     currently inside, rather than as a photo pasted onto a dark page. */
-  /* Desaturated fully first, so the tint below lands as one clean hue. Tinting
-     a colour image with `color` blend fights whatever hue is already there —
-     the first pass did exactly that and came out magenta, not screen-blue. */
-  filter: grayscale(1) contrast(1.08) brightness(.88);
+
+.sx-tile-l {
+  font-family: var(--sx-ui);
+  font-weight: 500;
+  font-size: var(--sx-t-mono);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: .55rem;
 }
-/* The screen he is being displayed on: a flat hue over a greyscale base, which
-   is what a duotone actually is. */
-.sx-portrait-plate::after {
+
+
+/* ---------------------------------------------------------------------------
+   WORK — project plates, not an editorial stack.
+   ---------------------------------------------------------------------------
+   The previous version was the wireframe's skeleton: numbered kicker, big
+   headline, a slab, body-left/aside-right, fact row. Three of those in a column
+   is a document, and a document is the one thing a portfolio must not be.
+
+   Each project is now two plates — a large media plate carrying the index and
+   the claim, and a compact meta plate carrying everything a recruiter actually
+   scans. They alternate sides, so the eye crosses the page instead of running
+   down one gutter, and they use exactly the tile treatment the hero introduced.
+   ------------------------------------------------------------------------- */
+
+.sx-proj {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  gap: clamp(.6rem, 1vw, 1rem);
+  align-items: stretch;
+  margin-bottom: clamp(1rem, 2.5vw, 2rem);
+}
+/* Odd projects put the media on the right. Order, not direction: reversing with
+   direction:rtl would flip the text inside them too. */
+.sx-proj[data-flip="1"] .sx-proj-media { order: 2; }
+.sx-proj[data-flip="1"] .sx-proj-meta  { order: 1; }
+
+/* --- media plate --- */
+.sx-proj-media {
+  position: relative;
+  min-height: clamp(320px, 46vw, 560px);
+  justify-content: flex-end;
+  overflow: hidden;
+}
+.sx-proj-media > img, .sx-proj-media > video {
+  position: absolute; inset: 0; z-index: 0;
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+/* The empty state reads as a reserved plate: cross-hatch, corner crop marks and
+   the caption naming what the slot is waiting for. Dropping in an <img> covers
+   all of it with no code change. */
+.sx-proj-media[data-empty]::before {
   content: "";
   position: absolute; inset: 0; z-index: 1;
-  background: var(--sx-glow);
-  mix-blend-mode: color;
-  opacity: .42;
+  background-image:
+    linear-gradient(90deg, rgba(243,244,246,.22) 0 18px, transparent 18px),
+    linear-gradient(180deg, rgba(243,244,246,.22) 0 18px, transparent 18px),
+    linear-gradient(270deg, rgba(243,244,246,.22) 0 18px, transparent 18px),
+    linear-gradient(0deg, rgba(243,244,246,.22) 0 18px, transparent 18px),
+    repeating-linear-gradient(135deg, transparent 0 10px, rgba(243,244,246,.02) 10px 20px);
+  background-repeat: no-repeat;
+  background-position:
+    18px 18px, 18px 18px,
+    calc(100% - 18px) calc(100% - 18px), calc(100% - 18px) calc(100% - 18px), 0 0;
+  background-size: 18px 1px, 1px 18px, 18px 1px, 1px 18px, auto;
 }
-.sx-scan {
-  position: absolute; inset: 0; z-index: 2;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    180deg, rgba(4,6,12,.26) 0 1px, transparent 1px 3px);
-  opacity: .6;
-}
-.sx-portrait figcaption {
-  font-family: var(--sx-mono);
+.sx-proj-media[data-empty]::after {
+  content: attr(data-empty);
+  position: absolute; inset: 0; z-index: 1;
+  opacity: 1;                 /* .sx-tile::after parks the sheen at 0 */
+  background: none;
+  transition: none;
+  display: grid; place-items: center;
+  font-family: var(--sx-ui);
+  font-weight: 500;
   font-size: var(--sx-t-mono);
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--sx-ink-3);
-  margin-top: 1rem;
-  display: flex;
-  align-items: center;
-  gap: .7rem;
-}
-.sx-portrait figcaption::before {
-  content: "";
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--sx-glow);
-  flex: none;
+  text-align: center;
+  line-height: 2.1;
+  white-space: pre-line;
+  pointer-events: none;
 }
 
-/* --- the quote ---
-   His own rule, out of portfolio_spec.md. A borrowed design quote would say
-   nothing about him; this one is the sentence the landing film was built to
-   obey, so it earns the largest type on the page after the headline. */
-.sx-quote {
-  margin: clamp(3rem, 9vh, 6rem) 0 0;
-  padding-top: clamp(2rem, 5vh, 3rem);
-  border-top: 1px solid var(--sx-ink-4);
-  display: grid;
-  gap: 1.1rem;
+.sx-proj-idx {
+  position: absolute;
+  top: clamp(1.1rem, 1.8vw, 1.6rem);
+  left: clamp(1.1rem, 1.8vw, 1.6rem);
+  z-index: 4;
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .2em;
+  color: var(--sx-amber);
 }
-.sx-quote p {
-  font-family: var(--sx-serif);
-  font-style: italic;
-  font-weight: 400;
-  font-size: clamp(1.5rem, 3.4vw, 2.7rem);
-  line-height: 1.24;
-  letter-spacing: -.01em;
+/* The claim sits on the plate, over a scrim that only exists where the type is
+   — a full-plate darkening would flatten whatever image lands here later. */
+.sx-proj-h {
+  position: relative;
+  z-index: 4;
+  margin: 0;
+  font-family: var(--sx-display);
+  font-weight: 200;
+  font-size: clamp(1.6rem, 3.2vw, 2.9rem);
+  line-height: 1.06;
+  letter-spacing: -.035em;
+  color: var(--sx-ink);
+  text-wrap: balance;
+  max-width: 20ch;
+}
+.sx-proj-media::marker { content: none; }
+.sx-proj-media > .sx-proj-h::before {
+  content: "";
+  position: absolute;
+  inset: -140% -40% -80% -40%;
+  z-index: -1;
+  background: linear-gradient(0deg,
+    rgba(8,9,11,.9) 0%, rgba(8,9,11,.72) 42%, rgba(8,9,11,0) 100%);
+}
+
+/* --- meta plate --- */
+.sx-proj-meta { justify-content: flex-start; gap: 1.1rem; }
+.sx-proj-d { margin: 0; color: var(--sx-ink-2); }
+.sx-proj-note {
+  margin: 0;
+  padding-left: .9rem;
+  border-left: 2px solid var(--sx-amber);
+  font-family: var(--sx-display);
+  font-weight: 300;
+  font-size: 1.05em;
+  line-height: 1.4;
+  color: var(--sx-ink);
+}
+.sx-proj-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .9rem 1rem;
+  margin: auto 0 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--sx-ink-4);
+}
+.sx-proj-facts dt {
+  font-family: var(--sx-ui);
+  font-weight: 500;
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  margin: 0 0 .3rem;
+}
+.sx-proj-facts dd { margin: 0; color: var(--sx-ink); font-size: .95rem; }
+
+@media (max-width: 900px) {
+  .sx-proj { grid-template-columns: 1fr; }
+  /* Media always first on a phone; the meta plate is the follow-up, never the
+     thing you meet the project through. */
+  .sx-proj[data-flip="1"] .sx-proj-media { order: 0; }
+  .sx-proj[data-flip="1"] .sx-proj-meta  { order: 1; }
+  .sx-proj-media { min-height: clamp(240px, 56vw, 380px); }
+}
+
+/* ---------------------------------------------------------------------------
+   HERO — a bento of tiles, not a headline beside a photo.
+   ---------------------------------------------------------------------------
+   The old version was a two-column editorial spread lifted straight off the
+   wireframe. This is a case, not a page: machined plates set into a dark
+   chassis, each holding one fact. The reader assembles the person out of eight
+   small things instead of reading a paragraph about him.
+
+   Every plate is metal — a chrome hairline catching light along its top edge, a
+   brushed sheen that moves with the pointer, and a shadow underneath. Depth is
+   the whole idea, so each plate's contents also drift at their own rate: the
+   parallax is what stops a grid of boxes from being a grid of boxes.
+   ------------------------------------------------------------------------- */
+
+#sx-hero {
+  position: relative;
+  background:
+    radial-gradient(120% 80% at 50% -10%, rgba(233,162,59,.05) 0%, transparent 55%),
+    linear-gradient(180deg, var(--sx-void) 0%, var(--sx-wall) 70%);
+  padding-block: clamp(4rem, 12vh, 8rem) clamp(4rem, 12vh, 8rem);
+  overflow: hidden;
+}
+
+.sx-bento {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: minmax(clamp(120px, 15vh, 168px), auto);
+  gap: clamp(.6rem, 1vw, 1rem);
+}
+
+/* --- placements --- */
+.sx-t-quote { grid-column: span 2; grid-row: span 2; }
+.sx-t-port  { grid-column: span 1; grid-row: span 2; padding: 0; }
+.sx-t-now   { grid-column: span 1; }
+.sx-t-clock { grid-column: span 1; }
+.sx-t-stat  { grid-column: span 1; }
+.sx-t-reel  { grid-column: span 2; padding-inline: 0; }
+
+/* --- quote ---
+   His own rule out of portfolio_spec.md. A borrowed Rams quote would say
+   nothing about him; this is the sentence the landing film was built to obey. */
+.sx-t-quote { justify-content: center; gap: 1.4rem; }
+.sx-t-quote blockquote { margin: 0; }
+/* Scoped to the blockquote. Unscoped, `.sx-t-quote p` also matched the tile's
+   own label — and outranked .sx-tile-l on specificity, so "THE RULE" rendered
+   at display size. */
+.sx-t-quote blockquote p {
+  font-family: var(--sx-display);
+  font-weight: 200;
+  font-size: clamp(1.5rem, 3.1vw, 2.7rem);
+  line-height: 1.14;
+  letter-spacing: -.035em;
   color: var(--sx-ink);
   margin: 0;
-  max-width: 26ch;
   text-wrap: balance;
 }
-.sx-quote cite {
-  font-family: var(--sx-mono);
+.sx-t-quote blockquote p em {
+  font-style: normal;
+  /* The clause the whole site is built on gets the chrome, so the eye lands on
+     it before it reads the sentence around it. */
+  background: var(--sx-chrome-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* The clause carries the emphasis, so the sentence around it steps back. */
+.sx-t-quote blockquote p { color: var(--sx-ink-2); }
+.sx-t-quote cite {
+  font-family: var(--sx-ui);
   font-style: normal;
   font-size: var(--sx-t-mono);
   letter-spacing: .16em;
@@ -1166,13 +1258,191 @@
   color: var(--sx-ink-3);
 }
 
+/* --- portrait ---
+   Two layers moving at different rates inside one frame, so the face sits
+   behind the glass rather than on it. */
+.sx-t-port .sx-port-frame {
+  position: absolute;
+  inset: -8%;
+  z-index: 0;
+}
+.sx-t-port img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Greyscale first so the tint lands as one clean hue — tinting a colour image
+     fights whatever is already there. */
+  filter: grayscale(1) contrast(1.12) brightness(.82);
+}
+.sx-t-port .sx-port-tint {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg,
+    rgba(8,9,11,.05) 0%, rgba(8,9,11,.35) 46%, rgba(8,9,11,.95) 100%);
+}
+.sx-t-port .sx-port-scan {
+  position: absolute; inset: 0; z-index: 2;
+  background: repeating-linear-gradient(180deg, rgba(8,9,11,.22) 0 1px, transparent 1px 3px);
+  opacity: .55;
+}
+.sx-t-port figcaption {
+  position: relative;
+  z-index: 4;
+  margin-top: auto;
+  padding: clamp(1.1rem, 1.8vw, 1.6rem);
+}
+.sx-t-port .sx-port-name {
+  font-family: var(--sx-display);
+  font-weight: 300;
+  font-size: clamp(1.1rem, 1.7vw, 1.45rem);
+  letter-spacing: -.02em;
+  color: var(--sx-ink);
+  display: block;
+}
+.sx-t-port .sx-port-role {
+  font-family: var(--sx-ui);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+}
+
+/* --- now ---
+   A live dot, because "currently" is a claim that should look live. */
+.sx-t-now .sx-dot-live {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--sx-amber);
+  flex: none;
+  animation: sx-pulse 2.4s var(--sx-ease) infinite;
+}
+@keyframes sx-pulse {
+  0%, 100% { opacity: 1;  box-shadow: 0 0 0 0 rgba(233,162,59,.5) }
+  60%      { opacity: .5; box-shadow: 0 0 0 7px rgba(233,162,59,0) }
+}
+.sx-t-now .sx-now-v {
+  font-family: var(--sx-display);
+  font-weight: 300;
+  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  color: var(--sx-ink);
+}
+.sx-t-now .sx-now-v span { color: var(--sx-ink-3); display: block; font-size: .82em; }
+
+/* --- clock ---
+   Real local time, ticking. Tabular figures so the seconds can't jog the label. */
+.sx-t-clock .sx-clock-v {
+  font-family: var(--sx-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  letter-spacing: -.02em;
+  color: var(--sx-ink);
+  line-height: 1;
+}
+.sx-t-clock .sx-clock-z {
+  font-family: var(--sx-ui);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  margin-top: .4rem;
+  display: block;
+}
+
+/* --- stats --- */
+.sx-t-stat .sx-stat-v {
+  font-family: var(--sx-display);
+  font-weight: 200;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(2.6rem, 5.2vw, 4rem);
+  line-height: .92;
+  letter-spacing: -.05em;
+  background: var(--sx-chrome-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.sx-t-stat .sx-stat-u {
+  font-family: var(--sx-ui);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  display: block;
+  margin-top: .5rem;
+}
+
+/* --- reel ---
+   The kit, running past. Duplicated once in the markup so the translation can
+   loop seamlessly at -50%. */
+.sx-t-reel { justify-content: center; gap: 1rem; }
+.sx-t-reel .sx-tile-l { padding-inline: clamp(1.1rem, 1.8vw, 1.6rem); }
+.sx-reel-mask {
+  position: relative;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+.sx-reel-track {
+  display: flex;
+  width: max-content;
+  gap: 2.4rem;
+  animation: sx-reel 26s linear infinite;
+}
+.sx-tile:hover .sx-reel-track { animation-play-state: paused; }
+@keyframes sx-reel { to { transform: translateX(-50%) } }
+.sx-reel-track span {
+  font-family: var(--sx-display);
+  font-weight: 300;
+  font-size: clamp(1rem, 1.7vw, 1.35rem);
+  letter-spacing: -.02em;
+  color: var(--sx-ink-2);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+}
+.sx-reel-track span::after {
+  content: "";
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--sx-amber);
+  opacity: .7;
+  flex: none;
+}
+
+/* --- the way down --- */
+.sx-t-cta {
+  grid-column: 1 / -1;
+  cursor: pointer;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+.sx-t-cta .sx-cta-big {
+  font-family: var(--sx-display);
+  font-weight: 200;
+  font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+  letter-spacing: -.035em;
+  color: var(--sx-ink);
+}
+.sx-t-cta svg { flex: none; color: var(--sx-amber); }
+
+/* --- responsive ---
+   The bento collapses by halving, not by stacking everything: two columns still
+   reads as a case of parts, where one column reads as a list. */
 @media (max-width: 900px) {
-  .sx-hero-grid { grid-template-columns: 1fr; }
-  /* Portrait first on a phone: it is the fastest way to say who this is. */
-  .sx-portrait { order: -1; max-width: 320px; }
-  .sx-hero-h span { display: inline; }
+  .sx-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sx-t-quote, .sx-t-reel { grid-column: span 2; }
+  .sx-t-cta { grid-column: 1 / -1; }
+  .sx-t-port { grid-column: span 1; grid-row: span 2; }
+}
+@media (max-width: 480px) {
+  .sx-bento { grid-auto-rows: minmax(108px, auto); }
+  .sx-t-port { grid-column: span 2; grid-row: span 2; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sx-portrait-plate { transition: none; transform: none; }
+  .sx-layer { transform: none !important; }
+  .sx-reel-track { animation: none; }
+  .sx-t-now .sx-dot-live { animation: none; }
+  .sx-tile { transition: none; }
 }
