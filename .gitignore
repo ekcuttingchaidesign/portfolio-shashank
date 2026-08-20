@@ -10,3 +10,7 @@ claude code version/
 
 # npm dependencies
 node_modules/
+
+# Python bytecode (generated when skill scripts run)
+__pycache__/
+*.pyc
