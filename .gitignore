@@ -1,8 +1,16 @@
 # Local-only reference notes (kept on disk, not published)
 reference/
 
-# Claude Code local settings
-.claude/
+# Claude Code local settings (skills are tracked, everything else is local)
+.claude/*
+!.claude/skills/
 
 # Large local export bundle (frames, uploads, zip) — kept on disk, not published
 claude code version/
+
+# npm dependencies
+node_modules/
+
+# Python bytecode (generated when skill scripts run)
+__pycache__/
+*.pyc

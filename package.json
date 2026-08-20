@@ -1,0 +1,15 @@
+{
+  "name": "portfolio-shashank",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Personal design portfolio.",
+  "homepage": "https://ekcuttingchaidesign.github.io/portfolio-shashank/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ekcuttingchaidesign/portfolio-shashank.git"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "motion": "^13.1.0"
+  }
+}

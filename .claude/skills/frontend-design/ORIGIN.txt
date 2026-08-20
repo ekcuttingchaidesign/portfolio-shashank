@@ -1,0 +1,3 @@
+Installed from anthropics/claude-code @ 770933e
+Upstream path: plugins/frontend-design/skills/frontend-design/
+Plugin version: 1.1.0
