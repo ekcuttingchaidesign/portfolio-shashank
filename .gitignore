@@ -6,3 +6,6 @@ reference/
 
 # Large local export bundle (frames, uploads, zip) — kept on disk, not published
 claude code version/
+
+# npm dependencies
+node_modules/
