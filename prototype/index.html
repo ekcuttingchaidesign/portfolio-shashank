@@ -83,7 +83,10 @@
   /* Scrub travel = height - 100vh, so these are (100vh + film length x SCRUB_VH_PER_SEC).
      JS overwrites them from the real durations once metadata lands; these values are
      the no-JS fallback, sized for the clips we currently ship (3.0s and 3.7s). */
-  #s-enter { height: 370vh; }
+  /* 100vh + film (3.0s x 90) + BOOT_VH. JS overwrites this from the real
+     duration once metadata lands; this is the no-JS / pre-metadata fallback and
+     it has to include the boot tail or the terminal types at the wrong rate. */
+  #s-enter { height: 540vh; }
   #s-exit  { height: 435vh; }
 
   /* ---------- hero ---------- */
@@ -439,21 +442,13 @@
         </svg>
         <span class="label">Scroll</span>
       </div>
-    </div>
-  </section>
 
-  <!-- ===================================================================
-       Everything from the black frame to the pull-out. Styles live in
-       ../assets/css/sections.css, behaviour in ../assets/js/sections.js —
-       the hero's scrub engine below is untouched by all of it.
-       =================================================================== -->
-  <div id="sx" class="sx">
+      <!-- The boot terminal. It lives INSIDE the hero, not in a section of its
+           own, because it has to type during the dive's last frames rather
+           than after them — one continuous scroll, no second gesture. Its
+           progress is handed down by the landing's own scrub loop. -->
+      <div class="sx-term-layer" id="sx-term-layer">
 
-  <!-- ---------- 1 · THE BOOT ----------
-       No background: the black you are reading against is the dive's last
-       frame, still on screen behind this section. -->
-  <section id="sx-boot" aria-label="Loading work and experience">
-    <div class="sx-boot-stage">
       <div class="sx-term">
         <div class="sx-term-bar">
           <span class="sx-dot"></span>
@@ -473,10 +468,61 @@
 
       <button class="sx-skip" id="sx-skip" type="button">Skip the boot</button>
       <div class="sx-boot-prog"><i></i></div>
+      </div>
     </div>
   </section>
 
-  <div class="sx-seam-in" aria-hidden="true"></div>
+  <!-- ===================================================================
+       Everything from the black frame to the pull-out. Styles live in
+       ../assets/css/sections.css, behaviour in ../assets/js/sections.js —
+       the hero's scrub engine below is untouched by all of it.
+       =================================================================== -->
+  <div id="sx" class="sx">
+
+  <!-- ---------- 1 · THE BOOT ----------
+       No background: the black you are reading against is the dive's last
+       frame, still on screen behind this section. -->
+
+  <!-- ---------- HERO ----------
+       The other side of the glass. First time the person appears, and the
+       first thing that isn't the machine talking. -->
+  <section id="sx-hero">
+    <div class="sx-wrap sx-hero-grid">
+
+      <div class="sx-hero-copy" data-reveal>
+        <p class="sx-mono">Inside the screen</p>
+        <h1 class="sx-serif sx-hero-h">Ten years designing entertainment products.
+          <span>And the motion inside them.</span></h1>
+        <p class="sx-lede">Gaming, music, streaming, live TV. Mostly at scale, mostly in
+        India, increasingly remote.</p>
+
+        <dl class="sx-facts">
+          <div><dt>Now</dt><dd>Lead Product Designer, Airtel</dd></div>
+          <div><dt>Based</dt><dd>India · open to remote</dd></div>
+          <div><dt>Focus</dt><dd>0→1 product · in-product motion</dd></div>
+          <div><dt>Fast version</dt><dd>Résumé →</dd></div>
+        </dl>
+      </div>
+
+      <figure class="sx-portrait" id="sx-portrait" data-reveal>
+        <div class="sx-portrait-plate">
+          <img src="../profile_pic.jpeg" alt="Shashank" width="1024" height="1024"
+               loading="lazy" decoding="async">
+          <span class="sx-scan" aria-hidden="true"></span>
+          <span class="sx-sheen" aria-hidden="true"></span>
+        </div>
+        <figcaption>Shashank · Lead Product Designer</figcaption>
+      </figure>
+    </div>
+
+    <div class="sx-wrap">
+      <blockquote class="sx-quote" data-reveal>
+        <p>Every transition must be caused by something in the world. Nothing appears
+        for decorative reasons.</p>
+        <cite>The rule the landing film was built to obey</cite>
+      </blockquote>
+    </div>
+  </section>
 
   <!-- ---------- 2 · WORK ---------- -->
   <section id="sx-work">
@@ -484,18 +530,8 @@
 
       <header class="sx-sec-head" data-reveal>
         <p class="sx-mono">01 — Work</p>
-        <h2 class="sx-serif">Ten years designing entertainment products. And the motion inside them.</h2>
+        <h2 class="sx-serif">Selected work</h2>
       </header>
-
-      <!-- The facts a recruiter needs, offered up front. A third of your
-           visitors want twenty seconds; give them the door and the people who
-           stay past this row chose to. -->
-      <dl class="sx-facts" data-reveal style="margin-bottom:clamp(2rem,6vh,4rem)">
-        <div><dt>Now</dt><dd>Lead Product Designer, Airtel</dd></div>
-        <div><dt>Based</dt><dd>India · open to remote</dd></div>
-        <div><dt>Focus</dt><dd>0→1 product · in-product motion</dd></div>
-        <div><dt>Fast version</dt><dd>Résumé →</dd></div>
-      </dl>
 
       <!-- ===== 01 ===== -->
       <article class="sx-entry">
@@ -945,6 +981,15 @@
   // 90vh/s means a 3s clip takes ~2.7 screens of scrolling to play through.
   const SCRUB_VH_PER_SEC = 90;
 
+  // The boot terminal types inside the entry section rather than in one of its
+  // own below it. That was the whole complaint about the first version: the
+  // film finished, and THEN you had to start scrolling again to watch a loader.
+  // Now the entry section carries the film plus this much extra scroll, the
+  // terminal starts typing while the last frames are still going black, and the
+  // reader never makes a second gesture.
+  const BOOT_VH = 170;          // scroll the boot sequence types across
+  const BOOT_LEAD_FRAMES = 10;  // how early it starts, in frames of the film
+
   // The click-to-dive plays this many times faster than 1x. 1.0 is the film's
   // true speed (what it was doing before, and what read as sluggish).
   const CTA_RATE = 1.6;
@@ -1011,12 +1056,12 @@
      keeps one consistent "scroll per second of film" across both. */
   function sizeScrubSections() {
     if (reduced) return;                 // reduced-motion CSS pins both to 100vh
-    const fit = (el, secs) => {
+    const fit = (el, secs, extraVh) => {
       if (!secs || !isFinite(secs)) return;
-      el.style.height = (100 + secs * SCRUB_VH_PER_SEC) + 'vh';
+      el.style.height = (100 + secs * SCRUB_VH_PER_SEC + (extraVh || 0)) + 'vh';
     };
-    fit(sEnter, enter.duration);
-    fit(sExit,  exitV.duration);
+    fit(sEnter, enter.duration, BOOT_VH);
+    fit(sExit,  exitV.duration, 0);
   }
 
   /* ---------- screen perspective ----------
@@ -1227,27 +1272,45 @@
     // time the swap happens.
     const exitVisible = sExit.getBoundingClientRect().top < innerHeight;
 
+    /* The entry section is film + boot tail, so its raw progress is not the
+       film's progress. Split it:
+         pVideo — 0..1 across the film alone, which is what the scrub and every
+                  hero-exit ramp below were tuned against
+         pBoot  — 0..1 across the terminal, starting BOOT_LEAD_FRAMES before the
+                  film ends so the two overlap instead of queueing */
+    const filmVh    = (enter.duration || 3) * SCRUB_VH_PER_SEC;
+    const totalVh   = filmVh + BOOT_VH;
+    const filmShare = filmVh / totalVh;
+    const leadShare = (BOOT_LEAD_FRAMES / 30) * SCRUB_VH_PER_SEC / totalVh;
+
+    const pVideo = reduced ? 1 : Math.min(pEnter / filmShare, 1);
+    const pBoot  = Math.min(Math.max(
+      (pEnter - (filmShare - leadShare)) / (1 - (filmShare - leadShare)), 0), 1);
+
     if (!reduced) {
       if (exitVisible) {
         exitV.classList.add('live'); enter.classList.remove('live');
         scrubExit.set(pExit);
       } else {
         enter.classList.add('live'); exitV.classList.remove('live');
-        scrubEnter.set(pEnter);
+        scrubEnter.set(pVideo);
       }
     }
 
+    // Handed to the sections module, which owns the terminal's own behaviour.
+    if (window.SX && window.SX.boot) window.SX.boot(pBoot);
+
     // Hero clears out early so the copy isn't riding the whole dive.
-    applyHeroMotion(pEnter);
+    applyHeroMotion(pVideo);
     // The source gates its langTimer on `cur > 0.06` — once you've started moving,
     // the copy is on its way out and a mid-exit language flip just reads as a glitch.
-    if (pEnter > SWAP_STOP_AT) stopSwap(); else startSwap();
+    if (pVideo > SWAP_STOP_AT) stopSwap(); else startSwap();
 
     const rot = pExit <= ROTATION_START ? 0 : (pExit - ROTATION_START) / (1 - ROTATION_START);
     connect.style.opacity = reduced ? 1 : Math.min(rot * 1.6, 1).toFixed(3);
 
     hud.textContent =
-      `enter ${pEnter.toFixed(2)}  t=${scrubEnter.time.toFixed(2)}s\n` +
+      `enter ${pEnter.toFixed(2)}  film ${pVideo.toFixed(2)}  boot ${pBoot.toFixed(2)}  t=${scrubEnter.time.toFixed(2)}s\n` +
       `exit  ${pExit.toFixed(2)}  t=${scrubExit.time.toFixed(2)}s\n` +
       `rotate ${rot.toFixed(2)}   ${exitVisible ? '[out]' : '[in]'}  lang=${lang}`;
   }
@@ -1295,7 +1358,10 @@
     prime();
     const end = scrollY + sEnter.getBoundingClientRect().top
               + (sEnter.offsetHeight - innerHeight);
-    const secs = (enter.duration && isFinite(enter.duration) ? enter.duration : 3);
+    // The section now carries the boot as well, so the click-to-dive has to pay
+    // for both or it would land you mid-sequence.
+    const secs = (enter.duration && isFinite(enter.duration) ? enter.duration : 3)
+               + BOOT_VH / SCRUB_VH_PER_SEC;
     if (reduced) { scrollTo(0, end); return; }
     // Stays linear on purpose: the scrub follows scroll, so a linear scroll across
     // the entry region renders the film at a constant rate. CTA_RATE is that rate.

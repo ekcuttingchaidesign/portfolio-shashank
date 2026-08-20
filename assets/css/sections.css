@@ -174,19 +174,23 @@
    never be.
    ------------------------------------------------------------------------- */
 
-#sx-boot {
-  position: relative;
-  height: 260vh;          /* the scroll budget the boot sequence types across */
-  background: transparent;
-}
+/* The terminal is a layer INSIDE the landing's hero, not a section of its own.
+   Its progress is handed down by the landing's scrub loop, so it types while
+   the film's last frames are still going black — one continuous scroll rather
+   than "the film ends, now scroll again to watch a loader".
 
-.sx-boot-stage {
-  position: sticky;
-  top: 0;
-  height: 100vh;
+   .hero sets pointer-events:none for the film; the layer turns them back on
+   for itself only once it is actually legible. */
+.sx-term-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
   display: grid;
   align-content: center;
   padding-inline: var(--sx-gut);
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
 }
 
 .sx-term {
@@ -1015,4 +1019,160 @@
   #sx-figure [data-body],
   #sx-figure .sx-spill,
   .sx-gain[data-warm] { transition: none; }
+}
+
+
+/* ---------------------------------------------------------------------------
+   HERO — you have come through the glass and the machine has booted.
+   ---------------------------------------------------------------------------
+   This is the first thing on the other side, and the first time the person
+   behind all of it appears. The portrait is treated as something being
+   DISPLAYED rather than printed: it sits on a lit plate, cooled toward the
+   monitor's own blue, with scanlines over it. That is the one idea here, and
+   everything else stays quiet around it.
+   ------------------------------------------------------------------------- */
+
+#sx-hero {
+  position: relative;
+  background: linear-gradient(180deg, var(--sx-void) 0%, var(--sx-wall) 62%);
+  padding-block: clamp(5rem, 16vh, 11rem) clamp(4rem, 12vh, 8rem);
+}
+
+.sx-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+
+.sx-hero-h {
+  font-size: clamp(2.4rem, 5.6vw, 4.6rem);
+  margin: 1.1rem 0 0;
+  max-width: 18ch;
+}
+/* The second sentence is the one that separates him from every other product
+   designer, so it gets the emphasis rather than sharing the first's weight. */
+.sx-hero-h span { color: var(--sx-ink-2); display: block; }
+
+#sx-hero .sx-lede { margin-top: 1.5rem; }
+/* Grid, not flex-wrap: with four items and a wide first value, wrapping left
+   one fact stranded on a second row with three columns of empty beside it. */
+#sx-hero .sx-facts {
+  display: grid;
+  /* 2x2. Four across doesn't fit the 7-column copy well at any realistic width,
+     and auto-fit stranded the fourth fact alone on its own row. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 4vw, 3rem);
+  max-width: 30rem;
+  border-top-color: var(--sx-ink-4);
+}
+
+/* --- the portrait --- */
+.sx-portrait { margin: 0; }
+
+.sx-portrait-plate {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 5px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--sx-surface);
+  box-shadow:
+    inset 0 1px 0 rgba(199,219,255,.16),
+    0 40px 90px -40px rgba(0,0,0,.95);
+  /* Tilts a few degrees toward the pointer. Driven by --sx-tx/--sx-ty from JS. */
+  transform:
+    perspective(900px)
+    rotateX(calc(var(--sx-ty, 0) * -4deg))
+    rotateY(calc(var(--sx-tx, 0) * 5deg));
+  transition: transform .5s var(--sx-ease);
+  will-change: transform;
+}
+.sx-portrait-plate img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Cooled toward the monitor's blue so he reads as lit by the screen you are
+     currently inside, rather than as a photo pasted onto a dark page. */
+  /* Desaturated fully first, so the tint below lands as one clean hue. Tinting
+     a colour image with `color` blend fights whatever hue is already there —
+     the first pass did exactly that and came out magenta, not screen-blue. */
+  filter: grayscale(1) contrast(1.08) brightness(.88);
+}
+/* The screen he is being displayed on: a flat hue over a greyscale base, which
+   is what a duotone actually is. */
+.sx-portrait-plate::after {
+  content: "";
+  position: absolute; inset: 0; z-index: 1;
+  background: var(--sx-glow);
+  mix-blend-mode: color;
+  opacity: .42;
+}
+.sx-scan {
+  position: absolute; inset: 0; z-index: 2;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg, rgba(4,6,12,.26) 0 1px, transparent 1px 3px);
+  opacity: .6;
+}
+.sx-portrait figcaption {
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+}
+.sx-portrait figcaption::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--sx-glow);
+  flex: none;
+}
+
+/* --- the quote ---
+   His own rule, out of portfolio_spec.md. A borrowed design quote would say
+   nothing about him; this one is the sentence the landing film was built to
+   obey, so it earns the largest type on the page after the headline. */
+.sx-quote {
+  margin: clamp(3rem, 9vh, 6rem) 0 0;
+  padding-top: clamp(2rem, 5vh, 3rem);
+  border-top: 1px solid var(--sx-ink-4);
+  display: grid;
+  gap: 1.1rem;
+}
+.sx-quote p {
+  font-family: var(--sx-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3.4vw, 2.7rem);
+  line-height: 1.24;
+  letter-spacing: -.01em;
+  color: var(--sx-ink);
+  margin: 0;
+  max-width: 26ch;
+  text-wrap: balance;
+}
+.sx-quote cite {
+  font-family: var(--sx-mono);
+  font-style: normal;
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+}
+
+@media (max-width: 900px) {
+  .sx-hero-grid { grid-template-columns: 1fr; }
+  /* Portrait first on a phone: it is the fastest way to say who this is. */
+  .sx-portrait { order: -1; max-width: 320px; }
+  .sx-hero-h span { display: inline; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-portrait-plate { transition: none; transform: none; }
 }

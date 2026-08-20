@@ -52,18 +52,6 @@
   }
   makeGrain();
 
-  /* ------------------------------------------------------------------------
-     Progress of an element through the viewport.
-     0 when its top hits the bottom of the screen, 1 when its bottom leaves the
-     top. For tall sticky sections, `travel` is the scrollable overshoot.
-     ---------------------------------------------------------------------- */
-  function stickyProgress(el) {
-    const r = el.getBoundingClientRect();
-    const travel = r.height - innerHeight;
-    if (travel <= 0) return r.top <= 0 ? 1 : 0;
-    return clamp01(-r.top / travel);
-  }
-
   /* ========================================================================
      1 · THE BOOT
      ========================================================================
@@ -76,10 +64,14 @@
      is zero per-frame layout.
      ====================================================================== */
 
-  const boot = document.getElementById('sx-boot');
-  const bootLines = boot ? [...boot.querySelectorAll('.sx-line')] : [];
+  /* The terminal now lives inside the landing's hero, and its progress is
+     handed down by the landing's scrub loop through window.SX.boot(). It is no
+     longer a section with a scroll position of its own — that was the version
+     that made you scroll a second time to watch a loader. */
+  const termLayer = document.getElementById('sx-term-layer');
+  const bootLines = termLayer ? [...termLayer.querySelectorAll('.sx-line')] : [];
   const bootCaret = document.getElementById('sx-caret');
-  const bootProg = boot ? boot.querySelector('.sx-boot-prog') : null;
+  const bootProg = termLayer ? termLayer.querySelector('.sx-boot-prog') : null;
 
   /* The sequence finishes typing at 82% of the section, leaving the last fifth
      as a held frame — a beat of stillness before Work arrives. The camera does
@@ -112,6 +104,16 @@
 
   function updateBoot(p) {
     if (!bootLines.length) return;
+
+    /* The layer fades up fast — it is a machine waking, not a slow dissolve —
+       and goes inert entirely at rest so it can't eat clicks on the hero CTA
+       sitting underneath it. */
+    if (termLayer) {
+      const vis = reduced ? 1 : Math.min(p * 9, 1);
+      termLayer.style.opacity = vis.toFixed(3);
+      termLayer.style.pointerEvents = vis > 0.6 ? 'auto' : 'none';
+    }
+
     const n = bootLines.length;
     const span = BOOT_TYPED_BY / n;
     let active = 0, activeT = 1;
@@ -147,13 +149,15 @@
     document.fonts.ready.then(() => { measureBoot(); kick(); });
   }
 
-  /* Skip = scroll past the section. Not a class that hides it — the boot is
-     part of the scroll spine, so leaving it means moving down the page, and
-     anything else would desync the scrollbar from what is on screen. */
+  /* Skip = scroll to the end of the entry section, which is where the film and
+     the boot both finish. Not a class that hides it: the boot is part of the
+     scroll spine, so leaving it means moving down the page, and anything else
+     would desync the scrollbar from what is on screen. */
   const skipBtn = document.getElementById('sx-skip');
-  if (skipBtn && boot) {
+  const sEnter = document.getElementById('s-enter');
+  if (skipBtn && sEnter) {
     skipBtn.addEventListener('click', () => {
-      const to = scrollY + boot.getBoundingClientRect().bottom - innerHeight;
+      const to = scrollY + sEnter.getBoundingClientRect().bottom - innerHeight;
       scrollTo({ top: to, behavior: reduced ? 'auto' : 'smooth' });
     });
   }
@@ -205,6 +209,22 @@
      ---------------------------------------------------------------------- */
 
   if (!reduced && matchMedia('(pointer: fine)').matches) {
+    /* The portrait leans toward the pointer. Small — 4-5 degrees — because it
+       is a photograph on a screen, not a card being picked up. */
+    const portrait = document.getElementById('sx-portrait');
+    if (portrait) {
+      const plate = portrait.querySelector('.sx-portrait-plate');
+      portrait.addEventListener('pointermove', (e) => {
+        const r = portrait.getBoundingClientRect();
+        plate.style.setProperty('--sx-tx', (((e.clientX - r.left) / r.width) * 2 - 1).toFixed(3));
+        plate.style.setProperty('--sx-ty', (((e.clientY - r.top) / r.height) * 2 - 1).toFixed(3));
+      }, { passive: true });
+      portrait.addEventListener('pointerleave', () => {
+        plate.style.setProperty('--sx-tx', '0');
+        plate.style.setProperty('--sx-ty', '0');
+      }, { passive: true });
+    }
+
     root.querySelectorAll('.sx-slab').forEach(slab => {
       slab.addEventListener('pointermove', (e) => {
         const r = slab.getBoundingClientRect();
@@ -350,7 +370,6 @@
     const moved = y !== lastY;
     lastY = y;
 
-    if (boot) updateBoot(stickyProgress(boot));
     updateExperience();
     updateHandoff();
 
@@ -365,10 +384,16 @@
 
   /* Paint the correct state now rather than on the first scroll, so a reload
      halfway down the page doesn't start from level zero and animate up. */
-  if (boot) updateBoot(stickyProgress(boot));
   updateExperience();
   updateHandoff();
   kick();
+
+  /* The one seam between this module and the landing's scrub engine: the
+     landing owns the scroll spine and the film, so it owns the number; this
+     module owns what the terminal does with it. */
+  window.SX = window.SX || {};
+  window.SX.boot = updateBoot;
+  updateBoot(0);
 
   /* ------------------------------------------------------------------------
      Case study buttons.
