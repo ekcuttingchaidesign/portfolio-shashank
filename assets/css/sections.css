@@ -1640,45 +1640,6 @@
 }
 .sx-cel-plate { backface-visibility: hidden; }
 
-/* The words behind the cards. Runs opposite to the strip so the two read as
-   separate planes at different depths rather than one block sliding. */
-.sx-reel-words {
-  position: absolute;
-  left: 0; right: 0;
-  top: 50%;
-  z-index: 0;
-  transform: translateY(-50%);
-  pointer-events: none;
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-          mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-}
-.sx-reel-words-track {
-  display: flex;
-  width: max-content;
-  animation: sx-words-roll 42s linear infinite reverse;
-}
-.sx-reel:hover .sx-reel-words-track { animation-play-state: paused; }
-@keyframes sx-words-roll { to { transform: translateX(-50%) } }
-.sx-reel-words-track span {
-  display: flex; align-items: center; gap: 1.6rem;
-  padding-right: 1.6rem;
-  white-space: nowrap;
-  font-family: var(--sx-display);
-  font-weight: 700;
-  font-size: clamp(2.4rem, 6vw, 5.4rem);
-  letter-spacing: -.04em;
-  text-transform: uppercase;
-  color: rgba(244,241,236,.055);
-}
-.sx-reel-words-track span::after {
-  content: "✦";
-  font-size: .38em;
-  color: rgba(224,84,42,.4);
-  letter-spacing: 0;
-}
-
-/* The strip has to sit above the words. */
 .sx-reel-strip { position: relative; z-index: 1; }
 
 /* Centred heading, the way the reference frames it. */
@@ -1709,6 +1670,71 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sx-reel-words-track, .sx-reel-chev { animation: none; }
+  .sx-reel-chev { animation: none; }
   .sx-cel { transform: none; }
+}
+
+
+/* ---------------------------------------------------------------------------
+   Hero choreography.
+   ---------------------------------------------------------------------------
+   Every animated piece reads three numbers written by JS: --t (raw progress
+   through its own window), --e (eased), --b (eased with overshoot). Keeping the
+   curve in CSS and only the progress in JS means no element is ever mid-
+   transition when the scroll reverses — the position is a function of scroll,
+   so back is simply forward run the other way.
+   ------------------------------------------------------------------------- */
+
+.sx-js .sx-hero-layer [style*="--t"] { will-change: transform, opacity; }
+
+/* The line, word by word: each rises out of its own baseline and clears. */
+.sx-line-1 .sx-w1,
+.sx-line-1 .sx-w2,
+.sx-line-1 .sx-w3 {
+  display: inline-block;
+  opacity: var(--t, 0);
+  transform: translateY(calc((1 - var(--e, 0)) * 0.42em));
+  filter: blur(calc((1 - var(--t, 0)) * 7px));
+}
+
+/* The portrait lands rather than fades: it drops in with a little overshoot
+   and a turn, because it is the one object in a line of type. */
+.sx-face {
+  opacity: var(--t, 0);
+  transform:
+    translate3d(calc(var(--sx-px, 0) * .35px), calc(var(--sx-py, 0) * .35px), 0)
+    scale(var(--b, 0))
+    rotate(calc((1 - var(--b, 0)) * -22deg));
+}
+
+/* "move." is the word the sentence exists for, so it gets the loudest arrival:
+   it comes forward off the page and the chrome sweeps across it as it lands. */
+.sx-line-1 .sx-em {
+  display: inline-block;
+  opacity: var(--t, 0);
+  transform: scale(calc(0.72 + var(--b, 0) * 0.28));
+  background-size: 240% 100%;
+  background-position: calc((1 - var(--e, 0)) * 100%) 0;
+}
+
+.sx-hero-sub {
+  opacity: var(--t, 0);
+  transform: translateY(calc((1 - var(--e, 0)) * 14px));
+}
+.sx-corner  { opacity: var(--t, 0); transform: translateY(calc((1 - var(--e, 0)) * -8px)); }
+.sx-rules   { opacity: calc(var(--e, 0) * .55); }
+.sx-mark    { opacity: var(--t, 0); transform: scale(var(--e, 0)); }
+.sx-stamp   { opacity: var(--t, 0); transform: scale(calc(0.8 + var(--b, 0) * 0.2)); }
+.sx-ticker  { opacity: var(--t, 0); transform: translateY(calc((1 - var(--e, 0)) * 18px)); }
+
+/* The stamp's own transform is the ring's, so the arrival scale has to live on
+   a wrapper rather than fight it. */
+.sx-stamp svg.sx-stamp-ring { transform-origin: 50% 50%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
+  .sx-line-1 .sx-em, .sx-face, .sx-hero-sub, .sx-corner,
+  .sx-rules, .sx-mark, .sx-stamp, .sx-ticker {
+    opacity: 1 !important; transform: none !important; filter: none !important;
+  }
 }

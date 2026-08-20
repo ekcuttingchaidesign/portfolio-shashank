@@ -155,6 +155,8 @@
   let bootAnim = null;
   let bootHooks = null;
   let termRetired = false;
+  let lastFilmQ = -1;
+  const BOOT_LEAD_FRAMES = 30;
 
   function lockScroll(on) {
     document.documentElement.style.overflow = on ? 'hidden' : '';
@@ -219,7 +221,12 @@
           /* First quarter of the run belongs to the camera: the film finishes
              its push into the glass while the terminal fades up over it. */
           if (bootHooks && bootHooks.setFilm) {
-            bootHooks.setFilm(Math.min(box.p / FILM_TAIL, 1));
+            /* Quantised to whole frames. Asking for a new time every animation
+               frame queues seeks faster than the decoder retires them, and the
+               dropped ones are what desynced the playhead. */
+            const k = Math.min(box.p / FILM_TAIL, 1);
+            const q = Math.round(k * BOOT_LEAD_FRAMES) / BOOT_LEAD_FRAMES;
+            if (q !== lastFilmQ) { lastFilmQ = q; bootHooks.setFilm(q); }
           }
           paintBoot(box.p);
         },
@@ -494,28 +501,66 @@
   const heroLayer = document.getElementById('sx-hero-layer');
   const heroDepth = document.getElementById('sx-hero-depth');
 
+  /* Per-element choreography.
+
+     The group still travels along Z — that is the camera continuing — but the
+     pieces inside it no longer arrive as one block. Each has its own window
+     into the same progress value, so the composition assembles: labels first,
+     then the line word by word, the portrait dropping in on its own beat, and
+     "move." last, because it is the word the sentence is for.
+
+     Windows are [start, end] fractions of the arrival. Everything is derived
+     from one number, so it is exact in both directions — scrolling back takes
+     the whole thing apart in reverse rather than fading it out. */
+  const HERO_STEPS = [
+    ['.sx-corner[data-at="tl"]', .00, .28],
+    ['.sx-corner[data-at="tr"]', .04, .32],
+    ['.sx-rules',                .00, .40],
+    ['.sx-mark',                 .10, .45],
+    ['.sx-w1',                   .12, .44],
+    ['.sx-face',                 .26, .62],
+    ['.sx-w2',                   .34, .64],
+    ['.sx-w3',                   .42, .72],
+    ['.sx-em',                   .54, .88],
+    ['.sx-hero-sub',             .66, .94],
+    ['.sx-stamp',                .78, 1.0],
+    ['.sx-ticker',               .82, 1.0]
+  ];
+  const heroNodes = HERO_STEPS.map(([sel, a, b]) => ({
+    els: heroLayer ? [...heroLayer.querySelectorAll(sel)] : [], a, b
+  }));
+
+  const easeOut = t => 1 - Math.pow(1 - t, 3);
+  /* A little overshoot on the pieces that should feel like they land rather
+     than glide — the portrait and the last word. */
+  const backOut = t => { const c = 1.9; const u = t - 1; return 1 + (c + 1) * u * u * u + c * u * u; };
+
   function paintHero(p) {
     if (!heroLayer || !heroDepth) return;
     const k = reduced ? 1 : clamp01(p);
-    /* Eased so the last stretch settles rather than arriving at constant speed
-       — the camera does the same at the end of the dive. */
     const e = k < .5 ? 4*k*k*k : 1 - Math.pow(-2*k + 2, 3) / 2;
 
-    heroDepth.style.transform = `translateZ(${(-620 * (1 - e)).toFixed(1)}px)`;
-    heroDepth.style.opacity = Math.min(e * 1.5, 1).toFixed(3);
-    heroDepth.style.filter = e > .985 ? '' : `blur(${((1 - e) * 13).toFixed(2)}px)`;
+    /* The group's own travel along Z. Shorter now than the pieces' windows, so
+       the camera settles first and the composition assembles into a frame that
+       has already stopped moving. */
+    heroDepth.style.transform = `translateZ(${(-560 * (1 - easeOut(clamp01(k / .72)))).toFixed(1)}px)`;
+    heroDepth.style.opacity = '1';
+    heroDepth.style.filter = k > .55 ? '' : `blur(${((1 - clamp01(k / .55)) * 10).toFixed(2)}px)`;
 
-    /* The ground arrives with it, so the film is visible through the hero for
-       the whole approach and only sealed off once it has landed. */
     heroLayer.style.background = `rgba(0,0,0,${(e * e).toFixed(3)})`;
     heroLayer.style.pointerEvents = e > .9 ? 'auto' : 'none';
 
-    /* The terminal's visibility is a pure function of state, evaluated every
-       frame — not a timer that can be interrupted, and not something the boot
-       leaves behind. Before the loader has armed it is simply absent; while it
-       runs, paintBoot owns it; once the hero starts arriving it clears, and
-       once the hero has properly landed it is retired for good so it can never
-       reappear behind a receding hero on the way back up. */
+    if (!reduced) {
+      for (const n of heroNodes) {
+        const t = clamp01((k - n.a) / (n.b - n.a));
+        for (const el of n.els) {
+          el.style.setProperty('--t', t.toFixed(3));
+          el.style.setProperty('--e', easeOut(t).toFixed(3));
+          el.style.setProperty('--b', (t <= 0 ? 0 : t >= 1 ? 1 : backOut(t)).toFixed(3));
+        }
+      }
+    }
+
     if (termLayer && bootState !== 'running') {
       if (k > 0.5) termRetired = true;
       const v = (bootState === 'idle' || termRetired) ? 0 : (1 - clamp01(k / 0.34));
@@ -523,6 +568,7 @@
       termLayer.style.pointerEvents = 'none';
     }
   }
+
   window.SX = window.SX || {};
   window.SX.hero = paintHero;
   paintHero(0);
@@ -699,11 +745,14 @@
         const r = c.getBoundingClientRect();
         if (r.right < -240 || r.left > innerWidth + 240) continue;
         /* -1 at the left edge, 0 dead centre, +1 at the right. */
-        const d = Math.max(-1.4, Math.min(1.4, ((r.left + r.width / 2) - mid) / mid));
-        c.style.setProperty('--sx-ry', (-d * 26).toFixed(2) + 'deg');
-        /* Pushed back as it turns, so the bend reads as a cylinder rather than
-           as cards shearing in place. */
-        c.style.setProperty('--sx-tz', (-Math.abs(d) * 120).toFixed(1) + 'px');
+        const d = Math.max(-1, Math.min(1, ((r.left + r.width / 2) - mid) / mid));
+        /* Shallow on purpose. A card rotated by θ projects to cos(θ) of its
+           width, so the gap either side of it appears to grow — at the 36° the
+           first pass reached, cards lost a fifth of their width and the spacing
+           visibly pumped as the strip moved. At 14° the loss is 3%, which reads
+           as an even run on a gentle curve. */
+        c.style.setProperty('--sx-ry', (-d * 14).toFixed(2) + 'deg');
+        c.style.setProperty('--sx-tz', (-(d * d) * 70).toFixed(1) + 'px');
       }
       reelRaf = reelOn ? requestAnimationFrame(curve) : 0;
     };

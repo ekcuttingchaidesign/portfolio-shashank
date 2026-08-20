@@ -92,7 +92,7 @@
   /* 100vh + film (3.0s x 90) + HERO_VH. JS overwrites this from the real
      duration once metadata lands; this is the no-JS / pre-metadata fallback and
      it has to include the boot tail or the terminal types at the wrong rate. */
-  #s-enter { height: 500vh; }
+  #s-enter { height: 513vh; }
   #s-exit  { height: 435vh; }
 
   /* ---------- hero ---------- */
@@ -498,10 +498,11 @@
 
       <div class="sx-wrap">
         <h1 class="sx-line-1">
-          I design
+          <span class="sx-w1">I</span> <span class="sx-w1">design</span>
           <span class="sx-face" aria-hidden="true"><img src="../public/img/profile.jpeg"
                 alt="" width="1024" height="1024" decoding="async"></span>
-          products that <em>move.</em>
+          <span class="sx-w2">products</span> <span class="sx-w3">that</span>
+          <em class="sx-em">move.</em>
         </h1>
         <p class="sx-hero-sub">Ten years inside entertainment products —
           <b>gaming, music, streaming, live TV</b>. Mostly at scale, mostly in India,
@@ -651,12 +652,6 @@
       </div>
 
       <div class="sx-reel" id="sx-reel" data-reveal>
-        <div class="sx-reel-words" aria-hidden="true">
-          <div class="sx-reel-words-track">
-            <span>In-product motion</span><span>Product film</span><span>Idents</span><span>Micro-interaction</span>
-            <span>In-product motion</span><span>Product film</span><span>Idents</span><span>Micro-interaction</span>
-          </div>
-        </div>
         <div class="sx-reel-strip">
           <div class="sx-reel-run">
             <figure class="sx-cel" data-ar="16x9">
@@ -1063,16 +1058,20 @@
   // terminal starts typing while the last frames are still going black, and the
   // reader never makes a second gesture.
   // The film is 91 frames at 30fps (counted off the mp4's stts atom, not
-  // guessed). The loader takes over at frame 81 and drives the remaining ten
+  // guessed). The loader takes over at frame 61 and drives the remaining thirty
   // itself, so the camera finishes its move into black as the terminal wakes —
   // one continuous beat rather than a film that stops and a loader that starts.
-  const BOOT_LEAD_FRAMES = 10;
+  const BOOT_LEAD_FRAMES = 30;
   const FILM_FPS = 30;
 
   // Scroll spent on the hero's arrival along Z, after the film has finished.
   // It lives inside the entry section so the whole entry — film, loader, hero —
   // is one reversible timeline rather than a film followed by a page.
-  const HERO_VH = 130;
+  const HERO_VH = 150;
+  // Scroll the loader's finished frame is held for before the hero starts
+  // arriving. Without it the hero begins the moment the terminal stops typing,
+  // and the two read as one continuous move instead of two beats.
+  const HOLD_VH = 90;
 
   // The click-to-dive plays this many times faster than 1x. 1.0 is the film's
   // true speed (what it was doing before, and what read as sluggish).
@@ -1144,7 +1143,7 @@
       if (!secs || !isFinite(secs)) return;
       el.style.height = (100 + secs * SCRUB_VH_PER_SEC + (extraVh || 0)) + 'vh';
     };
-    fit(sEnter, enter.duration, HERO_VH);
+    fit(sEnter, enter.duration, HOLD_VH + HERO_VH);
     fit(sExit,  exitV.duration, 0);
   }
 
@@ -1228,7 +1227,19 @@
       pending = false;
       if (!video.duration || !isFinite(video.duration)) return;
       const t = Math.min(Math.max(target, 0), video.duration - 0.001);
-      if (Math.abs(t - applied) < SEEK_EPSILON) return;
+
+      /* Compare against the element's REAL currentTime, not our own record of
+         what we last asked for.
+ 
+         The old version skipped the seek whenever the target was within a frame
+         of `applied`. That is fine while every seek lands — but the browser
+         coalesces and drops seeks when they arrive faster than it can decode,
+         which the loader does while it scrubs the tail. One dropped seek and
+         `applied` is permanently ahead of the truth; from then on every small
+         scroll falls inside the epsilon, nothing is ever requested again, and
+         the film sits frozen on whatever frame it happened to stop on. That is
+         exactly the black-last-frame-on-the-way-back symptom. */
+      if (Math.abs(t - video.currentTime) < SEEK_EPSILON) { applied = t; return; }
       applied = t;
       try { video.currentTime = t; } catch (e) {}
     }
@@ -1361,9 +1372,13 @@
                  scrubber were tuned against
          pHero — 0..1 across the arrival, which runs after the film ends */
     const filmVh    = (enter.duration || 3.033) * SCRUB_VH_PER_SEC;
-    const filmShare = filmVh / (filmVh + HERO_VH);
+    const totalVh   = filmVh + HOLD_VH + HERO_VH;
+    const filmShare = filmVh / totalVh;
+    const holdShare = (filmVh + HOLD_VH) / totalVh;
     const pVideo = Math.min(pEnter / filmShare, 1);
-    const pHero  = Math.min(Math.max((pEnter - filmShare) / (1 - filmShare), 0), 1);
+    // The hold sits between them: the terminal rests on its finished frame
+    // before the hero begins to come forward.
+    const pHero  = Math.min(Math.max((pEnter - holdShare) / (1 - holdShare), 0), 1);
 
     // The hero owns its own reveal; this just hands it the number, every frame,
     // in both directions.
@@ -1392,6 +1407,7 @@
           // reader's next gesture starts the hero coming forward.
           const travel = sEnter.offsetHeight - innerHeight;
           const end = scrollY + sEnter.getBoundingClientRect().top + travel * filmShare;
+          void holdShare;
           scrollTo(0, end);
         }
       });
