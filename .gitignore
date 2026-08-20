@@ -1,8 +1,9 @@
 # Local-only reference notes (kept on disk, not published)
 reference/
 
-# Claude Code local settings
-.claude/
+# Claude Code local settings (skills are tracked, everything else is local)
+.claude/*
+!.claude/skills/
 
 # Large local export bundle (frames, uploads, zip) — kept on disk, not published
 claude code version/
