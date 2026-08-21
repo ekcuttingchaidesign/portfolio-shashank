@@ -1380,8 +1380,12 @@
   font-size: var(--sx-t-lede);
   line-height: 1.5;
   color: var(--sx-ink-2);
+  /* The sentence ends on the line that carries the turn, and at a couple of
+     viewport widths the default wrap left "audience." stranded on a line of its
+     own. Costs nothing where there is no orphan to fix, and browsers without it
+     just wrap as before. */
+  text-wrap: pretty;
 }
-.sx-hero-sub b { color: var(--sx-ink); font-weight: 500; }
 
 /* --- the scroll stamp ---
    A rotating ring of type around a fixed arrow, which is the one piece of
