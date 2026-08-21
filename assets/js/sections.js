@@ -565,6 +565,7 @@
   const copies    = heroLayer ? [...heroLayer.querySelectorAll('.sx-copy')] : [];
   const copiesBox = document.getElementById('sx-copies');
   const faceEl    = document.getElementById('sx-face');
+  const faceImgs  = faceEl ? [...faceEl.querySelectorAll('img[data-face]')] : [];
   let facePos = [];
   let activeCopy = 0;
 
@@ -648,6 +649,40 @@
      up. Ease-in-out is what an object moving between two points looks like. */
   const glideEase = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
 
+  /* The three objects live stacked in the one gliding box, so the change of
+     object is pure opacity — nothing moves that was not already moving.
+
+     It runs INSIDE the glide rather than across all of it, and on a smoothstep
+     rather than linearly: an object that starts dissolving on the first frame
+     of the travel has already gone by the time the box is halfway, which reads
+     as a picture failing to load. Beginning a quarter of the way in and
+     finishing before the box lands means the swap happens at the height of the
+     move, where the eye is following the travel and not auditing the art. */
+  const FACE_MIX_IN  = 0.25;
+  const FACE_MIX_OUT = 0.72;
+  const mixEase = t => t * t * (3 - 2 * t);
+
+  /* Cross-fading two things on plain opacity dips in the middle: at the halfway
+     point both sit at .5 and the pair together reads lighter than either alone.
+     Square-rooting each side holds the sum up through the crossing. */
+  function paintFaceMix(from, to, m) {
+    if (!faceImgs.length) return;
+    const e = mixEase(m);
+    for (let i = 0; i < faceImgs.length; i++) {
+      let o = 0;
+      if (i === to)        o = Math.sqrt(e);
+      else if (i === from) o = Math.sqrt(1 - e);
+      faceImgs[i].style.setProperty('--o', o.toFixed(3));
+    }
+  }
+
+  function setFace(i) {
+    for (let k = 0; k < faceImgs.length; k++) {
+      faceImgs[k].style.setProperty('--o', k === i ? '1' : '0');
+    }
+  }
+  setFace(0);
+
   const copyParts = copies.map(c => {
     const em = c.querySelector('.sx-em');
     return {
@@ -697,15 +732,18 @@
     paintCopy(from, 1 - seg(v, 0, OUT_END), true);
     paintCopy(to, seg(v, IN_START, 1), false);
 
-    /* The portrait does not crossfade — there is only one of it. It travels to
-       its place in the new sentence, which is the whole reason it was lifted
-       out of the flow. */
+    /* The box travels to its place in the new sentence — the whole reason it
+       was lifted out of the flow — and the object inside it changes on the way.
+       Two separate things on one clock: the move is the sentence's, the fade is
+       the object's, and keeping the fade inside the move is what makes the pair
+       read as one gesture instead of a slide plus a blink. */
     const a = facePos[from], b = facePos[to];
     if (faceEl && a && b) {
       const g = glideEase(seg(v, 0.06, 0.94));
       faceEl.style.setProperty('--fx', (a.x + (b.x - a.x) * g).toFixed(1) + 'px');
       faceEl.style.setProperty('--fy', (a.y + (b.y - a.y) * g).toFixed(1) + 'px');
     }
+    paintFaceMix(from, to, seg(v, FACE_MIX_IN, FACE_MIX_OUT));
   }
 
   /* The exact end state, set outright rather than left wherever the animation
@@ -716,6 +754,7 @@
       paintCopy(i, i === activeCopy ? 1 : 0, false);
     }
     placeFace(activeCopy);
+    setFace(activeCopy);
   }
 
   function heroOnScreen() {
@@ -781,6 +820,7 @@
       if (i) paintCopy(i, 0, false);
     }
     placeFace(0);
+    setFace(0);
   }
 
   document.addEventListener('visibilitychange', () => {

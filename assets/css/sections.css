@@ -116,6 +116,14 @@
   --sx-serif:   var(--sx-sans);
 
   --sx-t-hero: clamp(2.8rem, 7.4vw, 7rem);
+  /* The inline object's box, in em of the hero face. The portrait was .92em
+     because a filled circle carries its full width as mass; an object on
+     transparent ground does not. These renders also carry their own margin
+     inside the PNG — the art stops well short of the 512px edge — so a box
+     matched to the portrait's put roughly 85px of visible object beside 112px
+     type and read as an afterthought. Sized by what you can see, not by the
+     file's bounds. */
+  --sx-face-size: 1.5em;
   --sx-t-head: clamp(2rem, 4.6vw, 3.8rem);
   --sx-t-sub:  clamp(1.4rem, 2.4vw, 2rem);
   --sx-t-lede: clamp(1.02rem, 1.4vw, 1.24rem);
@@ -1197,14 +1205,46 @@
 }
 .sx-corner[data-at="tl"] { top: clamp(1.5rem,4vh,2.6rem); left: var(--sx-gut); }
 .sx-corner[data-at="tr"] { top: clamp(1.5rem,4vh,2.6rem); right: var(--sx-gut); }
-.sx-corner i {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--sx-key); flex: none;
-  animation: sx-pulse 2.6s var(--sx-ease) infinite;
+/* The portrait, in the top-left corner beside the label. This is the one place
+   on the page a circle is right: it IS an avatar here, doing an avatar's job,
+   which is exactly what it had stopped doing once it was set into a sentence.
+
+   The glow is behind it and warm — the key colour at low alpha, spread wide
+   enough to read as light rather than as an outline. It breathes on the same
+   clock the corner's dot used to, because the portrait took that dot's place
+   and the slow pulse was the thing telling you the page was live. */
+.sx-corner .sx-me {
+  /* Both axes explicitly. aspect-ratio alone loses here: the tag carries
+     width/height attributes so the browser has a used height of 1024px, and
+     aspect-ratio only applies when height resolves to auto — the portrait came
+     out 42px wide and 1024 tall. */
+  --sx-me-size: clamp(30px, 3.4vw, 42px);
+  width: var(--sx-me-size); height: var(--sx-me-size);
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  display: block;
+  /* Hairline first so the circle keeps an edge against the black, then the
+     warm bloom. Both on box-shadow, so neither costs a filter rasterisation. */
+  box-shadow:
+    0 0 0 1px rgba(244,241,236,.18),
+    0 0 18px -2px rgba(224,84,42,.55),
+    0 0 44px -6px rgba(224,84,42,.32);
+  animation: sx-me-breathe 4.2s var(--sx-ease) infinite;
 }
-@keyframes sx-pulse {
-  0%,100% { opacity: 1;  box-shadow: 0 0 0 0 rgba(224,84,42,.45) }
-  60%     { opacity: .45; box-shadow: 0 0 0 8px rgba(224,84,42,0) }
+@keyframes sx-me-breathe {
+  0%,100% {
+    box-shadow:
+      0 0 0 1px rgba(244,241,236,.18),
+      0 0 18px -2px rgba(224,84,42,.55),
+      0 0 44px -6px rgba(224,84,42,.32);
+  }
+  55% {
+    box-shadow:
+      0 0 0 1px rgba(244,241,236,.14),
+      0 0 14px -2px rgba(224,84,42,.3),
+      0 0 34px -6px rgba(224,84,42,.16);
+  }
 }
 
 /* --- the line ---
@@ -1258,38 +1298,79 @@
 .sx-l1, .sx-l2 { display: block; }
 .sx-l1 { white-space: nowrap; }
 
-/* The portrait's place in the sentence, held open but never painted. Same box
-   as the real thing so the line measures identically either way. */
+/* The object's place in the sentence, held open but never painted.
+
+   WIDTH ONLY. The slot used to be a full square, which was fine while the
+   object was smaller than the line box and invisible inside it. Once the object
+   grew past that, the square became the tallest thing on the line and the line
+   box grew to fit it — adding ~58px between the headline's two lines, on every
+   copy. Since the object itself is absolutely positioned and out of the flow,
+   the slot never needed height at all: all it has to do is hold the horizontal
+   gap open and mark where the object goes. At zero height it sits on the
+   baseline, inside the strut, and the two lines measure the same. */
 .sx-face-slot {
   display: inline-block;
-  vertical-align: -.16em;
-  width: .92em; height: .92em;
-  margin: 0 .1em;
+  vertical-align: baseline;
+  width: var(--sx-face-size); height: 0;
+  /* Wider than it looks like it needs to be. The gap is measured from the
+     slot's edges, but the art inside stops short of them by different
+     amounts per object — the camera and the monitor nearly fill their
+     square, so at a tighter value the lens sat on the last letter of
+     "capture" while the first object still looked comfortable. */
+  margin: 0 .24em;
 }
 
-/* The portrait, set into the line as if it were a word. Circular, in colour,
-   at cap height — so it reads as part of the sentence rather than as an avatar
-   parked beside it.
+/* The object, set into the line as if it were a word — at cap height, so it
+   reads as part of the sentence rather than as a picture parked beside it.
+
+   NOT masked. These are objects on transparent ground, not portraits: a
+   circular crop took the strap off the camera, the corners off the monitor and
+   the spark marks off the first one. What sat them on the black before was the
+   ring and the glow; what sits them there now is a drop-shadow that follows the
+   object's own silhouette instead of a circle around it.
 
    Lifted out of the flow and positioned onto the active copy's slot, because
-   there is one portrait and three sentences: it glides to its new place in the
-   line as the words change rather than cutting to it. --fx/--fy are written by
-   JS from the measured slots. */
+   there is one box and three sentences: it glides to its new place in the line
+   as the words change rather than cutting to it. --fx/--fy are written by JS
+   from the measured slots. */
 .sx-face {
   position: absolute;
-  left: 0; top: 0;
-  /* Out of the flow means out of the h1's font-size too, and .92em would then
-     resolve against the base and render a 15px portrait. */
+  /* The slot is flat now, so it marks a point on the baseline rather than a
+     box to sit in. This lifts the object off that point onto the cap height of
+     the words beside it — half its own height, plus the distance from baseline
+     to the middle of the type. Measured against the "I", not guessed. */
+  left: 0;
+  top: calc(var(--sx-face-size) * -0.5 - .385em);
+  /* Out of the flow means out of the h1's font-size too, and an em length would
+     then resolve against the base and render a 15px object. */
   font-size: var(--sx-t-hero);
-  width: .92em; height: .92em;
-  border-radius: 50%;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 1px rgba(244,241,236,.22),
-    0 0 44px -6px rgba(224,84,42,.5);
+  width: var(--sx-face-size); height: var(--sx-face-size);
+  /* Grounds the object on the black along its own outline rather than inside a
+     shape of its own. On the BOX, not on each image: a drop-shadow follows the
+     alpha of whatever it contains, so one filter here does what three on the
+     children did, and re-rasterises once per frame instead of three times while
+     the box is travelling.
+
+     The warm pass is the key colour kept faint. At any real strength it stopped
+     being light in the room and became a lamp switched on behind the art. */
+  filter:
+    drop-shadow(0 8px 16px rgba(0,0,0,.55))
+    drop-shadow(0 0 30px rgba(224,84,42,.16));
   will-change: transform, opacity;
 }
-.sx-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Stacked, not sequential — all three occupy the one box and only opacity
+   separates them, so the crossfade never moves anything. object-fit is contain
+   because the art is a whole object: cover would crop it, which is the thing
+   this treatment exists to stop. */
+.sx-face img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  display: block;
+  opacity: var(--o, 0);
+}
 
 .sx-hero-sub {
   position: relative;
@@ -1378,7 +1459,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sx-ticker-track, .sx-stamp svg.sx-stamp-ring, .sx-corner i { animation: none; }
+  .sx-ticker-track, .sx-stamp svg.sx-stamp-ring,
+  .sx-corner .sx-me { animation: none; }
   .sx-face { transform: none; }
 }
 
@@ -1637,8 +1719,8 @@
   filter: blur(calc((1 - var(--t, 0)) * 7px));
 }
 
-/* The portrait lands rather than fades: it drops in with a little overshoot
-   and a turn, because it is the one object in a line of type.
+/* The object lands rather than fades: it drops in with a little overshoot
+   and a turn, because it is the one solid thing in a line of type.
 
    --fx/--fy put it on the active copy's slot and are what it glides along when
    the sentence changes; the pointer nudge rides on top of that. Order matters:

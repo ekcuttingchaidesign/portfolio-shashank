@@ -479,7 +479,16 @@
       <span class="sx-mark" style="left:75%; top:26%" aria-hidden="true"></span>
       <span class="sx-mark" style="left:50%; top:74%" aria-hidden="true"></span>
 
-      <p class="sx-corner" data-at="tl"><i aria-hidden="true"></i> Inside the screen</p>
+      <!-- The portrait moved here when the sentence objects took its old place
+           in the line. It takes over the corner's live-dot role rather than
+           sitting next to it: a 6px pulsing dot beside a 40px face read as
+           debris, and the glow behind the portrait carries the same signal the
+           dot was there to give. -->
+      <p class="sx-corner" data-at="tl">
+        <img class="sx-me" src="../public/img/profile.jpeg" alt="Shashank"
+             width="1024" height="1024" decoding="async">
+        Inside the screen
+      </p>
       <p class="sx-corner" data-at="tr">2016 — 2026 · Lead PD, Airtel</p>
 
       <div class="sx-wrap">
@@ -508,12 +517,24 @@
             <span class="sx-l2"><span class="sx-w2">moments</span> <span class="sx-w3">that</span> <em class="sx-em"><i>s</i><i>t</i><i>a</i><i>y</i></em></span>
           </p>
 
-          <!-- ONE portrait for all three. It is inline in the sentence, so its
-               place moves as the words change; each copy carries an invisible
-               slot marking where, and this glides between them. A second and a
-               third <img> crossfading at different x would read as a jump. -->
-          <span class="sx-face" id="sx-face" aria-hidden="true"><img src="../public/img/profile.jpeg"
-                alt="" width="1024" height="1024" decoding="async"></span>
+          <!-- ONE gliding box, three objects. The box is what moves: it is
+               inline in the sentence, so its place changes as the words do, and
+               each copy carries an invisible slot marking where. The objects
+               stacked inside it crossfade as it travels, so a change reads as
+               one thing turning into another on the way rather than as three
+               images cutting in and out at three different places.
+
+               Not cropped and not masked — these are objects, not portraits. A
+               circle would take the camera's strap, the monitor's corners and
+               the spark marks off the first one. -->
+          <span class="sx-face" id="sx-face" aria-hidden="true">
+            <img src="../public/img/craft_ideas.png" data-face="0"
+                 alt="" width="512" height="512" decoding="async">
+            <img src="../public/img/pixels_move.png" data-face="1"
+                 alt="" width="512" height="512" decoding="async">
+            <img src="../public/img/capture_moments.png" data-face="2"
+                 alt="" width="512" height="512" decoding="async">
+          </span>
         </div>
         <p class="sx-hero-sub">Ten years inside entertainment products —
           <b>gaming, music, streaming, live TV</b>. Mostly at scale, mostly in India,
