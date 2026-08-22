@@ -1325,71 +1325,19 @@
 .sx-mark::before { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-50%); }
 .sx-mark::after  { top: 50%; left: 0; height: 1px; width: 100%; transform: translateY(-50%); }
 
-/* Corner microlabels, pinned to the sheet rather than to the copy. */
-.sx-corner {
-  position: absolute;
-  z-index: 3;
-  font-family: var(--sx-ui);
-  font-weight: 500;
-  font-size: var(--sx-t-mono);
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: var(--sx-ink-3);
-  display: flex; align-items: center; gap: .5rem;
-}
-.sx-corner[data-at="tl"] { top: clamp(1.5rem,4vh,2.6rem); left: var(--sx-gut); }
-/* The portrait, in the top-left corner beside the label. This is the one place
-   on the page a circle is right: it IS an avatar here, doing an avatar's job,
-   which is exactly what it had stopped doing once it was set into a sentence.
-
-   The glow is behind it and warm — the key colour at low alpha, spread wide
-   enough to read as light rather than as an outline. It breathes on the same
-   clock the corner's dot used to, because the portrait took that dot's place
-   and the slow pulse was the thing telling you the page was live. */
-.sx-corner .sx-me {
-  /* Both axes explicitly. aspect-ratio alone loses here: the tag carries
-     width/height attributes so the browser has a used height of 1024px, and
-     aspect-ratio only applies when height resolves to auto — the portrait came
-     out 42px wide and 1024 tall. */
-  --sx-me-size: clamp(30px, 3.4vw, 42px);
-  width: var(--sx-me-size); height: var(--sx-me-size);
-  border-radius: 50%;
-  object-fit: cover;
-  flex: none;
-  display: block;
-  /* Hairline first so the circle keeps an edge against the black, then the
-     warm bloom. Both on box-shadow, so neither costs a filter rasterisation. */
-  box-shadow:
-    0 0 0 1px rgba(244,241,236,.18),
-    0 0 18px -2px rgba(224,84,42,.55),
-    0 0 44px -6px rgba(224,84,42,.32);
-  animation: sx-me-breathe 4.2s var(--sx-ease) infinite;
-}
-@keyframes sx-me-breathe {
-  0%,100% {
-    box-shadow:
-      0 0 0 1px rgba(244,241,236,.18),
-      0 0 18px -2px rgba(224,84,42,.55),
-      0 0 44px -6px rgba(224,84,42,.32);
-  }
-  55% {
-    box-shadow:
-      0 0 0 1px rgba(244,241,236,.14),
-      0 0 14px -2px rgba(224,84,42,.3),
-      0 0 34px -6px rgba(224,84,42,.16);
-  }
-}
-
 /* --- the nav pill -----------------------------------------------------------
-   Straight off the Figma: a translucent capsule, three items in small caps,
-   centred on the top edge between the portrait and the mascot. The grey is the
-   frame's own (rgba(122,122,122,.2)) rather than a tint of the key colour, so
-   it reads as glass over the wash instead of as a coloured chip.
+   Liquid glass, in the Apple sense: the blur is the least of it. What makes a
+   surface read as glass rather than as a frosted rectangle is that it is LIT —
+   a bright rim along the top where light catches the edge, a dimmer one along
+   the bottom, a raked highlight across the face, and saturation pulled up so
+   whatever is behind it comes through with its colour intact rather than as
+   grey mush. All four are here; the blur alone was what this had before.
+
+   Everything sizes in em off one font-size, which is how the Figma's own
+   proportions survive translation: the portrait is 3.35em because it is 67px
+   against 20px type, the pill is 4.15em tall because it is 82 against 20.
    -------------------------------------------------------------------------- */
 .sx-nav {
-  /* Fixed, not absolute — it floats over the whole page rather than riding the
-     hero out of view. This only works because the element sits at body level;
-     see the note in the markup. */
   position: fixed;
   z-index: 80;      /* over the hero layer (5) and the debug hud (20) */
   top: clamp(1.1rem, 3.4vh, 2.3rem);
@@ -1397,57 +1345,130 @@
   pointer-events: auto;
   display: flex;
   align-items: center;
-  gap: clamp(1rem, 3vw, 3.1rem);
-  /* Three numbers describe the whole pill, and the pill's padding is derived
-     from them rather than set independently — that is what keeps the capsule
-     optically centred in it.
 
-       --sx-nav-pad   how far the capsule reaches past a label, horizontally
-       --sx-nav-vpad  the same, vertically
-       --sx-nav-inset the gap between the capsule and the pill's edge
+  font-family: var(--sx-ui);
+  font-size: clamp(.66rem, .84vw, .83rem);
+  gap: 2.85em;                  /* 57 of 20 — the Figma's own spacing */
 
-     The inset is ONE number used on all four sides, so the space above a
-     highlighted item matches the space beside it. Previously the sides carried
-     a clamp and the top carried a different one, and the capsule sat in a
-     letterbox — correct on the horizontal, loose on the vertical. */
-  --sx-nav-pad:   13px;
-  --sx-nav-vpad:   8px;
-  --sx-nav-inset:  7px;
-  padding: calc(var(--sx-nav-vpad) + var(--sx-nav-inset))
-           calc(var(--sx-nav-pad)  + var(--sx-nav-inset));
+  /* How far the hover capsule reaches past a label, and its clearance from the
+     pill's edge. One number each, read back by the script. */
+  --sx-nav-pad:   .65em;
+  --sx-nav-inset: .35em;
+  padding: .4em 2em .4em .4em;  /* 8 and 40 of 20; the left is the portrait's */
+
   border-radius: 200px;
-  background: rgba(122,122,122,.2);
-  border: 1px solid rgba(244,241,236,.09);
-  -webkit-backdrop-filter: blur(14px) saturate(1.15);
-          backdrop-filter: blur(14px) saturate(1.15);
+  border: 1px solid rgba(255,255,255,.11);
+  background:
+    linear-gradient(rgba(255,255,255,.085), rgba(255,255,255,.02) 46%, rgba(255,255,255,.05)),
+    rgba(16,16,15,.76);         /* see the note on contrast below */
+  /* Two things are darkening this, and the split matters.
+
+     The Figma only ever shows the pill on black, but the page has a light half
+     — Experience fades to paper — and glass over paper turns pale, which left
+     cream labels on a cream surface at 2.7:1. Unreadable.
+
+     brightness() below fixes that elegantly when it runs: it darkens the
+     BACKDROP rather than stacking a fill over it, so black stays black and only
+     the paper gets smoked down. But backdrop-filter is exactly the thing that
+     silently does not run — no GPU, an old browser, a user with acceleration
+     off — and a nav that becomes unreadable in those cases is not acceptable.
+
+     So the tint above carries the contrast ON ITS OWN, and brightness is an
+     enhancement on top. At .76 the fallback measures 16:1 over the dark
+     sections and stays legible over paper, while over black it composites to
+     the same rgb(32,32,31) the Figma's own fill gives — the design's look is
+     unchanged where the design specified it. */
+  -webkit-backdrop-filter: blur(22px) saturate(1.7) brightness(.45);
+          backdrop-filter: blur(22px) saturate(1.7) brightness(.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.30),    /* the lit top edge */
+    inset 0 -1px 0 rgba(255,255,255,.06),   /* and the dimmer underside */
+    0 10px 34px rgba(0,0,0,.45);
 }
 
+/* The rake. An off-centre elliptical highlight lying across the top of the
+   glass — the one thing that gives it a direction to be lit from. */
+.sx-nav-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+}
+.sx-nav-sheen::before {
+  content: "";
+  position: absolute;
+  left: -10%; right: -10%; top: -140%;
+  height: 200%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255,255,255,.13), transparent 72%);
+}
+
+/* --- the portrait ---------------------------------------------------------- */
+.sx-nav-me {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 3.35em; height: 3.35em;   /* 67 of 20 */
+  border-radius: 50%;
+  object-fit: cover;
+  /* Transparent at rest so lighting it costs no layout — only the colour
+     changes when the hero is up. */
+  border: 1px solid transparent;
+  transition: border-color .45s var(--sx-ease), box-shadow .45s var(--sx-ease);
+}
+/* At the top of the page it is ringed and lit. The Figma's own numbers, in em:
+   a 1px white ring and a 5/6/28 vermilion drop at 70%. */
+.sx-nav[data-active="hero"] .sx-nav-me {
+  border-color: #fff;
+  box-shadow: .25em .3em 1.4em rgba(203,70,25,.7);
+}
+
+/* --- the items ------------------------------------------------------------- */
 .sx-nav-i {
   position: relative;
   z-index: 1;
-  font-family: var(--sx-ui);
   font-weight: 400;
-  font-size: clamp(.66rem, .84vw, .83rem);
-  letter-spacing: .12em;      /* the Figma's 2.4px on 20px */
+  font-size: 1em;
+  letter-spacing: .12em;        /* the Figma's 2.4px on 20px */
   text-transform: uppercase;
   white-space: nowrap;
   text-decoration: none;
-  color: rgba(244,241,236,.74);
+  color: rgba(244,241,236,.82);
   transition: color .3s var(--sx-ease);
+}
+/* The bold state is wider than the regular one — WORK is 70px against 67 — so
+   the row would twitch sideways every time the active section changed. This
+   reserves the bold width up front in a copy nobody sees, and the visible text
+   then has room to thicken without moving its neighbours. */
+.sx-nav-i::before {
+  content: attr(data-label);
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: 700;
+  pointer-events: none;
 }
 .sx-nav-i:hover,
 .sx-nav-i:focus-visible { color: #fff; }
 
+.sx-nav[data-active="work"]    .sx-nav-i[data-sec="work"],
+.sx-nav[data-active="exp"]     .sx-nav-i[data-sec="exp"],
+.sx-nav[data-active="outside"] .sx-nav-i[data-sec="outside"] {
+  font-weight: 700;
+  color: #fff;
+}
+
 /* One capsule slides between the items rather than each item carrying its own
    background. Widths and offsets are measured, not guessed — the three labels
-   are different lengths and the gaps are a clamp, so nothing here is knowable
-   until layout has run. See sxNav() in sections.js. */
+   are different lengths and the gaps are ems, so nothing here is knowable until
+   layout has run. See sxNav() in sections.js. */
 .sx-nav-glide {
   position: absolute;
   z-index: 0;
   left: 0; top: 50%;
-  /* The same inset top and bottom as the pill leaves at the sides. */
-  height: calc(100% - var(--sx-nav-inset) * 2);
+  height: 2.4em;                /* hugs the label, not the taller pill */
   width: var(--gw, 0px);
   border-radius: 200px;
   background: rgba(244,241,236,.11);
@@ -1458,6 +1479,38 @@
               width     .42s var(--sx-ease),
               opacity   .28s var(--sx-ease);
 }
+
+/* --- the marker ------------------------------------------------------------
+   15 x 20 at the Figma's scale, so .75em x 1em here, sitting a hair above the
+   pill's bottom edge exactly as drawn. It travels to the active label on the
+   same measured path the capsule uses.
+   -------------------------------------------------------------------------- */
+.sx-nav-mark {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  bottom: .05em;                /* 1px of 20 */
+  width: .75em; height: 1em;
+  pointer-events: none;
+  opacity: var(--mo, 0);
+  transform: translateX(var(--mx, 0px));
+  transition: transform .42s var(--sx-ease), opacity .28s var(--sx-ease);
+}
+.sx-nav-mark svg {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0;
+  transition: opacity .22s var(--sx-ease);
+}
+.sx-nav-mark rect { fill: var(--sx-key); }
+.sx-nav-mark .sx-mark-pip { fill: #fff; }
+
+.sx-nav[data-active="work"]    .sx-nav-mark svg[data-for="work"],
+.sx-nav[data-active="exp"]     .sx-nav-mark svg[data-for="exp"],
+.sx-nav[data-active="outside"] .sx-nav-mark svg[data-for="outside"] { opacity: 1; }
+/* Nothing to mark at the top of the page — that state belongs to the portrait. */
+.sx-nav[data-active="hero"] .sx-nav-mark { --mo: 0; }
 
 /* --- the mascot -------------------------------------------------------------
    Perched on the top-right corner and bleeding off the right edge, as drawn.
@@ -1829,20 +1882,18 @@
   /* The mascot needs the corner AND the room beside it for what it says; at
      this width it has neither, and it would sit on the nav. */
   .sx-mascot, .sx-ushape { display: none; }
-  /* Same relationship, smaller numbers: the capsule's reach shrinks with the
-     pill so the clearance at the edges survives the narrow layout. */
+  /* Everything in the pill is em off one font-size, so the whole thing — the
+     portrait, the padding, the marker — comes down together from here. Only the
+     gap needs its own number, because 2.85em of it is a lot of a phone. */
   .sx-nav {
-    --sx-nav-pad:  9px;
-    --sx-nav-vpad: 6px;
-    --sx-nav-inset: 5px;
-    gap: 1rem;
+    font-size: .58rem;
+    gap: 1.5em;
+    padding-right: 1.2em;
   }
-  .sx-nav-i { font-size: .6rem; letter-spacing: .1em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sx-stamp svg.sx-stamp-ring,
-  .sx-corner .sx-me { animation: none; }
+  .sx-stamp svg.sx-stamp-ring { animation: none; }
   .sx-face { transform: none; }
 }
 
@@ -2164,7 +2215,6 @@
   opacity: var(--t, 0);
   transform: translateY(calc((1 - var(--e, 0)) * 14px));
 }
-.sx-corner  { opacity: var(--t, 0); transform: translateY(calc((1 - var(--e, 0)) * -8px)); }
 
 /* ONE window for the whole field, so the wash, the bloom and the grid come up
    as a single surface rather than as three fades you could count. The parts
@@ -2221,7 +2271,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
-  .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub, .sx-corner,
+  .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub,
   .sx-mark, .sx-stamp, .sx-nav, .sx-mascot {
     opacity: 1 !important; filter: none !important;
   }
@@ -2230,7 +2280,7 @@
      arrival animates, so `transform: none` would put the pill and the bloom in
      the wrong corner rather than simply still. */
   .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
-  .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub, .sx-corner,
+  .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub,
   .sx-mark, .sx-stamp, .sx-mascot {
     transform: none !important;
   }

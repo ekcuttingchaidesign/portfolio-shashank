@@ -506,20 +506,6 @@
       <span class="sx-mark" style="left:75%; top:26%" aria-hidden="true"></span>
       <span class="sx-mark" style="left:50%; top:74%" aria-hidden="true"></span>
 
-      <!-- The portrait moved here when the sentence objects took its old place
-           in the line. It takes over the corner's live-dot role rather than
-           sitting next to it: a 6px pulsing dot beside a 40px face read as
-           debris, and the glow behind the portrait carries the same signal the
-           dot was there to give.
-
-           It stands alone now. The "Inside the screen" label next to it and the
-           "2016 — 2026" label opposite are both gone: the Figma gives the top
-           edge to the portrait, the nav and the mascot, and a fourth and fifth
-           piece of small caps up there turned a clear band into a busy one. -->
-      <p class="sx-corner" data-at="tl">
-        <img class="sx-me" src="../public/img/profile.jpeg" alt="Shashank"
-             width="1024" height="1024" decoding="async">
-      </p>
 
       <!-- The mascot, perched on the corner exactly where the Figma puts it.
            Two exported pieces, both placed by the numbers the Figma group gives
@@ -1130,12 +1116,50 @@
      It still arrives on the hero's clock; sections.js looks it up by id and
      appends it to the same step list, and gates its pointer-events so an
      invisible pill never eats a click over the film. -->
-<nav class="sx-nav" id="sx-nav" aria-label="Sections">
+<!-- data-active is written by the scroll spy in sections.js and is the single
+     thing every state below keys off: which label is bold, where the marker
+     sits, which glyph it shows, and whether the portrait is lit. -->
+<nav class="sx-nav" id="sx-nav" data-active="hero" aria-label="Sections">
+  <!-- The specular. A soft highlight raked across the top of the glass, which
+       is the part that makes it read as a lit surface rather than as a blur. -->
+  <span class="sx-nav-sheen" aria-hidden="true"></span>
+
+  <!-- The portrait lives in the pill now rather than in the page's corner. It
+       carries the "you are at the top" state: ringed and lit while the hero is
+       up, and quietly along for the ride once you are into the sections. -->
+  <img class="sx-nav-me" src="../public/img/profile.jpeg" alt="Shashank"
+       width="1024" height="1024" decoding="async">
+
   <span class="sx-nav-glide" aria-hidden="true"></span>
-  <a class="sx-nav-i" href="#sx-work">Work</a>
-  <a class="sx-nav-i" href="#sx-exp">Experience</a>
+  <a class="sx-nav-i" href="#sx-work" data-sec="work" data-label="Work">Work</a>
+  <a class="sx-nav-i" href="#sx-exp" data-sec="exp" data-label="Experience">Experience</a>
   <!-- The pull-out: the out-of-the-screen film, where the desk rotates. -->
-  <a class="sx-nav-i" href="#s-exit">Outside work</a>
+  <a class="sx-nav-i" href="#s-exit" data-sec="outside" data-label="Outside work">Outside work</a>
+
+  <!-- The marker. Three columns, 5px each: a white pip sits over the column for
+       the section you are in and the orange staircase leans toward it, so the
+       glyph reads as how far along you are rather than as three unrelated
+       shapes. The pip stepping 0 -> 5 -> 10 is the Figma's own. -->
+  <span class="sx-nav-mark" aria-hidden="true">
+    <svg viewBox="0 0 15 20" data-for="work" fill="none">
+      <rect x="0" y="0" width="5" height="5" class="sx-mark-pip"/>
+      <rect x="0" y="6" width="5" height="14"/>
+      <rect x="5" y="12" width="5" height="8"/>
+      <rect x="10" y="16" width="5" height="4"/>
+    </svg>
+    <svg viewBox="0 0 15 20" data-for="exp" fill="none">
+      <rect x="5" y="0" width="5" height="5" class="sx-mark-pip"/>
+      <rect x="0" y="14" width="5" height="6"/>
+      <rect x="5" y="6" width="5" height="14"/>
+      <rect x="10" y="12" width="5" height="8"/>
+    </svg>
+    <svg viewBox="0 0 15 20" data-for="outside" fill="none">
+      <rect x="10" y="0" width="5" height="5" class="sx-mark-pip"/>
+      <rect x="0" y="16" width="5" height="4"/>
+      <rect x="5" y="12" width="5" height="8"/>
+      <rect x="10" y="6" width="5" height="14"/>
+    </svg>
+  </span>
 </nav>
 
 <div class="hud" id="hud"></div>

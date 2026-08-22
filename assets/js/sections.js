@@ -492,8 +492,8 @@
        along Z with everything below. */
     ['.sx-hero-field',           .00, .24],
 
-    /* The frame's furniture, on the ground the field just laid down. */
-    ['.sx-corner[data-at="tl"]', .20, .42],
+    /* The frame's furniture, on the ground the field just laid down. The
+       portrait is no longer among it — it lives in the nav now. */
     ['.sx-mark',                 .22, .44],
     ['.sx-nav',                  .24, .46],
     /* Last of the periphery: it is the only coloured thing on the frame, so it
@@ -1400,6 +1400,7 @@
     const nav = document.getElementById('sx-nav');
     if (nav) {
       const glide = nav.querySelector('.sx-nav-glide');
+      const mark  = nav.querySelector('.sx-nav-mark');
       const items = [...nav.querySelectorAll('.sx-nav-i')];
       /* Read rather than repeated: the pill sizes its own padding off this same
          property, so a literal here would let the two drift apart. */
@@ -1443,6 +1444,75 @@
         });
       });
       nav.addEventListener('pointerleave', clear);
+
+      /* --- the scroll spy ----------------------------------------------
+         Which section you are in, and everything the pill shows about it.
+         Zones in document order; the active one is the LAST whose top has
+         passed the middle of the screen, which is the reading that matches
+         where your eye is rather than where a section technically begins.
+
+         The archive belongs to Work — it is the rest of the same body of it —
+         and the hand-off and the pull-out belong to Outside work. The film at
+         the top is its own state: the pill has no item for it, which is why
+         the portrait carries that one. */
+      const ZONES = [
+        ['s-enter',    'hero'],
+        ['sx-work',    'work'],
+        ['sx-archive', 'work'],
+        ['sx-exp',     'exp'],
+        ['sx-hand',    'outside'],
+        ['s-exit',     'outside']
+      ].map(([id, key]) => ({ el: document.getElementById(id), key }))
+       .filter(z => z.el);
+
+      /* Where the marker sits, and which glyph it wears. Measured on the same
+         rects the capsule uses, so the two can never disagree about where a
+         label is; centred under it rather than boxed around it. */
+      function placeMark(el) {
+        if (!mark) return;
+        if (!el) { mark.style.setProperty('--mo', '0'); return; }
+        const nb = nav.getBoundingClientRect();
+        const eb = el.getBoundingClientRect();
+        const bl = parseFloat(getComputedStyle(nav).borderLeftWidth) || 0;
+        const x = (eb.left - nb.left - bl) + eb.width / 2 - mark.offsetWidth / 2;
+        mark.style.setProperty('--mx', x.toFixed(2) + 'px');
+        mark.style.setProperty('--mo', '1');
+      }
+
+      let activeKey = '';
+      function spy() {
+        const mid = innerHeight * 0.5;
+        let key = ZONES.length ? ZONES[0].key : 'hero';
+        for (const z of ZONES) {
+          if (z.el.getBoundingClientRect().top <= mid) key = z.key;
+        }
+        if (key === activeKey) return;
+        activeKey = key;
+        nav.dataset.active = key;
+        placeMark(key === 'hero' ? null
+          : items.find(a => a.getAttribute('data-sec') === key));
+      }
+
+      let spyRaf = 0;
+      const wakeSpy = () => { if (!spyRaf) spyRaf = requestAnimationFrame(() => { spyRaf = 0; spy(); }); };
+      addEventListener('scroll', wakeSpy, { passive: true });
+      /* Re-place on resize: the pill is sized in em off a clamped font-size, so
+         its geometry moves with the viewport even though the state does not. */
+      addEventListener('resize', () => {
+        wakeSpy();
+        if (activeKey && activeKey !== 'hero') {
+          placeMark(items.find(a => a.getAttribute('data-sec') === activeKey));
+        }
+      }, { passive: true });
+      /* Webfonts change every width in here; measure again once they land. */
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+          if (activeKey && activeKey !== 'hero') {
+            placeMark(items.find(a => a.getAttribute('data-sec') === activeKey));
+          }
+        }, () => {});
+      }
+      spy();
     }
 
     if (reduced) return;
