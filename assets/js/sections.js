@@ -508,8 +508,7 @@
     ['.sx-copy[data-copy="0"] .sx-w3',  .52, .76],
     ['.sx-copy[data-copy="0"] .sx-em',  .60, .94],
     ['.sx-hero-sub',             .72, .96],
-    ['.sx-stamp',                .84, 1.0],
-    ['.sx-ticker',               .88, 1.0]
+    ['.sx-stamp',                .84, 1.0]
   ];
   /* The nav floats, so it is fixed to the viewport and therefore lives at body
      level — a transformed or perspective'd ancestor would turn position:fixed
@@ -941,7 +940,7 @@
   const Z_FLIGHT    = 620;  /* px toward a camera that is 1000 away */
   const LEDGE_LAG   = 165;  /* the ledge stays this far behind the robot ... */
 
-  function paintDepth(p) {
+  function paintDepth(bp, lp) {
     if (!mascotEl) return;
     /* Straight off the scrollbar: no dead zone in front of it and no curve on
        top of it. The corner starts moving on the first pixel of scroll past the
@@ -956,13 +955,18 @@
        Depth does the acceleration for free anyway. Apparent size under
        perspective is P / (P - z), so a Z that tracks the scroll linearly still
        LOOKS like something accelerating past you. The curve was never needed. */
-    const a = reduced ? 0 : clamp01(clamp01(p) / DEPART_SPAN);
+    const a = reduced ? 0 : clamp01(clamp01(bp) / DEPART_SPAN);
+    const l = reduced ? 0 : clamp01(clamp01(lp) / DEPART_SPAN);
 
     mascotEl.style.setProperty('--sx-mz', (a * Z_FLIGHT).toFixed(1) + 'px');
-    /* ... and because the ledge is a preserve-3d CHILD, its Z adds to the
-       group's. Staying behind therefore means a negative offset, not a
-       smaller positive one. */
-    if (ledgeEl) ledgeEl.style.setProperty('--sx-lz', (-a * LEDGE_LAG).toFixed(1) + 'px');
+    /* The ledge is a preserve-3d CHILD, so its Z ADDS to the group's — this has
+       to undo the group's and state its own. Its own is short by LEDGE_LAG (it
+       sits further from the camera) and late by whatever the slower follower
+       has not caught up yet, so the two separate both in space and in time. */
+    if (ledgeEl) {
+      const own = l * (Z_FLIGHT - LEDGE_LAG);
+      ledgeEl.style.setProperty('--sx-lz', (own - a * Z_FLIGHT).toFixed(1) + 'px');
+    }
 
     /* Dissolved by the time it reaches the top edge, rather than being cut off
        by it. Over the back half of the flight, so the corner is still solid
@@ -980,11 +984,38 @@
     return innerHeight > 0 ? clamp01(1 - r.bottom / innerHeight) : 0;
   }
 
+  /* Two followers chasing the same scroll number at different rates. The lag IS
+     the parallax: the robot leads, the ledge trails, and neither arrives on the
+     exact frame you stopped scrolling — which is what separates them from
+     stickers painted on the page.
+
+     Kept small on purpose. This is the same mechanism that, overdone, made the
+     corner look like it was moving instead of the page; at these rates it
+     settles inside a quarter of a second, so it reads as weight rather than as
+     delay. */
+  const FOLLOW_BOT   = .17;
+  const FOLLOW_LEDGE = .10;
+  const SNAP = .0005;          /* close enough to land on and stop */
+  let botP = 0, ledgeP = 0, depthRaf = 0;
+
   /* Its own listener, not the film engine's loop. That loop parks once its two
      progress values stop changing, and both have saturated by the time the hero
      starts leaving — so it is asleep for exactly the window this needs. */
-  let depthRaf = 0;
-  const depthTick = () => { depthRaf = 0; paintDepth(departure()); };
+  function depthTick() {
+    depthRaf = 0;
+    const target = departure();
+    if (reduced) { botP = ledgeP = target; }
+    else {
+      botP   += (target - botP)   * FOLLOW_BOT;
+      ledgeP += (target - ledgeP) * FOLLOW_LEDGE;
+      if (Math.abs(target - botP)   < SNAP) botP   = target;
+      if (Math.abs(target - ledgeP) < SNAP) ledgeP = target;
+    }
+    paintDepth(botP, ledgeP);
+    /* Keep going while either is still travelling, however long ago the
+       scrolling stopped — otherwise the trail freezes mid-catch-up. */
+    if (botP !== target || ledgeP !== target) depthRaf = requestAnimationFrame(depthTick);
+  }
   const wakeDepth = () => { if (!depthRaf) depthRaf = requestAnimationFrame(depthTick); };
   addEventListener('scroll', wakeDepth, { passive: true });
   addEventListener('resize', wakeDepth, { passive: true });
@@ -992,7 +1023,8 @@
   window.SX = window.SX || {};
   window.SX.hero = paintHero;
   window.SX.depth = paintDepth;
-  paintDepth(departure());
+  botP = ledgeP = departure();
+  paintDepth(botP, ledgeP);
   paintHero(0);
 
   const heroEl = document.getElementById('sx-hero-layer');
@@ -1405,6 +1437,7 @@
     /* --- the shared pointer loop ----------------------------------------- */
     let px = 0, py = 0;          /* pointer, viewport px */
     let lx = 0, ly = 0;          /* the lit disc, trailing */
+    let apxNow = 0, apxTo = 0;   /* the ledge's pointer offset, trailing */
     let seeded = false;          /* has the pointer ever been over the hero? */
     let raf = 0, idle = 0;
 
@@ -1455,15 +1488,24 @@
           mascot.style.setProperty('--sx-mpx', (cx * -13).toFixed(1) + 'px');
           mascot.style.setProperty('--sx-mpy', (cy * -8).toFixed(1) + 'px');
           const ledge = mascot.querySelector('.sx-mascot-ledge');
-          /* The ledge lags the robot, so the two separate slightly as the
-             pointer crosses and the corner reads as having depth. */
-          if (ledge) ledge.style.setProperty('--sx-apx', (cx * 5).toFixed(1) + 'px');
+          /* The ledge lags the robot here too, so the two separate as the
+             pointer crosses. This used to come free from a CSS transition; that
+             is gone (it fought the scroll writes), so the lag is explicit. */
+          if (ledge) {
+            apxTo = cx * 5;
+            apxNow += (apxTo - apxNow) * .09;
+            if (Math.abs(apxTo - apxNow) < .05) apxNow = apxTo;
+            ledge.style.setProperty('--sx-apx', apxNow.toFixed(2) + 'px');
+          }
         }
       }
 
       /* Park once the trail has caught up and the pointer has been still for a
          few frames. A still page costs nothing — the rest of this file works
          the same way, and the loop is woken again by the next pointermove. */
+      /* The ledge's own trail counts as movement too, or the loop parks with it
+         halfway to where the pointer left it. */
+      if (apxNow !== apxTo) trailing = true;
       if (trailing) idle = 0;
       if (trailing || ++idle < 10) raf = requestAnimationFrame(frame);
     }

@@ -1198,14 +1198,35 @@
   overflow: hidden;    /* the bloom is bigger than the frame it lights */
 }
 
-/* The frame is not black at the top. It is #232323 falling to black by a bit
-   under halfway, which is what gives the copy something to be lit against. */
+/* The frame is not black at the top. It is #232323 falling away by a bit under
+   halfway, which is what gives the copy something to be lit against.
+
+   It lands on --sx-wall, NOT on black, because --sx-wall is what #sx-work is
+   painted in. Ending on #000 put a hard step across the page at the hero's
+   bottom edge — only ten levels, but a visible seam on a dark screen.
+
+   Full opacity with the alpha baked into the stops, so "lands on --sx-wall"
+   is exactly true rather than true-times-0.92. */
 .sx-hero-wash {
   position: absolute; inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: .92;
-  background: linear-gradient(#232323 0%, #0B0B0A 44%, #000 70%);
+  background: linear-gradient(#202020 0%, #0D0D0C 44%, var(--sx-wall) 72%);
+}
+
+/* The other half of that seam: the grid does not stop at an edge, it stops
+   before one. Without this the hairlines ran to the hero's bottom and simply
+   ceased, which reads as a crop even when the two colours match. The scrim
+   dissolves them into the wall over the last third of the frame, and settles
+   at exactly the colour the work section opens with. */
+.sx-hero-field::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 34%;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(10,10,10,0), var(--sx-wall) 78%);
 }
 
 /* The bloom, bleeding in from above the top edge. In the Figma it is a 618px
@@ -1239,7 +1260,7 @@
   position: absolute; inset: 0;
   pointer-events: none;
   z-index: 0;
-  --sx-grid: 60px;
+  --sx-grid: 40px;
   --sx-grid-ink: rgba(244,241,236,.16);
   background-image:
     repeating-linear-gradient(90deg, var(--sx-grid-ink) 0 1px, transparent 1px var(--sx-grid));
@@ -1461,9 +1482,13 @@
   top: 30.10%;                  /* 159 of 528.2 */
   width: 86.89%;                /* 218.6 of 251.6 — flush with the right edge */
   height: 69.90%;               /* 369.2 of 528.2 */
-  /* --sx-apx is the pointer's parallax, --sx-lz the scroll departure. */
+  /* --sx-apx is the pointer's parallax, --sx-lz the scroll departure.
+
+     No transition. This transform is now written every frame from two separate
+     followers in the script, and a 600ms ease on top of that would not read as
+     lag, it would read as syrup — the transition would still be catching up to
+     a value that had already moved on. The smoothing lives in one place. */
   transform: translate3d(var(--sx-apx, 0px), 0, var(--sx-lz, 0px));
-  transition: transform .6s var(--sx-ease);
 }
 
 .sx-mascot-bot {
@@ -1732,40 +1757,11 @@
 
 /* --- the ticker ---
    Duplicated once in the markup so the loop translates -50% seamlessly. */
-.sx-ticker {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  z-index: 3;
-  padding-block: clamp(.8rem, 2vh, 1.2rem);
-  border-top: 1px solid var(--sx-ink-4);
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-          mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-}
-.sx-ticker-track {
-  display: flex;
-  width: max-content;
-  animation: sx-roll 34s linear infinite;
-}
-.sx-ticker:hover .sx-ticker-track { animation-play-state: paused; }
-@keyframes sx-roll { to { transform: translateX(-50%) } }
-.sx-ticker-track span {
-  display: flex; align-items: center; gap: 2.2rem;
-  padding-right: 2.2rem;
-  white-space: nowrap;
-  font-family: var(--sx-ui);
-  font-weight: 500;
-  font-size: var(--sx-t-mono);
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  color: var(--sx-ink-3);
-}
-.sx-ticker-track span::after { content: "✦"; color: var(--sx-key); letter-spacing: 0; }
 
 @media (max-width: 860px) {
-  /* A 60px cell is a fifth of a phone. Opening it up keeps the field reading as
+  /* A 40px cell is a tenth of a phone. Opening it up keeps the field reading as
      a grid rather than as hatching. */
-  .sx-rules { --sx-grid: 44px; }
+  .sx-rules { --sx-grid: 30px; }
   .sx-stamp { right: auto; left: var(--sx-gut); bottom: clamp(4.5rem,12vh,7rem); width: 84px; }
   .sx-line-1 { max-width: 14ch; }
   /* The mascot needs the corner AND the room beside it for what it says; at
@@ -1783,7 +1779,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sx-ticker-track, .sx-stamp svg.sx-stamp-ring,
+  .sx-stamp svg.sx-stamp-ring,
   .sx-corner .sx-me { animation: none; }
   .sx-face { transform: none; }
 }
@@ -2135,7 +2131,6 @@
 }
 .sx-mark    { opacity: var(--t, 0); transform: scale(var(--e, 0)); }
 .sx-stamp   { opacity: var(--t, 0); transform: scale(calc(0.8 + var(--b, 0) * 0.2)); }
-.sx-ticker  { opacity: var(--t, 0); transform: translateY(calc((1 - var(--e, 0)) * 18px)); }
 
 /* The stamp's own transform is the ring's, so the arrival scale has to live on
    a wrapper rather than fight it. */
@@ -2144,7 +2139,7 @@
 @media (prefers-reduced-motion: reduce) {
   .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
   .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub, .sx-corner,
-  .sx-mark, .sx-stamp, .sx-ticker, .sx-nav, .sx-mascot {
+  .sx-mark, .sx-stamp, .sx-nav, .sx-mascot {
     opacity: 1 !important; filter: none !important;
   }
   .sx-hero-field { opacity: 1 !important; }
@@ -2153,7 +2148,7 @@
      the wrong corner rather than simply still. */
   .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
   .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub, .sx-corner,
-  .sx-mark, .sx-stamp, .sx-ticker, .sx-mascot {
+  .sx-mark, .sx-stamp, .sx-mascot {
     transform: none !important;
   }
   .sx-nav       { transform: translateX(-50%) !important; }
