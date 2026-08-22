@@ -1476,11 +1476,11 @@
   width: clamp(112px, 11vw, 200px);
   aspect-ratio: 252 / 528;      /* the Figma group's own box */
   pointer-events: auto;
-  /* Its children share the depth layer's camera rather than being flattened
-     into the group, which is the only way the ledge and the robot can sit at
-     different distances and separate as they leave. Safe here: nothing on this
-     element clips, so preserve-3d is honoured. */
-  transform-style: preserve-3d;
+  /* No preserve-3d any more, and that is the point. The robot is SITTING ON the
+     ledge — one rigid body with one distance. Letting the two sit at different
+     depths and travel at different rates lifted the robot off its own seat, and
+     no amount of tuning fixes a model that is wrong. The group transforms as a
+     unit; nothing inside it moves on its own. */
   will-change: transform, opacity;
 }
 /* No render on disk, no corner. A ledge with nobody sitting on it is worse than
@@ -1493,19 +1493,9 @@
   top: 30.10%;                  /* 159 of 528.2 */
   width: 86.89%;                /* 218.6 of 251.6 — flush with the right edge */
   height: 69.90%;               /* 369.2 of 528.2 */
-  /* --sx-apx is the pointer's parallax, --sx-lz the scroll departure.
-
-     --sx-ly is the parallax proper: the ledge travels UP more slowly than the
-     page does, which is the whole of what makes it read as further away. Depth
-     alone never did it — a translateZ only changes how big a thing is, and two
-     objects growing at slightly different rates while travelling at identical
-     rates still read as one sticker on the page.
-
-     No transition. This transform is now written every frame from two separate
-     followers in the script, and a 600ms ease on top of that would not read as
-     lag, it would read as syrup — the transition would still be catching up to
-     a value that had already moved on. The smoothing lives in one place. */
-  transform: translate3d(var(--sx-apx, 0px), var(--sx-ly, 0px), var(--sx-lz, 0px));
+  /* Deliberately untransformed. Every bit of motion the corner has belongs to
+     the group above; a seat that shifts under the thing sitting on it is not
+     parallax, it is a break. */
 }
 
 .sx-mascot-bot {
@@ -2132,19 +2122,32 @@
   opacity: var(--t, 0);
   transform: translateX(-50%) translateY(calc((1 - var(--e, 0)) * -14px));
 }
-/* Arrival, pointer parallax and scroll departure in ONE transform — a second
-   rule would silently drop the first. --sx-mz is the group's flight toward the
-   camera as the hero is left behind; the ledge adds its own --sx-lz on top, so
-   the robot outruns the thing it is sitting on.
+/* One body, one transform. Arrival, pointer and the scroll departure all land
+   here because they all move the same rigid object.
 
-   The opacity is a product for the same reason: --t is the arrival's, --sx-mo
-   the departure's, and neither may overwrite the other. */
+   --sx-my  hangs back: the perch travels UP more slowly than the page, which is
+            what a distant thing does when the camera pans, and is the whole of
+            what reads as parallax.
+   --sx-mz  recedes: negative, so it shrinks as it falls behind. Slower AND
+            smaller are the same statement — further away. The old pass had the
+            ledge lagging like something distant while both pieces GREW like
+            something approaching, and the eye cannot resolve that.
+   --sx-mr  tips. Two and a half degrees, and its job is as much structural as
+            decorative: the robot and the ledge rotate together, which is what
+            says they are one object.
+
+   The opacity is a product, and a single transform, for the same reason in both
+   cases: --t belongs to the arrival and --sx-mo to the departure, and a second
+   rule for either would silently drop the other. */
 .sx-mascot {
   opacity: calc(var(--t, 0) * var(--sx-mo, 1));
-  transform: translate3d(
-    var(--sx-mpx, 0px),
-    calc(var(--sx-mpy, 0px) + var(--sx-my, 0px) + (1 - var(--e, 0)) * -26px),
-    var(--sx-mz, 0px));
+  transform:
+    translate3d(
+      var(--sx-mpx, 0px),
+      calc(var(--sx-mpy, 0px) + var(--sx-my, 0px) + (1 - var(--e, 0)) * -26px),
+      var(--sx-mz, 0px))
+    rotate(var(--sx-mr, 0deg));
+  transform-origin: 70% 30%;    /* about where the robot sits on the ledge */
 }
 .sx-mark    { opacity: var(--t, 0); transform: scale(var(--e, 0)); }
 .sx-stamp   { opacity: var(--t, 0); transform: scale(calc(0.8 + var(--b, 0) * 0.2)); }
@@ -2176,6 +2179,5 @@
   .sx-rules-lit { display: none; }
   .sx-mascot-bot, .sx-mascot-ledge { transition: none; }
   /* The departure is a motion effect; the corner simply stays put. */
-  .sx-mascot { --sx-mz: 0px; --sx-my: 0px; --sx-mo: 1; }
-  .sx-mascot-ledge { --sx-lz: 0px; --sx-ly: 0px; }
+  .sx-mascot { --sx-mz: 0px; --sx-my: 0px; --sx-mr: 0deg; --sx-mo: 1; }
 }

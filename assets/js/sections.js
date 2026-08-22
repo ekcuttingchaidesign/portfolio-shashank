@@ -928,96 +928,37 @@
      leaves by, the way a thing passing you actually does.
      ---------------------------------------------------------------------- */
   const mascotEl = document.getElementById('sx-mascot');
-  const ledgeEl  = mascotEl ? mascotEl.querySelector('.sx-mascot-ledge') : null;
 
-  /* The corner is pinned to the TOP of the hero, so it rides off the top of the
-     screen as the hero travels — measured, it is half gone a fifth of the way
-     through the exit and down to 8% by halfway. The flight therefore has to
-     FINISH inside the part of the exit where there is still something to look
-     at; spending it across the whole exit meant most of it played out on a
-     thing that had already left. */
-  const DEPART_SPAN = .46;  /* of the hero's exit that the flight is spread over */
-  const Z_FLIGHT    = 330;  /* px toward a camera that is 1000 away */
-  const LEDGE_LAG   = 90;   /* the ledge stays this far behind the robot ... */
+  /* One body, one number. The robot is sitting ON the ledge: they share a
+     distance, so they share a transform, and nothing below addresses the ledge
+     at all. Splitting them was the bug — a seat that slides out from under the
+     thing sitting on it is not depth, it is a break.
 
-  /* --- the parallax proper ---------------------------------------------
-     Depth alone was never going to do this. A translateZ changes how BIG a
-     thing is; parallax is about how FAR it travels. Both pieces were riding the
-     hero at exactly the page's rate, so they grew at slightly different rates
-     while moving in perfect lockstep — which is a sticker on a page, not two
-     objects at two distances. Hence "it feels like it's scrolling plainly".
+     The perch is the FAR plane. When a camera pans, distant things travel less
+     than near ones, so it hangs back as the headline rushes away — and it
+     recedes while it does, because slower and smaller are the same statement.
+     Getting those two to agree is the difference between depth and noise: the
+     previous pass had the ledge lagging like something distant while both
+     pieces grew like something approaching. */
+  const HANG_BACK = .55;   /* fraction of the page's travel the perch covers */
+  const RECEDE    = 260;   /* px AWAY from a camera 1000 out — it shrinks to .79 */
+  const TIP       = 2.5;   /* deg, the whole body, which is what proves it is one */
 
-     These are fractions of the hero's own travel. The robot, being nearest,
-     covers MORE ground than the page; the ledge, being furthest, covers less.
-     The gap between them is what the eye reads as depth.
-
-     Eased back now the group is smaller: the same px of separation is a much
-     bigger fraction of a 165px object than of a 218px one, and at the old rates
-     the robot came off the ledge it is supposed to be sitting on. */
-  const LEAD  = .07;   /* robot travels this much faster than the page */
-  const TRAIL = .12;   /* ledge travels this much slower than the page */
-
-  /* Those two numbers together are the only thing that sets how FAST the corner
-     appears to move, and the pair matters more than either alone: what the eye
-     reads is Z travelled per pixel scrolled.
-
-       620px over 0.34 of a 100vh exit  =  2.17 px of Z per px of scroll
-       330px over 0.46                  =  0.85
-
-     — two and a half times slower. Cutting the travel alone would have made it
-     gentler but no less abrupt; spreading it over more of the exit is what
-     takes the hurry out.
-
-     The ceiling on the travel is the projection, not taste. Apparent size is
-     P/(P-z), which runs away as z approaches the camera: at 620 the corner
-     finished at 2.6x and the last third of that happened in a few frames. 330
-     tops out at 1.5x, where the growth is still accelerating but never bolts. */
-
-  function paintDepth(bp, lp) {
+  function paintDepth(p) {
     if (!mascotEl) return;
-    /* Straight off the scrollbar: no dead zone in front of it and no curve on
-       top of it. The corner starts moving on the first pixel of scroll past the
-       arrival and keeps moving for exactly as long as you keep scrolling.
+    const a = reduced ? 0 : clamp01(p);
 
-       Both of those were wrong before. A gate meant a stretch of scrolling that
-       did nothing, and then a flight that ran on its own clock — the corner
-       took its turn and handed the page back, which is the opposite of moving
-       WITH the scroll. Easing on top made it worse: an eased position against a
-       linear input is, by definition, the corner disagreeing with your hand.
+    /* The group is a child of the hero, so it has already been moved -S by the
+       page. Travelling only HANG_BACK of that means giving back the rest. */
+    const behind = (1 - HANG_BACK) * a * (innerHeight || 0);
 
-       Depth does the acceleration for free anyway. Apparent size under
-       perspective is P / (P - z), so a Z that tracks the scroll linearly still
-       LOOKS like something accelerating past you. The curve was never needed. */
-    if (reduced) bp = lp = 0;
-    const a = clamp01(clamp01(bp) / DEPART_SPAN);
-    const l = clamp01(clamp01(lp) / DEPART_SPAN);
-
-    mascotEl.style.setProperty('--sx-mz', (a * Z_FLIGHT).toFixed(1) + 'px');
-
-    /* Travel, in px of the hero's own. Negative is up — the robot outruns the
-       page it is sitting on. Driven off the followers rather than the raw
-       scroll, so the trailing edge applies to the parallax too. */
-    const vh   = innerHeight || 0;
-    const yBot = -LEAD * clamp01(bp) * vh;
-    mascotEl.style.setProperty('--sx-my', yBot.toFixed(1) + 'px');
-    /* The ledge is a preserve-3d CHILD, so its Z ADDS to the group's — this has
-       to undo the group's and state its own. Its own is short by LEDGE_LAG (it
-       sits further from the camera) and late by whatever the slower follower
-       has not caught up yet, so the two separate both in space and in time. */
-    if (ledgeEl) {
-      const own = l * (Z_FLIGHT - LEDGE_LAG);
-      ledgeEl.style.setProperty('--sx-lz', (own - a * Z_FLIGHT).toFixed(1) + 'px');
-      /* Same subtraction on the vertical: the ledge is a child, so it inherits
-         the group's travel and has to undo it before stating its own. Its own
-         is DOWN relative to the page — it is falling behind. */
-      const yLedge = TRAIL * clamp01(lp) * vh;
-      ledgeEl.style.setProperty('--sx-ly', (yLedge - yBot).toFixed(1) + 'px');
-    }
-
-    /* Dissolved by the time it reaches the top edge, rather than being cut off
-       by it. Over the back half of the flight, so the corner is still solid
-       while it is still worth seeing. */
-    mascotEl.style.setProperty('--sx-mo', (1 - clamp01((a - .45) / .55)).toFixed(3));
+    mascotEl.style.setProperty('--sx-my', behind.toFixed(1) + 'px');
+    mascotEl.style.setProperty('--sx-mz', (-a * RECEDE).toFixed(1) + 'px');
+    mascotEl.style.setProperty('--sx-mr', (a * TIP).toFixed(2) + 'deg');
+    /* It clears the top on its own at this rate, so the fade is only there to
+       catch the short viewports where it would otherwise still be around when
+       the hero has gone. */
+    mascotEl.style.setProperty('--sx-mo', (1 - clamp01((a - .82) / .18)).toFixed(3));
   }
 
   /* How far the hero has travelled out of the viewport, 0-1. Rect-based rather
@@ -1030,19 +971,13 @@
     return innerHeight > 0 ? clamp01(1 - r.bottom / innerHeight) : 0;
   }
 
-  /* Two followers chasing the same scroll number at different rates. The lag IS
-     the parallax: the robot leads, the ledge trails, and neither arrives on the
-     exact frame you stopped scrolling — which is what separates them from
-     stickers painted on the page.
-
-     Kept small on purpose. This is the same mechanism that, overdone, made the
-     corner look like it was moving instead of the page; at these rates it
-     settles inside a quarter of a second, so it reads as weight rather than as
-     delay. */
-  const FOLLOW_BOT   = .17;
-  const FOLLOW_LEDGE = .10;
-  const SNAP = .0005;          /* close enough to land on and stop */
-  let botP = 0, ledgeP = 0, depthRaf = 0;
+  /* ONE follower, because there is one object. It trails the scroll slightly so
+     the perch has weight rather than being nailed to the scrollbar — but both
+     pieces trail by the same amount, which is the only way they can trail at
+     all without coming apart. */
+  const FOLLOW = .14;
+  const SNAP   = .0005;        /* close enough to land on and stop */
+  let bodyP = 0, depthRaf = 0;
 
   /* Its own listener, not the film engine's loop. That loop parks once its two
      progress values stop changing, and both have saturated by the time the hero
@@ -1050,17 +985,15 @@
   function depthTick() {
     depthRaf = 0;
     const target = departure();
-    if (reduced) { botP = ledgeP = target; }
+    if (reduced) bodyP = target;
     else {
-      botP   += (target - botP)   * FOLLOW_BOT;
-      ledgeP += (target - ledgeP) * FOLLOW_LEDGE;
-      if (Math.abs(target - botP)   < SNAP) botP   = target;
-      if (Math.abs(target - ledgeP) < SNAP) ledgeP = target;
+      bodyP += (target - bodyP) * FOLLOW;
+      if (Math.abs(target - bodyP) < SNAP) bodyP = target;
     }
-    paintDepth(botP, ledgeP);
-    /* Keep going while either is still travelling, however long ago the
-       scrolling stopped — otherwise the trail freezes mid-catch-up. */
-    if (botP !== target || ledgeP !== target) depthRaf = requestAnimationFrame(depthTick);
+    paintDepth(bodyP);
+    /* Keep going while it is still travelling, however long ago the scrolling
+       stopped — otherwise the trail freezes mid-catch-up. */
+    if (bodyP !== target) depthRaf = requestAnimationFrame(depthTick);
   }
   const wakeDepth = () => { if (!depthRaf) depthRaf = requestAnimationFrame(depthTick); };
   addEventListener('scroll', wakeDepth, { passive: true });
@@ -1069,8 +1002,8 @@
   window.SX = window.SX || {};
   window.SX.hero = paintHero;
   window.SX.depth = paintDepth;
-  botP = ledgeP = departure();
-  paintDepth(botP, ledgeP);
+  bodyP = departure();
+  paintDepth(bodyP);
   paintHero(0);
 
   const heroEl = document.getElementById('sx-hero-layer');
@@ -1483,7 +1416,6 @@
     /* --- the shared pointer loop ----------------------------------------- */
     let px = 0, py = 0;          /* pointer, viewport px */
     let lx = 0, ly = 0;          /* the lit disc, trailing */
-    let apxNow = 0, apxTo = 0;   /* the ledge's pointer offset, trailing */
     let seeded = false;          /* has the pointer ever been over the hero? */
     let raf = 0, idle = 0;
 
@@ -1533,25 +1465,15 @@
         if (mascot) {
           mascot.style.setProperty('--sx-mpx', (cx * -13).toFixed(1) + 'px');
           mascot.style.setProperty('--sx-mpy', (cy * -8).toFixed(1) + 'px');
-          const ledge = mascot.querySelector('.sx-mascot-ledge');
-          /* The ledge lags the robot here too, so the two separate as the
-             pointer crosses. This used to come free from a CSS transition; that
-             is gone (it fought the scroll writes), so the lag is explicit. */
-          if (ledge) {
-            apxTo = cx * 5;
-            apxNow += (apxTo - apxNow) * .09;
-            if (Math.abs(apxTo - apxNow) < .05) apxNow = apxTo;
-            ledge.style.setProperty('--sx-apx', apxNow.toFixed(2) + 'px');
-          }
+          /* The ledge used to take its own pointer offset so the two would
+             separate under the cursor. Gone with the rest of it: the group is
+             one object and the pointer moves the whole of it, above. */
         }
       }
 
       /* Park once the trail has caught up and the pointer has been still for a
          few frames. A still page costs nothing — the rest of this file works
          the same way, and the loop is woken again by the next pointermove. */
-      /* The ledge's own trail counts as movement too, or the loop parks with it
-         halfway to where the pointer left it. */
-      if (apxNow !== apxTo) trailing = true;
       if (trailing) idle = 0;
       if (trailing || ++idle < 10) raf = requestAnimationFrame(frame);
     }
