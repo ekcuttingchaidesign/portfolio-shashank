@@ -1162,21 +1162,96 @@
   overflow: hidden;
 }
 
-/* Drafting furniture. Four hairline rules and the crop marks where they cross —
-   the page reads as a sheet something was set out on, which is also what the
-   archive and the work plates sit inside further down. */
+/* --- the background field ---------------------------------------------------
+   Three layers under everything: a wash, a bloom, and the grid. All three are
+   in the Figma frame and none of them were here — the page was true black with
+   three rules on it, which is why the top edge had nothing to sit against.
+
+   Everything in here is inert: no layer takes the pointer, and the only one
+   that moves is the lit copy of the grid.
+   -------------------------------------------------------------------------- */
+
+/* The frame is not black at the top. It is #232323 falling to black by a bit
+   under halfway, which is what gives the copy something to be lit against.
+   Tied to --e rather than painted flat, so during the dive the hero is still
+   arriving onto the film's own last frame and this is not yet on. */
+.sx-hero-wash {
+  position: absolute; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(#232323 0%, #0B0B0A 44%, #000 70%);
+}
+
+/* The bloom, bleeding in from above the top edge. In the Figma it is a 618px
+   ellipse centred a little left of middle and pushed most of the way off the
+   top, blurred far past its own bounds — so what you actually see is the lower
+   third of something much larger. Sized and offset to show the same third. */
+.sx-hero-glow {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  left: 46%; top: 0;
+  width: min(1180px, 96vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side,
+    rgba(255,240,230,.17), rgba(255,238,226,.07) 45%, transparent 72%);
+  filter: blur(26px);
+  will-change: transform, opacity;
+}
+
+/* Drafting furniture, now a real field. The Figma rules it at 60px on both
+   axes: verticals the full height, horizontals only across the upper band.
+   The old three-rules-at-25/50/75 stand-in is gone.
+
+   Both axes are one repeating gradient each rather than a stack of hairlines,
+   so the count follows the viewport instead of being fixed at three. */
 .sx-rules {
   position: absolute; inset: 0;
   pointer-events: none;
   z-index: 0;
+  --sx-grid: 60px;
+  --sx-grid-ink: rgba(244,241,236,.16);
   background-image:
-    linear-gradient(90deg, var(--sx-ink-4) 0 1px, transparent 1px),
-    linear-gradient(90deg, var(--sx-ink-4) 0 1px, transparent 1px),
-    linear-gradient(90deg, var(--sx-ink-4) 0 1px, transparent 1px);
-  background-repeat: no-repeat;
-  background-position: 25% 0, 50% 0, 75% 0;
-  background-size: 1px 100%;
+    repeating-linear-gradient(90deg, var(--sx-grid-ink) 0 1px, transparent 1px var(--sx-grid));
+  /* The Figma insets the verticals from the gutters. A fade does the same job
+     without the hard edge a crop would put down the side of the page. */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
+          mask-image: linear-gradient(90deg, transparent 0, #000 9%, #000 91%, transparent 100%);
   opacity: .55;
+}
+
+/* Horizontals stop partway down — that is what keeps the lower half of the
+   frame open for the sentence instead of ruling across it. Shared with the lit
+   copy so both bands end in the same place. */
+.sx-rules::before,
+.sx-rules-lit::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, var(--sx-grid-ink) 0 1px, transparent 1px var(--sx-grid));
+  -webkit-mask-image: linear-gradient(#000 0 32%, transparent 55%);
+          mask-image: linear-gradient(#000 0 32%, transparent 55%);
+}
+
+/* The same grid again, brighter and slightly warm, shown only through a disc
+   that follows the pointer. It is a child of .sx-rules on purpose: the parent's
+   gutter fade masks the whole subtree, so the lit grid dies at the edges of the
+   page the way the base one does, from one declaration.
+
+   A mask on the element and a mask on its ::before compose, which is what lets
+   the lit horizontals respect the same band without needing mask-composite. */
+.sx-rules-lit {
+  position: absolute; inset: 0;
+  --sx-grid-ink: rgba(255,238,228,.62);
+  background-image:
+    repeating-linear-gradient(90deg, var(--sx-grid-ink) 0 1px, transparent 1px var(--sx-grid));
+  -webkit-mask-image: radial-gradient(circle var(--sx-lit-r, 260px) at var(--sx-mx, -50%) var(--sx-my, -50%),
+    #000 0%, rgba(0,0,0,.55) 40%, transparent 74%);
+          mask-image: radial-gradient(circle var(--sx-lit-r, 260px) at var(--sx-mx, -50%) var(--sx-my, -50%),
+    #000 0%, rgba(0,0,0,.55) 40%, transparent 74%);
+  opacity: var(--sx-lit, 0);
+  transition: opacity .5s var(--sx-ease);
+  will-change: mask-position, opacity;
 }
 .sx-mark {
   position: absolute;
@@ -1204,7 +1279,6 @@
   display: flex; align-items: center; gap: .5rem;
 }
 .sx-corner[data-at="tl"] { top: clamp(1.5rem,4vh,2.6rem); left: var(--sx-gut); }
-.sx-corner[data-at="tr"] { top: clamp(1.5rem,4vh,2.6rem); right: var(--sx-gut); }
 /* The portrait, in the top-left corner beside the label. This is the one place
    on the page a circle is right: it IS an avatar here, doing an avatar's job,
    which is exactly what it had stopped doing once it was set into a sentence.
@@ -1245,6 +1319,172 @@
       0 0 14px -2px rgba(224,84,42,.3),
       0 0 34px -6px rgba(224,84,42,.16);
   }
+}
+
+/* --- the nav pill -----------------------------------------------------------
+   Straight off the Figma: a translucent capsule, three items in small caps,
+   centred on the top edge between the portrait and the mascot. The grey is the
+   frame's own (rgba(122,122,122,.2)) rather than a tint of the key colour, so
+   it reads as glass over the wash instead of as a coloured chip.
+   -------------------------------------------------------------------------- */
+.sx-nav {
+  position: absolute;
+  z-index: 4;
+  top: clamp(1.1rem, 3.4vh, 2.3rem);
+  left: 50%;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 3.1rem);
+  padding: clamp(.68rem, 1.5vh, 1.1rem) clamp(1.3rem, 2.4vw, 2.4rem);
+  border-radius: 200px;
+  background: rgba(122,122,122,.2);
+  border: 1px solid rgba(244,241,236,.09);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+          backdrop-filter: blur(14px) saturate(1.15);
+}
+
+.sx-nav-i {
+  position: relative;
+  z-index: 1;
+  font-family: var(--sx-ui);
+  font-weight: 400;
+  font-size: clamp(.66rem, .84vw, .83rem);
+  letter-spacing: .12em;      /* the Figma's 2.4px on 20px */
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-decoration: none;
+  color: rgba(244,241,236,.74);
+  transition: color .3s var(--sx-ease);
+}
+.sx-nav-i:hover,
+.sx-nav-i:focus-visible { color: #fff; }
+
+/* One capsule slides between the items rather than each item carrying its own
+   background. Widths and offsets are measured, not guessed — the three labels
+   are different lengths and the gaps are a clamp, so nothing here is knowable
+   until layout has run. See sxNav() in sections.js. */
+.sx-nav-glide {
+  position: absolute;
+  z-index: 0;
+  left: 0; top: 50%;
+  height: calc(100% - 14px);
+  width: var(--gw, 0px);
+  border-radius: 200px;
+  background: rgba(244,241,236,.11);
+  opacity: var(--go, 0);
+  transform: translate(var(--gx, 0px), -50%);
+  pointer-events: none;
+  transition: transform .42s var(--sx-ease),
+              width     .42s var(--sx-ease),
+              opacity   .28s var(--sx-ease);
+}
+
+/* --- the mascot -------------------------------------------------------------
+   Perched on the top-right corner and bleeding off the right edge, as drawn.
+   The arrow is authored here because it is four straight edges in two flat
+   greens; the robot is a render and has to be the real file.
+   -------------------------------------------------------------------------- */
+.sx-mascot {
+  position: absolute;
+  z-index: 3;
+  top: 0; right: 0;
+  width: clamp(148px, 14.5vw, 262px);
+  aspect-ratio: 252 / 528;      /* the Figma group's own box */
+  pointer-events: auto;
+  will-change: transform, opacity;
+}
+/* No art on disk, no corner. An arrow with nobody sitting on it is worse than
+   the empty corner the hero already knows how to look right in. */
+.sx-mascot[data-art="missing"] { display: none; }
+
+.sx-mascot-arrow {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  transform: translate3d(var(--sx-apx, 0px), 0, 0);
+  transition: transform .6s var(--sx-ease);
+}
+.sx-arrow-face { fill: #5BC271; }
+.sx-arrow-fold { fill: #2E8C49; }
+
+.sx-mascot-bot {
+  position: absolute;
+  top: 0; left: 0;
+  width: 89.3%;                 /* 225 of the group's 252 */
+  height: auto;
+  transform-origin: 62% 92%;    /* where it meets the arrow, so it rocks on its seat */
+  transition: transform .5s var(--sx-ease);
+}
+.sx-mascot:hover .sx-mascot-bot,
+.sx-mascot:focus-within .sx-mascot-bot { transform: translateY(-7px) rotate(-2.6deg); }
+
+/* Antenna ping. Nothing is on screen at rest — the dot is transparent until the
+   animation runs, and the animation only exists under hover. */
+.sx-mascot-ping {
+  position: absolute;
+  top: 3.4%; left: 62%;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--sx-key);
+  opacity: 0;
+  pointer-events: none;
+}
+.sx-mascot:hover .sx-mascot-ping,
+.sx-mascot:focus-within .sx-mascot-ping {
+  animation: sx-mascot-ping 1.15s var(--sx-ease) infinite;
+}
+@keyframes sx-mascot-ping {
+  0%   { opacity: .9; transform: scale(.35); box-shadow: 0 0 0 0    rgba(224,84,42,.45); }
+  70%  { opacity: 0;  transform: scale(1);   box-shadow: 0 0 0 15px rgba(224,84,42,0); }
+  100% { opacity: 0;  transform: scale(1);   box-shadow: 0 0 0 15px rgba(224,84,42,0); }
+}
+
+/* What it says. Opens to the left because the robot is against the right edge,
+   and the corner of the bubble is squared off on that side so it points back at
+   the thing saying it. */
+.sx-mascot-say {
+  position: absolute;
+  /* Clear of the robot rather than over it: the group's box is mostly render,
+     so anything short of ~96% lands on the art. */
+  top: 6%; right: 96%;
+  width: max-content; max-width: 15ch;
+  padding: .48rem .68rem;
+  border-radius: 12px 12px 2px 12px;
+  background: rgba(18,18,17,.88);
+  border: 1px solid rgba(244,241,236,.13);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  font-family: var(--sx-ui);
+  font-size: clamp(.58rem, .7vw, .71rem);
+  line-height: 1.35;
+  letter-spacing: .03em;
+  color: var(--sx-ink-2);
+  text-align: right;
+  opacity: 0;
+  transform: translateY(6px) scale(.94);
+  transform-origin: 100% 100%;
+  pointer-events: none;
+  transition: opacity .28s var(--sx-ease), transform .28s var(--sx-ease);
+}
+.sx-mascot:hover .sx-mascot-say,
+.sx-mascot:focus-within .sx-mascot-say { opacity: 1; transform: none; }
+
+/* --- the flourish -----------------------------------------------------------
+   The mark the Figma sets at the end of the supporting line. It draws itself in
+   on the sub's own arrival — custom properties inherit, so --e is already the
+   right number here without the step list having to know this exists.
+   -------------------------------------------------------------------------- */
+.sx-flourish {
+  display: inline-block;
+  width: clamp(48px, 5vw, 92px);
+  margin-left: .55rem;
+  vertical-align: -.12em;
+  color: var(--sx-key);
+}
+.sx-flourish svg { display: block; width: 100%; height: auto; overflow: visible; }
+.sx-flourish path {
+  stroke-dasharray: 168;
+  stroke-dashoffset: calc(168px - var(--e, 0) * 168px);
 }
 
 /* --- the line ---
@@ -1456,10 +1696,16 @@
 .sx-ticker-track span::after { content: "✦"; color: var(--sx-key); letter-spacing: 0; }
 
 @media (max-width: 860px) {
-  .sx-rules { background-position: 33.333% 0, 66.666% 0, 200% 0; }
+  /* A 60px cell is a fifth of a phone. Opening it up keeps the field reading as
+     a grid rather than as hatching. */
+  .sx-rules { --sx-grid: 44px; }
   .sx-stamp { right: auto; left: var(--sx-gut); bottom: clamp(4.5rem,12vh,7rem); width: 84px; }
   .sx-line-1 { max-width: 14ch; }
-  .sx-corner[data-at="tr"] { display: none; }
+  /* The mascot needs the corner AND the room beside it for what it says; at
+     this width it has neither, and it would sit on the nav. */
+  .sx-mascot { display: none; }
+  .sx-nav { gap: 1rem; padding: .6rem 1.1rem; }
+  .sx-nav-i { font-size: .6rem; letter-spacing: .1em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1788,6 +2034,35 @@
 }
 .sx-corner  { opacity: var(--t, 0); transform: translateY(calc((1 - var(--e, 0)) * -8px)); }
 .sx-rules   { opacity: calc(var(--e, 0) * .55); }
+
+/* The wash comes up with the field rather than with the frame: during the dive
+   the hero is still landing on the film's last frame, and painting #232323
+   over that would end the film a beat early. */
+.sx-hero-wash { opacity: calc(var(--e, 0) * .92); }
+
+/* The bloom's transform is its own centring — left:46% puts its left edge
+   there, not its middle — plus the last of a scale-up, so it opens outward
+   instead of simply appearing at full size. */
+.sx-hero-glow {
+  opacity: var(--t, 0);
+  transform:
+    translate(calc(-50% + var(--sx-gpx, 0px)), -56%)
+    scale(calc(.92 + var(--e, 0) * .08));
+}
+
+/* Both of these carry a pointer offset as well as an arrival one, so the two
+   live in a single transform — a second rule would silently drop the first. */
+.sx-nav {
+  opacity: var(--t, 0);
+  transform: translateX(-50%) translateY(calc((1 - var(--e, 0)) * -14px));
+}
+.sx-mascot {
+  opacity: var(--t, 0);
+  transform: translate3d(
+    var(--sx-mpx, 0px),
+    calc(var(--sx-mpy, 0px) + (1 - var(--e, 0)) * -26px),
+    0);
+}
 .sx-mark    { opacity: var(--t, 0); transform: scale(var(--e, 0)); }
 .sx-stamp   { opacity: var(--t, 0); transform: scale(calc(0.8 + var(--b, 0) * 0.2)); }
 .sx-ticker  { opacity: var(--t, 0); transform: translateY(calc((1 - var(--e, 0)) * 18px)); }
@@ -1799,7 +2074,23 @@
 @media (prefers-reduced-motion: reduce) {
   .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
   .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub, .sx-corner,
-  .sx-rules, .sx-mark, .sx-stamp, .sx-ticker {
-    opacity: 1 !important; transform: none !important; filter: none !important;
+  .sx-rules, .sx-mark, .sx-stamp, .sx-ticker,
+  .sx-hero-wash, .sx-hero-glow, .sx-nav, .sx-mascot {
+    opacity: 1 !important; filter: none !important;
   }
+  /* These three need their placement kept — it lives in the same transform the
+     arrival animates, so `transform: none` would put the pill and the bloom in
+     the wrong corner rather than simply still. */
+  .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
+  .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub, .sx-corner,
+  .sx-rules, .sx-mark, .sx-stamp, .sx-ticker, .sx-mascot {
+    transform: none !important;
+  }
+  .sx-nav       { transform: translateX(-50%) !important; }
+  .sx-hero-glow { transform: translate(-50%, -56%) !important; }
+  /* The flourish is drawn by --e, which is pinned at 0 without the scrub. */
+  .sx-flourish path { stroke-dashoffset: 0 !important; }
+  /* The pointer-lit grid is a motion effect; the base grid stays. */
+  .sx-rules-lit { display: none; }
+  .sx-mascot-bot, .sx-mascot-arrow { transition: none; }
 }

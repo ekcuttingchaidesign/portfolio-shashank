@@ -474,7 +474,20 @@
            the hero recedes along Z and the frames come back underneath it. -->
       <div class="sx-hero-layer" id="sx-hero-layer">
         <div class="sx-hero-depth" id="sx-hero-depth">
-      <div class="sx-rules" aria-hidden="true"></div>
+      <!-- Background field, back to front. The Figma frame builds the top of
+           the page out of three things the stand-in didn't have: a warm-grey
+           wash falling to black, a wide bloom bleeding in from above the top
+           edge, and a real 60px grid rather than three rules at 25/50/75. -->
+      <div class="sx-hero-wash" aria-hidden="true"></div>
+      <div class="sx-hero-glow" aria-hidden="true"></div>
+
+      <div class="sx-rules" aria-hidden="true">
+        <!-- The same grid again, brighter, revealed only through a soft disc
+             that follows the pointer. Two static layers and one moving mask
+             composite in a single paint; lighting real cells would cost a node
+             per cell and a layout read per frame, for the same picture. -->
+        <span class="sx-rules-lit"></span>
+      </div>
       <span class="sx-mark" style="left:25%; top:26%" aria-hidden="true"></span>
       <span class="sx-mark" style="left:75%; top:26%" aria-hidden="true"></span>
       <span class="sx-mark" style="left:50%; top:74%" aria-hidden="true"></span>
@@ -483,13 +496,53 @@
            in the line. It takes over the corner's live-dot role rather than
            sitting next to it: a 6px pulsing dot beside a 40px face read as
            debris, and the glow behind the portrait carries the same signal the
-           dot was there to give. -->
+           dot was there to give.
+
+           It stands alone now. The "Inside the screen" label next to it and the
+           "2016 — 2026" label opposite are both gone: the Figma gives the top
+           edge to the portrait, the nav and the mascot, and a fourth and fifth
+           piece of small caps up there turned a clear band into a busy one. -->
       <p class="sx-corner" data-at="tl">
         <img class="sx-me" src="../public/img/profile.jpeg" alt="Shashank"
              width="1024" height="1024" decoding="async">
-        Inside the screen
       </p>
-      <p class="sx-corner" data-at="tr">2016 — 2026 · Lead PD, Airtel</p>
+
+      <!-- The three items are the three sections that exist. "Outside work" has
+           no section of its own yet, so it lands on the archive — which is
+           where the film and the two things that play currently live. Move it
+           the moment that section is real. -->
+      <nav class="sx-nav" id="sx-nav" aria-label="Sections">
+        <span class="sx-nav-glide" aria-hidden="true"></span>
+        <a class="sx-nav-i" href="#sx-work">Work</a>
+        <a class="sx-nav-i" href="#sx-exp">Experience</a>
+        <a class="sx-nav-i" href="#sx-archive">Outside work</a>
+      </nav>
+
+      <!-- The mascot, perched on the corner exactly where the Figma puts it.
+           Three pieces, and only one of them is art: the arrow is drawn here
+           because it is four straight edges and two flat greens, and the robot
+           is a render that has to be the real file.
+
+           If that file isn't on disk the whole group hides itself rather than
+           leaving an arrow with nobody sitting on it — see sx-mascot in
+           sections.js. The corner simply goes back to being empty, which is a
+           state the rest of the hero already handles. -->
+      <div class="sx-mascot" id="sx-mascot" data-art="pending">
+        <svg class="sx-mascot-arrow" viewBox="0 0 252 528" fill="none"
+             aria-hidden="true" preserveAspectRatio="xMaxYMin meet">
+          <!-- Front face, then the folded facet that gives it its thickness. -->
+          <path class="sx-arrow-face" d="M100 148 L252 150 L252 205 L131 507 L22 217 Z"/>
+          <path class="sx-arrow-fold" d="M185 150 L252 150 L252 203 L206 266 Z"/>
+        </svg>
+
+        <img class="sx-mascot-bot" src="../public/img/mascot.png" alt=""
+             width="1274" height="1234" decoding="async">
+
+        <!-- Antenna ping and the thing it says. Both are hover-only and both
+             are empty until then, so nothing here is on screen at rest. -->
+        <span class="sx-mascot-ping" aria-hidden="true"></span>
+        <span class="sx-mascot-say" id="sx-mascot-say" aria-hidden="true"></span>
+      </div>
 
       <div class="sx-wrap">
         <!-- Three sentences, STACKED in one grid cell rather than swapped in
@@ -538,7 +591,14 @@
         </div>
         <p class="sx-hero-sub">Ten years designing. Most of it for products people
           open when they want to be entertained. The rest of the time I'm the
-          audience.</p>
+          audience.<span class="sx-flourish" aria-hidden="true">
+            <svg viewBox="0 0 109 29" fill="none" preserveAspectRatio="none">
+              <!-- Drawn on once the sub has arrived, and only once: a mark that
+                   redraws itself on every rotation would be a tic. -->
+              <path d="M2 20C18 6 34 25 51 12 66 1 82 22 107 8"
+                    stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </span></p>
       </div>
 
       <button class="sx-stamp" id="sx-to-work" type="button" aria-label="Go to the work">

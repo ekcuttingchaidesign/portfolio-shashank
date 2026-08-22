@@ -482,10 +482,18 @@
      or four pieces are in motion, which is what makes it read as one move
      rather than as a queue. */
   const HERO_STEPS = [
+    /* The field first — wash, bloom, grid — because everything after it needs
+       something to be lit against. The frame's furniture comes in on top of
+       that, and only then does a word of the headline start. */
+    ['.sx-hero-wash',            .00, .30],
+    ['.sx-hero-glow',            .00, .36],
     ['.sx-corner[data-at="tl"]', .00, .26],
-    ['.sx-corner[data-at="tr"]', .03, .29],
     ['.sx-rules',                .00, .34],
     ['.sx-mark',                 .06, .36],
+    ['.sx-nav',                  .08, .38],
+    /* Last of the periphery: it is the only coloured thing on the frame, so it
+       lands after the greys have settled rather than leading them in. */
+    ['.sx-mascot',               .12, .46],
     /* Scoped to the first copy. The other two are stacked in the same cell and
        must stay at nothing until the rotator has the floor — an unscoped
        selector here would arrive all three sentences on top of each other. */
@@ -1086,4 +1094,169 @@
       setTimeout(() => { label.textContent = original; delete btn.dataset.busy; }, 2200);
     });
   });
+
+  /* ------------------------------------------------------------------------
+     Hero — the things that answer the pointer.
+     ------------------------------------------------------------------------
+     Three effects, one loop. They share it because they share an input: the
+     cursor. Three separate rAFs reading the same two numbers would schedule
+     three layout flushes a frame to draw one composited picture.
+
+     Everything here writes custom properties and nothing writes a style the
+     stylesheet also owns — same discipline as the arrival, and for the same
+     reason: an inline `transform` on the mascot would outrank the rule that
+     positions it and the corner would quietly move.
+     ---------------------------------------------------------------------- */
+  (() => {
+    const rules  = document.querySelector('.sx-rules');
+    const lit    = document.querySelector('.sx-rules-lit');
+    const glow   = document.querySelector('.sx-hero-glow');
+    const mascot = document.getElementById('sx-mascot');
+
+    /* --- the robot's art -------------------------------------------------
+       The arrow is drawn in the markup; the robot is a render that has to be
+       exported out of the Figma and dropped in public/img. Until it is, the
+       corner stays empty rather than showing an arrow with nothing on it.
+
+       Checked rather than assumed, because `error` does not fire for an image
+       the browser has already finished failing to load by the time this runs. */
+    if (mascot) {
+      const bot = mascot.querySelector('.sx-mascot-bot');
+      const missing = () => mascot.setAttribute('data-art', 'missing');
+      if (bot) {
+        if (bot.complete) {
+          mascot.setAttribute('data-art', bot.naturalWidth ? 'ready' : 'missing');
+        }
+        bot.addEventListener('error', missing);
+        bot.addEventListener('load', () => mascot.setAttribute('data-art', 'ready'));
+      } else { missing(); }
+    }
+
+    /* --- what it says ----------------------------------------------------
+       One line per hover, in order rather than at random: random repeats, and
+       a repeat reads as the thing being broken rather than as it being quiet. */
+    const say = document.getElementById('sx-mascot-say');
+    const LINES = [
+      'Still shipping.',
+      'Ten years of this.',
+      'Scroll — the good bit is below.',
+      'Yes, the grid lights up.',
+      'Currently open to remote.'
+    ];
+    let saidAt = -1;
+    if (mascot && say) {
+      mascot.addEventListener('pointerenter', () => {
+        saidAt = (saidAt + 1) % LINES.length;
+        say.textContent = LINES[saidAt];
+      });
+      /* Keyboard reaches it too — the group is not focusable itself, but the
+         nav beside it is, and :focus-within needs something to say. */
+      say.textContent = LINES[0];
+    }
+
+    if (reduced) return;
+
+    /* --- the shared pointer loop ----------------------------------------- */
+    let px = 0, py = 0;          /* pointer, viewport px */
+    let lx = 0, ly = 0;          /* the lit disc, trailing */
+    let seeded = false;          /* has the pointer ever been over the hero? */
+    let raf = 0, idle = 0;
+
+    const onMove = e => { px = e.clientX; py = e.clientY; wake(); };
+    addEventListener('pointermove', onMove, { passive: true });
+
+    function wake() { idle = 0; if (!raf) raf = requestAnimationFrame(frame); }
+
+    function frame() {
+      raf = 0;
+
+      const box = rules ? rules.getBoundingClientRect() : null;
+      /* The hero is a sticky layer inside the dive; once it has scrolled past,
+         none of this is on screen and none of it should cost a frame. */
+      const onScreen = !!box && box.bottom > 0 && box.top < innerHeight;
+      let trailing = false;
+
+      if (onScreen) {
+        const x = px - box.left, y = py - box.top;
+        const inside = x >= 0 && y >= 0 && x <= box.width && y <= box.height;
+
+        if (lit) {
+          /* Snap on the first frame the pointer is over the hero. Lerping from
+             the top-left origin would drag a visible light across the page the
+             first time the cursor arrived. */
+          if (inside && !seeded) { lx = x; ly = y; seeded = true; }
+          else { lx += (x - lx) * 0.16; ly += (y - ly) * 0.16; }
+
+          lit.style.setProperty('--sx-mx', lx.toFixed(1) + 'px');
+          lit.style.setProperty('--sx-my', ly.toFixed(1) + 'px');
+          lit.style.setProperty('--sx-lit', inside ? '1' : '0');
+
+          /* Keep the loop alive while the light is still catching up, however
+             long ago the pointer stopped. */
+          trailing = Math.abs(x - lx) > 0.4 || Math.abs(y - ly) > 0.4;
+        }
+
+        /* Parallax. Signed -1..1 from the middle of the frame, and everything
+           moves WITH the pointer at its own rate — the bloom least because it
+           is furthest away, the robot most because it is nearest. */
+        const nx = box.width  ? (px - box.left - box.width  / 2) / (box.width  / 2) : 0;
+        const ny = box.height ? (py - box.top  - box.height / 2) / (box.height / 2) : 0;
+        const cx = nx < -1 ? -1 : nx > 1 ? 1 : nx;
+        const cy = ny < -1 ? -1 : ny > 1 ? 1 : ny;
+
+        if (glow) glow.style.setProperty('--sx-gpx', (cx * 26).toFixed(1) + 'px');
+        if (mascot) {
+          mascot.style.setProperty('--sx-mpx', (cx * -13).toFixed(1) + 'px');
+          mascot.style.setProperty('--sx-mpy', (cy * -8).toFixed(1) + 'px');
+          const arrow = mascot.querySelector('.sx-mascot-arrow');
+          /* The arrow lags the robot, so the two separate slightly as the
+             pointer crosses and the corner reads as having depth. */
+          if (arrow) arrow.style.setProperty('--sx-apx', (cx * 5).toFixed(1) + 'px');
+        }
+      }
+
+      /* Park once the trail has caught up and the pointer has been still for a
+         few frames. A still page costs nothing — the rest of this file works
+         the same way, and the loop is woken again by the next pointermove. */
+      if (trailing) idle = 0;
+      if (trailing || ++idle < 10) raf = requestAnimationFrame(frame);
+    }
+
+    /* --- the nav's glide -------------------------------------------------
+       One capsule for three items. Measured every time rather than cached: the
+       gaps and the padding are clamps, so they change with the viewport, and
+       the labels are webfont text, so they change again when Satoshi lands. */
+    const nav = document.getElementById('sx-nav');
+    if (nav) {
+      const glide = nav.querySelector('.sx-nav-glide');
+      const items = [...nav.querySelectorAll('.sx-nav-i')];
+      const PAD = 18;   /* how far the capsule reaches past the label */
+
+      const put = el => {
+        if (!glide || !el) return;
+        glide.style.setProperty('--gx', (el.offsetLeft - PAD) + 'px');
+        glide.style.setProperty('--gw', (el.offsetWidth + PAD * 2) + 'px');
+        glide.style.setProperty('--go', '1');
+      };
+      const clear = () => { if (glide) glide.style.setProperty('--go', '0'); };
+
+      items.forEach(el => {
+        el.addEventListener('pointerenter', () => put(el));
+        el.addEventListener('focus', () => put(el));
+        el.addEventListener('blur', clear);
+
+        /* The sections are a long way down a scrubbed page, so hand it to the
+           browser's own smooth scroll rather than animating scrollTop against
+           an engine that is already driving the film off the same number. */
+        el.addEventListener('click', ev => {
+          const id = (el.getAttribute('href') || '').slice(1);
+          const target = id && document.getElementById(id);
+          if (!target) return;                 /* let the anchor do whatever it does */
+          ev.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+      nav.addEventListener('pointerleave', clear);
+    }
+  })();
 })();
