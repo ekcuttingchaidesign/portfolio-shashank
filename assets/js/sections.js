@@ -499,7 +499,7 @@
     /* Last of the periphery: it is the only coloured thing on the frame, so it
        lands after the greys have settled rather than leading them in. */
     ['.sx-mascot',               .28, .52],
-    ['.sx-left-ledge',           .32, .58],
+    ['.sx-ushape',               .32, .58],
     /* Scoped to the first copy. The other two are stacked in the same cell and
        must stay at nothing until the rotator has the floor — an unscoped
        selector here would arrive all three sentences on top of each other. */
@@ -929,7 +929,7 @@
      leaves by, the way a thing passing you actually does.
      ---------------------------------------------------------------------- */
   const mascotEl = document.getElementById('sx-mascot');
-  const leftEl   = document.querySelector('.sx-left-ledge');
+  const ushapeEl = document.querySelector('.sx-ushape');
 
   /* Two slabs, each a rigid body. The robot is SITTING ON its ledge, so that
      pair shares one transform and nothing inside either group moves on its own.
@@ -948,16 +948,25 @@
      Depth cues that disagree are worse than none; these agree because the
      premise underneath them changed. */
   const SLABS = [
+    /* The perch is the NEAR one now, and it sits low — which is what the swap
+       to opposite corners bought. Starting at 36% down the viewport it has most
+       of the screen to climb before it clears the top, so it can outrun the
+       page by a quarter and still be watchable the whole way. */
     { el: mascotEl, v: 'm',
-      travel:  .55,   /* of the page's own — hangs back, so it lingers */
-      advance: 160,   /* px toward a camera 1000 out: grows to 1.19x */
-      tip:     2.5,
-      fade:  [.82, 1] },
-    { el: leftEl,   v: 'l',
-      travel: 1.15,   /* outruns the page — it is the nearer of the two */
-      advance: 280,   /* and grows harder for it: 1.39x */
-      tip:    -2,     /* the other way, so the pair never looks stamped */
-      fade:  [.74, .96] }
+      travel: 1.24,   /* outruns the page — the nearer of the two */
+      advance: 260,   /* px toward a camera 1000 out: grows to 1.35x */
+      tip:    -2.5,   /* mirrored with the art */
+      fade:  [.80, 1] },
+    /* The counterweight is the FAR one, high on the opposite edge, and it hangs
+       back at less than half the perch's rate. 1.24 against 0.48 is the point
+       of the whole rearrangement: two shapes covering the same scroll at two
+       and a half times the difference, on opposite sides of the frame where
+       neither can hide the other. */
+    { el: ushapeEl, v: 'l',
+      travel:  .48,
+      advance: 120,   /* and grows least for it: 1.14x */
+      tip:     2,     /* the other way, so the pair never looks stamped */
+      fade:  [.78, .98] }
   ];
 
   function paintDepth(p) {

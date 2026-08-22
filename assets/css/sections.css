@@ -1170,7 +1170,11 @@
      reads as the corner rushing the camera and overflowing its own corner,
      which keeps it on screen for as long as the hero is still travelling. */
   perspective: 1000px;
-  perspective-origin: 82% 27%;
+  /* Back to the middle. With one object on each edge, an origin near either
+     one would push that one straight out of frame while barely moving the
+     other; from the centre, both drift outward past their own shoulder as they
+     come forward, symmetrically. */
+  perspective-origin: 50% 42%;
   will-change: transform, opacity, filter;
   overflow: hidden;
 }
@@ -1461,20 +1465,14 @@
 .sx-mascot {
   position: absolute;
   z-index: 3;
-  right: 0;
-  /* Down off the top edge, and smaller. Both are about being able to SEE the
-     parallax rather than about composition: flush at top:0 the robot begins
-     already clipped, so the moment it starts outrunning the ledge it is
-     travelling through screen it does not have — the relative motion happens
-     off-frame. The headroom here is the distance over which that separation is
-     actually visible.
-
-     Smaller for the same reason. At 218px the group filled its corner, and two
-     shapes that big moving 40px apart read as one shape wobbling; at 165 the
-     gap between them is a real fraction of the thing. */
-  top: clamp(4.5rem, 10vh, 7.5rem);
-  width: clamp(112px, 11vw, 200px);
-  aspect-ratio: 252 / 528;      /* the Figma group's own box */
+  /* Left now, and low, off the Figma's own box: x 0.38, y 386, 251.5 x 528.2
+     in a 1920 x 1080 frame. Low is what buys the parallax its distance — the
+     unit has most of the viewport to climb before it clears the top, which is
+     the whole window over which you can watch it outrun the shape opposite. */
+  left: 0;
+  top: 35.74%;                  /*  386.0 of 1080 */
+  width: 13.10%;                /*  251.5 of 1920 */
+  aspect-ratio: 251.5 / 528.2;  /* the Figma group's own box */
   pointer-events: auto;
   /* No preserve-3d any more, and that is the point. The robot is SITTING ON the
      ledge — one rigid body with one distance. Letting the two sit at different
@@ -1487,12 +1485,19 @@
    the empty corner the hero already knows how to look right in. */
 .sx-mascot[data-art="missing"] { display: none; }
 
+/* Mirrored, so the two pieces swap sides inside the group: the ledge is flush
+   LEFT now and the robot flush right, which is exactly the Figma's own
+   (Vector 9 at x 0.38, image 962 ending on the group's right edge).
+
+   scaleX(-1) on each piece rather than on the group. Flipping the whole thing
+   would flip what it says with it, and mirror-written text is not a look. */
 .sx-mascot-ledge {
   position: absolute;
-  left: 13.11%;                 /* 33 of 251.6 */
-  top: 30.10%;                  /* 159 of 528.2 */
-  width: 86.89%;                /* 218.6 of 251.6 — flush with the right edge */
+  left: 0;                      /* flush with the group's left edge */
+  top: 30.10%;                  /* 159 of 528.2 — unchanged, only x mirrors */
+  width: 86.92%;                /* 218.6 of 251.5 */
   height: 69.90%;               /* 369.2 of 528.2 */
+  scale: -1 1;
   /* Deliberately untransformed. Every bit of motion the corner has belongs to
      the group above; a seat that shifts under the thing sitting on it is not
      parallax, it is a break. */
@@ -1500,16 +1505,18 @@
 
 .sx-mascot-bot {
   position: absolute;
-  top: 0; left: 0;
-  width: 89.42%;                /* 225 of 251.6 */
+  top: 0;
+  left: 10.61%;                 /* 26.7 of 251.5 — flush with the RIGHT edge */
+  width: 89.38%;                /* 224.8 of 251.5 */
   height: auto;
+  scale: -1 1;
   /* Down on the shoes, which is where it meets the ledge — so it rocks on its
      seat rather than pivoting somewhere inside its own chest. */
-  transform-origin: 46% 96%;
+  transform-origin: 54% 96%;   /* mirrored with the art */
   transition: transform .5s var(--sx-ease);
 }
 .sx-mascot:hover .sx-mascot-bot,
-.sx-mascot:focus-within .sx-mascot-bot { transform: translateY(-7px) rotate(-2.6deg); }
+.sx-mascot:focus-within .sx-mascot-bot { transform: translateY(-7px) rotate(2.6deg); }
 
 /* The render already carries a pair of yellow "!!" marks off its top corner.
    This fires a ring from behind them rather than adding a second signal
@@ -1519,9 +1526,10 @@
    runs, and the animation only exists under hover. */
 .sx-mascot-ping {
   position: absolute;
-  /* Centred on the marks: they sit at (79.3%, 9.4%) of the render, the render
-     is 89.42% x 41.35% of the group, and the dot is 9px across. */
-  top: 3%; left: 69%;
+  /* Centred on the marks. Mirrored, they sit at 20.7% of the render instead of
+     79.3%, and the render now starts at 10.61% of the group: 10.61 + .207 x
+     89.38 = 29.1%, less half the 9px dot. */
+  top: 3%; left: 26.8%;
   width: 9px; height: 9px;
   border-radius: 50%;
   background: var(--sx-key);
@@ -1543,12 +1551,13 @@
    the thing saying it. */
 .sx-mascot-say {
   position: absolute;
-  /* Clear of the robot rather than over it: the group's box is mostly render,
-     so anything short of ~96% lands on the art. */
-  top: 6%; right: 96%;
+  /* Clear of the robot rather than over it, and now opening to the RIGHT: the
+     group sits against the left edge of the page, so there is nothing on that
+     side for it to open into. */
+  top: 6%; left: 96%;
   width: max-content; max-width: 15ch;
   padding: .48rem .68rem;
-  border-radius: 12px 12px 2px 12px;
+  border-radius: 12px 12px 12px 2px;
   background: rgba(18,18,17,.88);
   border: 1px solid rgba(244,241,236,.13);
   -webkit-backdrop-filter: blur(8px);
@@ -1558,30 +1567,31 @@
   line-height: 1.35;
   letter-spacing: .03em;
   color: var(--sx-ink-2);
-  text-align: right;
+  text-align: left;
   opacity: 0;
   transform: translateY(6px) scale(.94);
-  transform-origin: 100% 100%;
+  transform-origin: 0 100%;
   pointer-events: none;
   transition: opacity .28s var(--sx-ease), transform .28s var(--sx-ease);
 }
 .sx-mascot:hover .sx-mascot-say,
 .sx-mascot:focus-within .sx-mascot-say { opacity: 1; transform: none; }
 
-/* --- the left slab ---------------------------------------------------------
-   The near half of the pair. Placed off the Figma's own numbers: x -168.13,
-   y 835.15, 496.3 x 213.0 within a 1920 x 1080 frame, which is what the
-   percentages below are.
+/* --- the U-shape -----------------------------------------------------------
+   The counterweight, high on the right, opposite the perch. Natural size
+   against the Figma's box: left 88.39% of 1920 is 1697, and the artwork's own
+   223 x 362 carries it exactly to the right edge and to the frame's bottom
+   inset. Width in vw with height auto, so the shape never distorts.
    -------------------------------------------------------------------------- */
-.sx-left-ledge {
+.sx-ushape {
   position: absolute;
   z-index: 2;
-  left: -8.76%;                 /* -168.13 of 1920 — it bleeds off the edge */
-  top: 77.33%;                  /*  835.15 of 1080 */
-  width: 25.85%;                /*  496.30 of 1920 */
+  left: 88.39%;                 /* 1697 of 1920 */
+  top: 5.38%;                   /*   58.1 of 1080 */
+  width: 11.61%;                /*    223 of 1920 — its natural width */
   height: auto;
   pointer-events: none;
-  transform-origin: 30% 50%;
+  transform-origin: 80% 30%;
   will-change: transform, opacity;
 }
 
@@ -1606,7 +1616,7 @@
   66%      { translate: -2px 4px;   rotate: -.4deg; }
 }
 .sx-mascot     { animation: sx-drift 9.5s var(--sx-ease) infinite; }
-.sx-left-ledge { animation: sx-drift 13s var(--sx-ease) -4.5s infinite; }
+.sx-ushape     { animation: sx-drift 13s var(--sx-ease) -4.5s infinite; }
 
 /* --- the flourish -----------------------------------------------------------
    The mark the Figma sets at the end of the supporting line. It draws itself in
@@ -1813,7 +1823,7 @@
   .sx-line-1 { max-width: 14ch; }
   /* The mascot needs the corner AND the room beside it for what it says; at
      this width it has neither, and it would sit on the nav. */
-  .sx-mascot, .sx-left-ledge { display: none; }
+  .sx-mascot, .sx-ushape { display: none; }
   /* Same relationship, smaller numbers: the capsule's reach shrinks with the
      pill so the clearance at the edges survives the narrow layout. */
   .sx-nav {
@@ -2187,11 +2197,11 @@
       calc(var(--sx-mpy, 0px) + var(--sx-my, 0px) + (1 - var(--e, 0)) * -26px),
       var(--sx-mz, 0px))
     rotate(var(--sx-mr, 0deg));
-  transform-origin: 70% 30%;    /* about where the robot sits on the ledge */
+  transform-origin: 30% 30%;    /* where the robot sits on the ledge, mirrored */
 }
 
-/* The near slab, same shape of transform and the same one-body rule. */
-.sx-left-ledge {
+/* The counterweight, same shape of transform and the same one-body rule. */
+.sx-ushape {
   opacity: calc(var(--t, 0) * var(--sx-lo, 1));
   transform:
     translate3d(0, var(--sx-ly, 0px), var(--sx-lz, 0px))
@@ -2228,7 +2238,7 @@
   .sx-mascot-bot, .sx-mascot-ledge { transition: none; }
   /* The departure is a motion effect; the corner simply stays put. */
   .sx-mascot { --sx-mz: 0px; --sx-my: 0px; --sx-mr: 0deg; --sx-mo: 1; }
-  .sx-left-ledge { --sx-lz: 0px; --sx-ly: 0px; --sx-lr: 0deg; --sx-lo: 1; }
+  .sx-ushape { --sx-lz: 0px; --sx-ly: 0px; --sx-lr: 0deg; --sx-lo: 1; }
   /* The drift is ambient motion with no information in it — first to go. */
-  .sx-mascot, .sx-left-ledge { animation: none; translate: none; rotate: none; }
+  .sx-mascot, .sx-ushape { animation: none; translate: none; rotate: none; }
 }
