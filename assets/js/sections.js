@@ -499,6 +499,7 @@
     /* Last of the periphery: it is the only coloured thing on the frame, so it
        lands after the greys have settled rather than leading them in. */
     ['.sx-mascot',               .28, .52],
+    ['.sx-left-ledge',           .32, .58],
     /* Scoped to the first copy. The other two are stacked in the same cell and
        must stay at nothing until the rotator has the floor — an unscoped
        selector here would arrive all three sentences on top of each other. */
@@ -928,37 +929,52 @@
      leaves by, the way a thing passing you actually does.
      ---------------------------------------------------------------------- */
   const mascotEl = document.getElementById('sx-mascot');
+  const leftEl   = document.querySelector('.sx-left-ledge');
 
-  /* One body, one number. The robot is sitting ON the ledge: they share a
-     distance, so they share a transform, and nothing below addresses the ledge
-     at all. Splitting them was the bug — a seat that slides out from under the
-     thing sitting on it is not depth, it is a break.
+  /* Two slabs, each a rigid body. The robot is SITTING ON its ledge, so that
+     pair shares one transform and nothing inside either group moves on its own.
 
-     The perch is the FAR plane. When a camera pans, distant things travel less
-     than near ones, so it hangs back as the headline rushes away — and it
-     recedes while it does, because slower and smaller are the same statement.
-     Getting those two to agree is the difference between depth and noise: the
-     previous pass had the ledge lagging like something distant while both
-     pieces grew like something approaching. */
-  const HANG_BACK = .55;   /* fraction of the page's travel the perch covers */
-  const RECEDE    = 260;   /* px AWAY from a camera 1000 out — it shrinks to .79 */
-  const TIP       = 2.5;   /* deg, the whole body, which is what proves it is one */
+     The parallax is BETWEEN the two, and it is large enough to be unmissable:
+     the near slab (bigger, lower, foreground) travels further than the page
+     while the far perch (smaller, higher) hangs back at half its rate. Two
+     objects covering 1.15x and 0.55x of the same scroll is what depth looks
+     like; matching rates is what a printed backdrop looks like.
+
+     Both come TOWARD the camera as you go, which is the read asked for. Note
+     what makes that legal: they float. A slab pinned to the page cannot lag the
+     page and approach the viewer at the same time without the eye objecting —
+     but one hanging free in the frame owes the page nothing, and the idle drift
+     in the stylesheet is what establishes that in the first second you look.
+     Depth cues that disagree are worse than none; these agree because the
+     premise underneath them changed. */
+  const SLABS = [
+    { el: mascotEl, v: 'm',
+      travel:  .55,   /* of the page's own — hangs back, so it lingers */
+      advance: 160,   /* px toward a camera 1000 out: grows to 1.19x */
+      tip:     2.5,
+      fade:  [.82, 1] },
+    { el: leftEl,   v: 'l',
+      travel: 1.15,   /* outruns the page — it is the nearer of the two */
+      advance: 280,   /* and grows harder for it: 1.39x */
+      tip:    -2,     /* the other way, so the pair never looks stamped */
+      fade:  [.74, .96] }
+  ];
 
   function paintDepth(p) {
-    if (!mascotEl) return;
     const a = reduced ? 0 : clamp01(p);
+    const vh = innerHeight || 0;
 
-    /* The group is a child of the hero, so it has already been moved -S by the
-       page. Travelling only HANG_BACK of that means giving back the rest. */
-    const behind = (1 - HANG_BACK) * a * (innerHeight || 0);
-
-    mascotEl.style.setProperty('--sx-my', behind.toFixed(1) + 'px');
-    mascotEl.style.setProperty('--sx-mz', (-a * RECEDE).toFixed(1) + 'px');
-    mascotEl.style.setProperty('--sx-mr', (a * TIP).toFixed(2) + 'deg');
-    /* It clears the top on its own at this rate, so the fade is only there to
-       catch the short viewports where it would otherwise still be around when
-       the hero has gone. */
-    mascotEl.style.setProperty('--sx-mo', (1 - clamp01((a - .82) / .18)).toFixed(3));
+    for (const s of SLABS) {
+      if (!s.el) continue;
+      /* Each slab is a child of the hero, so the page has already moved it -S.
+         Travelling its own share means giving back the difference — which is
+         negative for a slab that outruns the page. */
+      s.el.style.setProperty('--sx-' + s.v + 'y', ((1 - s.travel) * a * vh).toFixed(1) + 'px');
+      s.el.style.setProperty('--sx-' + s.v + 'z', (a * s.advance).toFixed(1) + 'px');
+      s.el.style.setProperty('--sx-' + s.v + 'r', (a * s.tip).toFixed(2) + 'deg');
+      s.el.style.setProperty('--sx-' + s.v + 'o',
+        (1 - clamp01((a - s.fade[0]) / (s.fade[1] - s.fade[0]))).toFixed(3));
+    }
   }
 
   /* How far the hero has travelled out of the viewport, 0-1. Rect-based rather

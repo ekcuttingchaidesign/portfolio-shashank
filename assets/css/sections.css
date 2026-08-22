@@ -1568,6 +1568,46 @@
 .sx-mascot:hover .sx-mascot-say,
 .sx-mascot:focus-within .sx-mascot-say { opacity: 1; transform: none; }
 
+/* --- the left slab ---------------------------------------------------------
+   The near half of the pair. Placed off the Figma's own numbers: x -168.13,
+   y 835.15, 496.3 x 213.0 within a 1920 x 1080 frame, which is what the
+   percentages below are.
+   -------------------------------------------------------------------------- */
+.sx-left-ledge {
+  position: absolute;
+  z-index: 2;
+  left: -8.76%;                 /* -168.13 of 1920 — it bleeds off the edge */
+  top: 77.33%;                  /*  835.15 of 1080 */
+  width: 25.85%;                /*  496.30 of 1920 */
+  height: auto;
+  pointer-events: none;
+  transform-origin: 30% 50%;
+  will-change: transform, opacity;
+}
+
+/* --- the float --------------------------------------------------------------
+   The slabs are not stuck to anything — they hang in the frame, and the drift
+   is what says so. It is also what lets them travel toward the camera while
+   the page pulls away without the two readings fighting: a thing that floats
+   is under no obligation to move with the page.
+
+   On `translate` and `rotate` rather than `transform`, deliberately. The scroll
+   owns `transform` and rewrites it every frame; these are separate properties
+   that compose with it, so an idle loop and a scrub can share one element
+   without either clobbering the other.
+
+   Amplitudes are small enough that you notice the slab is alive rather than
+   noticing the animation. Different periods and a negative delay on the second
+   so the two never swing together — synchronised drift reads as a mechanism,
+   not as floating. */
+@keyframes sx-drift {
+  0%, 100% { translate: 0    0;     rotate: 0deg;   }
+  33%      { translate: 2px  -7px;  rotate: .5deg;  }
+  66%      { translate: -2px 4px;   rotate: -.4deg; }
+}
+.sx-mascot     { animation: sx-drift 9.5s var(--sx-ease) infinite; }
+.sx-left-ledge { animation: sx-drift 13s var(--sx-ease) -4.5s infinite; }
+
 /* --- the flourish -----------------------------------------------------------
    The mark the Figma sets at the end of the supporting line. It draws itself in
    on the sub's own arrival — custom properties inherit, so --e is already the
@@ -1773,7 +1813,7 @@
   .sx-line-1 { max-width: 14ch; }
   /* The mascot needs the corner AND the room beside it for what it says; at
      this width it has neither, and it would sit on the nav. */
-  .sx-mascot { display: none; }
+  .sx-mascot, .sx-left-ledge { display: none; }
   /* Same relationship, smaller numbers: the capsule's reach shrinks with the
      pill so the clearance at the edges survives the narrow layout. */
   .sx-nav {
@@ -2149,6 +2189,14 @@
     rotate(var(--sx-mr, 0deg));
   transform-origin: 70% 30%;    /* about where the robot sits on the ledge */
 }
+
+/* The near slab, same shape of transform and the same one-body rule. */
+.sx-left-ledge {
+  opacity: calc(var(--t, 0) * var(--sx-lo, 1));
+  transform:
+    translate3d(0, var(--sx-ly, 0px), var(--sx-lz, 0px))
+    rotate(var(--sx-lr, 0deg));
+}
 .sx-mark    { opacity: var(--t, 0); transform: scale(var(--e, 0)); }
 .sx-stamp   { opacity: var(--t, 0); transform: scale(calc(0.8 + var(--b, 0) * 0.2)); }
 
@@ -2180,4 +2228,7 @@
   .sx-mascot-bot, .sx-mascot-ledge { transition: none; }
   /* The departure is a motion effect; the corner simply stays put. */
   .sx-mascot { --sx-mz: 0px; --sx-my: 0px; --sx-mr: 0deg; --sx-mo: 1; }
+  .sx-left-ledge { --sx-lz: 0px; --sx-ly: 0px; --sx-lr: 0deg; --sx-lo: 1; }
+  /* The drift is ambient motion with no information in it — first to go. */
+  .sx-mascot, .sx-left-ledge { animation: none; translate: none; rotate: none; }
 }
