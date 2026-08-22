@@ -899,8 +899,52 @@
     setRotating(!reduced && k >= 0.999);
   }
 
+  /* ------------------------------------------------------------------------
+     The corner's departure.
+     ------------------------------------------------------------------------
+     Once the headline lands the page holds for a long stretch while the
+     sentences cycle. The mascot spends the back half of that hold leaving: it
+     accelerates toward the camera and out past your shoulder, so the corner
+     empties itself deliberately instead of sliding away with the hero.
+
+     Real Z, not a scale that imitates it — .sx-hero-depth carries a 1000px
+     perspective off-centre, so the flight also drifts toward the corner it
+     leaves by, the way a thing passing you actually does.
+     ---------------------------------------------------------------------- */
+  const mascotEl = document.getElementById('sx-mascot');
+  const ledgeEl  = mascotEl ? mascotEl.querySelector('.sx-mascot-ledge') : null;
+
+  const GO_FROM    = .30;   /* where in the hold it starts to go */
+  const Z_FLIGHT   = 700;   /* px toward a camera that is 1000 away */
+  const LEDGE_LAG  = 180;   /* the ledge stays this far behind the robot ... */
+
+  function paintDepth(p) {
+    if (!mascotEl) return;
+    const t = reduced ? 0 : clamp01((clamp01(p) - GO_FROM) / (1 - GO_FROM));
+    /* Accelerating, not easing out: something coming at you covers the last
+       half of the distance in a fraction of the time, and an ease-out here read
+       as the mascot being dragged rather than leaving.
+
+       Quadratic, not cubic. Cubic on top of a late start put the entire flight
+       in the last sliver of the hold — nothing, nothing, then a lurch. This
+       still accelerates, but the drift is legible from the moment it begins. */
+    const a = t * t;
+
+    mascotEl.style.setProperty('--sx-mz', (a * Z_FLIGHT).toFixed(1) + 'px');
+    /* ... and because the ledge is a preserve-3d CHILD, its Z adds to the
+       group's. Staying behind therefore means a negative offset, not a
+       smaller positive one. */
+    if (ledgeEl) ledgeEl.style.setProperty('--sx-lz', (-a * LEDGE_LAG).toFixed(1) + 'px');
+
+    /* Gone before it reaches the camera plane. Past about here it is a blur of
+       orange filling the corner, and holding that reads as a bug. */
+    mascotEl.style.setProperty('--sx-mo', (1 - clamp01((a - .58) / .30)).toFixed(3));
+  }
+
   window.SX = window.SX || {};
   window.SX.hero = paintHero;
+  window.SX.depth = paintDepth;
+  paintDepth(0);
   paintHero(0);
 
   const heroEl = document.getElementById('sx-hero-layer');
@@ -1174,6 +1218,140 @@
       say.textContent = LINES[0];
     }
 
+    /* Everything from here to the pointer loop is NAVIGATION, not decoration,
+       so it is wired before the reduced-motion bail below. Someone who has
+       asked for less movement still needs the nav to work; what they lose is
+       the parallax and the lit grid, not the links. */
+
+    /* --- driving the pull-out --------------------------------------------
+       #s-exit is not a place, it is a film. Its height IS the timeline: the
+       scrub engine maps scroll position through the section onto the video's
+       currentTime. So "play it" here means moving the scrollbar through the
+       section at a steady rate and letting the film follow — this never
+       reaches into the scrub engine, it just supplies the number the engine
+       was already reading.
+
+       It runs to the END of the section, because that is where the desk
+       finishes rotating: the rotation occupies the last 55% of the film
+       (ROTATION_START = 0.45 in the page's own engine). Stopping at the
+       section's top would arrive at the film and then not play it.
+
+       Two legs on one clock — a short eased approach to get there, then a
+       LINEAR run through the film, because the section's height is the
+       timeline and an eased scroll here would be an eased playback speed.
+       ---------------------------------------------------------------------- */
+    let filmRaf = 0, filmOff = null;
+
+    function stopFilm() {
+      if (filmRaf) cancelAnimationFrame(filmRaf);
+      filmRaf = 0;
+      if (filmOff) { filmOff(); filmOff = null; }
+    }
+
+    function playFilm(sec) {
+      const travel = sec.offsetHeight - innerHeight;
+      /* Below the breakpoint the scrub sections unpin to 100vh and there is no
+         timeline left to run. Just go there. */
+      if (travel <= 0 || reduced) {
+        sec.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+        return;
+      }
+
+      const from  = pageYOffset;
+      const start = sec.offsetTop;            /* pExit = 0, the film's first frame */
+      const vid   = document.getElementById('v-exit');
+      /* 1.35x. The film reads as sluggish at 1x — the page's own click-to-dive
+         made the same call at 1.6x — but past about 1.5 the rotation is over
+         before you have registered it. */
+      const secs  = (vid && isFinite(vid.duration) && vid.duration ? vid.duration : 3.7) / 1.35;
+      const approachMs = Math.min(900, Math.max(320, Math.abs(start - from) * 0.22));
+      const filmMs = secs * 1000;
+      const t0 = performance.now();
+      const easeInOut = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+
+      /* Any real input hands the scrollbar straight back. Taking it from
+         someone who wants it is the one thing this must not do — so these
+         listen for intent (wheel, touch, a key, a press), never for the
+         scroll events this animation is itself producing. */
+      const bail = () => stopFilm();
+      const opts = { passive: true };
+      addEventListener('wheel', bail, opts);
+      addEventListener('touchstart', bail, opts);
+      addEventListener('pointerdown', bail, opts);
+      addEventListener('keydown', bail, opts);
+      filmOff = () => {
+        removeEventListener('wheel', bail, opts);
+        removeEventListener('touchstart', bail, opts);
+        removeEventListener('pointerdown', bail, opts);
+        removeEventListener('keydown', bail, opts);
+      };
+
+      const step = now => {
+        const ms = now - t0;
+        if (ms < approachMs) {
+          scrollTo(0, from + (start - from) * easeInOut(ms / approachMs));
+        } else {
+          const ft = clamp01((ms - approachMs) / filmMs);
+          scrollTo(0, start + travel * ft);
+          if (ft >= 1) { stopFilm(); return; }
+        }
+        filmRaf = requestAnimationFrame(step);
+      };
+      filmRaf = requestAnimationFrame(step);
+    }
+
+    /* --- the nav's glide -------------------------------------------------
+       One capsule for three items. Measured every time rather than cached: the
+       gaps and the padding are clamps, so they change with the viewport, and
+       the labels are webfont text, so they change again when Satoshi lands. */
+    const nav = document.getElementById('sx-nav');
+    if (nav) {
+      const glide = nav.querySelector('.sx-nav-glide');
+      const items = [...nav.querySelectorAll('.sx-nav-i')];
+      /* Read rather than repeated: the pill sizes its own padding off this same
+         property, so a literal here would let the two drift apart. */
+      const PAD = parseFloat(getComputedStyle(nav).getPropertyValue('--sx-nav-pad')) || 18;
+
+      /* Rects, not offsetLeft/offsetWidth. Those two round to whole pixels, and
+         the rounding does not cancel — the capsule came out about a pixel wider
+         on one side than the other, which is visible on a 200px radius against
+         the pill's edge. The glide is positioned from the nav's PADDING box
+         (that is what left:0 means for an absolute child), so the border has to
+         come off the measurement. */
+      const put = el => {
+        if (!glide || !el) return;
+        const nb = nav.getBoundingClientRect();
+        const eb = el.getBoundingClientRect();
+        const bl = parseFloat(getComputedStyle(nav).borderLeftWidth) || 0;
+        glide.style.setProperty('--gx', (eb.left - nb.left - bl - PAD).toFixed(2) + 'px');
+        glide.style.setProperty('--gw', (eb.width + PAD * 2).toFixed(2) + 'px');
+        glide.style.setProperty('--go', '1');
+      };
+      const clear = () => { if (glide) glide.style.setProperty('--go', '0'); };
+
+      items.forEach(el => {
+        el.addEventListener('pointerenter', () => put(el));
+        el.addEventListener('focus', () => put(el));
+        el.addEventListener('blur', clear);
+
+        /* Most of the sections are a long way down a scrubbed page, so hand
+           them to the browser's own smooth scroll rather than animating
+           scrollTop against an engine already driving off the same number.
+
+           #s-exit is the exception, and playFilm() below says why. */
+        el.addEventListener('click', ev => {
+          const id = (el.getAttribute('href') || '').slice(1);
+          const target = id && document.getElementById(id);
+          if (!target) return;                 /* let the anchor do whatever it does */
+          ev.preventDefault();
+          stopFilm();
+          if (id === 's-exit') playFilm(target);
+          else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+      nav.addEventListener('pointerleave', clear);
+    }
+
     if (reduced) return;
 
     /* --- the shared pointer loop ----------------------------------------- */
@@ -1242,52 +1420,5 @@
       if (trailing || ++idle < 10) raf = requestAnimationFrame(frame);
     }
 
-    /* --- the nav's glide -------------------------------------------------
-       One capsule for three items. Measured every time rather than cached: the
-       gaps and the padding are clamps, so they change with the viewport, and
-       the labels are webfont text, so they change again when Satoshi lands. */
-    const nav = document.getElementById('sx-nav');
-    if (nav) {
-      const glide = nav.querySelector('.sx-nav-glide');
-      const items = [...nav.querySelectorAll('.sx-nav-i')];
-      /* Read rather than repeated: the pill sizes its own padding off this same
-         property, so a literal here would let the two drift apart. */
-      const PAD = parseFloat(getComputedStyle(nav).getPropertyValue('--sx-nav-pad')) || 18;
-
-      /* Rects, not offsetLeft/offsetWidth. Those two round to whole pixels, and
-         the rounding does not cancel — the capsule came out about a pixel wider
-         on one side than the other, which is visible on a 200px radius against
-         the pill's edge. The glide is positioned from the nav's PADDING box
-         (that is what left:0 means for an absolute child), so the border has to
-         come off the measurement. */
-      const put = el => {
-        if (!glide || !el) return;
-        const nb = nav.getBoundingClientRect();
-        const eb = el.getBoundingClientRect();
-        const bl = parseFloat(getComputedStyle(nav).borderLeftWidth) || 0;
-        glide.style.setProperty('--gx', (eb.left - nb.left - bl - PAD).toFixed(2) + 'px');
-        glide.style.setProperty('--gw', (eb.width + PAD * 2).toFixed(2) + 'px');
-        glide.style.setProperty('--go', '1');
-      };
-      const clear = () => { if (glide) glide.style.setProperty('--go', '0'); };
-
-      items.forEach(el => {
-        el.addEventListener('pointerenter', () => put(el));
-        el.addEventListener('focus', () => put(el));
-        el.addEventListener('blur', clear);
-
-        /* The sections are a long way down a scrubbed page, so hand it to the
-           browser's own smooth scroll rather than animating scrollTop against
-           an engine that is already driving the film off the same number. */
-        el.addEventListener('click', ev => {
-          const id = (el.getAttribute('href') || '').slice(1);
-          const target = id && document.getElementById(id);
-          if (!target) return;                 /* let the anchor do whatever it does */
-          ev.preventDefault();
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      });
-      nav.addEventListener('pointerleave', clear);
-    }
   })();
 })();

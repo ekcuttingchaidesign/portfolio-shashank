@@ -1158,6 +1158,15 @@
   align-content: center;
   padding-block: clamp(6rem, 14vh, 10rem) clamp(5rem, 12vh, 8rem);
   transform-style: preserve-3d;
+  /* A camera for the layer's OWN children. The preserve-3d above cannot serve
+     them — `overflow: hidden` on this element flattens it, per the spec — so a
+     translateZ on the mascot would otherwise be a no-op. This perspective still
+     applies to children regardless of that flattening.
+
+     Origin left of centre and high, so the corner's flight reads as going past
+     your right shoulder rather than straight down the middle. */
+  perspective: 1000px;
+  perspective-origin: 42% 38%;
   will-change: transform, opacity, filter;
   overflow: hidden;
 }
@@ -1355,15 +1364,23 @@
   display: flex;
   align-items: center;
   gap: clamp(1rem, 3vw, 3.1rem);
-  /* How far the hover capsule reaches past a label. One number, read back by
-     the script, so the capsule and the pill can never disagree about it. */
-  --sx-nav-pad: 18px;
-  /* The pill's own inset is that reach plus a constant margin, so the capsule
-     keeps the same clearance from the pill's edge at EVERY width. Tying it to
-     a bare clamp let the two collapse toward each other as the viewport
-     narrowed, and the last item's capsule crowded the right edge. */
-  padding: clamp(.68rem, 1.5vh, 1.1rem)
-           calc(var(--sx-nav-pad) + clamp(.75rem, 1.4vw, 1.35rem));
+  /* Three numbers describe the whole pill, and the pill's padding is derived
+     from them rather than set independently — that is what keeps the capsule
+     optically centred in it.
+
+       --sx-nav-pad   how far the capsule reaches past a label, horizontally
+       --sx-nav-vpad  the same, vertically
+       --sx-nav-inset the gap between the capsule and the pill's edge
+
+     The inset is ONE number used on all four sides, so the space above a
+     highlighted item matches the space beside it. Previously the sides carried
+     a clamp and the top carried a different one, and the capsule sat in a
+     letterbox — correct on the horizontal, loose on the vertical. */
+  --sx-nav-pad:   13px;
+  --sx-nav-vpad:   8px;
+  --sx-nav-inset:  7px;
+  padding: calc(var(--sx-nav-vpad) + var(--sx-nav-inset))
+           calc(var(--sx-nav-pad)  + var(--sx-nav-inset));
   border-radius: 200px;
   background: rgba(122,122,122,.2);
   border: 1px solid rgba(244,241,236,.09);
@@ -1395,7 +1412,8 @@
   position: absolute;
   z-index: 0;
   left: 0; top: 50%;
-  height: calc(100% - 14px);
+  /* The same inset top and bottom as the pill leaves at the sides. */
+  height: calc(100% - var(--sx-nav-inset) * 2);
   width: var(--gw, 0px);
   border-radius: 200px;
   background: rgba(244,241,236,.11);
@@ -1422,6 +1440,11 @@
   width: clamp(148px, 14.5vw, 262px);
   aspect-ratio: 252 / 528;      /* the Figma group's own box */
   pointer-events: auto;
+  /* Its children share the depth layer's camera rather than being flattened
+     into the group, which is the only way the ledge and the robot can sit at
+     different distances and separate as they leave. Safe here: nothing on this
+     element clips, so preserve-3d is honoured. */
+  transform-style: preserve-3d;
   will-change: transform, opacity;
 }
 /* No render on disk, no corner. A ledge with nobody sitting on it is worse than
@@ -1434,7 +1457,8 @@
   top: 30.10%;                  /* 159 of 528.2 */
   width: 86.89%;                /* 218.6 of 251.6 — flush with the right edge */
   height: 69.90%;               /* 369.2 of 528.2 */
-  transform: translate3d(var(--sx-apx, 0px), 0, 0);
+  /* --sx-apx is the pointer's parallax, --sx-lz the scroll departure. */
+  transform: translate3d(var(--sx-apx, 0px), 0, var(--sx-lz, 0px));
   transition: transform .6s var(--sx-ease);
 }
 
@@ -1746,9 +1770,10 @@
   /* Same relationship, smaller numbers: the capsule's reach shrinks with the
      pill so the clearance at the edges survives the narrow layout. */
   .sx-nav {
-    --sx-nav-pad: 11px;
+    --sx-nav-pad:  9px;
+    --sx-nav-vpad: 6px;
+    --sx-nav-inset: 5px;
     gap: 1rem;
-    padding: .6rem calc(var(--sx-nav-pad) + .5rem);
   }
   .sx-nav-i { font-size: .6rem; letter-spacing: .1em; }
 }
@@ -2090,12 +2115,19 @@
   opacity: var(--t, 0);
   transform: translateX(-50%) translateY(calc((1 - var(--e, 0)) * -14px));
 }
+/* Arrival, pointer parallax and scroll departure in ONE transform — a second
+   rule would silently drop the first. --sx-mz is the group's flight toward the
+   camera as the hero is left behind; the ledge adds its own --sx-lz on top, so
+   the robot outruns the thing it is sitting on.
+
+   The opacity is a product for the same reason: --t is the arrival's, --sx-mo
+   the departure's, and neither may overwrite the other. */
 .sx-mascot {
-  opacity: var(--t, 0);
+  opacity: calc(var(--t, 0) * var(--sx-mo, 1));
   transform: translate3d(
     var(--sx-mpx, 0px),
     calc(var(--sx-mpy, 0px) + (1 - var(--e, 0)) * -26px),
-    0);
+    var(--sx-mz, 0px));
 }
 .sx-mark    { opacity: var(--t, 0); transform: scale(var(--e, 0)); }
 .sx-stamp   { opacity: var(--t, 0); transform: scale(calc(0.8 + var(--b, 0) * 0.2)); }
@@ -2127,4 +2159,7 @@
   /* The pointer-lit grid is a motion effect; the base grid stays. */
   .sx-rules-lit { display: none; }
   .sx-mascot-bot, .sx-mascot-ledge { transition: none; }
+  /* The departure is a motion effect; the corner simply stays put. */
+  .sx-mascot { --sx-mz: 0px; --sx-mo: 1; }
+  .sx-mascot-ledge { --sx-lz: 0px; }
 }
