@@ -1170,11 +1170,16 @@
      reads as the corner rushing the camera and overflowing its own corner,
      which keeps it on screen for as long as the hero is still travelling. */
   perspective: 1000px;
-  /* Back to the middle. With one object on each edge, an origin near either
-     one would push that one straight out of frame while barely moving the
-     other; from the centre, both drift outward past their own shoulder as they
-     come forward, symmetrically. */
-  perspective-origin: 50% 42%;
+  /* The camera axis, and it runs BETWEEN the two shapes on purpose. Everything
+     that makes them part as you scroll comes from here: a shape left of this
+     axis moving toward the lens slides further left and grows, one to the right
+     slides right. Nothing animates that divergence — it is the projection
+     doing it, which is why both shapes take identical numbers in the script.
+
+     Vertically it sits between their two centres (the perch is low, the U-shape
+     high), so the pair opens symmetrically rather than one being flung twice as
+     far as the other. */
+  perspective-origin: 50% 41.5%;
   will-change: transform, opacity, filter;
   overflow: hidden;
 }

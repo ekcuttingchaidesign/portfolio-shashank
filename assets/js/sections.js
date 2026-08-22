@@ -947,42 +947,51 @@
      in the stylesheet is what establishes that in the first second you look.
      Depth cues that disagree are worse than none; these agree because the
      premise underneath them changed. */
+  /* ONE near layer, holding both shapes, with the hero behind it. That is the
+     model the reference works on and it is not what was here before: the last
+     pass gave the two shapes different rates and read the parallax BETWEEN
+     them. Wrong axis. The parallax that matters is between this layer and the
+     page — the two shapes belong to the same plane, so they share a depth, a
+     rate and an advance, and everything that separates them comes from where
+     they sit relative to the camera.
+
+     What sells it is that the camera pushes FORWARD. Under a perspective whose
+     origin is between them, a shape left of that axis coming toward you slides
+     further left and grows; one to the right slides right. They part, and you
+     go through the gap. That divergence is not animated anywhere below — it
+     falls out of the projection, which is why both entries are identical.
+
+     Vertical travel is deliberately low. At the page's own rate the pair would
+     be dragged off the TOP before the advance had done anything, and being
+     carried up is exactly the "not towards the screen" this is fixing. Held
+     back, they leave by the sides instead, which is the whole picture. */
+  const LAYER = {
+    travel:  .50,   /* of the page's own — the layer lags, the dolly does the rest */
+    advance: 620,   /* px toward a camera 1000 out: the pair grows to 2.6x */
+    fade:  [.86, 1]
+  };
   const SLABS = [
-    /* The perch is the NEAR one now, and it sits low — which is what the swap
-       to opposite corners bought. Starting at 36% down the viewport it has most
-       of the screen to climb before it clears the top, so it can outrun the
-       page by a quarter and still be watchable the whole way. */
-    { el: mascotEl, v: 'm',
-      travel: 1.24,   /* outruns the page — the nearer of the two */
-      advance: 260,   /* px toward a camera 1000 out: grows to 1.35x */
-      tip:    -2.5,   /* mirrored with the art */
-      fade:  [.80, 1] },
-    /* The counterweight is the FAR one, high on the opposite edge, and it hangs
-       back at less than half the perch's rate. 1.24 against 0.48 is the point
-       of the whole rearrangement: two shapes covering the same scroll at two
-       and a half times the difference, on opposite sides of the frame where
-       neither can hide the other. */
-    { el: ushapeEl, v: 'l',
-      travel:  .48,
-      advance: 120,   /* and grows least for it: 1.14x */
-      tip:     2,     /* the other way, so the pair never looks stamped */
-      fade:  [.78, .98] }
+    { el: mascotEl, v: 'm', tip: -2.5 },   /* tips are character, not depth: */
+    { el: ushapeEl, v: 'l', tip:  2   }    /* the pair never looks stamped */
   ];
 
   function paintDepth(p) {
     const a = reduced ? 0 : clamp01(p);
     const vh = innerHeight || 0;
 
+    /* One set of numbers, applied to both — they are the same layer. */
+    const y = ((1 - LAYER.travel) * a * vh).toFixed(1) + 'px';
+    const z = (a * LAYER.advance).toFixed(1) + 'px';
+    const o = (1 - clamp01((a - LAYER.fade[0]) / (LAYER.fade[1] - LAYER.fade[0]))).toFixed(3);
+
     for (const s of SLABS) {
       if (!s.el) continue;
-      /* Each slab is a child of the hero, so the page has already moved it -S.
-         Travelling its own share means giving back the difference — which is
-         negative for a slab that outruns the page. */
-      s.el.style.setProperty('--sx-' + s.v + 'y', ((1 - s.travel) * a * vh).toFixed(1) + 'px');
-      s.el.style.setProperty('--sx-' + s.v + 'z', (a * s.advance).toFixed(1) + 'px');
+      /* Each shape is a child of the hero, so the page has already moved it -S.
+         Travelling only its share means giving the difference back. */
+      s.el.style.setProperty('--sx-' + s.v + 'y', y);
+      s.el.style.setProperty('--sx-' + s.v + 'z', z);
+      s.el.style.setProperty('--sx-' + s.v + 'o', o);
       s.el.style.setProperty('--sx-' + s.v + 'r', (a * s.tip).toFixed(2) + 'deg');
-      s.el.style.setProperty('--sx-' + s.v + 'o',
-        (1 - clamp01((a - s.fade[0]) / (s.fade[1] - s.fade[0]))).toFixed(3));
     }
   }
 
