@@ -940,6 +940,19 @@
   const Z_FLIGHT    = 330;  /* px toward a camera that is 1000 away */
   const LEDGE_LAG   = 90;   /* the ledge stays this far behind the robot ... */
 
+  /* --- the parallax proper ---------------------------------------------
+     Depth alone was never going to do this. A translateZ changes how BIG a
+     thing is; parallax is about how FAR it travels. Both pieces were riding the
+     hero at exactly the page's rate, so they grew at slightly different rates
+     while moving in perfect lockstep — which is a sticker on a page, not two
+     objects at two distances. Hence "it feels like it's scrolling plainly".
+
+     These are fractions of the hero's own travel. The robot, being nearest,
+     covers MORE ground than the page; the ledge, being furthest, covers less.
+     The gap between them is what the eye reads as depth. */
+  const LEAD  = .10;   /* robot travels this much faster than the page */
+  const TRAIL = .16;   /* ledge travels this much slower than the page */
+
   /* Those two numbers together are the only thing that sets how FAST the corner
      appears to move, and the pair matters more than either alone: what the eye
      reads is Z travelled per pixel scrolled.
@@ -971,10 +984,18 @@
        Depth does the acceleration for free anyway. Apparent size under
        perspective is P / (P - z), so a Z that tracks the scroll linearly still
        LOOKS like something accelerating past you. The curve was never needed. */
-    const a = reduced ? 0 : clamp01(clamp01(bp) / DEPART_SPAN);
-    const l = reduced ? 0 : clamp01(clamp01(lp) / DEPART_SPAN);
+    if (reduced) bp = lp = 0;
+    const a = clamp01(clamp01(bp) / DEPART_SPAN);
+    const l = clamp01(clamp01(lp) / DEPART_SPAN);
 
     mascotEl.style.setProperty('--sx-mz', (a * Z_FLIGHT).toFixed(1) + 'px');
+
+    /* Travel, in px of the hero's own. Negative is up — the robot outruns the
+       page it is sitting on. Driven off the followers rather than the raw
+       scroll, so the trailing edge applies to the parallax too. */
+    const vh   = innerHeight || 0;
+    const yBot = -LEAD * clamp01(bp) * vh;
+    mascotEl.style.setProperty('--sx-my', yBot.toFixed(1) + 'px');
     /* The ledge is a preserve-3d CHILD, so its Z ADDS to the group's — this has
        to undo the group's and state its own. Its own is short by LEDGE_LAG (it
        sits further from the camera) and late by whatever the slower follower
@@ -982,6 +1003,11 @@
     if (ledgeEl) {
       const own = l * (Z_FLIGHT - LEDGE_LAG);
       ledgeEl.style.setProperty('--sx-lz', (own - a * Z_FLIGHT).toFixed(1) + 'px');
+      /* Same subtraction on the vertical: the ledge is a child, so it inherits
+         the group's travel and has to undo it before stating its own. Its own
+         is DOWN relative to the page — it is falling behind. */
+      const yLedge = TRAIL * clamp01(lp) * vh;
+      ledgeEl.style.setProperty('--sx-ly', (yLedge - yBot).toFixed(1) + 'px');
     }
 
     /* Dissolved by the time it reaches the top edge, rather than being cut off

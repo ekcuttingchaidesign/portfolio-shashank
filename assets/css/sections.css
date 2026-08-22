@@ -1484,11 +1484,17 @@
   height: 69.90%;               /* 369.2 of 528.2 */
   /* --sx-apx is the pointer's parallax, --sx-lz the scroll departure.
 
+     --sx-ly is the parallax proper: the ledge travels UP more slowly than the
+     page does, which is the whole of what makes it read as further away. Depth
+     alone never did it — a translateZ only changes how big a thing is, and two
+     objects growing at slightly different rates while travelling at identical
+     rates still read as one sticker on the page.
+
      No transition. This transform is now written every frame from two separate
      followers in the script, and a 600ms ease on top of that would not read as
      lag, it would read as syrup — the transition would still be catching up to
      a value that had already moved on. The smoothing lives in one place. */
-  transform: translate3d(var(--sx-apx, 0px), 0, var(--sx-lz, 0px));
+  transform: translate3d(var(--sx-apx, 0px), var(--sx-ly, 0px), var(--sx-lz, 0px));
 }
 
 .sx-mascot-bot {
@@ -2126,7 +2132,7 @@
   opacity: calc(var(--t, 0) * var(--sx-mo, 1));
   transform: translate3d(
     var(--sx-mpx, 0px),
-    calc(var(--sx-mpy, 0px) + (1 - var(--e, 0)) * -26px),
+    calc(var(--sx-mpy, 0px) + var(--sx-my, 0px) + (1 - var(--e, 0)) * -26px),
     var(--sx-mz, 0px));
 }
 .sx-mark    { opacity: var(--t, 0); transform: scale(var(--e, 0)); }
@@ -2159,6 +2165,6 @@
   .sx-rules-lit { display: none; }
   .sx-mascot-bot, .sx-mascot-ledge { transition: none; }
   /* The departure is a motion effect; the corner simply stays put. */
-  .sx-mascot { --sx-mz: 0px; --sx-mo: 1; }
-  .sx-mascot-ledge { --sx-lz: 0px; }
+  .sx-mascot { --sx-mz: 0px; --sx-my: 0px; --sx-mo: 1; }
+  .sx-mascot-ledge { --sx-lz: 0px; --sx-ly: 0px; }
 }

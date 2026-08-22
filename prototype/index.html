@@ -89,10 +89,11 @@
   /* Scrub travel = height - 100vh, so these are (100vh + film length x SCRUB_VH_PER_SEC).
      JS overwrites them from the real durations once metadata lands; these values are
      the no-JS fallback, sized for the clips we currently ship (3.0s and 3.7s). */
-  /* 100vh + film (3.0s x 90) + HERO_VH. JS overwrites this from the real
-     duration once metadata lands; this is the no-JS / pre-metadata fallback and
-     it has to include the boot tail or the terminal types at the wrong rate. */
-  #s-enter { height: 783vh; }
+  /* 100vh + film (3.0s x 90) + HERO_VH + HERO_HOLD_VH. JS overwrites this from
+     the real duration once metadata lands; this is the no-JS / pre-metadata
+     fallback and it has to include the boot tail or the terminal types at the
+     wrong rate. Keep it in step with HERO_HOLD_VH below. */
+  #s-enter { height: 613vh; }
   #s-exit  { height: 435vh; }
 
   /* ---------- hero ---------- */
@@ -1171,7 +1172,17 @@
   // and look at it. That is also why the three sentences never cycled: rotation
   // only starts once the arrival is complete, and until now "complete" and "gone"
   // were the same scroll position.
-  const HERO_HOLD_VH = 260;
+  /* How long the landed hero stays pinned before it starts to leave. This is
+     the only stretch of the page where scrolling changes nothing — the hero is
+     stuck to the top and the sentences cycle on a timer, not on scroll — so it
+     is dead scroll by construction and 260vh of it was two and a half screens
+     of the scrollbar moving against a still picture.
+
+     90vh is about one flick: the headline lands, holds long enough to be read,
+     and starts leaving. The rotator is unaffected; it runs on its own clock
+     whenever the hero is up, so a slow reader still sees the sentences change
+     and a fast one is no longer made to wait for them. */
+  const HERO_HOLD_VH = 90;
 
   // The click-to-dive plays this many times faster than 1x. 1.0 is the film's
   // true speed (what it was doing before, and what read as sluggish).
