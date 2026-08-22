@@ -903,9 +903,9 @@
      The corner's departure.
      ------------------------------------------------------------------------
      Once the headline lands the page holds for a long stretch while the
-     sentences cycle. The mascot spends the back half of that hold leaving: it
-     accelerates toward the camera and out past your shoulder, so the corner
-     empties itself deliberately instead of sliding away with the hero.
+     sentences cycle. The corner leaves across that hold, tied directly to the
+     scrollbar: it starts on the first pixel past the arrival, moves only while
+     you move, and stops dead when you do. Scroll back up and it comes back.
 
      Real Z, not a scale that imitates it — .sx-hero-depth carries a 1000px
      perspective off-centre, so the flight also drifts toward the corner it
@@ -914,21 +914,26 @@
   const mascotEl = document.getElementById('sx-mascot');
   const ledgeEl  = mascotEl ? mascotEl.querySelector('.sx-mascot-ledge') : null;
 
-  const GO_FROM    = .30;   /* where in the hold it starts to go */
-  const Z_FLIGHT   = 700;   /* px toward a camera that is 1000 away */
-  const LEDGE_LAG  = 180;   /* the ledge stays this far behind the robot ... */
+  const Z_FLIGHT   = 760;   /* px toward a camera that is 1000 away */
+  const LEDGE_LAG  = 195;   /* the ledge stays this far behind the robot ... */
 
   function paintDepth(p) {
     if (!mascotEl) return;
-    const t = reduced ? 0 : clamp01((clamp01(p) - GO_FROM) / (1 - GO_FROM));
-    /* Accelerating, not easing out: something coming at you covers the last
-       half of the distance in a fraction of the time, and an ease-out here read
-       as the mascot being dragged rather than leaving.
+    /* Straight off the scrollbar: no dead zone in front of it and no curve on
+       top of it. The corner starts moving on the first pixel of scroll past the
+       arrival and keeps moving for exactly as long as you keep scrolling.
 
-       Quadratic, not cubic. Cubic on top of a late start put the entire flight
-       in the last sliver of the hold — nothing, nothing, then a lurch. This
-       still accelerates, but the drift is legible from the moment it begins. */
-    const a = t * t;
+       Both of those were wrong before. A gate meant a stretch of scrolling that
+       did nothing, and then a flight that ran on its own clock — the corner
+       took its turn and handed the page back, which is the opposite of moving
+       WITH the scroll. Easing on top made it worse: an eased position against a
+       linear input is, by definition, the corner disagreeing with your hand.
+
+       Depth does the acceleration for free anyway. Apparent size under
+       perspective is P / (P - z), so a Z that tracks the scroll linearly still
+       LOOKS like something accelerating past you. The curve was never needed. */
+    const t = reduced ? 0 : clamp01(p);
+    const a = t;
 
     mascotEl.style.setProperty('--sx-mz', (a * Z_FLIGHT).toFixed(1) + 'px');
     /* ... and because the ledge is a preserve-3d CHILD, its Z adds to the
@@ -936,9 +941,10 @@
        smaller positive one. */
     if (ledgeEl) ledgeEl.style.setProperty('--sx-lz', (-a * LEDGE_LAG).toFixed(1) + 'px');
 
-    /* Gone before it reaches the camera plane. Past about here it is a blur of
-       orange filling the corner, and holding that reads as a bug. */
-    mascotEl.style.setProperty('--sx-mo', (1 - clamp01((a - .58) / .30)).toFixed(3));
+    /* Gone before it reaches the camera plane. It has already cleared the frame
+       by roughly here, so this only catches the wide-and-short viewports where
+       the corner still has somewhere to be. */
+    mascotEl.style.setProperty('--sx-mo', (1 - clamp01((a - .62) / .26)).toFixed(3));
   }
 
   window.SX = window.SX || {};
