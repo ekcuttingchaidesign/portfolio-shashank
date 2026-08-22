@@ -902,10 +902,27 @@
   /* ------------------------------------------------------------------------
      The corner's departure.
      ------------------------------------------------------------------------
-     Once the headline lands the page holds for a long stretch while the
-     sentences cycle. The corner leaves across that hold, tied directly to the
-     scrollbar: it starts on the first pixel past the arrival, moves only while
-     you move, and stops dead when you do. Scroll back up and it comes back.
+     The corner leaves WITH the hero, and the choice of what drives it is the
+     whole point.
+
+     #s-enter is 783vh with a 100vh sticky .hero inside it. For the first 683vh
+     of that the hero is pinned: the scrollbar moves and the picture does not.
+     Driving the flight off progress through that stretch — which is what the
+     hold is — meant the mascot was the only thing on screen that moved, so it
+     read as the corner scrolling INSTEAD of the page. It had finished leaving
+     while the headline was still dead centre, mid-sentence-rotation.
+
+     So it is driven off the section's own rect instead. The hero unpins when
+     #s-enter's bottom edge reaches the fold, and travels out over the last
+     100vh — that window is the only scroll on this page that actually moves
+     the hero, and it is exactly the window this reads:
+
+         0  bottom at or below the fold — pinned, corner sits still
+         1  bottom at the top of the screen — section gone, corner gone
+
+     Read raw off the rect, with no smoothing of its own. The rest of the page
+     lerps toward its targets, but a lag between the hand and the corner is the
+     precise complaint this is fixing.
 
      Real Z, not a scale that imitates it — .sx-hero-depth carries a 1000px
      perspective off-centre, so the flight also drifts toward the corner it
@@ -914,8 +931,15 @@
   const mascotEl = document.getElementById('sx-mascot');
   const ledgeEl  = mascotEl ? mascotEl.querySelector('.sx-mascot-ledge') : null;
 
-  const Z_FLIGHT   = 760;   /* px toward a camera that is 1000 away */
-  const LEDGE_LAG  = 195;   /* the ledge stays this far behind the robot ... */
+  /* The corner is pinned to the TOP of the hero, so it rides off the top of the
+     screen as the hero travels — measured, it is half gone a fifth of the way
+     through the exit and down to 8% by halfway. The flight therefore has to
+     FINISH inside the part of the exit where there is still something to look
+     at; spending it across the whole exit meant most of it played out on a
+     thing that had already left. */
+  const DEPART_SPAN = .34;  /* of the hero's exit — the corner's visible share */
+  const Z_FLIGHT    = 620;  /* px toward a camera that is 1000 away */
+  const LEDGE_LAG   = 165;  /* the ledge stays this far behind the robot ... */
 
   function paintDepth(p) {
     if (!mascotEl) return;
@@ -932,8 +956,7 @@
        Depth does the acceleration for free anyway. Apparent size under
        perspective is P / (P - z), so a Z that tracks the scroll linearly still
        LOOKS like something accelerating past you. The curve was never needed. */
-    const t = reduced ? 0 : clamp01(p);
-    const a = t;
+    const a = reduced ? 0 : clamp01(clamp01(p) / DEPART_SPAN);
 
     mascotEl.style.setProperty('--sx-mz', (a * Z_FLIGHT).toFixed(1) + 'px');
     /* ... and because the ledge is a preserve-3d CHILD, its Z adds to the
@@ -941,16 +964,35 @@
        smaller positive one. */
     if (ledgeEl) ledgeEl.style.setProperty('--sx-lz', (-a * LEDGE_LAG).toFixed(1) + 'px');
 
-    /* Gone before it reaches the camera plane. It has already cleared the frame
-       by roughly here, so this only catches the wide-and-short viewports where
-       the corner still has somewhere to be. */
-    mascotEl.style.setProperty('--sx-mo', (1 - clamp01((a - .62) / .26)).toFixed(3));
+    /* Dissolved by the time it reaches the top edge, rather than being cut off
+       by it. Over the back half of the flight, so the corner is still solid
+       while it is still worth seeing. */
+    mascotEl.style.setProperty('--sx-mo', (1 - clamp01((a - .45) / .55)).toFixed(3));
   }
+
+  /* How far the hero has travelled out of the viewport, 0-1. Rect-based rather
+     than scroll-arithmetic so it needs no knowledge of the section's height,
+     the film's duration, or where the engine thinks the hold ended. */
+  const sEnterEl = document.getElementById('s-enter');
+  function departure() {
+    if (!sEnterEl) return 0;
+    const r = sEnterEl.getBoundingClientRect();
+    return innerHeight > 0 ? clamp01(1 - r.bottom / innerHeight) : 0;
+  }
+
+  /* Its own listener, not the film engine's loop. That loop parks once its two
+     progress values stop changing, and both have saturated by the time the hero
+     starts leaving — so it is asleep for exactly the window this needs. */
+  let depthRaf = 0;
+  const depthTick = () => { depthRaf = 0; paintDepth(departure()); };
+  const wakeDepth = () => { if (!depthRaf) depthRaf = requestAnimationFrame(depthTick); };
+  addEventListener('scroll', wakeDepth, { passive: true });
+  addEventListener('resize', wakeDepth, { passive: true });
 
   window.SX = window.SX || {};
   window.SX.hero = paintHero;
   window.SX.depth = paintDepth;
-  paintDepth(0);
+  paintDepth(departure());
   paintHero(0);
 
   const heroEl = document.getElementById('sx-hero-layer');

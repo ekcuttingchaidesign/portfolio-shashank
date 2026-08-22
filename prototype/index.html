@@ -1498,14 +1498,10 @@
     // in both directions.
     if (window.SX && window.SX.hero) window.SX.hero(pHero);
 
-    // The hold: everything after the arrival has finished, 0-1. The headline
-    // sits here cycling its sentences, and it is where the corner makes its
-    // exit — so the depth channel gets its own number rather than reusing
-    // pHero, which has already saturated by this point.
-    if (window.SX && window.SX.depth) {
-      const span = 1 - S.heroEnd;
-      window.SX.depth(span > 0 ? Math.min(Math.max((pEnter - S.heroEnd) / span, 0), 1) : 0);
-    }
+    // (The corner's depth used to be driven from here, off the hold. It is not
+    // any more: the hold is scroll during which the sticky hero does not move,
+    // so anything animated against it appears to move INSTEAD of the page.
+    // sections.js now reads the section's rect directly — see paintDepth.)
 
     // The approach bridges two beats — the film's last stretch and the hero's
     // arrival — so it gets its own 0-1 across exactly that span. Handing it raw

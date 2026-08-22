@@ -1163,10 +1163,14 @@
      translateZ on the mascot would otherwise be a no-op. This perspective still
      applies to children regardless of that flattening.
 
-     Origin left of centre and high, so the corner's flight reads as going past
-     your right shoulder rather than straight down the middle. */
+     The origin sits NEAR the corner it serves, not at the middle of the frame.
+     A distant origin turns translateZ mostly into lateral travel — the mascot
+     shot sideways out of the frame within a quarter of the hero's exit, which
+     is a thing leaving early, not a thing leaving with you. Close to it, the Z
+     reads as the corner rushing the camera and overflowing its own corner,
+     which keeps it on screen for as long as the hero is still travelling. */
   perspective: 1000px;
-  perspective-origin: 42% 38%;
+  perspective-origin: 78% 26%;
   will-change: transform, opacity, filter;
   overflow: hidden;
 }
