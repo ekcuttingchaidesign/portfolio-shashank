@@ -1344,15 +1344,26 @@
    it reads as glass over the wash instead of as a coloured chip.
    -------------------------------------------------------------------------- */
 .sx-nav {
-  position: absolute;
-  z-index: 4;
+  /* Fixed, not absolute — it floats over the whole page rather than riding the
+     hero out of view. This only works because the element sits at body level;
+     see the note in the markup. */
+  position: fixed;
+  z-index: 80;      /* over the hero layer (5) and the debug hud (20) */
   top: clamp(1.1rem, 3.4vh, 2.3rem);
   left: 50%;
   pointer-events: auto;
   display: flex;
   align-items: center;
   gap: clamp(1rem, 3vw, 3.1rem);
-  padding: clamp(.68rem, 1.5vh, 1.1rem) clamp(1.3rem, 2.4vw, 2.4rem);
+  /* How far the hover capsule reaches past a label. One number, read back by
+     the script, so the capsule and the pill can never disagree about it. */
+  --sx-nav-pad: 18px;
+  /* The pill's own inset is that reach plus a constant margin, so the capsule
+     keeps the same clearance from the pill's edge at EVERY width. Tying it to
+     a bare clamp let the two collapse toward each other as the viewport
+     narrowed, and the last item's capsule crowded the right edge. */
+  padding: clamp(.68rem, 1.5vh, 1.1rem)
+           calc(var(--sx-nav-pad) + clamp(.75rem, 1.4vw, 1.35rem));
   border-radius: 200px;
   background: rgba(122,122,122,.2);
   border: 1px solid rgba(244,241,236,.09);
@@ -1732,7 +1743,13 @@
   /* The mascot needs the corner AND the room beside it for what it says; at
      this width it has neither, and it would sit on the nav. */
   .sx-mascot { display: none; }
-  .sx-nav { gap: 1rem; padding: .6rem 1.1rem; }
+  /* Same relationship, smaller numbers: the capsule's reach shrinks with the
+     pill so the clearance at the edges survives the narrow layout. */
+  .sx-nav {
+    --sx-nav-pad: 11px;
+    gap: 1rem;
+    padding: .6rem calc(var(--sx-nav-pad) + .5rem);
+  }
   .sx-nav-i { font-size: .6rem; letter-spacing: .1em; }
 }
 

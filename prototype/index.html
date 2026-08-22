@@ -520,17 +520,6 @@
              width="1024" height="1024" decoding="async">
       </p>
 
-      <!-- The three items are the three sections that exist. "Outside work" has
-           no section of its own yet, so it lands on the archive — which is
-           where the film and the two things that play currently live. Move it
-           the moment that section is real. -->
-      <nav class="sx-nav" id="sx-nav" aria-label="Sections">
-        <span class="sx-nav-glide" aria-hidden="true"></span>
-        <a class="sx-nav-i" href="#sx-work">Work</a>
-        <a class="sx-nav-i" href="#sx-exp">Experience</a>
-        <a class="sx-nav-i" href="#sx-archive">Outside work</a>
-      </nav>
-
       <!-- The mascot, perched on the corner exactly where the Figma puts it.
            Two exported pieces, both placed by the numbers the Figma group gives
            them rather than by eye — see the percentages in sections.css. The
@@ -1123,6 +1112,23 @@
   </section>
 
 </div>
+
+<!-- The nav floats, so it lives out here at body level rather than inside the
+     hero. That is not a preference: .sx-hero-layer carries a perspective and
+     .sx-hero-depth a transform, and either one turns a position:fixed
+     descendant back into position:absolute — the pill would have scrolled away
+     with the hero. Out here nothing establishes a containing block for it.
+
+     It still arrives on the hero's clock; sections.js looks it up by id and
+     appends it to the same step list, and gates its pointer-events so an
+     invisible pill never eats a click over the film. -->
+<nav class="sx-nav" id="sx-nav" aria-label="Sections">
+  <span class="sx-nav-glide" aria-hidden="true"></span>
+  <a class="sx-nav-i" href="#sx-work">Work</a>
+  <a class="sx-nav-i" href="#sx-exp">Experience</a>
+  <!-- The pull-out: the out-of-the-screen film, where the desk rotates. -->
+  <a class="sx-nav-i" href="#s-exit">Outside work</a>
+</nav>
 
 <div class="hud" id="hud"></div>
 

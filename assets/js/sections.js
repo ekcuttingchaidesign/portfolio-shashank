@@ -511,8 +511,21 @@
     ['.sx-stamp',                .84, 1.0],
     ['.sx-ticker',               .88, 1.0]
   ];
+  /* The nav floats, so it is fixed to the viewport and therefore lives at body
+     level — a transformed or perspective'd ancestor would turn position:fixed
+     back into position:absolute, and .sx-hero-layer is both. It still arrives
+     on the hero's clock, so it is looked up on its own and joins the same list.
+
+     `gate` marks it as needing its pointer-events driven too: out here it is no
+     longer covered by the layer's own none/auto switch, and a pill at zero
+     opacity would still swallow clicks over the film. */
+  const navFloat = document.getElementById('sx-nav');
   const heroNodes = HERO_STEPS.map(([sel, a, b]) => ({
-    els: heroLayer ? [...heroLayer.querySelectorAll(sel)] : [], a, b,
+    els: sel === '.sx-nav'
+      ? (navFloat ? [navFloat] : [])
+      : (heroLayer ? [...heroLayer.querySelectorAll(sel)] : []),
+    a, b,
+    gate: sel === '.sx-nav',
     /* Whose value is this once the hero has landed? Anything inside a copy is
        handed to the rotator; everything else stays the arrival's for good. */
     copyOwned: sel.indexOf('.sx-copy') === 0
@@ -865,6 +878,7 @@
           el.style.setProperty('--b', (t <= 0 ? 0 : t >= 1 ? 1 : backOut(t)).toFixed(3));
           /* --s is the spring: the same progress, arriving instead of easing. */
           el.style.setProperty('--s', wordSpring(t).toFixed(3));
+          if (n.gate) el.style.pointerEvents = t > .9 ? 'auto' : 'none';
         }
       }
 
@@ -1236,12 +1250,23 @@
     if (nav) {
       const glide = nav.querySelector('.sx-nav-glide');
       const items = [...nav.querySelectorAll('.sx-nav-i')];
-      const PAD = 18;   /* how far the capsule reaches past the label */
+      /* Read rather than repeated: the pill sizes its own padding off this same
+         property, so a literal here would let the two drift apart. */
+      const PAD = parseFloat(getComputedStyle(nav).getPropertyValue('--sx-nav-pad')) || 18;
 
+      /* Rects, not offsetLeft/offsetWidth. Those two round to whole pixels, and
+         the rounding does not cancel — the capsule came out about a pixel wider
+         on one side than the other, which is visible on a 200px radius against
+         the pill's edge. The glide is positioned from the nav's PADDING box
+         (that is what left:0 means for an absolute child), so the border has to
+         come off the measurement. */
       const put = el => {
         if (!glide || !el) return;
-        glide.style.setProperty('--gx', (el.offsetLeft - PAD) + 'px');
-        glide.style.setProperty('--gw', (el.offsetWidth + PAD * 2) + 'px');
+        const nb = nav.getBoundingClientRect();
+        const eb = el.getBoundingClientRect();
+        const bl = parseFloat(getComputedStyle(nav).borderLeftWidth) || 0;
+        glide.style.setProperty('--gx', (eb.left - nb.left - bl - PAD).toFixed(2) + 'px');
+        glide.style.setProperty('--gw', (eb.width + PAD * 2).toFixed(2) + 'px');
         glide.style.setProperty('--go', '1');
       };
       const clear = () => { if (glide) glide.style.setProperty('--go', '0'); };
