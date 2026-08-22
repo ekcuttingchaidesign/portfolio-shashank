@@ -1171,14 +1171,27 @@
    that moves is the lit copy of the grid.
    -------------------------------------------------------------------------- */
 
+/* The field is one surface. It is a sibling of .sx-hero-depth rather than a
+   child of it, because the depth layer travels along Z and this must not: a
+   background on a translateZ'd element shows you the element, and what you see
+   is a shrunk, blurred board flying at the camera instead of a page.
+
+   Everything inside holds a fixed opacity and the wrapper carries the single
+   arrival, so the three layers come up together as one thing. */
+.sx-hero-field {
+  position: absolute; inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;    /* the bloom is bigger than the frame it lights */
+}
+
 /* The frame is not black at the top. It is #232323 falling to black by a bit
-   under halfway, which is what gives the copy something to be lit against.
-   Tied to --e rather than painted flat, so during the dive the hero is still
-   arriving onto the film's own last frame and this is not yet on. */
+   under halfway, which is what gives the copy something to be lit against. */
 .sx-hero-wash {
   position: absolute; inset: 0;
   z-index: 0;
   pointer-events: none;
+  opacity: .92;
   background: linear-gradient(#232323 0%, #0B0B0A 44%, #000 70%);
 }
 
@@ -1197,7 +1210,10 @@
   background: radial-gradient(closest-side,
     rgba(255,240,230,.17), rgba(255,238,226,.07) 45%, transparent 72%);
   filter: blur(26px);
-  will-change: transform, opacity;
+  /* Centring plus the pointer's drift. The arrival is the field's now, so
+     nothing here reads --e. */
+  transform: translate(calc(-50% + var(--sx-gpx, 0px)), -56%);
+  will-change: transform;
 }
 
 /* Drafting furniture, now a real field. The Figma rules it at 60px on both
@@ -2045,22 +2061,11 @@
   transform: translateY(calc((1 - var(--e, 0)) * 14px));
 }
 .sx-corner  { opacity: var(--t, 0); transform: translateY(calc((1 - var(--e, 0)) * -8px)); }
-.sx-rules   { opacity: calc(var(--e, 0) * .55); }
 
-/* The wash comes up with the field rather than with the frame: during the dive
-   the hero is still landing on the film's last frame, and painting #232323
-   over that would end the film a beat early. */
-.sx-hero-wash { opacity: calc(var(--e, 0) * .92); }
-
-/* The bloom's transform is its own centring — left:46% puts its left edge
-   there, not its middle — plus the last of a scale-up, so it opens outward
-   instead of simply appearing at full size. */
-.sx-hero-glow {
-  opacity: var(--t, 0);
-  transform:
-    translate(calc(-50% + var(--sx-gpx, 0px)), -56%)
-    scale(calc(.92 + var(--e, 0) * .08));
-}
+/* ONE window for the whole field, so the wash, the bloom and the grid come up
+   as a single surface rather than as three fades you could count. The parts
+   hold fixed opacities of their own; this is the only thing that animates. */
+.sx-hero-field { opacity: var(--e, 0); }
 
 /* Both of these carry a pointer offset as well as an arrival one, so the two
    live in a single transform — a second rule would silently drop the first. */
@@ -2086,16 +2091,16 @@
 @media (prefers-reduced-motion: reduce) {
   .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
   .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub, .sx-corner,
-  .sx-rules, .sx-mark, .sx-stamp, .sx-ticker,
-  .sx-hero-wash, .sx-hero-glow, .sx-nav, .sx-mascot {
+  .sx-mark, .sx-stamp, .sx-ticker, .sx-nav, .sx-mascot {
     opacity: 1 !important; filter: none !important;
   }
+  .sx-hero-field { opacity: 1 !important; }
   /* These three need their placement kept — it lives in the same transform the
      arrival animates, so `transform: none` would put the pill and the bloom in
      the wrong corner rather than simply still. */
   .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
   .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub, .sx-corner,
-  .sx-rules, .sx-mark, .sx-stamp, .sx-ticker, .sx-mascot {
+  .sx-mark, .sx-stamp, .sx-ticker, .sx-mascot {
     transform: none !important;
   }
   .sx-nav       { transform: translateX(-50%) !important; }

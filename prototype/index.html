@@ -473,21 +473,34 @@
            Being a layer here makes the whole thing reversible: scroll back and
            the hero recedes along Z and the frames come back underneath it. -->
       <div class="sx-hero-layer" id="sx-hero-layer">
-        <div class="sx-hero-depth" id="sx-hero-depth">
-      <!-- Background field, back to front. The Figma frame builds the top of
-           the page out of three things the stand-in didn't have: a warm-grey
-           wash falling to black, a wide bloom bleeding in from above the top
-           edge, and a real 60px grid rather than three rules at 25/50/75. -->
-      <div class="sx-hero-wash" aria-hidden="true"></div>
-      <div class="sx-hero-glow" aria-hidden="true"></div>
+        <!-- Background field, back to front: a warm-grey wash falling to black, a
+           wide bloom bleeding in from above the top edge, and a real 60px grid.
 
-      <div class="sx-rules" aria-hidden="true">
-        <!-- The same grid again, brighter, revealed only through a soft disc
-             that follows the pointer. Two static layers and one moving mask
-             composite in a single paint; lighting real cells would cost a node
-             per cell and a layout read per frame, for the same picture. -->
-        <span class="sx-rules-lit"></span>
+           OUTSIDE .sx-hero-depth, and that placement is the whole point. The
+           depth layer travels translateZ(-560 -> 0) under a 1100px perspective,
+           so it spends the arrival rendering at about two-thirds scale with a
+           blur on it. That is invisible while it is transparent — you only see
+           the type it carries. Paint a background on it and you see the element
+           itself: a shrunken, soft-edged board flying at the camera, which
+           reads as a Figma frame arriving rather than as a page.
+
+           So the field sits still and full-bleed, and the hero flies in on top
+           of it. It also fades as ONE thing on one window, rather than three
+           layers on three, because it is one surface and should arrive like
+           one. -->
+      <div class="sx-hero-field" id="sx-hero-field" aria-hidden="true">
+        <div class="sx-hero-wash"></div>
+        <div class="sx-hero-glow"></div>
+        <div class="sx-rules">
+          <!-- The same grid again, brighter, revealed only through a soft disc
+               that follows the pointer. Two static layers and one moving mask
+               composite in a single paint; lighting real cells would cost a
+               node per cell and a layout read per frame, for the same picture. -->
+          <span class="sx-rules-lit"></span>
+        </div>
       </div>
+
+      <div class="sx-hero-depth" id="sx-hero-depth">
       <span class="sx-mark" style="left:25%; top:26%" aria-hidden="true"></span>
       <span class="sx-mark" style="left:75%; top:26%" aria-hidden="true"></span>
       <span class="sx-mark" style="left:50%; top:74%" aria-hidden="true"></span>

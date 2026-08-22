@@ -482,29 +482,34 @@
      or four pieces are in motion, which is what makes it read as one move
      rather than as a queue. */
   const HERO_STEPS = [
-    /* The field first — wash, bloom, grid — because everything after it needs
-       something to be lit against. The frame's furniture comes in on top of
-       that, and only then does a word of the headline start. */
-    ['.sx-hero-wash',            .00, .30],
-    ['.sx-hero-glow',            .00, .36],
-    ['.sx-corner[data-at="tl"]', .00, .26],
-    ['.sx-rules',                .00, .34],
-    ['.sx-mark',                 .06, .36],
-    ['.sx-nav',                  .08, .38],
+    /* The ground, alone, and finished before anything stands on it. The field
+       is one element on one window, so the wash, the bloom and the grid arrive
+       as a single surface — the page acquires a ground, and only then does the
+       furniture appear on it. Overlapping this with the copy made the two read
+       as one event and the ground never registered as its own.
+
+       It is also the one step outside .sx-hero-depth, so it does not travel
+       along Z with everything below. */
+    ['.sx-hero-field',           .00, .24],
+
+    /* The frame's furniture, on the ground the field just laid down. */
+    ['.sx-corner[data-at="tl"]', .20, .42],
+    ['.sx-mark',                 .22, .44],
+    ['.sx-nav',                  .24, .46],
     /* Last of the periphery: it is the only coloured thing on the frame, so it
        lands after the greys have settled rather than leading them in. */
-    ['.sx-mascot',               .12, .46],
+    ['.sx-mascot',               .28, .52],
     /* Scoped to the first copy. The other two are stacked in the same cell and
        must stay at nothing until the rotator has the floor — an unscoped
        selector here would arrive all three sentences on top of each other. */
-    ['.sx-copy[data-copy="0"] .sx-w1',  .16, .44],
-    ['.sx-face',                        .28, .58],
-    ['.sx-copy[data-copy="0"] .sx-w2',  .36, .64],
-    ['.sx-copy[data-copy="0"] .sx-w3',  .44, .72],
-    ['.sx-copy[data-copy="0"] .sx-em',  .54, .92],
-    ['.sx-hero-sub',             .68, .94],
-    ['.sx-stamp',                .80, 1.0],
-    ['.sx-ticker',               .84, 1.0]
+    ['.sx-copy[data-copy="0"] .sx-w1',  .30, .52],
+    ['.sx-face',                        .40, .66],
+    ['.sx-copy[data-copy="0"] .sx-w2',  .46, .70],
+    ['.sx-copy[data-copy="0"] .sx-w3',  .52, .76],
+    ['.sx-copy[data-copy="0"] .sx-em',  .60, .94],
+    ['.sx-hero-sub',             .72, .96],
+    ['.sx-stamp',                .84, 1.0],
+    ['.sx-ticker',               .88, 1.0]
   ];
   const heroNodes = HERO_STEPS.map(([sel, a, b]) => ({
     els: heroLayer ? [...heroLayer.querySelectorAll(sel)] : [], a, b,
