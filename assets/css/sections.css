@@ -1382,8 +1382,11 @@
 
 /* --- the mascot -------------------------------------------------------------
    Perched on the top-right corner and bleeding off the right edge, as drawn.
-   The arrow is authored here because it is four straight edges in two flat
-   greens; the robot is a render and has to be the real file.
+   Two exported pieces, and every number below is the Figma group's own: the
+   frame is 251.6 x 528.2, the render sits at (0,0) at 225 x 218, and the ledge
+   at (33,159) at 218.6 x 369.2. Those divide out to the percentages here, so
+   the two stay registered to each other at every width instead of drifting
+   apart the way an eyeballed offset would.
    -------------------------------------------------------------------------- */
 .sx-mascot {
   position: absolute;
@@ -1394,35 +1397,44 @@
   pointer-events: auto;
   will-change: transform, opacity;
 }
-/* No art on disk, no corner. An arrow with nobody sitting on it is worse than
+/* No render on disk, no corner. A ledge with nobody sitting on it is worse than
    the empty corner the hero already knows how to look right in. */
 .sx-mascot[data-art="missing"] { display: none; }
 
-.sx-mascot-arrow {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
+.sx-mascot-ledge {
+  position: absolute;
+  left: 13.11%;                 /* 33 of 251.6 */
+  top: 30.10%;                  /* 159 of 528.2 */
+  width: 86.89%;                /* 218.6 of 251.6 — flush with the right edge */
+  height: 69.90%;               /* 369.2 of 528.2 */
   transform: translate3d(var(--sx-apx, 0px), 0, 0);
   transition: transform .6s var(--sx-ease);
 }
-.sx-arrow-face { fill: #5BC271; }
-.sx-arrow-fold { fill: #2E8C49; }
 
 .sx-mascot-bot {
   position: absolute;
   top: 0; left: 0;
-  width: 89.3%;                 /* 225 of the group's 252 */
+  width: 89.42%;                /* 225 of 251.6 */
   height: auto;
-  transform-origin: 62% 92%;    /* where it meets the arrow, so it rocks on its seat */
+  /* Down on the shoes, which is where it meets the ledge — so it rocks on its
+     seat rather than pivoting somewhere inside its own chest. */
+  transform-origin: 46% 96%;
   transition: transform .5s var(--sx-ease);
 }
 .sx-mascot:hover .sx-mascot-bot,
 .sx-mascot:focus-within .sx-mascot-bot { transform: translateY(-7px) rotate(-2.6deg); }
 
-/* Antenna ping. Nothing is on screen at rest — the dot is transparent until the
-   animation runs, and the animation only exists under hover. */
+/* The render already carries a pair of yellow "!!" marks off its top corner.
+   This fires a ring from behind them rather than adding a second signal
+   somewhere else, so on hover the marks themselves read as going off.
+
+   Nothing is on screen at rest — the dot is transparent until the animation
+   runs, and the animation only exists under hover. */
 .sx-mascot-ping {
   position: absolute;
-  top: 3.4%; left: 62%;
+  /* Centred on the marks: they sit at (79.3%, 9.4%) of the render, the render
+     is 89.42% x 41.35% of the group, and the dot is 9px across. */
+  top: 3%; left: 69%;
   width: 9px; height: 9px;
   border-radius: 50%;
   background: var(--sx-key);
@@ -2092,5 +2104,5 @@
   .sx-flourish path { stroke-dashoffset: 0 !important; }
   /* The pointer-lit grid is a motion effect; the base grid stays. */
   .sx-rules-lit { display: none; }
-  .sx-mascot-bot, .sx-mascot-arrow { transition: none; }
+  .sx-mascot-bot, .sx-mascot-ledge { transition: none; }
 }

@@ -1114,9 +1114,10 @@
     const mascot = document.getElementById('sx-mascot');
 
     /* --- the robot's art -------------------------------------------------
-       The arrow is drawn in the markup; the robot is a render that has to be
-       exported out of the Figma and dropped in public/img. Until it is, the
-       corner stays empty rather than showing an arrow with nothing on it.
+       Both pieces are exports under public/img. The ledge is the cheap half —
+       an SVG, and inert if it 404s — so the render is what the corner is
+       tested on: without it there is a ledge with nobody on it, which is worse
+       than no corner at all.
 
        Checked rather than assumed, because `error` does not fire for an image
        the browser has already finished failing to load by the time this runs. */
@@ -1208,10 +1209,10 @@
         if (mascot) {
           mascot.style.setProperty('--sx-mpx', (cx * -13).toFixed(1) + 'px');
           mascot.style.setProperty('--sx-mpy', (cy * -8).toFixed(1) + 'px');
-          const arrow = mascot.querySelector('.sx-mascot-arrow');
-          /* The arrow lags the robot, so the two separate slightly as the
+          const ledge = mascot.querySelector('.sx-mascot-ledge');
+          /* The ledge lags the robot, so the two separate slightly as the
              pointer crosses and the corner reads as having depth. */
-          if (arrow) arrow.style.setProperty('--sx-apx', (cx * 5).toFixed(1) + 'px');
+          if (ledge) ledge.style.setProperty('--sx-apx', (cx * 5).toFixed(1) + 'px');
         }
       }
 

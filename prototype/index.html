@@ -519,24 +519,21 @@
       </nav>
 
       <!-- The mascot, perched on the corner exactly where the Figma puts it.
-           Three pieces, and only one of them is art: the arrow is drawn here
-           because it is four straight edges and two flat greens, and the robot
-           is a render that has to be the real file.
+           Two exported pieces, both placed by the numbers the Figma group gives
+           them rather than by eye — see the percentages in sections.css. The
+           ledge is behind the robot in the DOM because the robot sits ON it;
+           its shoes overlap the top edge by about a ninth of the group.
 
-           If that file isn't on disk the whole group hides itself rather than
-           leaving an arrow with nobody sitting on it — see sx-mascot in
+           If the render isn't on disk the whole group hides itself rather than
+           leaving a ledge with nobody sitting on it — see sx-mascot in
            sections.js. The corner simply goes back to being empty, which is a
            state the rest of the hero already handles. -->
       <div class="sx-mascot" id="sx-mascot" data-art="pending">
-        <svg class="sx-mascot-arrow" viewBox="0 0 252 528" fill="none"
-             aria-hidden="true" preserveAspectRatio="xMaxYMin meet">
-          <!-- Front face, then the folded facet that gives it its thickness. -->
-          <path class="sx-arrow-face" d="M100 148 L252 150 L252 205 L131 507 L22 217 Z"/>
-          <path class="sx-arrow-fold" d="M185 150 L252 150 L252 203 L206 266 Z"/>
-        </svg>
+        <img class="sx-mascot-ledge" src="../public/img/right_side_ledge.svg"
+             alt="" width="219" height="370" decoding="async">
 
         <img class="sx-mascot-bot" src="../public/img/mascot.png" alt=""
-             width="1274" height="1234" decoding="async">
+             width="450" height="436" decoding="async">
 
         <!-- Antenna ping and the thing it says. Both are hover-only and both
              are empty until then, so nothing here is on screen at rest. -->
