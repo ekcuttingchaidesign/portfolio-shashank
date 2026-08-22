@@ -936,9 +936,25 @@
      FINISH inside the part of the exit where there is still something to look
      at; spending it across the whole exit meant most of it played out on a
      thing that had already left. */
-  const DEPART_SPAN = .34;  /* of the hero's exit — the corner's visible share */
-  const Z_FLIGHT    = 620;  /* px toward a camera that is 1000 away */
-  const LEDGE_LAG   = 165;  /* the ledge stays this far behind the robot ... */
+  const DEPART_SPAN = .46;  /* of the hero's exit that the flight is spread over */
+  const Z_FLIGHT    = 330;  /* px toward a camera that is 1000 away */
+  const LEDGE_LAG   = 90;   /* the ledge stays this far behind the robot ... */
+
+  /* Those two numbers together are the only thing that sets how FAST the corner
+     appears to move, and the pair matters more than either alone: what the eye
+     reads is Z travelled per pixel scrolled.
+
+       620px over 0.34 of a 100vh exit  =  2.17 px of Z per px of scroll
+       330px over 0.46                  =  0.85
+
+     — two and a half times slower. Cutting the travel alone would have made it
+     gentler but no less abrupt; spreading it over more of the exit is what
+     takes the hurry out.
+
+     The ceiling on the travel is the projection, not taste. Apparent size is
+     P/(P-z), which runs away as z approaches the camera: at 620 the corner
+     finished at 2.6x and the last third of that happened in a few frames. 330
+     tops out at 1.5x, where the growth is still accelerating but never bolts. */
 
   function paintDepth(bp, lp) {
     if (!mascotEl) return;
