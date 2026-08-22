@@ -949,9 +949,13 @@
 
      These are fractions of the hero's own travel. The robot, being nearest,
      covers MORE ground than the page; the ledge, being furthest, covers less.
-     The gap between them is what the eye reads as depth. */
-  const LEAD  = .10;   /* robot travels this much faster than the page */
-  const TRAIL = .16;   /* ledge travels this much slower than the page */
+     The gap between them is what the eye reads as depth.
+
+     Eased back now the group is smaller: the same px of separation is a much
+     bigger fraction of a 165px object than of a 218px one, and at the old rates
+     the robot came off the ledge it is supposed to be sitting on. */
+  const LEAD  = .07;   /* robot travels this much faster than the page */
+  const TRAIL = .12;   /* ledge travels this much slower than the page */
 
   /* Those two numbers together are the only thing that sets how FAST the corner
      appears to move, and the pair matters more than either alone: what the eye

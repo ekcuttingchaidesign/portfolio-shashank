@@ -1170,7 +1170,7 @@
      reads as the corner rushing the camera and overflowing its own corner,
      which keeps it on screen for as long as the hero is still travelling. */
   perspective: 1000px;
-  perspective-origin: 78% 26%;
+  perspective-origin: 82% 27%;
   will-change: transform, opacity, filter;
   overflow: hidden;
 }
@@ -1461,8 +1461,19 @@
 .sx-mascot {
   position: absolute;
   z-index: 3;
-  top: 0; right: 0;
-  width: clamp(148px, 14.5vw, 262px);
+  right: 0;
+  /* Down off the top edge, and smaller. Both are about being able to SEE the
+     parallax rather than about composition: flush at top:0 the robot begins
+     already clipped, so the moment it starts outrunning the ledge it is
+     travelling through screen it does not have — the relative motion happens
+     off-frame. The headroom here is the distance over which that separation is
+     actually visible.
+
+     Smaller for the same reason. At 218px the group filled its corner, and two
+     shapes that big moving 40px apart read as one shape wobbling; at 165 the
+     gap between them is a real fraction of the thing. */
+  top: clamp(4.5rem, 10vh, 7.5rem);
+  width: clamp(112px, 11vw, 200px);
   aspect-ratio: 252 / 528;      /* the Figma group's own box */
   pointer-events: auto;
   /* Its children share the depth layer's camera rather than being flattened
