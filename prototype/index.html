@@ -1124,6 +1124,15 @@
        is the part that makes it read as a lit surface rather than as a blur. -->
   <span class="sx-nav-sheen" aria-hidden="true"></span>
 
+  <!-- The refraction. Glass does not merely blur what is behind it, it BENDS
+       it, and most at the edges where the surface curves away — that bend is
+       what separates a piece of glass from a frosted rectangle. This layer is
+       masked to the rim and carries the displacement filter below, so the page
+       behind visibly wobbles as it passes under the pill's edge. Where the
+       browser cannot run an SVG filter on a backdrop it simply paints nothing
+       and the pill is a blurred one; the CSS keeps it that way deliberately. -->
+  <span class="sx-nav-refract" aria-hidden="true"></span>
+
   <!-- The portrait lives in the pill now rather than in the page's corner. It
        carries the "you are at the top" state: ringed and lit while the hero is
        up, and quietly along for the ride once you are into the sections. -->
@@ -1160,6 +1169,44 @@
       <rect x="10" y="6" width="5" height="14"/>
     </svg>
   </span>
+
+  <!-- The lens. Soft low-frequency noise used as a displacement map, which is
+       how you bend a backdrop in a browser: the two channels push each pixel of
+       what is behind the pill sideways and up by a few pixels, unevenly, the
+       way an imperfect thickness of glass does. Low baseFrequency and a blur
+       over the noise keep it a slow swell rather than the sandpaper a raw
+       fractal gives. sRGB, because a displacement map read in linear light
+       biases the whole warp one way. -->
+  <svg class="sx-glass-defs" aria-hidden="true" focusable="false" width="0" height="0">
+    <!-- The face. A gentle swell across the whole pill: what is behind it does
+         not sit still under the glass, it leans. -->
+    <filter id="sx-glass-warp" x="-12%" y="-40%" width="124%" height="180%"
+            color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.009 0.016" numOctaves="2"
+                    seed="9" result="sx-noise"/>
+      <feGaussianBlur in="sx-noise" stdDeviation="1.8" result="sx-noise-soft"/>
+      <feDisplacementMap in="SourceGraphic" in2="sx-noise-soft" scale="14"
+                         xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- The rim. The same map pushed harder and over a shorter wavelength,
+         because the bend in a piece of glass is steepest where it curves away
+         at the edge. Only the ring layer wears this one. -->
+    <filter id="sx-glass-rim" x="-25%" y="-60%" width="150%" height="220%"
+            color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.016 0.03" numOctaves="1"
+                    seed="4" result="sx-rim-noise"/>
+      <feGaussianBlur in="sx-rim-noise" stdDeviation="1.1" result="sx-rim-soft"/>
+      <feDisplacementMap in="SourceGraphic" in2="sx-rim-soft" scale="14"
+                         xChannelSelector="R" yChannelSelector="G" result="sx-rim-bent"/>
+      <!-- A touch of lift on the bent band, so the rim reads as catching light
+           as well as bending it. -->
+      <feComponentTransfer in="sx-rim-bent">
+        <feFuncR type="linear" slope="1.05" intercept="0.008"/>
+        <feFuncG type="linear" slope="1.05" intercept="0.008"/>
+        <feFuncB type="linear" slope="1.05" intercept="0.008"/>
+      </feComponentTransfer>
+    </filter>
+  </svg>
 </nav>
 
 <div class="hud" id="hud"></div>
