@@ -1475,6 +1475,34 @@
     return Math.min(Math.max(-r.top / travel, 0), 1);
   }
 
+  /* Where the hero IS, as a scroll position.
+     ------------------------------------------------------------------------
+     The hero is not a section you can scroll to. It is a stretch of #s-enter's
+     timeline: the film plays over the first share, the composition assembles
+     along Z over the next, and then it holds. So "take me to the hero" is a
+     number on that timeline, not an element, and only this scope knows the
+     split — shares() is computed from the film's real duration.
+
+     The answer is just past heroEnd, a sixth of the way into the hold. At
+     heroEnd exactly the arrival lands on its final frame and any rounding
+     leaves you at 0.998 of it, with the last word still settling; a sixth in,
+     the picture is finished, the sentences are cycling, and there is hold left
+     on both sides so the landing does not sit on a cliff.
+
+     Below the breakpoint the scrub sections unpin to 100vh and there is no
+     timeline to land on — the hero is simply assembled once the section's top
+     is up, which is what the section's own offset gives. */
+  function heroY() {
+    if (!sEnter) return 0;
+    const travel = sEnter.offsetHeight - innerHeight;
+    if (travel <= 0) return sEnter.offsetTop;
+    const S = shares();
+    const p = S.heroEnd + (1 - S.heroEnd) / 6;
+    return Math.round(sEnter.offsetTop + travel * p);
+  }
+  window.SX = window.SX || {};
+  window.SX.heroY = heroY;
+
   /* ---------- hero exit ----------
      An eased 0-1 ramp across a window of scroll progress. */
   function ramp(p, a, b) {

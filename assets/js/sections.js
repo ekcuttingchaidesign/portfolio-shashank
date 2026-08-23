@@ -1441,10 +1441,16 @@
       const clear = () => { if (glide) glide.style.setProperty('--go', '0'); };
 
       /* --- the way home ----------------------------------------------
-         The portrait goes to the top. Not scrollIntoView on #s-enter: that
-         section is a scrubbed timeline whose top is somewhere above the
-         document's, and landing on it would leave the hero part-played. 0 is
-         the only position where the hero is at its first frame.
+         The portrait goes to the HERO — the assembled headline — not to the
+         top of the document. Those are different places on this page: #s-enter
+         holds the whole entry as one timeline, and 0 is the film's first frame,
+         a screen of black with the dive still ahead of it. The hero arrives
+         later along that same timeline, so the target is a position on it, and
+         the page's own engine is the only thing that knows where: SX.heroY()
+         computes it from the film's real duration. Falling back on the
+         section's top rather than on 0, because if that engine has not started
+         yet the section top is still nearer the hero than the film's first
+         frame is.
 
          stopFilm() first, for the same reason the labels call it — if the
          pull-out is mid-playback it owns the scrollbar, and a smooth scroll
@@ -1454,7 +1460,11 @@
         home.addEventListener('click', ev => {
           ev.preventDefault();
           stopFilm();
-          scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+          const enterEl = document.getElementById('s-enter');
+          const y = window.SX && typeof window.SX.heroY === 'function'
+            ? window.SX.heroY()
+            : (enterEl ? enterEl.offsetTop : 0);
+          scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' });
         });
       }
 
