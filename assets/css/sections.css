@@ -1019,7 +1019,7 @@
   justify-content: center;
   /* The marks are sized in em, so this font-size is the one dial for the whole
      lockup — wordmark and marks scale together and never drift apart. */
-  font-size: clamp(1.9rem, 4.1vw, 4rem);
+  font-size: clamp(1.7rem, 3.55vw, 3.5rem);
   gap: .62em;
   padding-block: clamp(5rem, 12vh, 9rem) clamp(2.2rem, 5vh, 3.6rem);
 }
@@ -1043,7 +1043,9 @@
      it once; a permanent halo repeats the point for the rest of the page and
      the Figma draws them flat anyway. */
 }
-.sx-feat-pix-r { scale: -1 1; }
+/* The mirror sits on the LEFT mark: the pair reads outward from the wordmark,
+   not inward. One file still draws both. */
+.sx-feat-pix-l { scale: -1 1; }
 
 /* Power-on. Three stepped frames rather than a fade, because a pixel mark that
    eases in is not a pixel mark — it is a gradient. Runs once, on arrival. */
@@ -1063,6 +1065,24 @@
 .sx-feat {
   position: relative;
   margin-bottom: clamp(4rem, 9vh, 7rem);
+  /* The corner maths below is a function of the CARD's width, not the
+     viewport's, so the card has to be the query container. Nothing on this
+     element may use the cqw values it declares — an element is never its own
+     container — and nothing does: they are all read by the panels inside. */
+  container-type: inline-size;
+
+  --sx-feat-pad: clamp(8px, .82vw, 12px);
+  --sx-feat-gap: clamp(8px, .95vw, 14px);
+  /* What the cover actually renders at: its share of the row once the shell's
+     own padding and the gap have come out. */
+  --sx-cover-w: calc((100cqw - 2 * var(--sx-feat-pad) - var(--sx-feat-gap)) * 928 / 1429);
+  /* The export carries its own corner in its alpha — the top row of the
+     928-wide file is transparent out to x=34, so roughly a 40px radius, or
+     4.31% of its width. A second radius from CSS can only agree with that at
+     one exact viewport; everywhere else the art's rounder corner exposes the
+     plate behind it as a dark crescent. So the radius is derived from the
+     export instead of chosen, and the two curves are one curve at every width. */
+  --sx-feat-r: calc(var(--sx-cover-w) * 0.0431);
 }
 
 /* The light the cover throws on the wall. A sibling and not a background: it
@@ -1098,9 +1118,12 @@
   z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 928fr) minmax(0, 501fr);
-  gap: clamp(8px, .95vw, 14px);
-  padding: clamp(8px, .82vw, 12px);
-  border-radius: clamp(18px, 1.7vw, 26px);
+  gap: var(--sx-feat-gap);
+  padding: var(--sx-feat-pad);
+  /* Concentric with the panels it holds — a shell whose corner is not the
+     panel's corner plus the padding reads as two unrelated rectangles. */
+  border-radius: 26px;
+  border-radius: calc(var(--sx-feat-r) + var(--sx-feat-pad));
   background:
     linear-gradient(180deg, rgba(243,244,246,.05) 0%, rgba(243,244,246,0) 34%),
     #0B0B0A;
@@ -1116,10 +1139,16 @@
   overflow: hidden;
   aspect-ratio: 928 / 718;
   min-height: 0;
-  border-radius: clamp(10px, 1.1vw, 17px);
-  background: #0E0E0D;
+  border-radius: 17px;
+  border-radius: var(--sx-feat-r);
+  /* No ground of its own. The export is cut against the card, so what shows
+     inside its corner has to be the card — a plate colour here is the dark
+     crescent by another name. The reserved-plate state paints its own. */
+  background: transparent;
   isolation: isolate;
 }
+.sx-feat-cover[data-art="pending"],
+.sx-feat-cover[data-art="missing"] { background: #0E0E0D; }
 .sx-feat-art {
   position: absolute; inset: 0; z-index: 0;
   width: 100%; height: 100%;
@@ -1235,7 +1264,8 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  border-radius: clamp(10px, 1.1vw, 17px);
+  border-radius: 17px;
+  border-radius: var(--sx-feat-r);
   padding:
     clamp(1.3rem, 2.4vw, 2.4rem)
     clamp(1.3rem, 2.3vw, 2.25rem)
@@ -1245,12 +1275,36 @@
      own centres (72% / 19% and 33% / 77% of the panel). Gradients, not
      elements: two paint operations against two more nodes to composite. */
   background:
-    radial-gradient(38% 26% at 72% 19%, rgba(243,244,246,.075), transparent 70%),
-    radial-gradient(44% 30% at 33% 77%, rgba(243,244,246,.055), transparent 72%),
+    radial-gradient(38% 26% at 72% 19%, rgba(243,244,246,.06), transparent 70%),
     linear-gradient(155deg, #1A1A19 0%, #121211 46%, #0B0B0B 100%);
-  box-shadow: inset 0 0 0 1px rgba(243,244,246,.05);
   isolation: isolate;
 }
+/* The bottom-left bloom. A real blurred disc rather than a radial-gradient,
+   because that is what the source is: Figma's Container Glow 2 — a 153 circle
+   at (90, 480) of the 501 x 718 panel, carrying a 360 layer blur. Figma's blur
+   radius is about twice CSS's sigma, hence 180px against the panel's own width.
+   Clipped by the panel, the way the frame clips it there. */
+.sx-feat-side::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 33%;                    /* (90 + 76.5) of 501 */
+  top: 77.5%;                   /* (480 + 76.5) of 718 */
+  width: 30.5%;                 /* 153 of 501 */
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #BCF4FF;
+  /* High alpha under a wide blur, not low alpha under a narrow one. A sigma
+     this large drops the peak to about a tenth of the fill, so anything gentler
+     at source arrives as a two-value tint that reads as nothing. */
+  opacity: .85;
+  filter: blur(140px);
+  pointer-events: none;
+}
+/* Everything the panel says sits above its own weather. */
+.sx-feat-kicker, .sx-feat-body, .sx-feat-note,
+.sx-feat-facts, .sx-feat-view { position: relative; z-index: 1; }
 /* The pointer sweep, same one the plates below use. --sx-mx/--sx-my come from
    sections.js; with no pointer it simply never fades in. */
 .sx-feat-side::before {
@@ -1363,6 +1417,8 @@
   /* One column. The cover always comes first: the read is the follow-up, never
      the thing you meet the project through. */
   .sx-feat-shell { grid-template-columns: 1fr; }
+  /* Stacked, so the cover takes the whole row and the gap is out of the sum. */
+  .sx-feat { --sx-cover-w: calc(100cqw - 2 * var(--sx-feat-pad)); }
   .sx-feat-bloom { top: -3%; width: 86%; height: 40%; }
   .sx-feat-view  { width: 100%; }
 }
