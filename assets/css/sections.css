@@ -269,6 +269,14 @@
 
 #sx-work {
   background: var(--sx-wall);
+  /* The featured card's bloom is wider than the card and, at full width, wider
+     than the viewport — which is a horizontal scrollbar, not a glow. Clipped at
+     the section edge, which is what the Figma frame does to it too.
+
+     `clip` and not `hidden`: hidden would make this a scroll container, and
+     `overflow-x: hidden` silently drags `overflow-y` to `auto` with it. clip
+     leaves the vertical axis genuinely visible and creates no scrollport. */
+  overflow-x: clip;
   /* The nav pill is fixed over the top of the viewport, so a section that
      scrolls to its own top edge arrives underneath it. Sized against the
      marquee rather than the pill: now that the marquee sits close to the
@@ -1025,7 +1033,11 @@
      lockup — wordmark and marks scale together and never drift apart. */
   font-size: clamp(1.7rem, 3.55vw, 3.5rem);
   gap: .62em;
-  padding-block: clamp(2.2rem, 5.5vh, 4.2rem) clamp(2.2rem, 5vh, 3.6rem);
+  /* 128 under the lockup in the Figma, scaled: the card renders at 1400 against
+     the design's 1467, so the faithful number here is 128 x .954 = 122. The
+     8vw track lands exactly there at 1600 and keeps the same proportion of the
+     card all the way down. */
+  padding-block: clamp(2.2rem, 5.5vh, 4.2rem) clamp(2.6rem, 8vw, 7.6rem);
 }
 .sx-feat-title {
   margin: 0;
@@ -1119,21 +1131,34 @@
 .sx-feat-bloom {
   position: absolute;
   z-index: 0;
-  left: 50%;
-  /* Pushed higher than the Figma's ellipse and given a longer blur. On the flat
-     frame the shape can sit almost entirely behind the card and still read,
-     because the frame is a picture; on the page the shell is opaque and eats
-     it. What has to survive is the band of light between the marquee and the
-     card's top edge, so that band is what this is sized for. */
-  top: -13%;
-  width: 68.3%;                 /* 1002 of 1467 */
-  height: 74%;
-  transform: translateX(-50%);
-  border-radius: 50%;
   pointer-events: none;
+  /* The source is a 1002 x 531 ellipse in #95FF8A at 40%, sitting 41px above
+     the card's top edge — so centred on the card's width, and its own centre
+     30% down the card. Those two numbers are what this reproduces.
+
+     A gradient, not a real blur, and this is the one place on the card where
+     the two part company. The cyan bloom in the read panel IS a blurred disc
+     because its 360 is a moderate sigma on a small shape. This one carries a
+     1000, which is a ~477px CSS sigma at our scale — and it lives inside
+     .sx-feat, which the reveal animates with a blur and a scale of its own.
+     Compositing a half-metre blur through an animating subtree costs real
+     frames, and at that sigma a Gaussian and a tuned radial falloff are the
+     same picture. The stops below ARE that Gaussian: .61 of peak at one sigma,
+     .135 at two, which is where the element's own edge sits.
+
+     Peak alpha is the 40% fill after the blur eats it — a sigma this wide over
+     a shape this size keeps only about a quarter of the original. */
+  left: 50%;
+  top: 30.3%;                   /* the ellipse's centre: (-41 + 531/2) of 742 */
+  width: 132%;
+  height: 215%;
+  transform: translate(-50%, -50%);
   background: radial-gradient(closest-side,
-    rgba(87,199,75,.30) 0%, rgba(27,145,94,.15) 46%, rgba(15,103,65,0) 78%);
-  filter: blur(46px);
+    rgba(149,255,138,.135)   0%,
+    rgba(149,255,138,.105)  30%,
+    rgba(149,255,138,.055)  60%,
+    rgba(149,255,138,.018)  85%,
+    rgba(149,255,138,0)    100%);
 }
 
 /* 928 : 501 with a 14px gap inside a 12px margin — the Figma's numbers, held as
@@ -1467,7 +1492,9 @@
   .sx-feat-shell { grid-template-columns: 1fr; }
   /* Stacked, so the cover takes the whole row and the gap is out of the sum. */
   .sx-feat { --sx-cover-w: calc(100cqw - 2 * var(--sx-feat-pad)); }
-  .sx-feat-bloom { top: -3%; width: 86%; height: 40%; }
+  /* Stacked, the card is far taller than it is wide, so a bloom sized off its
+     height would flood the whole section. Held to the top of it. */
+  .sx-feat-bloom { top: 18%; width: 128%; height: 76%; }
   .sx-feat-view  { width: 100%; }
 }
 @media (max-width: 560px) {
