@@ -1135,9 +1135,17 @@
 
   <!-- The portrait lives in the pill now rather than in the page's corner. It
        carries the "you are at the top" state: ringed and lit while the hero is
-       up, and quietly along for the ride once you are into the sections. -->
-  <img class="sx-nav-me" src="../public/img/profile.jpeg" alt="Shashank"
-       width="1024" height="1024" decoding="async">
+       up, and quietly along for the ride once you are into the sections.
+
+       And it is the way back. It was already the only thing in the pill that
+       said anything about the top of the page — being lit there — so it is the
+       thing you would reach for to return, and it now goes there. The label
+       lives on the link rather than in the alt: inside a link an image's alt
+       IS the link's name, and "Shashank" alone does not say where it goes. -->
+  <a class="sx-nav-home" href="#s-enter" aria-label="Shashank — back to the top">
+    <img class="sx-nav-me" src="../public/img/profile.jpeg" alt=""
+         width="1024" height="1024" decoding="async">
+  </a>
 
   <span class="sx-nav-glide" aria-hidden="true"></span>
   <a class="sx-nav-i" href="#sx-work" data-sec="work" data-label="Work">Work</a>
