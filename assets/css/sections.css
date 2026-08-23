@@ -1351,10 +1351,21 @@
   gap: 2.85em;                  /* 57 of 20 — the Figma's own spacing */
 
   /* How far the hover capsule reaches past a label, and its clearance from the
-     pill's edge. One number each, read back by the script. */
-  --sx-nav-pad:   .65em;
-  --sx-nav-inset: .35em;
-  padding: .4em 2em .4em .4em;  /* 8 and 40 of 20; the left is the portrait's */
+     pill's edge. One number each, read back by the script.
+
+     The pad was .65em, which put about 9px either side of a label — close
+     enough that the capsule read as traced around the word rather than as a
+     surface the word sits on. 1.15em is a little over half the cap height,
+     which is the ratio a pill of this size wants; the capsule's own height
+     (2.4em) already had that much room above and below, so this is what
+     squares the two.
+
+     The pill's right padding is now that same pad plus the inset, so the
+     capsule around OUTSIDE WORK keeps a stated clearance from the glass edge
+     instead of one that happens to survive whatever the pad is. */
+  --sx-nav-pad:   1.15em;
+  --sx-nav-inset: .85em;
+  padding: .4em calc(var(--sx-nav-pad) + var(--sx-nav-inset)) .4em .4em;
 
   border-radius: 200px;
   border: 1px solid rgba(255,255,255,.11);
@@ -1384,6 +1395,121 @@
     inset 0 1px 0 rgba(255,255,255,.30),    /* the lit top edge */
     inset 0 -1px 0 rgba(255,255,255,.06),   /* and the dimmer underside */
     0 10px 34px rgba(0,0,0,.45);
+}
+
+/* Where the backdrop filter DOES run, the tint above is doing work it no longer
+   needs to. .76 of near-black is what made the pill read as a dark plastic
+   lozenge with a blur behind it: nothing of the page survived underneath, and a
+   glass you cannot see through is not a glass.
+
+   So the tint comes down to .38 and most of the darkening moves onto the
+   backdrop, where it belongs — brightness() scales what is behind the pill
+   rather than covering it, so black stays black and only the bright half of the
+   page gets smoked down, and the stripes, the headline and the colour behind
+   all keep coming through. contrast() past 1 stops the blur flattening what is
+   left of them into a wash.
+
+   Everything here is scoped to @supports for the reason the note above gives:
+   without it the fallback keeps its opaque .76 and stays readable. */
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sx-nav {
+    background:
+      linear-gradient(rgba(255,255,255,.10), rgba(255,255,255,.02) 46%, rgba(255,255,255,.06)),
+      rgba(16,16,15,.38);
+    /* 22px of blur was enough to erase the page under the pill; at 10 you can
+       still read what is behind it, which is the whole point of a glass.
+
+       .38 and brightness(.40) are the most transparent pair that survives the
+       page's worst case — the pill over the paper half of Experience with the
+       Gamezop headline behind it. Sampled off a render there, the brightest
+       tenth of the pill's own surface measures rgb(111) and no lighter, which
+       holds the active label at 5.0:1 and the quiet ones at 4.5:1. Thinner
+       than this and the labels go under 4.5 against their own background. */
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) contrast(1.06) brightness(.40);
+            backdrop-filter: blur(10px) saturate(1.9) contrast(1.06) brightness(.40);
+  }
+  /* Two changes for the paler surface. The quiet labels go to full alpha —
+     their quietness was .82 of white, and on a glass you can see through it has
+     to come from weight instead, which the bold active state already carries.
+     And the shadow gives every label an edge of its own against whatever
+     happens to be drifting under it. */
+  .sx-nav-i {
+    color: #f4f1ec;
+    text-shadow: 0 1px 2px rgba(0,0,0,.45);
+  }
+}
+
+/* The bend, on the pill's own backdrop. It has to live HERE rather than on a
+   child: the nav fades in on --t, and an element with opacity below 1 becomes a
+   backdrop root — every child inside it would filter an empty backdrop and the
+   glass would blink out for the length of the arrival.
+
+   Last in the chain, after the blur, on purpose. A displacement applied before
+   the blur is simply blurred away; applied after, it is the blurred image
+   itself that swims, which is what you see through real glass. */
+@supports ((backdrop-filter: url("#sx-glass-warp")) or (-webkit-backdrop-filter: url("#sx-glass-warp"))) {
+  .sx-nav {
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) contrast(1.06) brightness(.40) url("#sx-glass-warp");
+            backdrop-filter: blur(10px) saturate(1.9) contrast(1.06) brightness(.40) url("#sx-glass-warp");
+  }
+}
+
+/* The refraction ring. Masked to the pill's own rim — two full-size mask layers,
+   one clipped to the content box, subtracted from each other, which leaves a
+   band of exactly the padding's thickness following the 200px radius. Inside
+   that band the backdrop is displaced harder than it is across the
+   face, so the edge reads as the thicker glass it would be there, bending what
+   passes under it more steeply.
+
+   url() in a backdrop-filter is the part browsers disagree about. @supports
+   gates it, and the layer carries no background of its own, so the worst case
+   anywhere is a pill with no ring rather than a grey band sitting on the page. */
+.sx-nav-refract {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: .55em;                 /* the ring's thickness */
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  /* The mask cuts a hard inner edge, and a displaced backdrop against a hard
+     edge reads as a scribbled line rather than as the edge of a lens. Blurring
+     the layer's own output — the band, not the page behind it — feathers the
+     ring back into the face, which is what the transition across a curved edge
+     actually looks like. The opacity keeps it an inflection, not a part. */
+  filter: blur(2.5px);
+  opacity: .8;
+}
+@supports ((backdrop-filter: url("#sx-glass-rim")) or (-webkit-backdrop-filter: url("#sx-glass-rim"))) {
+  .sx-nav-refract {
+    -webkit-backdrop-filter: url("#sx-glass-rim");
+            backdrop-filter: url("#sx-glass-rim");
+  }
+}
+
+/* Asked for less transparency, given less of it: the pill goes back to the
+   opaque tint and drops both the bend and the ring. Same surface, same
+   contrast, nothing of the page swimming under it. */
+@media (prefers-reduced-transparency: reduce) {
+  .sx-nav {
+    background:
+      linear-gradient(rgba(255,255,255,.085), rgba(255,255,255,.02) 46%, rgba(255,255,255,.05)),
+      rgba(16,16,15,.88);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4) brightness(.45);
+            backdrop-filter: blur(18px) saturate(1.4) brightness(.45);
+  }
+  .sx-nav-refract { display: none; }
+}
+
+/* Out of flow and out of the way: the filter only needs to exist to be
+   referenced, and a bare <svg> in the markup would otherwise take a line box. */
+.sx-glass-defs {
+  position: absolute;
+  width: 0; height: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 /* The rake. An off-centre elliptical highlight lying across the top of the
@@ -1887,8 +2013,12 @@
      gap needs its own number, because 2.85em of it is a lot of a phone. */
   .sx-nav {
     font-size: .58rem;
-    gap: 1.5em;
-    padding-right: 1.2em;
+    /* The capsule reaches .7em past each label here rather than 1.15em, and the
+       gap opens to 1.8em to keep a gap between two of them — at a phone's type
+       size the desktop pad would have the three capsules touching. */
+    --sx-nav-pad:   .7em;
+    --sx-nav-inset: .5em;
+    gap: 1.8em;
   }
 }
 
