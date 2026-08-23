@@ -270,8 +270,12 @@
 #sx-work {
   background: var(--sx-wall);
   /* The nav pill is fixed over the top of the viewport, so a section that
-     scrolls to its own top edge arrives underneath it. */
-  scroll-margin-top: clamp(3.5rem, 8vh, 6rem);
+     scrolls to its own top edge arrives underneath it. Sized against the
+     marquee rather than the pill: now that the marquee sits close to the
+     section's own top edge, clearing the pill by a hair is not enough — the
+     lockup needs air above it to read as a heading rather than as something
+     the nav is sitting on. */
+  scroll-margin-top: clamp(5rem, 11vh, 8rem);
 }
 
 /* The seam out of pure black. Without this the work section starts with a hard
@@ -1021,7 +1025,7 @@
      lockup — wordmark and marks scale together and never drift apart. */
   font-size: clamp(1.7rem, 3.55vw, 3.5rem);
   gap: .62em;
-  padding-block: clamp(5rem, 12vh, 9rem) clamp(2.2rem, 5vh, 3.6rem);
+  padding-block: clamp(2.2rem, 5.5vh, 4.2rem) clamp(2.2rem, 5vh, 3.6rem);
 }
 .sx-feat-title {
   margin: 0;
@@ -1044,8 +1048,31 @@
      the Figma draws them flat anyway. */
 }
 /* The mirror sits on the LEFT mark: the pair reads outward from the wordmark,
-   not inward. One file still draws both. */
-.sx-feat-pix-l { scale: -1 1; }
+   not inward. One file still draws both.
+
+   --sx-mir is the mirror and --sx-dir is which way the mark flies in from; they
+   happen to agree here, but they are different jobs and conflating them would
+   break the moment either changes. */
+.sx-feat-pix-l { --sx-mir: -1; --sx-dir: -1; }
+.sx-feat-pix-r { --sx-mir:  1; --sx-dir:  1; }
+
+/* Scroll-driven, not a one-shot: --sx-pix-p is written by sections.js as the
+   marquee climbs from the fold to its reading position, so the marks are still
+   arriving while you are still scrolling. They come in from outside and above —
+   the direction the hero's own green left by — and settle as the wordmark does.
+
+   scaleX last in the chain, which means applied FIRST, so the travel and the
+   tip above it happen in unmirrored space. Defaults to 1 so the pair is simply
+   in place with no script and under reduced motion. */
+.sx-feat-pix {
+  --p: var(--sx-pix-p, 1);
+  opacity: var(--p);
+  transform:
+    translateX(calc((1 - var(--p)) * var(--sx-dir, 1) * 104px))
+    translateY(calc((1 - var(--p)) * -58px))
+    rotate(calc((1 - var(--p)) * var(--sx-dir, 1) * -26deg))
+    scaleX(var(--sx-mir, 1));
+}
 
 /* Power-on. Three stepped frames rather than a fade, because a pixel mark that
    eases in is not a pixel mark — it is a gradient. Runs once, on arrival. */
@@ -1054,11 +1081,11 @@
 }
 .sx-js .sx-feat-head[data-in] .sx-feat-pix-r { --sx-pix-d: 90ms; }
 @keyframes sx-feat-strike {
-  0%   { opacity: 0; }
-  25%  { opacity: 1; filter: drop-shadow(0 0 26px rgba(87,199,75,.85)) brightness(1.6); }
-  50%  { opacity: .2; }
-  75%  { opacity: 1; filter: drop-shadow(0 0 20px rgba(87,199,75,.6)); }
-  100% { opacity: 1; }
+  0%   { filter: brightness(.25); }
+  25%  { filter: drop-shadow(0 0 26px rgba(87,199,75,.85)) brightness(1.7); }
+  50%  { filter: brightness(.35); }
+  75%  { filter: drop-shadow(0 0 20px rgba(87,199,75,.6)) brightness(1.25); }
+  100% { filter: none; }
 }
 
 /* --- the cabinet --- */
@@ -1372,37 +1399,52 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: .85rem;
-  min-width: clamp(140px, 11.5vw, 181px);
-  padding: clamp(.72rem, 1.05vw, .95rem) clamp(1.1rem, 1.7vw, 1.6rem);
-  border: 0;
+  gap: .95rem;
+  min-width: clamp(150px, 11.5vw, 181px);
+  padding: clamp(.82rem, 1.18vw, 1.08rem) clamp(1.1rem, 1.7vw, 1.6rem);
+  /* A real border rather than an inset shadow: on a pill this tight the shadow
+     softens the curve, and the outline is now the whole of the control. */
+  border: 1.5px solid var(--sx-key);
   border-radius: 999px;
   font-family: var(--sx-ui);
-  font-weight: 500;
-  font-size: var(--sx-t-mono);
-  letter-spacing: .18em;
+  font-weight: 700;
+  font-size: clamp(.7rem, .8vw, .82rem);
+  letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--sx-ink);
-  background: rgba(243,244,246,.055);
-  box-shadow: inset 0 0 0 1px rgba(243,244,246,.14);
+  /* Darker than the panel, not lighter. The outline carries the button, so the
+     fill's only job is to seat it — a grey fill under a coloured edge reads as
+     two decisions. */
+  background:
+    linear-gradient(180deg, rgba(243,244,246,.05) 0%, rgba(243,244,246,0) 70%),
+    rgba(8,9,9,.42);
   cursor: pointer;
   transition:
     background-color .35s var(--sx-ease),
+    border-color .35s var(--sx-ease),
     box-shadow .35s var(--sx-ease),
     gap .35s var(--sx-ease);
 }
 .sx-feat-view svg { flex: none; transition: transform .35s var(--sx-ease); }
+/* The edge is already the accent, so hover lights it rather than recolouring
+   it — the same lamp turned up, which is what a hover on an outlined control
+   should be. */
 .sx-feat-view:hover,
 .sx-feat-view:focus-visible {
-  gap: 1.25rem;
-  background: rgba(243,244,246,.10);
-  box-shadow: inset 0 0 0 1px rgba(87,199,75,.55);
+  gap: 1.35rem;
+  border-color: #F2703F;
+  background:
+    linear-gradient(180deg, rgba(243,244,246,.06) 0%, rgba(243,244,246,0) 70%),
+    rgba(224,84,42,.13);
+  box-shadow: 0 0 26px -6px rgba(224,84,42,.55);
 }
 .sx-feat-view:hover svg { transform: translateX(3px); }
 /* Hover and focus share a look above, so focus needs a mark of its own — a
-   keyboard user must be able to tell the two apart. */
+   keyboard user must be able to tell the two apart. Ink, not the key: a ring in
+   the same colour as the border it sits outside would read as a thicker
+   border, not as focus. */
 .sx-feat-view:focus-visible {
-  outline: 2px solid var(--sx-lime);
+  outline: 2px solid var(--sx-ink);
   outline-offset: 3px;
 }
 /* The label swaps to a route string on click (see sections.js), which is much
@@ -1410,7 +1452,7 @@
    wider — the card must not resize to tell you a page is missing. */
 .sx-feat-view { max-width: 100%; text-align: center; }
 .sx-feat-view .sx-cta-l { min-width: 0; }
-.sx-feat-view[data-busy] { gap: .85rem; }
+.sx-feat-view[data-busy] { gap: .95rem; }
 
 /* --- narrow --- */
 @media (max-width: 1000px) {
@@ -1433,6 +1475,7 @@
 @media (prefers-reduced-motion: reduce) {
   /* The strike is a lamp warming up; with motion off the lamp is simply on. */
   .sx-js .sx-feat-head[data-in] .sx-feat-pix { animation: none; }
+  .sx-feat-pix { --p: 1; }
   .sx-feat-side::before, .sx-feat-view, .sx-feat-view svg { transition: none; }
 }
 

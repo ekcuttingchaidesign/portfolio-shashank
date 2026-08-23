@@ -440,6 +440,43 @@
     handStage.style.setProperty('--sx-hand-o', (1 - seg(p, 0.45, 1)).toFixed(3));
   }
 
+  /* ------------------------------------------------------------------------
+     The marquee's marks.
+     ------------------------------------------------------------------------
+     They fly in from outside and above as the work section climbs — the same
+     direction the hero's own green left the frame by, so the two greens read as
+     one object continuing rather than two unrelated ornaments.
+
+     Scrubbed, not triggered. The rest of this page is scrubbed and a marquee
+     that snapped into place on a threshold would be the one element on it
+     racing the scrollbar. It also means scrolling back takes the marks apart
+     again, which a one-shot reveal cannot do.
+
+     Window: the head's top from 90% down the screen to 42% up it. It starts
+     BELOW the fold on purpose — the reveal fades the header in at roughly 88%
+     and takes about a second over it, so a window opening at the fold itself
+     spends most of its travel behind opacity 0 and you see the marks appear
+     already landed. Starting after the wordmark has the floor makes it a
+     sequence: the type arrives, then the marks fly in and settle on it.
+
+     It also closes early, well above the head's resting height. A scrub can be
+     parked anywhere, and a marquee frozen half-assembled reads as broken rather
+     than as mid-flight — so by the time the wordmark is at a comfortable
+     reading position the pair is already in place.
+     ---------------------------------------------------------------------- */
+  const featHead = root.querySelector('.sx-feat-head');
+  const MARQUEE = { start: 0.90, end: 0.42 };
+
+  function updateMarquee() {
+    if (!featHead || reduced) return;
+    const top = featHead.getBoundingClientRect().top;
+    const span = Math.max(innerHeight * (MARQUEE.start - MARQUEE.end), 1);
+    const p = clamp01((innerHeight * MARQUEE.start - top) / span);
+    /* Cubic ease-out so the marks decelerate into place instead of sliding to a
+       stop at scroll speed — the settle is the whole read. */
+    featHead.style.setProperty('--sx-pix-p', (1 - Math.pow(1 - p, 3)).toFixed(4));
+  }
+
   /* ========================================================================
      Loop
      ======================================================================== */
@@ -455,6 +492,7 @@
 
     updateExperience();
     updateHandoff();
+    updateMarquee();
 
     idle = moved ? 0 : idle + 1;
     rafId = idle > IDLE_FRAMES ? 0 : requestAnimationFrame(frame);
@@ -468,6 +506,7 @@
   /* Paint the correct state now rather than on the first scroll, so a reload
      halfway down the page doesn't start from level zero and animate up. */
   updateExperience();
+  updateMarquee();
   updateHandoff();
   kick();
 
