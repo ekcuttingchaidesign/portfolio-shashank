@@ -267,7 +267,12 @@
    continues the camera move rather than starting a new grammar.
    ------------------------------------------------------------------------- */
 
-#sx-work { background: var(--sx-wall); }
+#sx-work {
+  background: var(--sx-wall);
+  /* The nav pill is fixed over the top of the viewport, so a section that
+     scrolls to its own top edge arrives underneath it. */
+  scroll-margin-top: clamp(3.5rem, 8vh, 6rem);
+}
 
 /* The seam out of pure black. Without this the work section starts with a hard
    edge against the video's last frame — the one place a cut would be visible. */
@@ -984,6 +989,393 @@
    scans. They alternate sides, so the eye crosses the page instead of running
    down one gutter, and they use exactly the tile treatment the hero introduced.
    ------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------
+   FEATURED WORK — the marquee and the cabinet under it.
+   ---------------------------------------------------------------------------
+   One project gets the whole width and its own treatment; the rest keep the
+   two-plate grid below. That difference IS the editorial statement — "featured"
+   has to be visible before you read the word.
+
+   The green here is not the page's accent. The page's accent is the portrait's
+   vermilion and it stays that, on the pull-quote inside the card. Green is the
+   PROJECT's colour, sampled straight from the shard the hero already ships
+   (right_side_block.svg), and it appears in exactly two places: the marks that
+   flank the marquee, and the bloom the cover throws onto the wall behind it.
+   Two appearances, one source, and the card's own artwork explains both.
+   ------------------------------------------------------------------------- */
+
+:root {
+  /* Airtel Gaming's greens, off right_side_block.svg — the only three in it. */
+  --sx-lime:      #57C74B;
+  --sx-lime-mid:  #1B915E;
+  --sx-lime-deep: #0F6741;
+}
+
+/* --- the marquee --- */
+.sx-feat-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The marks are sized in em, so this font-size is the one dial for the whole
+     lockup — wordmark and marks scale together and never drift apart. */
+  font-size: clamp(1.9rem, 4.1vw, 4rem);
+  gap: .62em;
+  padding-block: clamp(5rem, 12vh, 9rem) clamp(2.2rem, 5vh, 3.6rem);
+}
+.sx-feat-title {
+  margin: 0;
+  font-family: var(--sx-display);
+  font-weight: 300;
+  font-size: 1em;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  color: var(--sx-ink);
+  white-space: nowrap;
+}
+/* 87 tall against a 64px wordmark in the Figma — 1.36em, so the marks stay in
+   that proportion at every width. */
+.sx-feat-pix {
+  flex: none;
+  height: 1.36em;
+  width: auto;
+  /* No resting glow. The strike below is what says these are lit, and it says
+     it once; a permanent halo repeats the point for the rest of the page and
+     the Figma draws them flat anyway. */
+}
+.sx-feat-pix-r { scale: -1 1; }
+
+/* Power-on. Three stepped frames rather than a fade, because a pixel mark that
+   eases in is not a pixel mark — it is a gradient. Runs once, on arrival. */
+.sx-js .sx-feat-head[data-in] .sx-feat-pix {
+  animation: sx-feat-strike .42s steps(1) var(--sx-pix-d, 0ms) both;
+}
+.sx-js .sx-feat-head[data-in] .sx-feat-pix-r { --sx-pix-d: 90ms; }
+@keyframes sx-feat-strike {
+  0%   { opacity: 0; }
+  25%  { opacity: 1; filter: drop-shadow(0 0 26px rgba(87,199,75,.85)) brightness(1.6); }
+  50%  { opacity: .2; }
+  75%  { opacity: 1; filter: drop-shadow(0 0 20px rgba(87,199,75,.6)); }
+  100% { opacity: 1; }
+}
+
+/* --- the cabinet --- */
+.sx-feat {
+  position: relative;
+  margin-bottom: clamp(4rem, 9vh, 7rem);
+}
+
+/* The light the cover throws on the wall. A sibling and not a background: it
+   has to spill past the shell's rounded corners, and a background on a clipped
+   element cannot. Sized and placed off the Figma's own ellipse — 1002 x 531
+   centred on the frame, its top 41px above the card. */
+.sx-feat-bloom {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  /* Pushed higher than the Figma's ellipse and given a longer blur. On the flat
+     frame the shape can sit almost entirely behind the card and still read,
+     because the frame is a picture; on the page the shell is opaque and eats
+     it. What has to survive is the band of light between the marquee and the
+     card's top edge, so that band is what this is sized for. */
+  top: -13%;
+  width: 68.3%;                 /* 1002 of 1467 */
+  height: 74%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side,
+    rgba(87,199,75,.30) 0%, rgba(27,145,94,.15) 46%, rgba(15,103,65,0) 78%);
+  filter: blur(46px);
+}
+
+/* 928 : 501 with a 14px gap inside a 12px margin — the Figma's numbers, held as
+   fractions so the split survives every width rather than being redrawn per
+   breakpoint. The row's height comes from the cover's aspect ratio, or from the
+   read panel if its text needs more; both panels stretch to whichever wins. */
+.sx-feat-shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 928fr) minmax(0, 501fr);
+  gap: clamp(8px, .95vw, 14px);
+  padding: clamp(8px, .82vw, 12px);
+  border-radius: clamp(18px, 1.7vw, 26px);
+  background:
+    linear-gradient(180deg, rgba(243,244,246,.05) 0%, rgba(243,244,246,0) 34%),
+    #0B0B0A;
+  box-shadow:
+    inset 0 1px 0 rgba(243,244,246,.12),
+    inset 0 0 0 1px rgba(243,244,246,.07),
+    0 40px 90px -40px rgba(0,0,0,1);
+}
+
+/* --- the cover --- */
+.sx-feat-cover {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 928 / 718;
+  min-height: 0;
+  border-radius: clamp(10px, 1.1vw, 17px);
+  background: #0E0E0D;
+  isolation: isolate;
+}
+.sx-feat-art {
+  position: absolute; inset: 0; z-index: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* No render on disk, no broken frame: the slot falls back to the reserved-plate
+   treatment the rest of the page already uses. */
+.sx-feat-cover:not([data-art="ready"]) .sx-feat-art { display: none; }
+
+.sx-feat-cover[data-art="pending"]::before,
+.sx-feat-cover[data-art="missing"]::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 1;
+  background-image:
+    linear-gradient(90deg,  rgba(243,244,246,.22) 0 18px, transparent 18px),
+    linear-gradient(180deg, rgba(243,244,246,.22) 0 18px, transparent 18px),
+    linear-gradient(270deg, rgba(243,244,246,.22) 0 18px, transparent 18px),
+    linear-gradient(0deg,   rgba(243,244,246,.22) 0 18px, transparent 18px),
+    repeating-linear-gradient(135deg, transparent 0 10px, rgba(243,244,246,.022) 10px 20px);
+  background-repeat: no-repeat;
+  background-position:
+    18px 18px, 18px 18px,
+    calc(100% - 18px) calc(100% - 18px), calc(100% - 18px) calc(100% - 18px), 0 0;
+  background-size: 18px 1px, 1px 18px, 18px 1px, 1px 18px, auto;
+}
+.sx-feat-cover[data-art="pending"]::after,
+.sx-feat-cover[data-art="missing"]::after {
+  content: attr(data-empty);
+  position: absolute;
+  /* Only the top half. The bottom is where the lockup and the claim already
+     are, and a caption centred on the whole plate lands on top of them. */
+  inset: 0 0 45% 0;
+  z-index: 1;
+  display: grid; place-items: center;
+  font-family: var(--sx-ui);
+  font-weight: 500;
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  text-align: center;
+  line-height: 2.1;
+  white-space: pre-line;
+  pointer-events: none;
+}
+
+/* 371 of 718 in the Figma — a little over half the plate, so the type at the
+   bottom has ground without the artwork above it being dimmed. */
+.sx-feat-scrim {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 2;
+  height: 51.7%;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    rgba(6,7,6,0) 0%, rgba(6,7,6,.55) 42%, rgba(6,7,6,.93) 100%);
+}
+
+.sx-feat-cover-foot {
+  position: absolute;
+  z-index: 3;
+  left: 7.44%;                  /*  69 of 928 */
+  right: 7.44%;
+  bottom: 8.91%;                /*  64 of 718 */
+}
+.sx-feat-logo { display: block; margin-bottom: clamp(.5rem, 1.1vw, 1rem); }
+.sx-feat-logo img {
+  display: block;
+  height: clamp(30px, 4.2vw, 67px);   /* the export's own height; width follows */
+  width: auto;
+}
+.sx-feat-logo:not([data-art="ready"]) img { display: none; }
+/* The stand-in, set in the page's own face. Deliberately not an imitation of
+   the brand lockup — it names the product and gets out of the way. */
+.sx-feat-logo-fb {
+  display: block;
+  font-family: var(--sx-display);
+  font-weight: 300;
+  font-size: clamp(1rem, 1.5vw, 1.45rem);
+  line-height: 1.1;
+  letter-spacing: -.01em;
+  color: var(--sx-ink);
+}
+.sx-feat-logo-fb i {
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: .06em;
+}
+.sx-feat-logo[data-art="ready"] .sx-feat-logo-fb { display: none; }
+
+.sx-feat-claim {
+  margin: 0;
+  font-family: var(--sx-display);
+  font-weight: 300;
+  font-size: clamp(1.05rem, 2.05vw, 2rem);   /* 34px on the 1920 frame */
+  line-height: 1.59;                          /*  54 / 34 */
+  letter-spacing: -.02em;
+  color: var(--sx-ink);
+  text-wrap: balance;
+  max-width: 24ch;
+}
+
+/* --- the read --- */
+.sx-feat-side {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: clamp(10px, 1.1vw, 17px);
+  padding:
+    clamp(1.3rem, 2.4vw, 2.4rem)
+    clamp(1.3rem, 2.3vw, 2.25rem)
+    clamp(1.5rem, 3.2vw, 3.2rem)
+    clamp(1.3rem, 2.1vw, 2rem);
+  /* The two soft blooms are the Figma's own Container Glow ellipses, at their
+     own centres (72% / 19% and 33% / 77% of the panel). Gradients, not
+     elements: two paint operations against two more nodes to composite. */
+  background:
+    radial-gradient(38% 26% at 72% 19%, rgba(243,244,246,.075), transparent 70%),
+    radial-gradient(44% 30% at 33% 77%, rgba(243,244,246,.055), transparent 72%),
+    linear-gradient(155deg, #1A1A19 0%, #121211 46%, #0B0B0B 100%);
+  box-shadow: inset 0 0 0 1px rgba(243,244,246,.05);
+  isolation: isolate;
+}
+/* The pointer sweep, same one the plates below use. --sx-mx/--sx-my come from
+   sections.js; with no pointer it simply never fades in. */
+.sx-feat-side::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .45s var(--sx-ease);
+  background: radial-gradient(360px circle at var(--sx-mx, 50%) var(--sx-my, 50%),
+    rgba(243,244,246,.09), transparent 62%);
+}
+.sx-feat:hover .sx-feat-side::before { opacity: 1; }
+
+.sx-feat-kicker { margin-bottom: clamp(.7rem, 1.1vw, 1rem); }
+
+.sx-feat-body {
+  margin: 0 0 clamp(1.1rem, 2.1vw, 2rem);
+  font-size: clamp(.95rem, 1.12vw, 1.13rem);   /* 19px on the 1920 frame */
+  line-height: 1.68;
+  color: var(--sx-ink-2);
+}
+
+/* The one place the page's own vermilion appears inside this card. It marks the
+   sentence that says how the project ended, which is the only line here doing
+   editorial work rather than reporting. */
+.sx-feat-note {
+  margin: 0 0 clamp(1.3rem, 2.4vw, 2.3rem);
+  padding-left: clamp(.8rem, 1.3vw, 1.25rem);
+  border-left: 3px solid var(--sx-key);
+  font-size: clamp(.95rem, 1.12vw, 1.13rem);
+  line-height: 1.68;
+  color: var(--sx-ink);
+}
+
+.sx-feat-facts {
+  display: grid;
+  grid-template-columns: minmax(0, 72fr) minmax(0, 28fr);
+  gap: clamp(1rem, 1.9vw, 1.85rem) 1rem;
+  margin: 0 0 clamp(1.4rem, 2.6vw, 2.4rem);
+  padding-top: clamp(1.2rem, 2.2vw, 2.1rem);
+  border-top: 1px solid var(--sx-ink-4);
+}
+.sx-feat-facts dt {
+  margin: 0 0 .34rem;
+  font-family: var(--sx-ui);
+  font-weight: 500;
+  font-size: var(--sx-t-mono);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+}
+.sx-feat-facts dd {
+  margin: 0;
+  font-size: clamp(.88rem, 1vw, 1rem);
+  line-height: 1.3;
+  letter-spacing: .04em;
+  color: var(--sx-ink);
+}
+
+/* 181 x 51 in the Figma. Pinned to the bottom of the panel by auto margin, so
+   it stays on the floor of the card whichever side is taller. */
+.sx-feat-view {
+  margin-top: auto;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .85rem;
+  min-width: clamp(140px, 11.5vw, 181px);
+  padding: clamp(.72rem, 1.05vw, .95rem) clamp(1.1rem, 1.7vw, 1.6rem);
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--sx-ui);
+  font-weight: 500;
+  font-size: var(--sx-t-mono);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--sx-ink);
+  background: rgba(243,244,246,.055);
+  box-shadow: inset 0 0 0 1px rgba(243,244,246,.14);
+  cursor: pointer;
+  transition:
+    background-color .35s var(--sx-ease),
+    box-shadow .35s var(--sx-ease),
+    gap .35s var(--sx-ease);
+}
+.sx-feat-view svg { flex: none; transition: transform .35s var(--sx-ease); }
+.sx-feat-view:hover,
+.sx-feat-view:focus-visible {
+  gap: 1.25rem;
+  background: rgba(243,244,246,.10);
+  box-shadow: inset 0 0 0 1px rgba(87,199,75,.55);
+}
+.sx-feat-view:hover svg { transform: translateX(3px); }
+/* Hover and focus share a look above, so focus needs a mark of its own — a
+   keyboard user must be able to tell the two apart. */
+.sx-feat-view:focus-visible {
+  outline: 2px solid var(--sx-lime);
+  outline-offset: 3px;
+}
+/* The label swaps to a route string on click (see sections.js), which is much
+   longer than "View". It wraps inside the button rather than pushing the panel
+   wider — the card must not resize to tell you a page is missing. */
+.sx-feat-view { max-width: 100%; text-align: center; }
+.sx-feat-view .sx-cta-l { min-width: 0; }
+.sx-feat-view[data-busy] { gap: .85rem; }
+
+/* --- narrow --- */
+@media (max-width: 1000px) {
+  /* One column. The cover always comes first: the read is the follow-up, never
+     the thing you meet the project through. */
+  .sx-feat-shell { grid-template-columns: 1fr; }
+  .sx-feat-cover { aspect-ratio: 16 / 11; }
+  .sx-feat-bloom { top: -3%; width: 86%; height: 40%; }
+  .sx-feat-view  { width: 100%; }
+}
+@media (max-width: 560px) {
+  /* Below this the wordmark and both marks cannot share a line without the
+     type collapsing. The marks go and the wordmark keeps the centre. */
+  .sx-feat-pix { display: none; }
+  .sx-feat-head { font-size: clamp(1.7rem, 9vw, 2.4rem); }
+  .sx-feat-cover { aspect-ratio: 4 / 5; }
+  .sx-feat-claim { max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The strike is a lamp warming up; with motion off the lamp is simply on. */
+  .sx-js .sx-feat-head[data-in] .sx-feat-pix { animation: none; }
+  .sx-feat-side::before, .sx-feat-view, .sx-feat-view svg { transition: none; }
+}
 
 .sx-proj {
   display: grid;
@@ -1807,6 +2199,25 @@
   will-change: transform, opacity;
 }
 
+/* --- the shard --------------------------------------------------------------
+   The small block that sits under the U-shape. Same treatment as its parent,
+   and every number is the Figma's: 101 x 88 at (1657, 285) of 1920 x 1080. It
+   is a separate element rather than part of ushape_ledge.svg because the two
+   arrive on different beats — the counterweight lands first and the chip
+   follows it in, which is what reads as one shape shedding another.
+   -------------------------------------------------------------------------- */
+.sx-side-block {
+  position: absolute;
+  z-index: 2;
+  left: 86.30%;                 /* 1657 of 1920 */
+  top: 26.39%;                  /*  285 of 1080 */
+  width: 5.26%;                 /*  101 of 1920 — its natural width */
+  height: auto;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+
 /* --- the float --------------------------------------------------------------
    The slabs are not stuck to anything — they hang in the frame, and the drift
    is what says so. It is also what lets them travel toward the camera while
@@ -1829,6 +2240,9 @@
 }
 .sx-mascot     { animation: sx-drift 9.5s var(--sx-ease) infinite; }
 .sx-ushape     { animation: sx-drift 13s var(--sx-ease) -4.5s infinite; }
+/* A third period and a third phase. The chip is the smallest thing up there, so
+   it is also the loosest — a lighter object hangs less steadily. */
+.sx-side-block { animation: sx-drift 7.4s var(--sx-ease) -2.1s infinite; }
 
 /* --- the flourish -----------------------------------------------------------
    The mark the Figma sets at the end of the supporting line. It draws itself in
@@ -2035,7 +2449,7 @@
   .sx-line-1 { max-width: 14ch; }
   /* The mascot needs the corner AND the room beside it for what it says; at
      this width it has neither, and it would sit on the nav. */
-  .sx-mascot, .sx-ushape { display: none; }
+  .sx-mascot, .sx-ushape, .sx-side-block { display: none; }
   /* Everything in the pill is em off one font-size, so the whole thing — the
      portrait, the padding, the marker — comes down together from here. Only the
      gap needs its own number, because 2.85em of it is a lot of a phone. */
@@ -2431,6 +2845,15 @@
     translate3d(0, var(--sx-ly, 0px), var(--sx-lz, 0px))
     rotate(var(--sx-lr, 0deg));
 }
+/* The shard reads its own --sx-b* set, but JS hands it the counterweight's
+   numbers — same layer, same distance. Only the tip differs, and only so the
+   two never look stamped from one die. */
+.sx-side-block {
+  opacity: calc(var(--t, 0) * var(--sx-bo, 1));
+  transform:
+    translate3d(0, var(--sx-by, 0px), var(--sx-bz, 0px))
+    rotate(var(--sx-br, 0deg));
+}
 .sx-mark    { opacity: var(--t, 0); transform: scale(var(--e, 0)); }
 .sx-stamp   { opacity: var(--t, 0); transform: scale(calc(0.8 + var(--b, 0) * 0.2)); }
 
@@ -2441,7 +2864,7 @@
 @media (prefers-reduced-motion: reduce) {
   .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
   .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub,
-  .sx-mark, .sx-stamp, .sx-nav, .sx-mascot {
+  .sx-mark, .sx-stamp, .sx-nav, .sx-mascot, .sx-side-block {
     opacity: 1 !important; filter: none !important;
   }
   .sx-hero-field { opacity: 1 !important; }
@@ -2479,8 +2902,12 @@
   .sx-rules-lit { display: none; }
   .sx-mascot-bot, .sx-mascot-ledge { transition: none; }
   /* The departure is a motion effect; the corner simply stays put. */
-  .sx-mascot { --sx-mz: 0px; --sx-my: 0px; --sx-mr: 0deg; --sx-mo: 1; }
-  .sx-ushape { --sx-lz: 0px; --sx-ly: 0px; --sx-lr: 0deg; --sx-lo: 1; }
+  .sx-mascot     { --sx-mz: 0px; --sx-my: 0px; --sx-mr: 0deg; --sx-mo: 1; }
+  .sx-ushape     { --sx-lz: 0px; --sx-ly: 0px; --sx-lr: 0deg; --sx-lo: 1; }
+  .sx-side-block { --sx-bz: 0px; --sx-by: 0px; --sx-br: 0deg; --sx-bo: 1;
+                   opacity: 1 !important; transform: none !important; }
   /* The drift is ambient motion with no information in it — first to go. */
-  .sx-mascot, .sx-ushape { animation: none; translate: none; rotate: none; }
+  .sx-mascot, .sx-ushape, .sx-side-block {
+    animation: none; translate: none; rotate: none;
+  }
 }

@@ -282,7 +282,7 @@
       }, { passive: true });
     }
 
-    root.querySelectorAll('.sx-slab').forEach(slab => {
+    root.querySelectorAll('.sx-slab, .sx-feat-side').forEach(slab => {
       slab.addEventListener('pointermove', (e) => {
         const r = slab.getBoundingClientRect();
         slab.style.setProperty('--sx-mx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
@@ -290,6 +290,32 @@
       }, { passive: true });
     });
   }
+
+  /* ------------------------------------------------------------------------
+     Art slots
+     ------------------------------------------------------------------------
+     Anything marked [data-art] holds an <img> that may not be on disk yet. The
+     slot starts "pending" — which is what the stylesheet draws the reserved
+     plate and the type fallback off — and only becomes "ready" once the file
+     actually decodes. A missing render therefore shows the placeholder it was
+     designed with rather than a broken-image frame, and dropping the file in is
+     the entire change needed to swap one for the other.
+
+     Same contract the mascot's corner already runs on, generalised so the
+     featured card's cover and lockup can share it.
+     ---------------------------------------------------------------------- */
+  root.querySelectorAll('[data-art]').forEach(slot => {
+    const img = slot.querySelector('img');
+    if (!img) { slot.setAttribute('data-art', 'missing'); return; }
+    const settle = () => slot.setAttribute(
+      'data-art', img.naturalWidth ? 'ready' : 'missing');
+    if (img.complete) settle();
+    else {
+      img.addEventListener('load',  settle,  { once: true });
+      img.addEventListener('error', () => slot.setAttribute('data-art', 'missing'),
+        { once: true });
+    }
+  });
 
   /* ========================================================================
      4 · EXPERIENCE — the character
@@ -500,6 +526,10 @@
        lands after the greys have settled rather than leading them in. */
     ['.sx-mascot',               .28, .52],
     ['.sx-ushape',               .32, .58],
+    /* The chip follows the shape it came off, not alongside it. A shard that
+       lands with its parent is a second slab; one that lands just after reads
+       as a piece of the first. */
+    ['.sx-side-block',           .38, .62],
     /* Scoped to the first copy. The other two are stacked in the same cell and
        must stay at nothing until the rotator has the floor — an unscoped
        selector here would arrive all three sentences on top of each other. */
@@ -930,6 +960,7 @@
      ---------------------------------------------------------------------- */
   const mascotEl = document.getElementById('sx-mascot');
   const ushapeEl = document.querySelector('.sx-ushape');
+  const shardEl  = document.querySelector('.sx-side-block');
 
   /* Two slabs, each a rigid body. The robot is SITTING ON its ledge, so that
      pair shares one transform and nothing inside either group moves on its own.
@@ -972,7 +1003,11 @@
   };
   const SLABS = [
     { el: mascotEl, v: 'm', tip: -2.5 },   /* tips are character, not depth: */
-    { el: ushapeEl, v: 'l', tip:  2   }    /* the pair never looks stamped */
+    { el: ushapeEl, v: 'l', tip:  2   },   /* the set never looks stamped */
+    /* The shard belongs to the counterweight's plane, so it takes the same
+       travel, advance and fade — identical numbers are the whole point. Its
+       tip is steeper only because a loose chip has less to hold it level. */
+    { el: shardEl,  v: 'b', tip:  3.4 }
   ];
 
   function paintDepth(p) {

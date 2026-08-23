@@ -1,0 +1,13 @@
+<!-- The mark that flanks "Featured Work". Reconstructed from the Figma frame
+     rather than exported from it: the node is 58 x 87, which is exactly a 2 x 3
+     grid of 29px cells, and three of the six are filled in a zigzag. Greens are
+     the ones the hero shard already ships (right_side_block.svg), so the
+     marquee and the corner are lit by the same lamp.
+
+     Drawn as one file and mirrored in CSS for the right-hand mark. Replace with
+     the real export when it lands — nothing else has to change. -->
+<svg width="58" height="87" viewBox="0 0 58 87" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0"  y="0"  width="29" height="29" fill="#1B915E"/>
+  <rect x="29" y="29" width="29" height="29" fill="#57C74B"/>
+  <rect x="0"  y="58" width="29" height="29" fill="#1B915E"/>
+</svg>
