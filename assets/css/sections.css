@@ -2445,16 +2445,34 @@
     opacity: 1 !important; filter: none !important;
   }
   .sx-hero-field { opacity: 1 !important; }
-  /* These three need their placement kept — it lives in the same transform the
+  /* One sentence, not three. The three copies share a grid cell, and the
+     arrival's selectors do not scope to a copy because at full motion the
+     engine hands each copy its own --t and only the first is ever lifted. With
+     no engine running there is nothing left doing that scoping, so all three
+     sentences came up at opacity 1 on top of each other — three headlines
+     printed over one another. The other two go out here.
+
+     visibility rather than display, so the cell stays the size of the longest
+     sentence: the block is deliberately as wide as it needs to be for all
+     three, and collapsing it would move the headline that is left. */
+  .sx-copies > .sx-copy:not([data-copy="0"]) { visibility: hidden; }
+
+  /* These need their placement kept — it lives in the same transform the
      arrival animates, so `transform: none` would put the pill and the bloom in
      the wrong corner rather than simply still. */
   .sx-line-1 .sx-w1, .sx-line-1 .sx-w2, .sx-line-1 .sx-w3,
-  .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-face, .sx-hero-sub,
+  .sx-line-1 .sx-em, .sx-line-1 .sx-em > i, .sx-hero-sub,
   .sx-mark, .sx-stamp, .sx-mascot {
     transform: none !important;
   }
   .sx-nav       { transform: translateX(-50%) !important; }
   .sx-hero-glow { transform: translate(-50%, -56%) !important; }
+  /* The object is the same case, and it was in the list above: without its
+     translate it fell back to the stack's top-left corner, sitting above the
+     headline instead of in it. --fx/--fy are measured at init whether the
+     scrub runs or not, so this is the landed position — the slot, without the
+     drop and the turn that get it there. */
+  .sx-face { transform: translate3d(var(--fx, 0px), var(--fy, 0px), 0) !important; }
   /* The flourish is drawn by --e, which is pinned at 0 without the scrub. */
   .sx-flourish path { stroke-dashoffset: 0 !important; }
   /* The pointer-lit grid is a motion effect; the base grid stays. */
