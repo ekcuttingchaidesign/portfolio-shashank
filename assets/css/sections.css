@@ -1123,16 +1123,22 @@
      card behind it off the line before you have read any of them. The tail is
      what lets the finished stack sit still and then leave as one object. */
   display: flow-root;
-  /* The line every card parks on, and it is doing two jobs at once: clearing
-     the fixed nav pill (88px to the bottom of its shadow), and leaving room
-     ABOVE the front card for two receded ones to show. The second job is the
-     binding one — a 708px card on a 900px viewport has about 170px to give, and
-     the lift below is sized against what is left. */
-  --sx-stack-top:  clamp(5.5rem, 17vh, 12rem);
-  /* Lift per card behind, before the projection foreshortens it. The design
-     puts ~80 between stacked tops; .755 of 92 is 69, which is as close as two
-     cards can sit to that and still both clear the top of a laptop screen. */
-  --sx-stack-lift: clamp(38px, 6.2vw, 92px);
+  /* Where the nav stops. The pill is placed in vh, so its bottom edge MOVES
+     with the viewport — 84, 88, 94 at 800, 900, 1080 — and a fixed number here
+     clears it on a laptop and fails on a large display. This tracks it, plus a
+     few pixels of air. */
+  --sx-stack-nav:  calc(3.6vh + 62px);
+  /* The line the front card parks on. */
+  --sx-stack-top:  clamp(6rem, 20vh, 15rem);
+  /* Lift per card behind, and it is DERIVED, not chosen. The two cards behind
+     have to fit between the nav and the front card, so the room between those
+     two lines is what there is, split in two. Divided by .755 because this is
+     the pre-projection value and the perspective foreshortens it.
+
+     A fixed lift is what put the top card under the nav: it cannot know how
+     much room a given viewport actually left it. This always clears. */
+  --sx-stack-lift: max(30px,
+    calc((var(--sx-stack-top) - var(--sx-stack-nav)) / 1.51));
   /* 1600 / (1600 + 519) = .755, the design's own ratio between a stacked card
      and the front one. */
   --sx-stack-z:    519px;
@@ -1170,20 +1176,37 @@
 .sx-feat-stack > .sx-feat:last-child { margin-bottom: clamp(6rem, 46vh, 26rem); }
 
 /* Everything that moves. --sx-d is how many cards have come over this one and
-   can pass 1; --sx-dc is that clamped, because the recession happens once and
-   then the card only keeps rising. Two numbers from JS, the rest is arithmetic
-   the stylesheet can do itself. */
+   can pass 1; --sx-dc is the recession, which front-loads and finishes early.
+   Three numbers from JS, the rest is arithmetic the stylesheet can do itself. */
 .sx-feat-3d {
+  /* A pinned card that runs past the bottom of the screen is not pinned, it is
+     stuck: its own VIEW button sits below the fold for as long as you look at
+     it. --sx-fit is how much the card has to give up to fit the viewport it is
+     pinned in, measured in JS and written here.
+
+     A scale and not a width cap. Capping the width was the obvious move and it
+     is the wrong one: a narrower card gives the read panel a narrower measure,
+     the copy takes more lines, and the row gets TALLER than it started. Scaling
+     takes the whole card down as one object — type, spacing and corner
+     together — which is the only way the proportions survive it.
+
+     Scaled from the top edge, so the card stays on the line it is pinned to,
+     and applied innermost so the stack's own lift above is not scaled with it:
+     the gap that clears the nav has to stay the size it was calculated at. */
+  transform-origin: 50% 0;
   transform: translate3d(
-    0,
-    calc(var(--sx-stack-lift) * var(--sx-d, 0) * -1),
-    calc(var(--sx-stack-z) * var(--sx-dc, 0) * -1));
-  opacity: calc(1 - .62 * var(--sx-dc, 0));
-  /* A card behind is out of focus as well as small and dim. Two pixels, which
-     is nothing at rest but is exactly enough to stop a receded card's body copy
-     competing for the eye during the crossover, when a good deal of it is still
-     showing past the card in front. */
-  filter: blur(calc(2px * var(--sx-dc, 0)));
+      0,
+      calc(var(--sx-stack-lift) * var(--sx-d, 0) * -1),
+      calc(var(--sx-stack-z) * var(--sx-dc, 0) * -1))
+    scale(var(--sx-fit, 1));
+  /* Down to .24, not .38. The covers are bright — white phone mockups on red —
+     and .38 of white over black is still a 97 grey shouting from behind the
+     card you are meant to be reading. */
+  opacity: calc(1 - .70 * var(--sx-dc, 0));
+  /* Out of focus as well as small and dim. Four pixels: enough that a receded
+     card's body copy stops competing during the crossover, when a good deal of
+     it is still showing past the card in front. */
+  filter: blur(calc(3px * var(--sx-dc, 0)));
   will-change: transform, opacity, filter;
 }
 /* A card behind is not a target. Without this the top card's own controls sit

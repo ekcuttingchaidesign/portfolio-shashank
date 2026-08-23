@@ -506,14 +506,38 @@
   function measureStack() {
     if (!featCards.length) return;
     stackTop = parseFloat(getComputedStyle(featCards[0]).top) || 0;
+    fitStack();
   }
   measureStack();
+  /* The cover is lazy, so the card's height is not final until it decodes —
+     measure again once it has, or the fit is computed against a placeholder. */
+  addEventListener('load', measureStack);
+
+  /* How much the card has to give up to fit the viewport it is pinned in. The
+     article is never transformed, so its rect is always the card's LAYOUT
+     height — the scale below cannot feed back into the number that produced it.
+
+     Recomputed on resize rather than every frame: it is a function of the
+     viewport and the card's own content, and neither moves while you scroll. */
+  function fitStack() {
+    if (!featStack || !featCards.length) return;
+    const natural = featCards[0].getBoundingClientRect().height;
+    if (!natural) return;
+    const fit = Math.min(1, (innerHeight - stackTop - 32) / natural);
+    featStack.style.setProperty('--sx-fit', Math.max(0.62, fit).toFixed(4));
+  }
 
   function updateStack() {
     if (!featCards.length || reduced) return;
     /* Long enough that the recession is something you watch, short enough that
        it has finished by the time the next card is actually in front of you. */
-    const travel = Math.min(520, innerHeight * 0.55);
+    const travel = Math.min(460, innerHeight * 0.52);
+    /* The recession finishes at HALF a card's arrival, not at the end of it.
+       Tied to the full arrival, an outgoing card is still near full brightness
+       while a 250px band of it is already exposed above the incoming one —
+       which is exactly the crossover reading as clutter rather than as depth.
+       Front-loaded, it is dim and back before that band opens up. */
+    const RECEDE = 0.5;
 
     const cov = featCards.map(c =>
       clamp01(1 - (c.getBoundingClientRect().top - stackTop) / travel));
@@ -523,7 +547,7 @@
       if (!el) continue;
       let d = 0;
       for (let j = i + 1; j < featCards.length; j++) d += cov[j];
-      const dc = clamp01(d);
+      const dc = clamp01(d / RECEDE);
       el.style.setProperty('--sx-d', d.toFixed(4));
       el.style.setProperty('--sx-dc', dc.toFixed(4));
       /* Anything meaningfully behind stops taking the pointer, so the front
