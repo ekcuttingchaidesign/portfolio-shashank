@@ -1154,10 +1154,10 @@
   height: 215%;
   transform: translate(-50%, -50%);
   background: radial-gradient(closest-side,
-    rgba(149,255,138,.135)   0%,
-    rgba(149,255,138,.105)  30%,
-    rgba(149,255,138,.055)  60%,
-    rgba(149,255,138,.018)  85%,
+    rgba(149,255,138,.094)   0%,
+    rgba(149,255,138,.073)  30%,
+    rgba(149,255,138,.038)  60%,
+    rgba(149,255,138,.013)  85%,
     rgba(149,255,138,0)    100%);
 }
 
@@ -1443,12 +1443,9 @@
   letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--sx-ink);
-  /* Darker than the panel, not lighter. The outline carries the button, so the
-     fill's only job is to seat it — a grey fill under a coloured edge reads as
-     two decisions. */
-  background:
-    linear-gradient(180deg, rgba(243,244,246,.05) 0%, rgba(243,244,246,0) 70%),
-    rgba(8,9,9,.42);
+  /* No fill at all. The outline is the whole control and the panel behind it is
+     the ground — anything in between was a third surface nobody asked for. */
+  background: transparent;
   cursor: pointer;
   transition:
     background-color .35s var(--sx-ease),
@@ -1464,9 +1461,9 @@
 .sx-feat-view:focus-visible {
   gap: 1.35rem;
   border-color: #F2703F;
-  background:
-    linear-gradient(180deg, rgba(243,244,246,.06) 0%, rgba(243,244,246,0) 70%),
-    rgba(224,84,42,.13);
+  /* A wash rather than a fill: at rest the button is an outline, so hover has to
+     stay one too — it lights, it does not become a solid. */
+  background: rgba(224,84,42,.10);
   box-shadow: 0 0 26px -6px rgba(224,84,42,.55);
 }
 .sx-feat-view:hover svg { transform: translateX(3px); }
