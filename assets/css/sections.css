@@ -1101,9 +1101,51 @@
 }
 
 /* --- the cabinet --- */
+/* --- the stack ---------------------------------------------------------------
+   Three cards on one sticky line, each one receding as the next climbs over it.
+
+   Real Z, not a scale imitating it: the perspective sits on the CARD, never on
+   the stack. A perspective on the stack projects everything from the stack's
+   own centre, and the stack is three cards tall — the far ones would be thrown
+   sideways toward that centre instead of simply going back. Per-card, each box
+   is its own projection frame and a translateZ is exactly a recession.
+
+   perspective-origin at the top edge, so a card going back shrinks DOWNWARD
+   from where its top already is. That is the whole reason the stack fans upward
+   the way the design does: the tops stay put under the scale, and the lift
+   below is what separates them.
+   -------------------------------------------------------------------------- */
+.sx-feat-stack {
+  /* A BFC, so the last card's bottom margin lands INSIDE the stack instead of
+     collapsing out of it. That margin is not white space here — a sticky card
+     is held by its containing block, and without those pixels at the end the
+     block runs out at the exact moment the last card arrives, shoving every
+     card behind it off the line before you have read any of them. The tail is
+     what lets the finished stack sit still and then leave as one object. */
+  display: flow-root;
+  /* The line every card parks on, and it is doing two jobs at once: clearing
+     the fixed nav pill (88px to the bottom of its shadow), and leaving room
+     ABOVE the front card for two receded ones to show. The second job is the
+     binding one — a 708px card on a 900px viewport has about 170px to give, and
+     the lift below is sized against what is left. */
+  --sx-stack-top:  clamp(5.5rem, 17vh, 12rem);
+  /* Lift per card behind, before the projection foreshortens it. The design
+     puts ~80 between stacked tops; .755 of 92 is 69, which is as close as two
+     cards can sit to that and still both clear the top of a laptop screen. */
+  --sx-stack-lift: clamp(38px, 6.2vw, 92px);
+  /* 1600 / (1600 + 519) = .755, the design's own ratio between a stacked card
+     and the front one. */
+  --sx-stack-z:    519px;
+}
+
 .sx-feat {
-  position: relative;
-  margin-bottom: clamp(4rem, 9vh, 7rem);
+  position: sticky;
+  top: var(--sx-stack-top);
+  perspective: 1600px;
+  perspective-origin: 50% 0;
+  /* The gap here is dwell time, not white space: it is how far you scroll with
+     a card in front of you before the next one starts covering it. */
+  margin-bottom: clamp(7rem, 38vh, 22rem);
   /* The corner maths below is a function of the CARD's width, not the
      viewport's, so the card has to be the query container. Nothing on this
      element may use the cqw values it declares — an element is never its own
@@ -1123,6 +1165,30 @@
      export instead of chosen, and the two curves are one curve at every width. */
   --sx-feat-r: calc(var(--sx-cover-w) * 0.0431);
 }
+/* Nothing comes over the last card, so its margin is pure dwell: how long the
+   finished stack holds before the whole thing releases and scrolls away. */
+.sx-feat-stack > .sx-feat:last-child { margin-bottom: clamp(6rem, 46vh, 26rem); }
+
+/* Everything that moves. --sx-d is how many cards have come over this one and
+   can pass 1; --sx-dc is that clamped, because the recession happens once and
+   then the card only keeps rising. Two numbers from JS, the rest is arithmetic
+   the stylesheet can do itself. */
+.sx-feat-3d {
+  transform: translate3d(
+    0,
+    calc(var(--sx-stack-lift) * var(--sx-d, 0) * -1),
+    calc(var(--sx-stack-z) * var(--sx-dc, 0) * -1));
+  opacity: calc(1 - .62 * var(--sx-dc, 0));
+  /* A card behind is out of focus as well as small and dim. Two pixels, which
+     is nothing at rest but is exactly enough to stop a receded card's body copy
+     competing for the eye during the crossover, when a good deal of it is still
+     showing past the card in front. */
+  filter: blur(calc(2px * var(--sx-dc, 0)));
+  will-change: transform, opacity, filter;
+}
+/* A card behind is not a target. Without this the top card's own controls sit
+   under three stacked hit areas. */
+.sx-feat-3d[data-back] { pointer-events: none; }
 
 /* The light the cover throws on the wall. A sibling and not a background: it
    has to spill past the shell's rounded corners, and a background on a clipped
@@ -1487,6 +1553,11 @@
   /* One column. The cover always comes first: the read is the follow-up, never
      the thing you meet the project through. */
   .sx-feat-shell { grid-template-columns: 1fr; }
+  /* Stacked cards are far taller than the viewport here, so a card can never be
+     fully behind the next one — the recession would just clip the top of a card
+     you are still reading. The stack unpins into a plain column. */
+  .sx-feat { position: static; perspective: none; margin-bottom: clamp(3rem, 8vh, 5rem); }
+  .sx-feat-3d { transform: none !important; opacity: 1 !important; }
   /* Stacked, so the cover takes the whole row and the gap is out of the sum. */
   .sx-feat { --sx-cover-w: calc(100cqw - 2 * var(--sx-feat-pad)); }
   /* Stacked, the card is far taller than it is wide, so a bloom sized off its
@@ -1503,6 +1574,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* The stack is a motion effect and nothing else — with motion off the three
+     cards are simply three cards, in order, at full size. */
+  .sx-feat { position: static; perspective: none; margin-bottom: clamp(3rem, 8vh, 5rem); }
+  .sx-feat-3d { transform: none !important; opacity: 1 !important; }
+
   /* The strike is a lamp warming up; with motion off the lamp is simply on. */
   .sx-js .sx-feat-head[data-in] .sx-feat-pix { animation: none; }
   .sx-feat-pix { --p: 1; }

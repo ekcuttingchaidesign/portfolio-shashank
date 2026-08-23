@@ -477,6 +477,62 @@
     featHead.style.setProperty('--sx-pix-p', (1 - Math.pow(1 - p, 3)).toFixed(4));
   }
 
+  /* ------------------------------------------------------------------------
+     The featured stack.
+     ------------------------------------------------------------------------
+     Every card parks on the same sticky line and the next one climbs over it.
+     What this computes is one number per card: how many cards have come over
+     it, as a continuous depth rather than a count, so the recession is scrubbed
+     with the scroll instead of switching at a threshold.
+
+     Coverage of card j is how far its top has closed the gap to the line, over
+     a fixed run of travel. Depth of card i is the sum of the coverages below
+     it, which means a card keeps rising as each further card arrives while it
+     only recedes once — the design has every stacked card at the same size, on
+     one shelf, separated by height alone.
+
+     It reads .sx-feat's own rect and writes to .sx-feat-3d for a reason: the
+     article is never transformed, so its rect is the true sticky position. Put
+     the transform on the measured element and the next frame measures the
+     result of the last one.
+     ---------------------------------------------------------------------- */
+  const featStack = document.getElementById('sx-feat-stack');
+  const featCards = featStack ? [...featStack.querySelectorAll('.sx-feat')] : [];
+  const featInner = featCards.map(c => c.querySelector('.sx-feat-3d'));
+
+  /* The sticky line, read from the stylesheet rather than duplicated here — one
+     definition, and the clamp stays the CSS's business. */
+  let stackTop = 0;
+  function measureStack() {
+    if (!featCards.length) return;
+    stackTop = parseFloat(getComputedStyle(featCards[0]).top) || 0;
+  }
+  measureStack();
+
+  function updateStack() {
+    if (!featCards.length || reduced) return;
+    /* Long enough that the recession is something you watch, short enough that
+       it has finished by the time the next card is actually in front of you. */
+    const travel = Math.min(520, innerHeight * 0.55);
+
+    const cov = featCards.map(c =>
+      clamp01(1 - (c.getBoundingClientRect().top - stackTop) / travel));
+
+    for (let i = 0; i < featCards.length; i++) {
+      const el = featInner[i];
+      if (!el) continue;
+      let d = 0;
+      for (let j = i + 1; j < featCards.length; j++) d += cov[j];
+      const dc = clamp01(d);
+      el.style.setProperty('--sx-d', d.toFixed(4));
+      el.style.setProperty('--sx-dc', dc.toFixed(4));
+      /* Anything meaningfully behind stops taking the pointer, so the front
+         card's own controls are not sitting under two dead hit areas. */
+      if (dc > 0.14) el.setAttribute('data-back', '');
+      else el.removeAttribute('data-back');
+    }
+  }
+
   /* ========================================================================
      Loop
      ======================================================================== */
@@ -493,6 +549,7 @@
     updateExperience();
     updateHandoff();
     updateMarquee();
+    updateStack();
 
     idle = moved ? 0 : idle + 1;
     rafId = idle > IDLE_FRAMES ? 0 : requestAnimationFrame(frame);
@@ -500,13 +557,14 @@
   function kick() { if (!rafId) { idle = 0; rafId = requestAnimationFrame(frame); } }
 
   addEventListener('scroll', kick, { passive: true });
-  addEventListener('resize', kick, { passive: true });
+  addEventListener('resize', () => { measureStack(); kick(); }, { passive: true });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(); });
 
   /* Paint the correct state now rather than on the first scroll, so a reload
      halfway down the page doesn't start from level zero and animate up. */
   updateExperience();
   updateMarquee();
+  updateStack();
   updateHandoff();
   kick();
 
