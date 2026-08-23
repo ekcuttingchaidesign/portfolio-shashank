@@ -1403,8 +1403,24 @@
       const mark  = nav.querySelector('.sx-nav-mark');
       const items = [...nav.querySelectorAll('.sx-nav-i')];
       /* Read rather than repeated: the pill sizes its own padding off this same
-         property, so a literal here would let the two drift apart. */
-      const PAD = parseFloat(getComputedStyle(nav).getPropertyValue('--sx-nav-pad')) || 18;
+         property, so a literal here would let the two drift apart.
+
+         A custom property comes back UNRESOLVED — the string '1.15em', not the
+         pixels it stands for — so parseFloat alone read it as 1.15px and the
+         capsule ended up traced around the word with a pixel to spare. The em
+         has to be multiplied out against the element that will use it, and the
+         rem against the root, which is what this does. Read on every call: the
+         pill's font-size is a clamp and its pad changes again under the phone
+         breakpoint, so a value cached at startup is wrong after a resize. */
+      const pad = () => {
+        const cs  = getComputedStyle(nav);
+        const raw = cs.getPropertyValue('--sx-nav-pad').trim();
+        const n   = parseFloat(raw);
+        if (!isFinite(n)) return 18;
+        if (raw.endsWith('rem')) return n * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16);
+        if (raw.endsWith('em'))  return n * (parseFloat(cs.fontSize) || 16);
+        return n;                       /* px, or a bare number */
+      };
 
       /* Rects, not offsetLeft/offsetWidth. Those two round to whole pixels, and
          the rounding does not cancel — the capsule came out about a pixel wider
@@ -1417,11 +1433,40 @@
         const nb = nav.getBoundingClientRect();
         const eb = el.getBoundingClientRect();
         const bl = parseFloat(getComputedStyle(nav).borderLeftWidth) || 0;
-        glide.style.setProperty('--gx', (eb.left - nb.left - bl - PAD).toFixed(2) + 'px');
-        glide.style.setProperty('--gw', (eb.width + PAD * 2).toFixed(2) + 'px');
+        const P  = pad();
+        glide.style.setProperty('--gx', (eb.left - nb.left - bl - P).toFixed(2) + 'px');
+        glide.style.setProperty('--gw', (eb.width + P * 2).toFixed(2) + 'px');
         glide.style.setProperty('--go', '1');
       };
       const clear = () => { if (glide) glide.style.setProperty('--go', '0'); };
+
+      /* --- the way home ----------------------------------------------
+         The portrait goes to the HERO — the assembled headline — not to the
+         top of the document. Those are different places on this page: #s-enter
+         holds the whole entry as one timeline, and 0 is the film's first frame,
+         a screen of black with the dive still ahead of it. The hero arrives
+         later along that same timeline, so the target is a position on it, and
+         the page's own engine is the only thing that knows where: SX.heroY()
+         computes it from the film's real duration. Falling back on the
+         section's top rather than on 0, because if that engine has not started
+         yet the section top is still nearer the hero than the film's first
+         frame is.
+
+         stopFilm() first, for the same reason the labels call it — if the
+         pull-out is mid-playback it owns the scrollbar, and a smooth scroll
+         started underneath it would be overwritten frame by frame. */
+      const home = nav.querySelector('.sx-nav-home');
+      if (home) {
+        home.addEventListener('click', ev => {
+          ev.preventDefault();
+          stopFilm();
+          const enterEl = document.getElementById('s-enter');
+          const y = window.SX && typeof window.SX.heroY === 'function'
+            ? window.SX.heroY()
+            : (enterEl ? enterEl.offsetTop : 0);
+          scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' });
+        });
+      }
 
       items.forEach(el => {
         el.addEventListener('pointerenter', () => put(el));
