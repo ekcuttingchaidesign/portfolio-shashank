@@ -677,8 +677,14 @@
                covers it with no code change. -->
           <div class="sx-feat-cover" data-tile data-art="pending"
                data-empty="Key visual — Airtel Gaming&#10;three shipped surfaces">
+            <!-- The 2x export, so the phone UI holds up on a retina display.
+                 That costs 1.9MB, and this sits a long way down a long scroll —
+                 lazy is the difference between paying for it on load and paying
+                 for it when it is nearly on screen. The reserved plate below is
+                 what shows in the meantime, which is a state the card already
+                 has. Intrinsic size stays the CSS box, not the file. -->
             <img class="sx-feat-art" src="../public/img/airtel_gaming_cover.png"
-                 alt="" width="928" height="718" decoding="async">
+                 alt="" width="928" height="718" decoding="async" loading="lazy">
             <span class="sx-feat-scrim" aria-hidden="true"></span>
             <div class="sx-feat-cover-foot">
               <!-- Height fixed, width auto: the lockup is a wordmark and must

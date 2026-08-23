@@ -1185,7 +1185,13 @@
 }
 /* No render on disk, no broken frame: the slot falls back to the reserved-plate
    treatment the rest of the page already uses. */
-.sx-feat-cover:not([data-art="ready"]) .sx-feat-art { display: none; }
+/* Hidden by opacity, never by display. The file is lazy — 1.9MB this far down
+   the page has to be — and a lazy image that is display:none is never in the
+   viewport, so it never loads, so the slot never goes ready and the rule never
+   lifts. Opacity keeps the box in the layout, which is what the loader needs to
+   see. The fade is also just better than the swap popping. */
+.sx-feat-cover:not([data-art="ready"]) .sx-feat-art { opacity: 0; }
+.sx-feat-art { transition: opacity .45s var(--sx-ease); }
 
 .sx-feat-cover[data-art="pending"]::before,
 .sx-feat-cover[data-art="missing"]::before {
