@@ -1440,6 +1440,24 @@
       };
       const clear = () => { if (glide) glide.style.setProperty('--go', '0'); };
 
+      /* --- the way home ----------------------------------------------
+         The portrait goes to the top. Not scrollIntoView on #s-enter: that
+         section is a scrubbed timeline whose top is somewhere above the
+         document's, and landing on it would leave the hero part-played. 0 is
+         the only position where the hero is at its first frame.
+
+         stopFilm() first, for the same reason the labels call it — if the
+         pull-out is mid-playback it owns the scrollbar, and a smooth scroll
+         started underneath it would be overwritten frame by frame. */
+      const home = nav.querySelector('.sx-nav-home');
+      if (home) {
+        home.addEventListener('click', ev => {
+          ev.preventDefault();
+          stopFilm();
+          scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+        });
+      }
+
       items.forEach(el => {
         el.addEventListener('pointerenter', () => put(el));
         el.addEventListener('focus', () => put(el));

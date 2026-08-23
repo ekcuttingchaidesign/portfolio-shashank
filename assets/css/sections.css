@@ -1530,11 +1530,30 @@
   background: radial-gradient(closest-side, rgba(255,255,255,.13), transparent 72%);
 }
 
-/* --- the portrait ---------------------------------------------------------- */
-.sx-nav-me {
+/* --- the portrait ----------------------------------------------------------
+   Two elements for one round thing: the link carries the place in the row and
+   the img carries the look. That split is what keeps the hit area honest — the
+   anchor is exactly the circle, no inline leading under it (line-height: 0) and
+   no padding around it.
+   -------------------------------------------------------------------------- */
+.sx-nav-home {
   position: relative;
   z-index: 1;
   flex: none;
+  display: block;
+  line-height: 0;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+}
+/* The ring the keyboard gets. Offset outward so it circles the portrait rather
+   than cutting across it, and in the key colour because the lit state next to
+   it is already vermilion. */
+.sx-nav-home:focus-visible {
+  outline: 2px solid var(--sx-key);
+  outline-offset: 3px;
+}
+.sx-nav-me {
+  display: block;
   width: 3.35em; height: 3.35em;   /* 67 of 20 */
   border-radius: 50%;
   object-fit: cover;
@@ -1548,6 +1567,15 @@
 .sx-nav[data-active="hero"] .sx-nav-me {
   border-color: #fff;
   box-shadow: .25em .3em 1.4em rgba(203,70,25,.7);
+}
+/* Reaching for it says so. The ring is the same one the hero state wears, at
+   half strength, which is the point: hovering it previews where it goes.
+   Anywhere but the hero, where the portrait is already wearing the full
+   version and has nowhere brighter to go. */
+.sx-nav:not([data-active="hero"]) .sx-nav-home:hover .sx-nav-me,
+.sx-nav:not([data-active="hero"]) .sx-nav-home:focus-visible .sx-nav-me {
+  border-color: rgba(255,255,255,.55);
+  box-shadow: .12em .16em .8em rgba(203,70,25,.4);
 }
 
 /* --- the items ------------------------------------------------------------- */
@@ -2019,6 +2047,17 @@
     --sx-nav-pad:   .7em;
     --sx-nav-inset: .5em;
     gap: 1.8em;
+  }
+  /* The portrait comes down with the rest of the pill, to about 31px, which is
+     under what a thumb wants. This grows the LINK's hit area without touching
+     the circle you can see — the ring stays 31px, the thing you can hit is 45.
+     It reaches into the gap beside the labels, but the labels come later in the
+     pill and win where the two meet. */
+  .sx-nav-home::after {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
   }
 }
 
