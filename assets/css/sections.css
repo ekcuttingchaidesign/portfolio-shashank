@@ -1368,9 +1368,17 @@
   bottom: 8.91%;                /*  64 of 718 */
 }
 .sx-feat-logo { display: block; margin-bottom: clamp(.5rem, 1.35vw, 1.3rem); }
+/* Sized from the export's OWN height against the card, not from a single number
+   for every card. The two lockups are different objects — the Gaming one is
+   67 tall in a 1467 frame, the plain wordmark 38 — and one shared height would
+   blow the wordmark up to 1.8x the size it is drawn at.
+
+   --sx-logo-h is that natural height, carried per card; 100cqw is the card's own
+   width, so the lockup holds its designed proportion of the card at every
+   viewport instead of tracking the window. */
 .sx-feat-logo img {
   display: block;
-  height: clamp(30px, 4vw, 67px);   /* the export's own height; width follows */
+  height: max(22px, calc(var(--sx-logo-h, 67) * (100cqw / 1467)));
   width: auto;
 }
 .sx-feat-logo:not([data-art="ready"]) img { display: none; }
