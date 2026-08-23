@@ -499,13 +499,40 @@
   const featStack = document.getElementById('sx-feat-stack');
   const featCards = featStack ? [...featStack.querySelectorAll('.sx-feat')] : [];
   const featInner = featCards.map(c => c.querySelector('.sx-feat-3d'));
+  const navPill   = document.getElementById('sx-nav');
 
-  /* The sticky line, read from the stylesheet rather than duplicated here — one
-     definition, and the clamp stays the CSS's business. */
-  let stackTop = 0;
+  /* How far back one card goes. 1600 / (1600 + 519) = .755, the design's ratio
+     between a stacked card and the front one — and because the Z COMPOUNDS,
+     two back is 1038 and .607. That difference is the whole point: the card at
+     the back of the queue has to be smaller than the one in front of it, or
+     there is no queue, just two cards at the same distance. */
+  const Z_STEP = 519;
+  /* How dark one step of depth makes a card's face. Compounds the same way, so
+     two back is 1 - .52^2 = .73 — dark enough that the deepest card recedes,
+     light enough that you can still count it. */
+  const DIM_STEP = 0.48;
+
+  let stackTop = 0, stackGap = 40, stackP = 1600;
+
+  /* Everything the stack's geometry needs, measured rather than declared.
+
+     The nav is read off the element itself, and off its computed `top` rather
+     than its rect: the pill has an arrival transform, and at page load its rect
+     sits 14px high of where it will settle. The gap is then whatever room is
+     left between the nav and the front card, split between the cards behind —
+     which is what guarantees the one at the back clears the pill on any screen. */
   function measureStack() {
     if (!featCards.length) return;
-    stackTop = parseFloat(getComputedStyle(featCards[0]).top) || 0;
+    const cs = getComputedStyle(featCards[0]);
+    stackTop = parseFloat(cs.top) || 0;
+    stackP   = parseFloat(cs.perspective) || 1600;
+
+    let navLine = 96;
+    if (navPill) {
+      const navTop = parseFloat(getComputedStyle(navPill).top);
+      if (!Number.isNaN(navTop)) navLine = navTop + navPill.offsetHeight + 10;
+    }
+    stackGap = Math.max(20, (stackTop - navLine) / Math.max(1, featCards.length - 1));
     fitStack();
   }
   measureStack();
@@ -528,31 +555,60 @@
   }
 
   function updateStack() {
-    if (!featCards.length || reduced) return;
+    if (!featCards.length) return;
+    /* Below the stack's breakpoint the cards are a plain column. Read that off
+       the CSS rather than repeating the media query here, and clear anything a
+       wider layout left behind. */
+    if (reduced || getComputedStyle(featCards[0]).position !== 'sticky') {
+      for (const el of featInner) {
+        if (!el) continue;
+        el.style.removeProperty('--sx-cy');
+        el.style.removeProperty('--sx-cz');
+        el.style.removeProperty('--sx-dim');
+        el.removeAttribute('data-back');
+      }
+      return;
+    }
+
     /* Long enough that the recession is something you watch, short enough that
        it has finished by the time the next card is actually in front of you. */
     const travel = Math.min(460, innerHeight * 0.52);
-    /* The recession finishes at HALF a card's arrival, not at the end of it.
-       Tied to the full arrival, an outgoing card is still near full brightness
-       while a 250px band of it is already exposed above the incoming one —
-       which is exactly the crossover reading as clutter rather than as depth.
-       Front-loaded, it is dim and back before that band opens up. */
+    /* Each covering card contributes its step over the FIRST HALF of its own
+       arrival, not the whole of it. Tied to the full arrival, an outgoing card
+       is still near full brightness while a 250px band of it is already exposed
+       above the incoming one — the crossover reading as clutter rather than as
+       depth. Front-loaded per card, so the steps still sum cleanly. */
     const RECEDE = 0.5;
 
-    const cov = featCards.map(c =>
-      clamp01(1 - (c.getBoundingClientRect().top - stackTop) / travel));
+    const step = featCards.map(c => clamp01(
+      (1 - (c.getBoundingClientRect().top - stackTop) / travel) / RECEDE));
 
     for (let i = 0; i < featCards.length; i++) {
       const el = featInner[i];
       if (!el) continue;
+
+      /* Depth in steps, continuous, and uncapped — two cards over this one is
+         genuinely twice as far back as one. */
       let d = 0;
-      for (let j = i + 1; j < featCards.length; j++) d += cov[j];
-      const dc = clamp01(d / RECEDE);
-      el.style.setProperty('--sx-d', d.toFixed(4));
-      el.style.setProperty('--sx-dc', dc.toFixed(4));
+      for (let j = i + 1; j < featCards.length; j++) d += step[j];
+
+      const z = Z_STEP * d;
+      /* What the perspective will do to this card at that depth. Everything
+         below has to be divided by it, because the projection scales the
+         card's translation as well as the card. */
+      const proj = stackP / (stackP + z);
+      /* Even apparent steps between the stacked tops. Without the divide the
+         deeper card, being more foreshortened, would drift toward the one in
+         front of it and the queue would bunch up at the back. */
+      const y = -(d * stackGap) / proj;
+      const dim = 1 - Math.pow(1 - DIM_STEP, d);
+
+      el.style.setProperty('--sx-cy', y.toFixed(1) + 'px');
+      el.style.setProperty('--sx-cz', (-z).toFixed(1) + 'px');
+      el.style.setProperty('--sx-dim', dim.toFixed(4));
       /* Anything meaningfully behind stops taking the pointer, so the front
          card's own controls are not sitting under two dead hit areas. */
-      if (dc > 0.14) el.setAttribute('data-back', '');
+      if (d > 0.14) el.setAttribute('data-back', '');
       else el.removeAttribute('data-back');
     }
   }

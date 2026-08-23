@@ -1123,25 +1123,11 @@
      card behind it off the line before you have read any of them. The tail is
      what lets the finished stack sit still and then leave as one object. */
   display: flow-root;
-  /* Where the nav stops. The pill is placed in vh, so its bottom edge MOVES
-     with the viewport — 84, 88, 94 at 800, 900, 1080 — and a fixed number here
-     clears it on a laptop and fails on a large display. This tracks it, plus a
-     few pixels of air. */
-  --sx-stack-nav:  calc(3.6vh + 62px);
-  /* The line the front card parks on. */
+  /* The line the front card parks on. Everything else about the stack — how far
+     back each card goes, how much it lifts, how dark it gets — is measured and
+     written by JS against this and the nav's real position, because all of it
+     depends on how much room a given viewport actually left. */
   --sx-stack-top:  clamp(6rem, 20vh, 15rem);
-  /* Lift per card behind, and it is DERIVED, not chosen. The two cards behind
-     have to fit between the nav and the front card, so the room between those
-     two lines is what there is, split in two. Divided by .755 because this is
-     the pre-projection value and the perspective foreshortens it.
-
-     A fixed lift is what put the top card under the nav: it cannot know how
-     much room a given viewport actually left it. This always clears. */
-  --sx-stack-lift: max(30px,
-    calc((var(--sx-stack-top) - var(--sx-stack-nav)) / 1.51));
-  /* 1600 / (1600 + 519) = .755, the design's own ratio between a stacked card
-     and the front one. */
-  --sx-stack-z:    519px;
 }
 
 .sx-feat {
@@ -1175,9 +1161,9 @@
    finished stack holds before the whole thing releases and scrolls away. */
 .sx-feat-stack > .sx-feat:last-child { margin-bottom: clamp(6rem, 46vh, 26rem); }
 
-/* Everything that moves. --sx-d is how many cards have come over this one and
-   can pass 1; --sx-dc is the recession, which front-loads and finishes early.
-   Three numbers from JS, the rest is arithmetic the stylesheet can do itself. */
+/* Everything that moves. Four numbers arrive from JS — the card's Y and Z at
+   its current depth, how dark its face is, and the one fit scale the whole
+   stack shares — and this applies them. */
 .sx-feat-3d {
   /* A pinned card that runs past the bottom of the screen is not pinned, it is
      stuck: its own VIEW button sits below the fold for as long as you look at
@@ -1194,21 +1180,40 @@
      and applied innermost so the stack's own lift above is not scaled with it:
      the gap that clears the nav has to stay the size it was calculated at. */
   transform-origin: 50% 0;
-  transform: translate3d(
-      0,
-      calc(var(--sx-stack-lift) * var(--sx-d, 0) * -1),
-      calc(var(--sx-stack-z) * var(--sx-dc, 0) * -1))
-    scale(var(--sx-fit, 1));
-  /* Down to .24, not .38. The covers are bright — white phone mockups on red —
-     and .38 of white over black is still a 97 grey shouting from behind the
-     card you are meant to be reading. */
-  opacity: calc(1 - .70 * var(--sx-dc, 0));
-  /* Out of focus as well as small and dim. Four pixels: enough that a receded
-     card's body copy stops competing during the crossover, when a good deal of
-     it is still showing past the card in front. */
-  filter: blur(calc(3px * var(--sx-dc, 0)));
-  will-change: transform, opacity, filter;
+  /* --sx-cy and --sx-cz are computed per card, in px, because the depth
+     COMPOUNDS: two cards back is twice the Z, so it is a smaller card than one
+     card back, and its Y has to be divided by its own smaller projection to
+     land on an even step. That is not arithmetic a stylesheet can do — it needs
+     the perspective divide per card — so JS does it and this just applies it. */
+  transform: translate3d(0, var(--sx-cy, 0px), var(--sx-cz, 0px))
+             scale(var(--sx-fit, 1));
+  /* No opacity here, deliberately. A translucent card stops OCCLUDING: you see
+     the page and the other cards straight through it, which is the one thing a
+     stack of cards must never do. The card stays solid and the dimming happens
+     on its face — see the scrim on the shell below. */
+  filter: blur(calc(2.5px * var(--sx-dim, 0)));
+  will-change: transform, filter;
 }
+
+/* The dimming, as a scrim ON the card rather than alpha applied TO it. Same
+   visual result on a black page, entirely different behaviour everywhere it
+   matters: the card underneath is still opaque, so it hides what is behind it,
+   and the stack reads as three solid objects instead of three sheets of glass.
+
+   Above both panels, inside the shell's own rounded box. */
+.sx-feat-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: inherit;
+  background: #070807;
+  opacity: var(--sx-dim, 0);
+  pointer-events: none;
+}
+/* The bloom is outside the shell, so the scrim cannot reach it — and three
+   green blooms at full strength stacked on one another is a lot of green. */
+.sx-feat-bloom { opacity: calc(1 - var(--sx-dim, 0)); }
 /* A card behind is not a target. Without this the top card's own controls sit
    under three stacked hit areas. */
 .sx-feat-3d[data-back] { pointer-events: none; }
@@ -1588,7 +1593,9 @@
      fully behind the next one — the recession would just clip the top of a card
      you are still reading. The stack unpins into a plain column. */
   .sx-feat { position: static; perspective: none; margin-bottom: clamp(3rem, 8vh, 5rem); }
-  .sx-feat-3d { transform: none !important; opacity: 1 !important; }
+  .sx-feat-3d { transform: none !important; filter: none !important; }
+  .sx-feat-shell::after { opacity: 0 !important; }
+  .sx-feat-bloom { opacity: 1 !important; }
   /* Stacked, so the cover takes the whole row and the gap is out of the sum. */
   .sx-feat { --sx-cover-w: calc(100cqw - 2 * var(--sx-feat-pad)); }
   /* Stacked, the card is far taller than it is wide, so a bloom sized off its
@@ -1608,7 +1615,9 @@
   /* The stack is a motion effect and nothing else — with motion off the three
      cards are simply three cards, in order, at full size. */
   .sx-feat { position: static; perspective: none; margin-bottom: clamp(3rem, 8vh, 5rem); }
-  .sx-feat-3d { transform: none !important; opacity: 1 !important; }
+  .sx-feat-3d { transform: none !important; filter: none !important; }
+  .sx-feat-shell::after { opacity: 0 !important; }
+  .sx-feat-bloom { opacity: 1 !important; }
 
   /* The strike is a lamp warming up; with motion off the lamp is simply on. */
   .sx-js .sx-feat-head[data-in] .sx-feat-pix { animation: none; }
