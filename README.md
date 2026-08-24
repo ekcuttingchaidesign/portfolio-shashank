@@ -27,6 +27,7 @@ just dived into.
 | `assets/fonts/` | Satoshi, as woff2. The two weights the hero needs are preloaded. |
 | `public/video/` | The two source films (`into-the-screen`, `out-of-the-screen`). |
 | `public/img/` | The portrait, the three headline objects, and project covers. |
+| `docs/pending-art.md` | What each More Stories slot holds, and the two cards whose titles are still baked into their render. |
 | `portfolio-content.html` | The hi-fi content wireframe all the copy below the hero comes from. Reference, not shipped. |
 | `portfolio_spec.md` | The written spec behind the same. Reference, not shipped. |
 | `serve.js` | Local dev server. See **Running it locally** — the usual one-liner does not work here. |

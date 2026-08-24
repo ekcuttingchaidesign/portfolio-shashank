@@ -818,6 +818,96 @@
     </div>
   </section>
 
+  <!-- ---------- 2b · MORE STORIES ----------
+       The counterpart to the stack above. Featured Work is one card at a time,
+       held in depth; this is everything at once, laid flat — four smaller
+       projects on one shelf, which is the only honest way to show work that
+       never earned a full case study.
+
+       Four cards, three column widths, two rows: the tall card holds the left
+       edge for the whole block and the other three assemble against it. The
+       proportions are the Figma's own (489 / 488 / 412 on 1461, rows 274 and
+       442, 36 between), held as fractions of the grid's own width so the whole
+       bento scales as one object instead of being redrawn per breakpoint.
+       ------------------------------------------------------------------ */ -->
+  <section id="sx-stories">
+    <!-- The cone hangs off the SECTION, not off the wrap: in the design it
+         runs past the right edge of the frame itself, and the wrap stops well
+         short of that on a wide screen. Measured in vw for the same reason —
+         it is placed against the window, and the section clips what leaves. -->
+    <img class="sx-st-cone" id="sx-st-cone" src="../public/img/conical_green.svg"
+         alt="" width="272" height="266" decoding="async" aria-hidden="true">
+
+    <div class="sx-wrap">
+
+      <header class="sx-st-head" data-reveal>
+        <h2 class="sx-st-h2">More Stories</h2>
+      </header>
+
+      <!-- The shelf exists so the grid can measure itself. An element is never
+           its own container query container, so the row heights and the gap —
+           which are fractions of the grid's WIDTH — have to be read off a
+           parent, or they silently resolve against the viewport instead. -->
+      <div class="sx-st-shelf">
+        <span class="sx-st-bloom" aria-hidden="true"></span>
+        <div class="sx-st-grid" id="sx-st-grid">
+
+        <article class="sx-st sx-st--coins" data-st>
+          <span class="sx-st-art" data-art="pending"
+                data-empty="Airtel Coins&#10;interaction render">
+            <img src="../public/img/stories_airtel_coins.png" alt=""
+                 width="978" height="1504" decoding="async" loading="lazy">
+          </span>
+          <div class="sx-st-copy">
+            <p class="sx-st-kicker">Airtel Coins</p>
+            <h3 class="sx-st-title">Interaction</h3>
+          </div>
+        </article>
+
+        <article class="sx-st sx-st--iptv" data-st>
+          <span class="sx-st-art" data-art="pending"
+                data-empty="Self-Serve IPTV&#10;set-top box render">
+            <img src="../public/img/stories_iptv_selfserve.png" alt=""
+                 width="1872" height="548" decoding="async" loading="lazy">
+          </span>
+          <div class="sx-st-copy">
+            <h3 class="sx-st-title">Self-Serve IPTV</h3>
+            <p class="sx-st-sub">Reducing SR tickets via self serve experience</p>
+          </div>
+        </article>
+
+        <!-- data-lettered: this card's render carries its own title. The copy
+             below stays in the document for the reader that cannot see the
+             render, and is taken off the screen so it does not print twice.
+             Drop the attribute the day the art is re-exported clean. -->
+        <article class="sx-st sx-st--wynk" data-st data-lettered>
+          <span class="sx-st-art" data-art="pending"
+                data-empty="Wynk Rewind&#10;2021 numerals">
+            <img src="../public/img/stories_wynk_rewind.png" alt=""
+                 width="976" height="884" decoding="async" loading="lazy">
+          </span>
+          <div class="sx-st-copy">
+            <h3 class="sx-st-title">Wynk<br>Rewind</h3>
+          </div>
+        </article>
+
+        <article class="sx-st sx-st--parental" data-st data-lettered>
+          <span class="sx-st-art" data-art="pending"
+                data-empty="Parental Controls&#10;set-top box render">
+            <img src="../public/img/stories_parental_controls.png" alt=""
+                 width="824" height="884" decoding="async" loading="lazy">
+          </span>
+          <div class="sx-st-copy">
+            <p class="sx-st-kicker sx-st-kicker--lg">Parental</p>
+            <h3 class="sx-st-title">Controls</h3>
+          </div>
+        </article>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ---------- 3 · ARCHIVE ----------
        The only crowded moment on the site, and the density is doing a job:
        framed as "the rest of it", ten years of output reads as catalogue depth
