@@ -509,12 +509,18 @@
 
    WebP: 143KB and 470KB against 1.5MB and 2.1MB as PNG. This page already
    needs container queries, which need a newer browser than WebP does. */
+.sx-mv-lede { --sx-mv-w: clamp(120px, 13vw, 210px); }
 .sx-mv-mascot {
   position: absolute;
-  right: 0;
-  bottom: -1.25rem;
+  /* Standing ON the plinth, so both numbers are the plinth's geometry rather
+     than the section's: far enough in from the right to sit near the middle of
+     the surface, and high enough that the plinth's front face has somewhere to
+     be. It used to sit flush above the strip, which left the plinth nothing
+     but a lip. */
+  right: calc(var(--sx-mv-w) * 0.55);
+  bottom: calc(var(--sx-mv-w) * 0.386);
   z-index: 1;
-  width: clamp(120px, 13vw, 210px);
+  width: var(--sx-mv-w);
   aspect-ratio: 1;
   padding: 0;
   border: 0;
@@ -533,12 +539,43 @@
   background-image: url("../../public/img/mascot_music_vibe.webp");
   background-size: 600% 200%;
 }
+/* The walk sheet's URL also lives as a custom property, because the preloader
+   has to know it before the pose has switched to it. One place to change. */
+.sx-mv-mascot { --sx-mv-walk: url("../../public/img/MASCOT_MOONWALK_ONLY.webp"); }
 .sx-mv-mascot[data-pose="walk"] {
-  background-image: url("../../public/img/mascot_moonwalk_dab2.webp");
-  background-size: 600% 400%;
+  background-image: var(--sx-mv-walk);
+  background-size: 800% 300%;
 }
+/* --- the stage ---
+   The plinth the character stands on. Sits behind the mascot and is sized off
+   it, so the two cannot drift apart: the SVG's own top face ends 105 of its
+   224 units down, which is the line the feet have to meet.
+
+   Its own gradients fade to transparent at both far edges, so it needs no mask
+   and no ground of its own — it simply thins out into the page. */
+.sx-mv-stage {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  width: calc(var(--sx-mv-w) * 2.35);
+  aspect-ratio: 763 / 224;
+  /* Both offsets are fractions of the mascot's width, so the character and the
+     thing it stands on cannot drift apart at any viewport size.
+
+     The vertical number puts the feet about 40% down the stage rather than on
+     its front edge at 47% — standing ON the surface, a step back from the lip,
+     which is where a figure has to be for the plinth to read as something it
+     is on rather than something it is balanced against. */
+  bottom: 0;
+  right: 0;
+  background: url("../../public/img/mascot-dance-platform.svg") no-repeat center/contain;
+  opacity: .9;
+}
+
 /* It is a control, so it says so — but quietly. A character that grows under
-   the pointer is the whole affordance; a border would make it a widget. */
+   the pointer is the whole affordance; a border would make it a widget. The
+   stage does not grow with it: a plinth that scales is a picture of a plinth,
+   not a thing being stood on. */
 @media (hover: hover) {
   .sx-mv-mascot:hover { transform: scale(1.05); opacity: 1; }
 }
@@ -616,7 +653,7 @@
 }
 
 @media (max-width: 860px) {
-  .sx-mv-mascot { display: none; }
+  .sx-mv-mascot, .sx-mv-stage { display: none; }
   .sx-mv-head { max-width: none; }
 }
 
@@ -638,6 +675,7 @@
      than staying one that does nothing. JS drops its button semantics to
      match; this is the half that stops it looking clickable. */
   #sx-move .sx-mv-mascot { cursor: default; pointer-events: none; }
+  #sx-move .sx-mv-stage { opacity: .9; }
   #sx-move .sx-reel-strip { animation: none; transform: none; }
   #sx-move .sx-reel {
     overflow-x: auto;
