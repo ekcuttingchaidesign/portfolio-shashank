@@ -599,31 +599,66 @@
 }
 
 /* --- the spotlight ---
-   The thing lighting the plinth, which the plinth's own gradients imply and
-   nothing was casting. Two parts, both static so they paint once: a wedge
-   falling from up and to the right, and the pool it makes where it lands.
-
-   A conic gradient rather than a blurred shape — a beam is an angular sweep
-   from a point, which is what conic IS, and it costs one paint instead of a
-   filter the compositor has to keep re-running. */
+   The delivered beam, softened by 20 the way it is in the Figma. Its apex is
+   the SVG's own top-right corner and it fans down and to the left, so it is
+   hung off the top of the stand and reaches well above the section — which is
+   why the section clips on X only. */
 .sx-mv-glow {
   position: absolute;
-  right: -12%;
-  bottom: -6%;
-  width: 132%;
-  height: 460%;
+  right: -6%;
+  bottom: 4%;
+  width: 100%;
+  aspect-ratio: 587 / 1101;
   z-index: 0;
   pointer-events: none;
-  background:
-    conic-gradient(from 186deg at 78% 1%,
-      rgba(255,190,126,0)    0deg,
-      rgba(255,190,126,.085) 5deg,
-      rgba(255,190,126,.155) 12deg,
-      rgba(255,190,126,.115) 19deg,
-      rgba(255,190,126,.035) 26deg,
-      rgba(255,190,126,0)    32deg),
-    radial-gradient(40% 10% at 40% 92%,
-      rgba(240,158,88,.34), rgba(240,158,88,0) 74%);
+  background: url("../../public/img/spotlight.svg") no-repeat bottom right / contain;
+  filter: blur(20px);
+  /* The beam is longer than the section it belongs to — its apex is the SVG's
+     own top corner and lands 500px up inside More Stories, where a warm wedge
+     crossing the bento is nobody's idea. Rather than cut it there, which would
+     put a hard bright edge at the seam because the apex is the brightest part
+     of it, the throw dissolves: the light arrives from somewhere out of frame
+     and the source is lost in the dark. Which is what a beam does anyway. */
+  -webkit-mask-image: linear-gradient(to bottom,
+    transparent 0%, rgba(0,0,0,.18) 20%, rgba(0,0,0,.62) 42%, #000 66%);
+          mask-image: linear-gradient(to bottom,
+    transparent 0%, rgba(0,0,0,.18) 20%, rgba(0,0,0,.62) 42%, #000 66%);
+  /* Deliberately no will-change. It never moves and never fades, so it is
+     rasterised once and then it is a texture; hinting it would buy a permanent
+     layer for an image that is already finished. */
+}
+
+/* --- the bloom ---
+   The Figma is a 348px circle of #FF8250 under a 700px layer blur. It is a
+   RADIAL GRADIENT here, and that is not an approximation of the spec so much
+   as a reading of what the spec actually produces.
+
+   Rendered literally and sampled, that blur peaks at 5.1% alpha dead centre,
+   is still 4.7% at 300px out and 2.4% at 700. There is no core and no edge —
+   it is a wide, weak wash, which is exactly the shape of a radial gradient.
+   The stops below are those measurements. What it saves is a filtered layer
+   whose paint bounds run some 2000px past the element on every side, for a
+   picture that a gradient draws for nothing.
+
+   Same reasoning as the featured cards' bloom further up this file, and the
+   reason there is a rule about it: on this page a blur is only ever worth it
+   when the thing underneath has structure to lose. A flat circle has none. */
+.sx-mv-bloom {
+  --sx-bloom: calc(var(--sx-mv-w) * 6.2);
+  position: absolute;
+  right: calc(52% + var(--sx-mv-w) / 2 - var(--sx-bloom) / 2);
+  bottom: calc(55.7% + var(--sx-mv-w) / 2 - var(--sx-bloom) / 2);
+  width: var(--sx-bloom);
+  height: var(--sx-bloom);
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(closest-side circle,
+    rgba(255,130,80,.051) 0%,
+    rgba(255,130,80,.047) 22%,
+    rgba(255,130,80,.039) 30%,
+    rgba(255,130,80,.027) 44%,
+    rgba(255,130,80,.014) 62%,
+    rgba(255,130,80,0)    100%);
 }
 
 /* --- the ledge ---
