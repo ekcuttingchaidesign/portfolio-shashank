@@ -1807,13 +1807,13 @@
        one-for-one — nine times normal through twelve frames is a flicker, not
        a dance — so it takes a fifth of the excess and caps at 1.8.
 
-       The moonwalk does NOT follow the strip. It is a performance someone
-       asked for, so it plays at its own tempo whatever the scroll is doing,
-       and it plays even while the strip is paused: a direct answer to a click
-       outranks the ambient state of the page. */
+       The moonwalk does NOT follow the strip. It is danced at somebody, so it
+       keeps its own tempo whatever the scroll is doing, and it dances even
+       while the strip is paused: a direct answer to a pointer outranks the
+       ambient state of the page. */
     const POSES = {
-      vibe: { cols: 6, rows: 2, frames: 12, cycle: 1900, loop: Infinity },
-      walk: { cols: 6, rows: 4, frames: 24, cycle: 2100, loop: 1 },
+      vibe: { cols: 6, rows: 2, frames: 12, cycle: 1900 },
+      walk: { cols: 8, rows: 3, frames: 24, cycle: 1500 },
     };
     const mascot = document.getElementById('sx-mv-mascot');
     let sprite = null, posing = false;
@@ -1841,7 +1841,7 @@
       const pose = POSES[name];
       mascot.dataset.pose = name;
       sprite = mascot.animate(poseKeys(pose),
-        { duration: pose.cycle, iterations: pose.loop });
+        { duration: pose.cycle, iterations: Infinity });
       return sprite;
     };
 
@@ -1906,44 +1906,65 @@
       else { if (posing && sprite) sprite.play(); applySpeed(); }
     });
 
-    /* --- asking for the moonwalk --- */
+    /* --- asking for the moonwalk ---
+       Hover, not click, and that changes what this control IS. A click is a
+       request that something happen; hover is only attention. So the moonwalk
+       loops for exactly as long as the pointer is on the character and drops
+       back to vibing the moment it leaves — nothing to finish, nothing to sit
+       through. That also lets both poses loop, where the dab sheet had to play
+       once: a dab has a beginning and an end, a moonwalk is a cycle.
+
+       Focus does the same thing, because hover is not available to everybody
+       and a keyboard should not be shut out of the one toy on the page. It is
+       also why this stays a <button>: the only element that is reliably
+       focusable and announced, and tabbing to it does what its label says. */
     if (mascot && mascot.animate) {
       playPose('vibe');
       applySpeed();
 
-      /* The walk sheet is 470KB and only ever wanted after a click, so it is
-         not fetched with the page. Hovering or tabbing to the mascot is the
-         intent signal; by the time the click lands it is usually decoded. */
-      let warm = null;
+      /* The walk sheet is only wanted once somebody reaches for the character,
+         so it is not fetched with the page. With a click there was a hover
+         beforehand to warm it; with hover there is no earlier signal, so the
+         first hover has to decode before it can switch — hence `wants`, which
+         catches the pointer having left while that was happening. */
+      let warm = null, wants = false;
       const preload = () => {
         if (warm) return warm;
         const img = new Image();
-        img.src = getComputedStyle(mascot, null)
-          .getPropertyValue('background-image')
-          .replace(/^url\(["']?/, '').replace(/["']?\)$/, '')
-          .replace('mascot_music_vibe', 'mascot_moonwalk_dab2');
+        img.src = getComputedStyle(mascot).getPropertyValue('--sx-mv-walk')
+          .trim().replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
         warm = img.decode().catch(() => {});
         return warm;
       };
-      mascot.addEventListener('pointerenter', preload, { once: true });
-      mascot.addEventListener('focus', preload, { once: true });
 
-      mascot.addEventListener('click', async () => {
+      const dance = async () => {
         if (posing) return;
-        posing = true;
-        mascot.setAttribute('data-busy', '');
-        /* Decode before switching, or the first click on a cold cache swaps to
-           an image that is not there yet and the character blinks out. */
+        posing = true; wants = true;
         await preload();
-        const run = playPose('walk');
-        if (!run) { posing = false; mascot.removeAttribute('data-busy'); return; }
-        run.playbackRate = 1;
-        try { await run.finished; } catch { /* cancelled — pose already moved on */ }
+        if (!wants) { posing = false; return; }
+        playPose('walk');
+        sprite.playbackRate = 1;
+      };
+      const settle = () => {
+        wants = false;
+        if (!posing) return;
         posing = false;
-        mascot.removeAttribute('data-busy');
         playPose('vibe');
         applySpeed();
+      };
+
+      mascot.addEventListener('pointerenter', e => {
+        if (e.pointerType === 'touch') return;
+        dance();
       });
+      mascot.addEventListener('pointerleave', settle);
+      /* A pointer can vanish without leaving — captured elsewhere, or the
+         window goes away mid-hover — and the character is left dancing to
+         nobody. */
+      mascot.addEventListener('pointercancel', settle);
+      addEventListener('blur', settle);
+      mascot.addEventListener('focus', dance);
+      mascot.addEventListener('blur', settle);
     }
 
     /* The strip used to bend away at both ends — each cell turned about Y by

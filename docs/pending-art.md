@@ -62,81 +62,88 @@ themselves"* says the same thing in the reader's words. Left as drawn.
 
 # Things that move
 
-## The mascot — two poses, delivered
+## The mascot — two poses on a plinth
 
 | Sheet | Grid | Frames | Role |
 | --- | --- | --- | --- |
-| `mascot_music_vibe.png` | 6 × 2 | 12 | **Default.** Vibing to the music, on a loop |
-| `mascot_moonwalk_dab2.png` | 6 × 4 | 24 | **On click.** Moonwalk into a dab, plays once, returns to vibing |
+| `mascot_music_vibe.png` | 6 × 2 | 12 | **Default.** Vibing to the music |
+| `MASCOT_MOONWALK_ONLY.png` | 8 × 3 | 24 | **On hover / focus.** Moonwalks for as long as you stay on it |
+| `mascot_moonwalk_dab2.png` | 6 × 4 | 24 | *Kept for revert.* The moonwalk-into-dab it replaced |
 
-Clicking the character plays the moonwalk and it goes back to vibing. It is a
-real button: keyboard-reachable, Enter and Space work, and it has a focus ring.
-Under reduced motion there is no sprite to play, so JS strips the button
-semantics rather than leaving a labelled control that answers Enter with
-nothing.
+Hover the character and it moonwalks; move away and it goes back to vibing.
+Focus does the same, so a keyboard is not shut out of it. Both poses loop —
+the dab sheet had to play once because a dab has a beginning and an end, but a
+moonwalk is a cycle and it runs while you are looking at it.
+
+**To revert to the dab**, change two things: `POSES.walk` in
+`assets/js/sections.js` back to `{ cols: 6, rows: 4, frames: 24, cycle: 2100 }`,
+and `--sx-mv-walk` plus the `[data-pose="walk"]` `background-size` in the CSS
+back to `mascot_moonwalk_dab2.webp` / `600% 400%`. Both `.webp` files are
+already built, so nothing needs regenerating.
 
 The vibe's rate follows the strip's — it dances faster while the reel is coming
-in fast and settles as the reel settles, at a fifth of the strip's excess and
-capped at 1.8×. The moonwalk does not follow the strip: it is a performance
-someone asked for, so it plays at its own tempo, and it plays even while the
-strip is paused. A direct answer to a click outranks the ambient state.
+in fast — at a fifth of the strip's excess, capped at 1.8×. The moonwalk does
+not follow it: it is danced at somebody, so it keeps its own tempo, and it
+dances even while the strip is paused. A direct answer to a pointer outranks
+the ambient state.
+
+### The plinth
+
+`mascot-dance-platform.svg` (renamed from `MASCOT DANCE PLATFORM.svg` — spaces
+and capitals in a URL are avoidable trouble). It sits behind the character and
+is sized and placed in fractions of the mascot's own width, so the two cannot
+drift apart at any viewport. The character stands about 40% down the stage
+rather than on its front edge at 47%: a step back from the lip is where a
+figure has to be for a plinth to read as something it is standing ON.
+
+The "spotlight" is already in the file — the top face's gradient runs from
+`#553220` to transparent across the surface, which is light falling on it, and
+the front face fades downward the same way. No separate light asset is needed
+and none was added. If you want an actual cone of light above it, say so; it
+is a gradient, not a file.
 
 ### The sheets the page loads are generated
 
-`mascot_music_vibe.webp` and `mascot_moonwalk_dab2.webp`, built by
-`tools/normalize-sprite.mjs` **in one run**. Two separate problems make this
-necessary, and the second is the one that bites.
+All three, by `tools/normalize-sprite.mjs`, **in one run**. Three separate
+problems, and each one only shows up once you look:
 
-**Each sheet is off its own grid.** They read as even — six across, evenly
-spaced. Measured, the moonwalk's row pitches are **271, 251 and 234px** and its
-columns run **240 to 262**. That is what an image model produces: figures
-placed approximately. A CSS window stepping by a fixed fraction shows most of
-the intended frame plus the feet of the one above.
+**Each sheet is off its own grid.** The moonwalk-dab's row pitches are 271, 251
+and 234px. A window stepping by a fixed fraction shows most of the intended
+frame plus the feet of the one above.
 
-**The two sheets are drawn at different sizes.** The vibe figures are **428px**
-tall; the moonwalk's are **208**. The same character, about twice as large.
-Normalised separately, each sheet would be internally perfect and the mascot
-would still double in size the instant it changed pose.
+**Figures can touch.** `MASCOT_MOONWALK_ONLY` packs eight across 1536 at a
+192px pitch and neighbouring shoes overlap, so there is no empty column to
+split on — band detection found five columns, not eight. The tool now falls
+back to splitting at the quietest column near each nominal boundary, which for
+this sheet lands within six pixels of every one.
 
-So the tool takes both at once, scales them to a common standing height (each
-sheet's shortest figure is its most compact pose), and draws every frame into
-one shared 274px cell, centred and standing on a common baseline. Within a
-sheet figures keep their relative scale — a raised arm should make a frame
-taller, and flattening heights would squash exactly the dab poses that need
-the room.
+**The sheets are drawn at different sizes.** The vibe figures are 428px tall
+and the dab's are 208 — the same character at twice the scale. Normalised
+separately each sheet is internally perfect and the mascot still changes size
+the instant it changes pose.
 
-**Re-run it whenever either sheet is re-exported — and always pass both**, or
-they will drift apart in size again:
+So every sheet in a run is scaled to a common MEDIAN figure height and drawn
+into one shared 274px cell on one baseline. Median, not shortest: a walk's most
+compressed frame is an outlier, and anchoring on it floated the moonwalk to a
+median of 244 against the vibe's 212 — a 15% growth on hover. Head width was
+tried as a pose-invariant anchor and is not one; on the dab sheet it reads an
+arm across the face as a 30% bigger head. All three now sit at 239.
+
+**Always pass every sheet in one command**, or they drift apart again:
 
 ```bash
 node tools/normalize-sprite.mjs public/img \
   public/img/mascot_music_vibe.png:6x2 \
+  public/img/MASCOT_MOONWALK_ONLY.png:8x3 \
   public/img/mascot_moonwalk_dab2.png:6x4
 ```
 
-It fails loudly if a sheet does not contain exactly the grid you claim, which
-is the check worth having — a silently wrong grid is the bug it exists to
-prevent. If a frame count or grid changes, the `POSES` table in
-`assets/js/sections.js` follows it, and each pose's `background-size` in the
-CSS.
-
 ### Weight
 
-143KB and 470KB as WebP, against 1.5MB and 2.1MB as PNG. The two PNG masters
-stay in the repo as the tool's input and are never requested by the page.
-WebP needs Safari 14; this page already needs container queries, which need
-Safari 16, so it costs no reach.
-
-The walk sheet is not fetched with the page — hovering or tabbing to the
-mascot warms it, and the click decodes before switching so a cold first click
-never blinks the character out.
-
-### Worth knowing
-
-Frames render at up to 210px from 274px cells, so about 1.3× — fine on a
-standard display, slightly soft on a retina one. Sharper means a bigger master;
-for a character bobbing at the edge of a section this is the right trade unless
-you disagree.
+176KB, 323KB and 470KB as WebP against 1.5MB, 1.6MB and 2.1MB as PNG. The PNG
+masters stay in the repo as the tool's input and are never requested. The walk
+sheet is not fetched with the page — the first hover decodes it before
+switching, so a cold first hover never blinks the character out.
 
 ## The fourteen tiles
 
