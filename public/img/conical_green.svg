@@ -1,12 +1,10 @@
-<svg width="236" height="369" viewBox="0 0 236 369" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_2305_12378)">
+<!-- The cone that sits over More Stories. Exported from Figma at a viewBox of
+     0 0 236 369, which cut roughly a third of the art off its right edge and
+     left 75px of empty canvas below it; the box here is the artwork's own
+     bounds. The clip the export carried was tight to these same paths, so
+     dropping it removes nothing. -->
+<svg width="272" height="266" viewBox="90.44 29.38 271.11 265.33" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M196.159 160.833L361.553 119.246L271.662 277.588L90.4375 294.708L196.159 160.833Z" fill="#19945F"/>
 <path d="M90.4353 294.704L196.157 160.83L111.143 29.375L90.4353 294.704Z" fill="#58C74C"/>
 <path d="M111.147 29.3751L196.16 160.83L361.554 119.243L111.147 29.3751Z" fill="#0C5D3A"/>
-</g>
-<defs>
-<clipPath id="clip0_2305_12378">
-<rect width="264" height="279" fill="white" transform="translate(126.018) rotate(26.8514)"/>
-</clipPath>
-</defs>
 </svg>

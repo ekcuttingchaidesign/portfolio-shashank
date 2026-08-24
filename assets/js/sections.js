@@ -679,6 +679,108 @@
   }
 
   /* ========================================================================
+     MORE STORIES — the bento's arrival
+     ========================================================================
+     Four cards assemble into the shelf as it comes up the screen. Each one
+     enters from the edge it belongs to — the tall card from the left, the wide
+     bar from the right, the two small ones up from below — so the block reads
+     as being SET rather than as four things fading in together.
+
+     Scrubbed, not triggered, like everything else below the film. A shelf that
+     snapped together on a threshold would be the one element on the page
+     racing the scrollbar, and scrolling back would leave it assembled.
+
+     Driven by Motion's own scroll(), with an animate() handed to it rather
+     than a callback: given an animation, scroll() attaches it to a native
+     ScrollTimeline where the browser has one, and the whole assembly then runs
+     off the main thread. A callback would put four transform writes back on it
+     every frame for no gain — the transforms are the only thing moving, and
+     the compositor can hold all of them.
+
+     Stagger is each card's own `delay` inside the shared range, which is what
+     puts them in reading order without four separate scroll ranges to keep in
+     step.
+     ====================================================================== */
+  const stGrid = document.getElementById('sx-st-grid');
+
+  if (stGrid && M && M.scroll && !reduced) {
+    /* Where each card comes from, in its own proportion rather than in pixels:
+       a card that enters from 13% of its own width travels the same visual
+       distance whatever the viewport did to it. The rotation is small on
+       purpose — one degree past about two and a card stops reading as a plate
+       being placed and starts reading as a card that is broken. */
+    const ENTER = [
+      ['.sx-st--coins',    { x: ['-13%', '0%'], rotate: [-1.4, 0] }],
+      ['.sx-st--iptv',     { x: ['11%',  '0%'], rotate: [ 0.9, 0] }],
+      ['.sx-st--wynk',     { y: ['26%',  '0%'], rotate: [-1.1, 0] }],
+      ['.sx-st--parental', { y: ['30%',  '0%'], rotate: [ 1.3, 0] }],
+    ];
+
+    /* The stagger is FOUR SCROLL WINDOWS, not four delays inside one, and that
+       is not a stylistic choice — scroll() normalises an animation's whole
+       timeline onto the range it is given, so `delay` does not buy time, it
+       just shrinks the share of the range the movement gets. Four animations
+       with the same duration and different delays therefore all finish
+       together, stretched, with the first card crawling across the entire
+       range. Measured: the first card's travel was still resolving at 100% of
+       the window when it should have been done by 55%.
+
+       Given one window each, every animation is delay 0 and duration 1 — the
+       normalisation is a no-op — and the stagger comes from where each window
+       sits on the page. Each card takes 42% of the viewport's height to arrive
+       and the next starts 8% behind it, so one is always landing while the
+       next is already moving. */
+    const SPAN = 0.42, STEP = 0.08;
+
+    ENTER.forEach(([sel, from], i) => {
+      const el = stGrid.querySelector(sel);
+      if (!el) return;
+      const start = 0.94 - i * STEP;
+      M.scroll(
+        M.animate(el,
+          /* Three stops on the fade, one on everything else: opacity is up by
+             the halfway point and holds, so a card is solid while it is still
+             travelling rather than arriving and then appearing. */
+          { ...from, opacity: [0, 1, 1], scale: [.95, 1] },
+          {
+            duration: 1,
+            /* Ease-out, not linear. A scrubbed transform that is linear in
+               scroll starts and stops at full speed; the card has to
+               decelerate onto its slot or the landing is the one frame you
+               notice. */
+            ease: [.22, 1, .36, 1],
+          }),
+        { target: stGrid,
+          offset: [`start ${start.toFixed(2)}`, `start ${(start - SPAN).toFixed(2)}`] }
+      );
+    });
+
+    /* The cone drifts against the scroll and unwinds the last of its lean as
+       it goes — a solid object passing the shelf, not a sticker on it. One
+       animation, same range, no per-frame work. */
+    const cone = document.getElementById('sx-st-cone');
+    if (cone) {
+      M.scroll(
+        M.animate(cone, { y: [-46, 34], rotate: [-5, 2] },
+          { duration: 1, ease: 'linear' }),
+        { target: stGrid, offset: ['start 1', 'end 0'] }
+      );
+    }
+  }
+
+  /* The press is the only thing here that is not scrubbed, because a press is
+     not a scroll position — it is an answer to a finger. */
+  if (stGrid && M && M.press && !reduced) {
+    stGrid.querySelectorAll('[data-st]').forEach(card => {
+      M.press(card, () => {
+        M.animate(card, { scale: .988 }, { duration: .12 });
+        return () => M.animate(card, { scale: 1 },
+          { type: 'spring', stiffness: 420, damping: 18 });
+      });
+    });
+  }
+
+  /* ========================================================================
      Loop
      ======================================================================== */
 
