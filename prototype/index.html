@@ -852,54 +852,62 @@
         <span class="sx-st-bloom" aria-hidden="true"></span>
         <div class="sx-st-grid" id="sx-st-grid">
 
+        <!-- Two boxes per card, for the same reason the featured cards have
+             two: the scroll assembly writes a transform on .sx-st and the
+             pointer writes another on .sx-st-lift. One element cannot hold
+             both — whichever wrote last would erase the other. -->
         <article class="sx-st sx-st--coins" data-st>
-          <span class="sx-st-art" data-art="pending"
-                data-empty="Airtel Coins&#10;interaction render">
-            <img src="../public/img/stories_airtel_coins.png" alt=""
-                 width="978" height="1504" decoding="async" loading="lazy">
-          </span>
-          <div class="sx-st-copy">
-            <p class="sx-st-kicker">Airtel Coins</p>
-            <h3 class="sx-st-title">Interaction</h3>
+          <div class="sx-st-lift">
+            <span class="sx-st-art" data-art="pending"
+                  data-empty="Airtel Coins&#10;interaction render">
+              <img src="../public/img/stories_airtel_coins.png" alt=""
+                   width="978" height="1504" decoding="async" loading="lazy">
+            </span>
+            <div class="sx-st-copy">
+              <p class="sx-st-kicker">Airtel Coins</p>
+              <h3 class="sx-st-title">Interaction</h3>
+            </div>
           </div>
         </article>
 
         <article class="sx-st sx-st--iptv" data-st>
-          <span class="sx-st-art" data-art="pending"
-                data-empty="Self-Serve IPTV&#10;set-top box render">
-            <img src="../public/img/stories_iptv_selfserve.png" alt=""
-                 width="1872" height="548" decoding="async" loading="lazy">
-          </span>
-          <div class="sx-st-copy">
-            <h3 class="sx-st-title">Self-Serve IPTV</h3>
-            <p class="sx-st-sub">Reducing SR tickets via self serve experience</p>
+          <div class="sx-st-lift">
+            <span class="sx-st-art" data-art="pending"
+                  data-empty="Self-Serve IPTV&#10;set-top box render">
+              <img src="../public/img/stories_iptv_selfserve.png" alt=""
+                   width="1872" height="548" decoding="async" loading="lazy">
+            </span>
+            <div class="sx-st-copy">
+              <h3 class="sx-st-title">Self-Serve IPTV</h3>
+              <p class="sx-st-sub">Reducing SR tickets via self serve experience</p>
+            </div>
           </div>
         </article>
 
-        <!-- data-lettered: this card's render carries its own title. The copy
-             below stays in the document for the reader that cannot see the
-             render, and is taken off the screen so it does not print twice.
-             Drop the attribute the day the art is re-exported clean. -->
-        <article class="sx-st sx-st--wynk" data-st data-lettered>
-          <span class="sx-st-art" data-art="pending"
-                data-empty="Wynk Rewind&#10;2021 numerals">
-            <img src="../public/img/stories_wynk_rewind.png" alt=""
-                 width="976" height="884" decoding="async" loading="lazy">
-          </span>
-          <div class="sx-st-copy">
-            <h3 class="sx-st-title">Wynk<br>Rewind</h3>
+        <article class="sx-st sx-st--wynk" data-st>
+          <div class="sx-st-lift">
+            <span class="sx-st-art" data-art="pending"
+                  data-empty="Wynk Rewind&#10;2021 numerals">
+              <img src="../public/img/stories_wynk_rewind.png" alt=""
+                   width="976" height="884" decoding="async" loading="lazy">
+            </span>
+            <div class="sx-st-copy">
+              <h3 class="sx-st-title">Wynk<br>Rewind</h3>
+            </div>
           </div>
         </article>
 
-        <article class="sx-st sx-st--parental" data-st data-lettered>
-          <span class="sx-st-art" data-art="pending"
-                data-empty="Parental Controls&#10;set-top box render">
-            <img src="../public/img/stories_parental_controls.png" alt=""
-                 width="824" height="884" decoding="async" loading="lazy">
-          </span>
-          <div class="sx-st-copy">
-            <p class="sx-st-kicker sx-st-kicker--lg">Parental</p>
-            <h3 class="sx-st-title">Controls</h3>
+        <article class="sx-st sx-st--parental" data-st>
+          <div class="sx-st-lift">
+            <span class="sx-st-art" data-art="pending"
+                  data-empty="Parental Controls&#10;set-top box render">
+              <img src="../public/img/stories_parental_controls.png" alt=""
+                   width="824" height="884" decoding="async" loading="lazy">
+            </span>
+            <div class="sx-st-copy">
+              <p class="sx-st-kicker sx-st-kicker--lg">Parental</p>
+              <h3 class="sx-st-title">Controls</h3>
+            </div>
           </div>
         </article>
 
