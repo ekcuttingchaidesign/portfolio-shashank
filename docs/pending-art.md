@@ -1,57 +1,57 @@
-# Renders More Stories is waiting on
+# The More Stories renders
 
-The four bento cards are built and laid out; each one is holding a slot for its
-artwork. Until a file lands the card paints the reserved plate the featured
-covers already use — corner ticks and the slot's name — so nothing is broken in
-the meantime and nothing needs changing in the code when the file arrives.
+All four are in. This is the record of what each slot holds and the one thing
+still worth doing.
 
-**Drop the file in `public/img/` under the exact name below and it appears.**
-No other change is needed: the `data-art` contract flips the slot to `ready` the
-moment the image decodes.
-
-| File name (in `public/img/`) | Card | Export at | Card renders at |
+| File (in `public/img/`) | Card | Shipped at | Card renders at |
 | --- | --- | --- | --- |
-| `stories_airtel_coins.png` | Airtel Coins · Interaction | **978 × 1504** (2×) | 489 × 752 |
-| `stories_iptv_selfserve.png` | Self-Serve IPTV | **1872 × 548** (2×) | 936 × 274 |
-| `stories_wynk_rewind.png` | Wynk Rewind | **976 × 884** (2×) | 488 × 442 |
-| `stories_parental_controls.png` | Parental Controls | **824 × 884** (2×) | 412 × 442 |
+| `stories_airtel_coins.png` | Airtel Coins · Interaction | 978 × 1504 | 489 × 752 |
+| `stories_iptv_selfserve.png` | Self-Serve IPTV | 1872 × 548 | 936 × 274 |
+| `stories_wynk_rewind.png` | Wynk Rewind | 976 × 884 | 488 × 442 |
+| `stories_parental_controls.png` | Parental Controls | 824 × 884 | 412 × 442 |
 
-## What to include in each export, and what to leave out
+Every file is exactly 2× its slot, and every one matches its slot's aspect
+ratio to three decimals — so `object-fit: cover` is not cropping any of them,
+on the shelf or in the single column below 1000px.
 
-Every card's **text is live DOM**, not baked into the image — it stays crisp,
-selectable and responsive, and it re-wraps on a phone. So export the artwork
-**with the text layers hidden**, with these exceptions:
+## The two lettered cards
 
-- **Airtel Coins** — the phone mockup and the coins around it. Hide `AIRTEL
-  COINS` and `INTERACTION`. The card's own black-to-amber ground is CSS, so the
-  export can be transparent or can carry the ground; either works.
-- **Self-Serve IPTV** — the set-top box photograph only. Hide `Self-Serve IPTV`
-  and its line beneath. The black-to-clear wash over the left 61% is CSS, so
-  export the photograph clean and let the card lay the scrim over it.
-- **Wynk Rewind** — this one **keeps its numerals**. The big `20` / `21` are
-  artwork, not type: they are Poppins Bold, rotated, at 144 and 288, and this
-  site ships Satoshi only. Baking them in is what avoids pulling a whole
-  second webfont down for two numbers. Hide only `WYNK REWIND`.
-- **Parental Controls** — the set-top box render. Hide `PARENTAL` and
-  `CONTROLS`.
+Airtel Coins and Self-Serve IPTV came through clean, so their titles are live
+text: selectable, re-wrapping on a phone, crisp at any zoom.
 
-Each slot is `object-fit: cover`, so a file at the right aspect ratio fills the
-card and one slightly off is cropped from its centre rather than squashed.
+**Wynk Rewind and Parental Controls arrived with their titles baked into the
+render**, which printed each of them twice — once from the PNG and once from
+the DOM. Those two cards now carry `data-lettered`, which takes the DOM copy
+off the screen while leaving it in the document, so a screen reader still has
+a name for the card and nothing is drawn twice.
 
-## Already in the repo
+That is a working state, not the better one. The live text is sharper on a
+high-DPI screen, it re-wraps when the card narrows, and it can be selected and
+searched. To get it back:
 
-- `conical_green.svg` — the cone over the heading. The uploaded export had a
-  `viewBox` of `0 0 236 369` while the artwork's own bounds are
-  `90.4, 29.4 → 361.5, 294.7`, so roughly a third of the shape was cut off its
-  right edge and 75px of empty canvas hung below it. The file now carries the
-  artwork's own box. If it is ever re-exported from Figma, export the
-  `conical_green` node on its own rather than its parent frame.
+1. Re-export the two nodes from Figma with their text layers hidden — same
+   names, same 976 × 884 and 824 × 884.
+2. Delete the `data-lettered` attribute from the two `<article>` tags in
+   `prototype/index.html`.
 
-## One thing worth a second look
+Nothing else changes; the copy is already sitting there.
 
-The IPTV card's line reads **"Reducing SR tickets via self serve experience"**,
-which is the Figma's copy and is what ships. `SR tickets` is internal Airtel
+Wynk's big `20` / `21` numerals are **not** text for this purpose — they are
+Poppins Bold, rotated, at 144 and 288, and this site ships Satoshi only.
+They should stay in the render whatever else comes out of it.
+
+## `conical_green.svg`
+
+The uploaded export had a `viewBox` of `0 0 236 369` against artwork whose own
+bounds are `90.4, 29.4 → 361.5, 294.7` — roughly a third of the cone was cut
+off its right edge, with 75px of empty canvas hanging below it. The file now
+carries the artwork's own box. If it is re-exported, export the `conical_green`
+node on its own rather than its parent frame.
+
+## One line worth a second look
+
+The IPTV card reads **"Reducing SR tickets via self serve experience"**, which
+is the Figma's copy and is what ships. `SR tickets` is internal Airtel
 vocabulary — a design lead reading this page will not know it means service
 requests. Something like *"Fewer support tickets, by letting people fix it
-themselves"* says the same thing in the reader's words. Left as drawn; say the
-word and it changes.
+themselves"* says the same thing in the reader's words. Left as drawn.

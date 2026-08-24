@@ -1198,6 +1198,20 @@
   text-transform: none;
 }
 
+/* A card whose render already carries its title. The copy is not deleted and
+   not display:none — either would take it out of the accessibility tree too,
+   and the title is the only thing naming the card to a screen reader once the
+   artwork is decorative. It is moved off the screen instead: still announced,
+   never drawn twice. */
+.sx-st[data-lettered] .sx-st-copy {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* --- the four skins --------------------------------------------------------
    Colours are the Figma's, unchanged. Each card's ground, edge and inner light
    are one family sampled off its own artwork, which is why they can sit this
