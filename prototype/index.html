@@ -835,8 +835,9 @@
          runs past the right edge of the frame itself, and the wrap stops well
          short of that on a wide screen. Measured in vw for the same reason —
          it is placed against the window, and the section clips what leaves. -->
-    <img class="sx-st-cone" id="sx-st-cone" src="../public/img/conical_green.svg"
-         alt="" width="272" height="266" decoding="async" aria-hidden="true">
+    <span class="sx-st-cone-hold" id="sx-st-cone" aria-hidden="true"><img
+      class="sx-st-cone" src="../public/img/conical_green.svg"
+      alt="" width="272" height="266" decoding="async"></span>
 
     <div class="sx-wrap">
 
@@ -920,35 +921,30 @@
        The only crowded moment on the site, and the density is doing a job:
        framed as "the rest of it", ten years of output reads as catalogue depth
        rather than clutter. -->
-  <section id="sx-archive">
-    <div class="sx-wrap">
-      <header class="sx-sec-head" data-reveal>
-        <p class="sx-mono">Everything else</p>
-        <h2 class="sx-serif">The rest of it</h2>
-        <p class="sx-lede" style="margin-top:1rem">Earlier products, film, in-product motion,
-        and two things that play.</p>
-      </header>
+  <!-- ---------- 4 · THINGS THAT MOVE ----------
+       Every section above this one assembles out of stillness and then stops:
+       the hero arrives, the stack parks, the shelf lands. This one is the
+       inversion, and the inversion is the point — you meet it ALREADY RUNNING
+       and it decelerates into legibility as you arrive. A reel does not build
+       itself; it spins up, and you catch it at speed.
 
-      <div class="sx-arch-h" data-reveal><h3>Products</h3><p class="sx-mono">3</p></div>
-      <div class="sx-row" data-cols="3" data-stagger="70">
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:4/3" data-empty="Wynk Music"><span class="sx-sheen"></span></div><figcaption>2021–22 · Senior PD</figcaption></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:4/3" data-empty="Skillclash · 0→1"><span class="sx-sheen"></span></div><figcaption>2018–21 · First designer, Gamezop</figcaption></figure>
-        <figure class="sx-tile" data-reveal><div class="sx-slab" style="aspect-ratio:4/3" data-empty="Xstream subscriptions"><span class="sx-sheen"></span></div><figcaption>2023 · Senior PD</figcaption></figure>
-      </div>
-
-      <!-- ---------- MOTION ----------
-           Not two grids of empty boxes. Fourteen pieces run past on one strip,
-           16:9 and 9:16 sharing a baseline the way they do on a real reel — the
-           mixed ratio IS the texture, so nothing has to be cropped to fit a
-           grid. It rolls on its own, pauses under the pointer, and each cell
-           takes a <video> in place of its plate with no code change. -->
-      <div class="sx-reel-head" data-reveal>
+       It is also the only section on the page about time rather than about
+       space. The hero dives into a screen; this is the screen finally playing
+       what is on it.
+       -------------------------------------------------------------------- -->
+  <section id="sx-move">
+    <div class="sx-wrap sx-mv-lede">
+      <header class="sx-mv-head" data-reveal>
         <p class="sx-mono">The moving half</p>
-        <h3>Things I made <em>move.</em></h3>
-        <svg class="sx-reel-chev" width="26" height="15" viewBox="0 0 26 15" fill="none" aria-hidden="true">
-          <path d="M1 1l12 12L25 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-      </div>
+        <h2 class="sx-mv-title">Things that <em class="sx-mv-kin"><span>m</span><span>o</span><span>v</span><span>e</span></em></h2>
+        <p class="sx-lede">Ten years of in-product motion, idents and film. Portrait and
+        landscape on one strip, the way they actually arrive.</p>
+      </header>
+      <!-- Placeholder pose. The brief for the real one is in
+           docs/pending-art.md — the character is the projectionist here. -->
+      <img class="sx-mv-mascot" src="../public/img/mascot.png" alt=""
+           width="256" height="256" loading="lazy" decoding="async" aria-hidden="true">
+    </div>
 
       <div class="sx-reel" id="sx-reel" data-reveal>
         <div class="sx-reel-strip">
@@ -1069,10 +1065,22 @@
             </figure>
           </div>
         </div>
-        <p class="sx-reel-hint"><span>Hover to hold</span></p>
       </div>
 
-      <!-- ---------- BUILT WITH AI ---------- -->
+    <div class="sx-wrap sx-mv-foot">
+      <!-- A real control, not just hover-to-hold. Anything that moves on its
+           own has to be stoppable by someone who is not holding a mouse. -->
+      <button class="sx-mv-toggle" id="sx-mv-toggle" type="button" aria-pressed="false">
+        <span class="sx-mv-toggle-i" aria-hidden="true"></span>
+        <span class="sx-mv-toggle-l">Pause</span>
+      </button>
+      <p class="sx-mv-count"><span id="sx-mv-n">14</span> pieces &middot; portrait and landscape</p>
+    </div>
+  </section>
+
+  <!-- ---------- 5 · BUILT WITH AI ---------- -->
+  <section id="sx-archive">
+    <div class="sx-wrap">
       <div class="sx-arch-h" data-reveal>
         <h3>Built with AI</h3>
         <p class="sx-mono">2 · run inline</p>

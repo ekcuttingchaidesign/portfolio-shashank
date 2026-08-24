@@ -1729,45 +1729,199 @@
   }
 
   /* ========================================================================
-     THE REEL — cards on a cylinder
+     THINGS THAT MOVE — the strip that arrives at speed
      ========================================================================
-     Each cell rotates about Y by how far its centre sits from the middle of the
-     viewport, so the strip bends away at both edges. Written per frame, but
-     only for cells actually on screen, and only while the reel is in view —
-     off-screen it costs nothing.
-     ====================================================================== */
+     Every other section on this page assembles out of stillness. This one is
+     already running when you meet it and slows down as you arrive, which is
+     both the inversion the page needed and what a reel actually does. So the
+     entrance is not an entrance animation: it is the marquee's own PLAYBACK
+     RATE, driven by how far into the section you have scrolled.
 
-  const reel = document.getElementById('sx-reel');
-  if (reel && !reduced) {
-    const cels = [...reel.querySelectorAll('.sx-cel')];
-    let reelRaf = 0, reelOn = false;
+     That is why the travel is one Motion animation rather than the CSS
+     keyframe it used to be. A keyframe can be paused and it can be re-timed,
+     but re-timing it jumps — the strip teleports to wherever the new duration
+     says it should be by now. An animation object has a speed you can turn
+     continuously, from eight down to one, with no seam anywhere in it.
+
+     The CSS keyframe is still in the stylesheet as the no-script state. The
+     data-rolling attribute here is what switches it off, so the two never
+     drive the same transform at once.
+     ====================================================================== */
+  const mvReel  = document.getElementById('sx-reel');
+  const mvStrip = mvReel && mvReel.querySelector('.sx-reel-strip');
+  const mvToggle = document.getElementById('sx-mv-toggle');
+
+  /* Counted, not typed. The strip is duplicated for the loop so the first run
+     is the real inventory — and a number in the markup is a number that goes
+     stale the first time a piece is added. */
+  const mvN = document.getElementById('sx-mv-n');
+  if (mvN && mvStrip) {
+    const first = mvStrip.querySelector('.sx-reel-run');
+    if (first) mvN.textContent = String(first.querySelectorAll('.sx-cel').length);
+  }
+
+  if (mvStrip && M && M.animate && !reduced) {
+    /* One full run of the strip is half its width, because the run is
+       duplicated — so -50% is exactly one loop and the seam is invisible. */
+    const roll = M.animate(mvStrip, { x: ['0%', '-50%'] },
+      { duration: 58, ease: 'linear', repeat: Infinity });
+
+    mvStrip.setAttribute('data-rolling', '');
+
+    /* Speed is the entrance. 7x at the section's first edge, 1x by the time
+       the strip is properly on screen. Squared falloff rather than linear: a
+       linear ramp spends too long in the middle speeds, where the strip is
+       neither excitingly fast nor calmly readable. */
+    const ENTRY_SPEED = 7;
+    /* Starts HOT. The strip is at full speed from the moment the page loads —
+       it is off screen, so nobody sees the first seconds of it, and by the
+       time it is in view the scroll has begun bringing it down. Starting at
+       zero and waiting for the scroll to raise it would mean arriving at a
+       strip already cruising, which is the thing this section is not. */
+    let paused = false, hovering = false, heat = 1;
+
+    /* Assigned further down, once the curve exists. Declared here because
+       applySpeed is what knows when travel starts and stops. */
+    let curveAfterStateChange = () => {};
+
+    const applySpeed = () => {
+      if (paused || hovering) { roll.pause(); curveAfterStateChange(); return; }
+      roll.play();
+      roll.speed = 1 + (ENTRY_SPEED - 1) * heat * heat;
+      curveAfterStateChange();
+    };
+
+    if (M.scroll) {
+      M.scroll(p => {
+        /* Only ever falls. Scrolling back up does not wind the strip up
+           again — a reel that re-accelerated when you looked away would read
+           as a gimmick rather than as a machine that has settled. */
+        const next = 1 - clamp01(p);
+        if (next < heat) {
+          heat = next;
+          mvStrip.style.setProperty('--sx-mv-heat', heat.toFixed(3));
+          applySpeed();
+        }
+      }, { target: mvReel, offset: ['start 0.95', 'start 0.32'] });
+    }
+
+    /* Hover holds it, which is the convenience. The button below is the
+       control — the two share one state so they cannot disagree. */
+    if (mvReel) {
+      mvReel.addEventListener('pointerenter', e => {
+        if (e.pointerType === 'touch') return;
+        hovering = true; applySpeed();
+      });
+      mvReel.addEventListener('pointerleave', () => { hovering = false; applySpeed(); });
+      mvReel.addEventListener('focusin',  () => { hovering = true;  applySpeed(); });
+      mvReel.addEventListener('focusout', () => { hovering = false; applySpeed(); });
+    }
+
+    if (mvToggle) {
+      const label = mvToggle.querySelector('.sx-mv-toggle-l');
+      mvToggle.addEventListener('click', () => {
+        paused = !paused;
+        mvToggle.setAttribute('aria-pressed', paused ? 'true' : 'false');
+        if (label) label.textContent = paused ? 'Play' : 'Pause';
+        applySpeed();
+      });
+    }
+
+    /* A strip travelling behind a hidden tab is work nobody is watching. */
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) roll.pause(); else applySpeed();
+    });
+
+    /* --- the cylinder ---
+       Each cell turns about Y by how far its centre sits from the middle of
+       the window, so the run bends away at both ends. Shallow on purpose: a
+       card rotated by θ projects to cos(θ) of its width, so the gaps either
+       side appear to grow. At 14° the loss is 3% and reads as an even run on a
+       gentle curve; at the 36° a first pass reached, cards lost a fifth of
+       their width and the spacing visibly pumped.
+
+       This used to measure every visible cell every frame — twenty-eight
+       getBoundingClientRect calls, each forcing layout, and it cost a third of
+       the frame budget while the strip was cruising. It does not need to
+       measure anything: a cell's horizontal position is its own fixed offset
+       inside the strip plus wherever the strip currently is. So the offsets
+       are cached once, and the only thing read per frame is the strip. One
+       rect instead of twenty-eight.
+
+       It also only runs while the strip is actually travelling. The curve is a
+       function of horizontal position and nothing else, so a paused strip is a
+       curve that cannot have changed — scrolling past a held strip recomputes
+       nothing. */
+    const cels = [...mvStrip.querySelectorAll('.sx-cel')];
+    let spots = [], curveRaf = 0, inView = false;
+
+    const measureCels = () => {
+      spots = cels.map(c => c.offsetLeft + c.offsetWidth / 2);
+    };
+    measureCels();
+    addEventListener('load', measureCels);
+    addEventListener('resize', measureCels, { passive: true });
 
     const curve = () => {
+      curveRaf = 0;
       const mid = innerWidth / 2;
-      for (const c of cels) {
-        const r = c.getBoundingClientRect();
-        if (r.right < -240 || r.left > innerWidth + 240) continue;
+      const originX = mvStrip.getBoundingClientRect().left;   /* the one read */
+      for (let i = 0; i < cels.length; i++) {
+        const x = originX + spots[i];
+        if (x < -320 || x > innerWidth + 320) continue;
         /* -1 at the left edge, 0 dead centre, +1 at the right. */
-        const d = Math.max(-1, Math.min(1, ((r.left + r.width / 2) - mid) / mid));
-        /* Shallow on purpose. A card rotated by θ projects to cos(θ) of its
-           width, so the gap either side of it appears to grow — at the 36° the
-           first pass reached, cards lost a fifth of their width and the spacing
-           visibly pumped as the strip moved. At 14° the loss is 3%, which reads
-           as an even run on a gentle curve. */
-        c.style.setProperty('--sx-ry', (-d * 14).toFixed(2) + 'deg');
-        c.style.setProperty('--sx-tz', (-(d * d) * 70).toFixed(1) + 'px');
+        const d = Math.max(-1, Math.min(1, (x - mid) / mid));
+        cels[i].style.setProperty('--sx-ry', (-d * 14).toFixed(2) + 'deg');
+        cels[i].style.setProperty('--sx-tz', (-(d * d) * 70).toFixed(1) + 'px');
       }
-      reelRaf = reelOn ? requestAnimationFrame(curve) : 0;
+      if (inView && !paused && !hovering) curveRaf = requestAnimationFrame(curve);
+    };
+    const kickCurve = () => {
+      if (!curveRaf && inView && !paused && !hovering) curveRaf = requestAnimationFrame(curve);
     };
 
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(([e]) => {
-        reelOn = e.isIntersecting;
-        if (reelOn && !reelRaf) reelRaf = requestAnimationFrame(curve);
-      }, { rootMargin: '150px 0px' }).observe(reel);
-    } else {
-      reelOn = true; curve();
-    }
+        inView = e.isIntersecting;
+        kickCurve();
+      }, { rootMargin: '150px 0px' }).observe(mvReel);
+    } else { inView = true; kickCurve(); }
+
+    /* One more pass after a hold, so a strip stopped mid-travel still sits on
+       the curve rather than keeping the pose it had when the loop stopped. */
+    curveAfterStateChange = () => { requestAnimationFrame(curve); kickCurve(); };
+
+    applySpeed();
+    kickCurve();
+  }
+
+  /* ------------------------------------------------------------------------
+     The tiles, once they hold video.
+     ------------------------------------------------------------------------
+     There are no files yet, so this does nothing today and needs no change
+     when they arrive: drop a <video muted loop playsinline> into a plate and
+     it is picked up.
+
+     Playing only what is on screen is not a nicety. Fourteen decoders running
+     at once costs frames on a laptop and battery on a phone, and eleven of
+     them are painting outside the viewport. IntersectionObserver is the whole
+     mechanism — no scroll handler, no per-frame work.
+     ---------------------------------------------------------------------- */
+  if (mvReel && 'IntersectionObserver' in window) {
+    const filmObserver = new IntersectionObserver(entries => {
+      for (const e of entries) {
+        const v = e.target;
+        if (e.isIntersecting && !reduced) { const q = v.play(); if (q) q.catch(() => {}); }
+        else v.pause();
+      }
+    }, { rootMargin: '10% 0px', threshold: 0.1 });
+
+    const watchFilm = () => mvReel.querySelectorAll('.sx-cel-plate > video')
+      .forEach(v => { v.muted = true; v.loop = true; v.playsInline = true;
+                      filmObserver.observe(v); });
+    watchFilm();
+    /* If the tiles are ever filled in after load, pick those up too. */
+    new MutationObserver(watchFilm).observe(mvReel, { childList: true, subtree: true });
   }
 
   /* ------------------------------------------------------------------------
