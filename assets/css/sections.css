@@ -1024,10 +1024,13 @@
      box. Stated as a fraction rather than in vw so the same slice is cut at
      every size — a fixed bleed eats a different amount of a cone that scales.
 
-     The design cuts nearer half. That was tried and read as damage rather than
-     as a crop, so this takes less: enough that the shape clearly continues
-     past the frame, not so much that it looks severed. */
-  right: calc(-0.225 * var(--sx-cone-w));
+     0.347 is the design's own crop, measured off it rather than picked: the
+     cone spans 1774.4 to 2045.6 on a 1920 frame, so 125.6 of its 271.1 sits
+     past the edge — 46%. It was 30% for a round, which was a hedge against an
+     earlier report of the cone looking chopped; that chop turned out to be the
+     section cutting a flat line across its head, not the crop, so the hedge
+     was unnecessary and the design's number stands. */
+  right: calc(-0.347 * var(--sx-cone-w));
   width: var(--sx-cone-w);
   height: auto;
   pointer-events: none;
