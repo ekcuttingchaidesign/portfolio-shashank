@@ -152,6 +152,17 @@
 .sx {
   position: relative;
   z-index: 1;
+  /* THE GROUND. One layer, for every section that sits on the dark half.
+     Sections do not paint their own any more: an opaque section background is
+     a lid, and the thing it closes on is the section ABOVE it. The featured
+     stack's last card throws a bloom 180px past its own section's bottom edge,
+     and More Stories painting --sx-wall over that cut the glow off dead level
+     with the boundary — the hard line under the case studies.
+
+     Everything soft now runs between sections instead of stopping at them. The
+     sections that are deliberately a different ground — the paper half, the
+     two seams, the handoff — still paint their own over the top of this. */
+  background: var(--sx-wall);
   font-family: var(--sx-sans);
   color: var(--sx-ink);
   font-size: var(--sx-t-body);
@@ -276,7 +287,6 @@
    ------------------------------------------------------------------------- */
 
 #sx-work {
-  background: var(--sx-wall);
   /* The featured card's bloom is wider than the card and, at full width, wider
      than the viewport — which is a horizontal scrollbar, not a glow. Clipped at
      the section edge, which is what the Figma frame does to it too.
@@ -421,7 +431,7 @@
    stops being clutter and becomes catalogue depth.
    ------------------------------------------------------------------------- */
 
-#sx-archive { background: var(--sx-wall); padding-bottom: clamp(5rem, 12vh, 9rem); }
+#sx-archive { padding-bottom: clamp(5rem, 12vh, 9rem); }
 
 .sx-arch-h {
   display: flex;
@@ -944,26 +954,25 @@
    ------------------------------------------------------------------------- */
 #sx-stories {
   position: relative;
-  /* Same ground as the sections either side. It was left transparent while the
-     gap above was 567px and nobody could see the join; at 125 the shelf sat on
-     pure black between two --sx-wall sections and drew a hard line at each
-     end. The seams were the giveaway that this section arrived later than its
-     neighbours. */
-  background: var(--sx-wall);
-  /* No clipping here, and it took two wrong answers to get to that.
+  /* Clipped on the X AXIS ONLY, which is the whole trick. The cone is meant to
+     run off the right edge and the bloom behind the shelf is wider than the
+     window, so both need cutting sideways — but the cone also hangs UP into
+     the gap and the glow spills DOWN, and neither may be touched.
 
-     The section clipped because the bloom behind the shelf was wide enough to
-     push the page sideways. Clipping at the section's own box then cut the
-     cone off dead level with the top edge — which reads exactly like a
-     background seam, and was reported as one. Opening the clip with
-     overflow-clip-margin freed the cone and brought the sideways scroll
-     straight back, because that property opens the clip on EVERY edge, not
-     only the one that needed it. (It also has to be a literal length: Chrome
-     rejects calc() there, and an invalid value silently means zero — which is
-     what cut the cone in the first place.)
+     `clip` is exempt from the rule that drags a `visible` axis to `auto`: that
+     rule fires for hidden/scroll/auto, not for clip. So this leaves the
+     vertical axis genuinely visible, which #sx-work above has been relying on
+     all along. An earlier note here claimed otherwise and it was wrong; the
+     mistake cost a round of overflow-clip-margin, which opens every edge at
+     once and put the page back on a sideways scroll.
 
-     The bloom is sized to fit instead, below. Then nothing needs clipping, and
-     the cone hangs into the gap above with nothing there to cut it. */
+     Nothing about this creates a scrollport, so the bleed costs no scrollbar. */
+  overflow-x: clip;
+  /* What the cone is measured in. It is the whole 362-wide export, of which
+     the artwork is the right three-quarters, and it is capped rather than left
+     to follow vw: the room above the grid is the lead-in plus the padding plus
+     the heading band, and all three stop growing in rem. */
+  --sx-cone-w: clamp(150px, 18vw, 272px);
   padding-block: clamp(2.25rem, 2.4vw, 2.5rem) clamp(4rem, 12vh, 10rem);
 }
 
@@ -1009,14 +1018,17 @@
      Hung up by the lead-in, which puts its head in the stack's empty tail and
      its foot level with the top of the grid. */
   top: calc(-1 * var(--sx-st-lead));
-  right: clamp(6px, 1vw, 24px);
-  /* Capped at 272, not at the file's own 362. The room the cone has is the
-     lead-in plus the shelf's padding plus the heading band, and all three are
-     capped in rem — so a cone that kept growing with vw would grow past a
-     ceiling that had stopped moving and put its foot through the top of the
-     grid. 272 leaves about 22px of daylight above it and 20 below at every
-     width from 1440 up. */
-  width: clamp(150px, 18vw, 272px);
+  /* Run off the right edge, the way the design has it. The artwork is flush to
+     the right of its own file, so the bleed is a share of the file's width:
+     0.225 of the box hides 0.30 of the cone, since the cone is 0.749 of the
+     box. Stated as a fraction rather than in vw so the same slice is cut at
+     every size — a fixed bleed eats a different amount of a cone that scales.
+
+     The design cuts nearer half. That was tried and read as damage rather than
+     as a crop, so this takes less: enough that the shape clearly continues
+     past the frame, not so much that it looks severed. */
+  right: calc(-0.225 * var(--sx-cone-w));
+  width: var(--sx-cone-w);
   height: auto;
   pointer-events: none;
   z-index: 0;
@@ -1070,18 +1082,11 @@
   position: absolute;
   z-index: 0;
   pointer-events: none;
-  /* 1296 x 671 centred 26 left of the grid's middle, in the Figma — but held
-     to a width that cannot reach past the window. At 128% its right edge
-     landed 86px beyond the viewport at 1440 and the page could be dragged
-     sideways; the section clipped that away, and that clip was what cut the
-     cone. Sized to fit, no clip is needed and the cone is safe.
-
-     Almost nothing is given up: the gradient's last stops are 1.3% alpha and
-     then zero, so the twenty points of width this loses were already
-     invisible. */
-  left: 50%;
+  /* 1296 x 671 centred 26 left of the grid's middle, in the Figma. Wider than
+     the window at this size, which is what the section's x-axis clip is for. */
+  left: 48.2%;
   top: 50%;
-  width: 108%;
+  width: 128%;
   height: 178%;
   transform: translate(-50%, -50%);
   background:
@@ -1452,13 +1457,11 @@
   .sx-st--parental { --sx-st-pad: 4.4cqw; --sx-st-size: 5.4cqw; }
   .sx-st--parental .sx-st-copy { inset: auto auto 0 0; }
   .sx-st--parental .sx-st-kicker--lg { font-size: clamp(1rem, 4.1cqw, 2.2rem); }
-  /* Inset, like the desktop one, and much smaller. It was 46% hanging 6% off
-     the right edge, which was the last thing still dragging the page sideways
-     below 1000 — and at that size its foot came down 120px into the first
-     card. The room it has here is the lead-in plus the shelf's padding plus a
-     heading band that has shrunk with the viewport, and 22% is what fits
-     inside all three. */
-  .sx-st-cone { width: 22%; right: clamp(4px, 2vw, 18px); }
+  /* Smaller here: the heading band shrinks with the viewport and takes the
+     cone's room with it, and at the old 46% its foot came down 120px into the
+     first card. 22vw is what fits the lead-in, the padding and the band. The
+     bleed is the same fraction, so the crop looks the same as on desktop. */
+  #sx-stories { --sx-cone-w: 22vw; }
 }
 @media (max-width: 620px) {
   .sx-st-cone { display: none; }
