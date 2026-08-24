@@ -3698,35 +3698,26 @@
    row of cards with a caption.
    ------------------------------------------------------------------------- */
 
-.sx-reel { perspective: 1500px; perspective-origin: 50% 50%; }
-
-.sx-reel-strip { transform-style: preserve-3d; }
-.sx-reel-run   { transform-style: preserve-3d; }
+/* No perspective and no 3D context: nothing on this strip is turned in Z any
+   more, and a preserve-3d subtree that contains nothing 3D still costs the
+   compositor a flattening decision per cell. */
 
 .sx-cel {
-  transform-style: preserve-3d;
-  /* ONE transform, carrying two systems. --sx-ry and --sx-tz are the cylinder,
-     written per frame from the cell's live position; --sx-mv-heat is the
-     arrival, and it is the same number for every cell. They have to share this
-     declaration — a second rule for the heat had higher specificity and simply
-     erased the curve, which is a bug you cannot see because the result still
-     looks like a strip of tiles.
+  /* No transform of any kind on a cell, and that is a rule rather than an
+     omission. Every cell on this strip is a different width, so ANY transform
+     applied per cell — a rotation, a scale, a push back in Z — changes each
+     one's rendered width by a different number of pixels and the gaps between
+     them stop being equal. A constant 16px layout gap was rendering anywhere
+     between -19.5 and +21.5. Whatever this strip needs to express, it has to
+     express without touching a cell's geometry.
 
-     Heat first, so the lift and the shrink happen in the cell's own upright
-     space and the cylinder then turns the result. Reversed, a cell near the
-     edge would lift along its own rotated axis and slide sideways as it rose. */
-  transform:
-    translate3d(0, calc(10px * var(--sx-mv-heat, 0)), 0)
-    scale(calc(1 - .04 * var(--sx-mv-heat, 0)))
-    rotateY(var(--sx-ry, 0deg))
-    translateZ(var(--sx-tz, 0px));
-  /* Coming in fast the tiles sit back and dim; as the strip slows they come
-     up. Speed is invisible on a run of evenly spaced tiles — there is no
-     landmark to track it against — so the tiles carry it instead. */
+     Which leaves opacity, and opacity turns out to be enough. Coming in fast
+     the tiles are dim; as the strip slows they come up. Speed is invisible on
+     a run of evenly spaced tiles — there is no landmark to track it against —
+     so the tiles carry it, and opacity moves nothing. */
   opacity: calc(1 - .48 * var(--sx-mv-heat, 0));
   transition: none;
 }
-.sx-cel-plate { backface-visibility: hidden; }
 
 .sx-reel-strip { position: relative; z-index: 1; }
 

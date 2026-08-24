@@ -1780,15 +1780,10 @@
        strip already cruising, which is the thing this section is not. */
     let paused = false, hovering = false, heat = 1;
 
-    /* Assigned further down, once the curve exists. Declared here because
-       applySpeed is what knows when travel starts and stops. */
-    let curveAfterStateChange = () => {};
-
     const applySpeed = () => {
-      if (paused || hovering) { roll.pause(); curveAfterStateChange(); return; }
+      if (paused || hovering) { roll.pause(); return; }
       roll.play();
       roll.speed = 1 + (ENTRY_SPEED - 1) * heat * heat;
-      curveAfterStateChange();
     };
 
     if (M.scroll) {
@@ -1832,67 +1827,31 @@
       if (document.hidden) roll.pause(); else applySpeed();
     });
 
-    /* --- the cylinder ---
-       Each cell turns about Y by how far its centre sits from the middle of
-       the window, so the run bends away at both ends. Shallow on purpose: a
-       card rotated by θ projects to cos(θ) of its width, so the gaps either
-       side appear to grow. At 14° the loss is 3% and reads as an even run on a
-       gentle curve; at the 36° a first pass reached, cards lost a fifth of
-       their width and the spacing visibly pumped.
+    /* The strip used to bend away at both ends — each cell turned about Y by
+       how far it sat from the middle of the window. It is gone, and mixed
+       aspect ratios are why.
 
-       This used to measure every visible cell every frame — twenty-eight
-       getBoundingClientRect calls, each forcing layout, and it cost a third of
-       the frame budget while the strip was cruising. It does not need to
-       measure anything: a cell's horizontal position is its own fixed offset
-       inside the strip plus wherever the strip currently is. So the offsets
-       are cached once, and the only thing read per frame is the strip. One
-       rect instead of twenty-eight.
+       A card rotated by θ projects to cos(θ) of its width, and translateZ
+       under perspective scales it again. Both scale with the card's OWN width,
+       so a 587px landscape tile and a 186px portrait tile lose wildly
+       different numbers of pixels at the same angle. The layout gap was a
+       constant 16px; the gap you could SEE swung between -19.5 and +21.5 —
+       negative meaning the tiles overlapped. The run pumped as it travelled,
+       which on a strip whose whole job is even continuous motion is the one
+       thing it cannot do.
 
-       It also only runs while the strip is actually travelling. The curve is a
-       function of horizontal position and nothing else, so a paused strip is a
-       curve that cannot have changed — scrolling past a held strip recomputes
-       nothing. */
-    const cels = [...mvStrip.querySelectorAll('.sx-cel')];
-    let spots = [], curveRaf = 0, inView = false;
+       The note that used to sit here argued the effect was safe because at 14°
+       the width loss is only 3%. That is true, and it was reasoned for cards
+       of equal width; 3% of 587 and 3% of 186 are not the same gap. The
+       premise did not survive putting portrait and landscape on one strip, and
+       the strip is the point.
 
-    const measureCels = () => {
-      spots = cels.map(c => c.offsetLeft + c.offsetWidth / 2);
-    };
-    measureCels();
-    addEventListener('load', measureCels);
-    addEventListener('resize', measureCels, { passive: true });
-
-    const curve = () => {
-      curveRaf = 0;
-      const mid = innerWidth / 2;
-      const originX = mvStrip.getBoundingClientRect().left;   /* the one read */
-      for (let i = 0; i < cels.length; i++) {
-        const x = originX + spots[i];
-        if (x < -320 || x > innerWidth + 320) continue;
-        /* -1 at the left edge, 0 dead centre, +1 at the right. */
-        const d = Math.max(-1, Math.min(1, (x - mid) / mid));
-        cels[i].style.setProperty('--sx-ry', (-d * 14).toFixed(2) + 'deg');
-        cels[i].style.setProperty('--sx-tz', (-(d * d) * 70).toFixed(1) + 'px');
-      }
-      if (inView && !paused && !hovering) curveRaf = requestAnimationFrame(curve);
-    };
-    const kickCurve = () => {
-      if (!curveRaf && inView && !paused && !hovering) curveRaf = requestAnimationFrame(curve);
-    };
-
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(([e]) => {
-        inView = e.isIntersecting;
-        kickCurve();
-      }, { rootMargin: '150px 0px' }).observe(mvReel);
-    } else { inView = true; kickCurve(); }
-
-    /* One more pass after a hold, so a strip stopped mid-travel still sits on
-       the curve rather than keeping the pose it had when the loop stopped. */
-    curveAfterStateChange = () => { requestAnimationFrame(curve); kickCurve(); };
+       Losing it costs a depth cue and buys three things: rigid spacing, the
+       whole per-frame loop, and one less reason for the run to draw attention
+       to itself. The edge mask already says the strip continues past the page,
+       which is most of what the curve was doing. */
 
     applySpeed();
-    kickCurve();
   }
 
   /* ------------------------------------------------------------------------
