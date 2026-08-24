@@ -62,35 +62,55 @@ themselves"* says the same thing in the reader's words. Left as drawn.
 
 # Things that move
 
-## The projectionist — a new mascot pose
+## The projectionist — delivered
 
-The section currently ships the hero's `mascot.png` as a stand-in. It reads as a
-repeat rather than as a return, because it is literally the same pose the hero
-already used. Here is the brief for the real one.
+`mascot_moonwalk_dab2.png` is in, 24 frames of a moonwalk-into-dab cycle. It
+drives the mascot in Things that move, and its frame rate is the strip's rate:
+the character works hard while the reel is coming in fast, settles as the reel
+settles, and freezes mid-frame when you hit Pause.
 
-**File:** `public/img/mascot_projectionist.png` — drop it in and change the one
-`src` in `prototype/index.html`. Nothing else moves.
+### The sheet the page actually loads is generated
 
-| | |
-| --- | --- |
-| **Export** | 512 × 512, transparent PNG, 2× (so 256 CSS px) |
-| **Renders at** | `clamp(120px, 13vw, 210px)` wide — about 200px on a laptop |
-| **Framing** | Full body, feet near the bottom edge. It stands ON the film strip, so the silhouette's base wants to be flat-ish and the shadow should be baked out — the page has its own ground |
-| **Facing** | Slightly to its left (screen left), toward the heading and into the strip's travel |
+`mascot_reel_sheet.webp` — built from the delivered PNG by
+`tools/normalize-sprite.mjs`, and it exists because the delivered sheet is not
+on a grid. It reads as one: six across, four down, evenly spaced. Measured, its
+row pitches are **271, 251 and 234px** and its columns run **240 to 262**.
+That is what an image model produces — figures placed approximately — and
+approximately is fatal here. A CSS window stepping by a fixed fraction across
+it showed most of the intended frame plus the feet of the frame above.
 
-**The pose.** The strip arrives at speed and slows down. The character is what
-slowed it — a projectionist braking a reel. Anything that reads as *holding
-something in motion* works: a hand on a reel that is still spinning, leaning
-back against the pull, or one arm out steadying the strip as it passes. It
-should look like effort, not like posing.
+The tool finds each figure by its alpha and redraws all 24 into cells of one
+size (274px), centred horizontally and standing on a common baseline. Figures
+keep their own scale: a raised arm should make a frame taller, and normalising
+heights would squash exactly the poses that need the room.
 
-What it should NOT be: sitting at a laptop (that is the hero's pose), waving,
-or standing neutrally beside the strip. The character has a job in this section
-and the pose is the job.
+**If the sheet is ever re-exported, re-run it:**
 
-**Motion.** It bobs gently on a 6.5s loop, pivoting about its feet. So keep the
-feet planted and put the visual weight low — a top-heavy render will look like
-it is falling over rather than breathing.
+```bash
+node tools/normalize-sprite.mjs \
+  public/img/<new-sheet>.png public/img/mascot_reel_sheet.png 6 4
+```
+
+It writes both a `.png` and a `.webp`; only the WebP ships. It fails loudly if
+it cannot find exactly 6 × 4 figures, which is the check you want — a silently
+wrong grid is the bug it exists to prevent.
+
+If the frame count or grid changes, three constants in `assets/js/sections.js`
+follow it: `SPRITE_COLS`, `SPRITE_ROWS`, `SPRITE_FRAMES`.
+
+### Why WebP
+
+470KB against 1.6MB for the same frames as PNG. The delivered 2.1MB master
+stays in the repo as the source for the tool but is never requested by the
+page. WebP needs Safari 14; this page already needs container queries, which
+need Safari 16 — so it costs no reach.
+
+### Worth knowing
+
+The frames render at up to 210px from 274px cells, so about 1.3× — fine on a
+standard display, slightly soft on a retina one. Sharper would mean a bigger
+master; it is a decorative character bobbing at the edge of a section, so this
+is the right trade unless you disagree.
 
 ## The fourteen tiles
 

@@ -30,6 +30,7 @@ just dived into.
 | `docs/pending-art.md` | What each More Stories slot holds, the brief for the projectionist mascot, and how to drop films into the reel. |
 | `portfolio-content.html` | The hi-fi content wireframe all the copy below the hero comes from. Reference, not shipped. |
 | `portfolio_spec.md` | The written spec behind the same. Reference, not shipped. |
+| `tools/normalize-sprite.mjs` | Redraws a sprite sheet onto a strict uniform grid. The mascot's delivered sheet is not on one; see `docs/pending-art.md`. |
 | `serve.js` | Local dev server. See **Running it locally** — the usual one-liner does not work here. |
 | `.nojekyll` | Tells Pages to publish the files as-is instead of running them through Jekyll. |
 
