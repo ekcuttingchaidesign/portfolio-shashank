@@ -599,7 +599,9 @@
 }
 
 /* --- the spotlight ---
-   The delivered beam, softened by 20 the way it is in the Figma. Its apex is
+   The delivered beam, softened by 10 — half the Figma's 20, which over the
+   SVG's own soft gradient was blurring away the beam's edge entirely and
+   leaving a wash with no direction in it. Its apex is
    the SVG's own top-right corner and it fans down and to the left, so it is
    hung off the top of the stand and reaches well above the section — which is
    why the section clips on X only. */
@@ -612,7 +614,7 @@
   z-index: 0;
   pointer-events: none;
   background: url("../../public/img/spotlight.svg") no-repeat bottom right / contain;
-  filter: blur(20px);
+  filter: blur(10px);
   /* The beam is longer than the section it belongs to — its apex is the SVG's
      own top corner and lands 500px up inside More Stories, where a warm wedge
      crossing the bento is nobody's idea. Rather than cut it there, which would
@@ -629,22 +631,28 @@
 }
 
 /* --- the bloom ---
-   The Figma is a 348px circle of #FF8250 under a 700px layer blur. It is a
+   The Figma is a 348px circle of #FF8250 under a 600px layer blur. It is a
    RADIAL GRADIENT here, and that is not an approximation of the spec so much
    as a reading of what the spec actually produces.
 
-   Rendered literally and sampled, that blur peaks at 5.1% alpha dead centre,
-   is still 4.7% at 300px out and 2.4% at 700. There is no core and no edge —
-   it is a wide, weak wash, which is exactly the shape of a radial gradient.
-   The stops below are those measurements. What it saves is a filtered layer
-   whose paint bounds run some 2000px past the element on every side, for a
-   picture that a gradient draws for nothing.
+   Rendered literally at 600 and sampled down its radius, that blur peaks at
+   5.1% alpha dead centre and falls 4.71 / 3.92 / 2.75 / 1.96 / 1.18 / 0.78 /
+   0.39 at 300, 450, 600, 750, 900, 1050 and 1200px out. There is no core and
+   no edge — it is a wide, weak wash, which is exactly the shape of a radial
+   gradient, and the stops below are those numbers. What it saves is a filtered
+   layer whose paint bounds run some 1800px past the element on every side, for
+   a picture a gradient draws for nothing.
+
+   (The 700 version of this measurement was taken in a canvas too small to hold
+   the falloff, so its tail read as a flat 2.4% when it was really the clipped
+   edge repeating. Worth knowing if these numbers are ever re-derived: the
+   sample area has to be bigger than the blur.)
 
    Same reasoning as the featured cards' bloom further up this file, and the
    reason there is a rule about it: on this page a blur is only ever worth it
    when the thing underneath has structure to lose. A flat circle has none. */
 .sx-mv-bloom {
-  --sx-bloom: calc(var(--sx-mv-w) * 6.2);
+  --sx-bloom: calc(var(--sx-mv-w) * 5.3);
   position: absolute;
   right: calc(52% + var(--sx-mv-w) / 2 - var(--sx-bloom) / 2);
   bottom: calc(55.7% + var(--sx-mv-w) / 2 - var(--sx-bloom) / 2);
@@ -653,11 +661,14 @@
   z-index: 0;
   pointer-events: none;
   background: radial-gradient(closest-side circle,
-    rgba(255,130,80,.051) 0%,
+    rgba(255,130,80,.051)  0%,
     rgba(255,130,80,.047) 22%,
-    rgba(255,130,80,.039) 30%,
-    rgba(255,130,80,.027) 44%,
-    rgba(255,130,80,.014) 62%,
+    rgba(255,130,80,.039) 33%,
+    rgba(255,130,80,.0275) 44%,
+    rgba(255,130,80,.0196) 56%,
+    rgba(255,130,80,.0118) 67%,
+    rgba(255,130,80,.0078) 78%,
+    rgba(255,130,80,.0039) 89%,
     rgba(255,130,80,0)    100%);
 }
 
@@ -674,10 +685,22 @@
   width: clamp(96px, 9.5vw, 168px);
   height: auto;
   scale: -1 1;
-  transform: translateY(-46%);
+  transform: translate3d(0, -46%, 0);
   opacity: .92;
   z-index: 0;
   pointer-events: none;
+  /* 13s against the cone's 11 and the mascot's 1.9 — three periods that do not
+     divide into each other, so the corners of the page never fall into step.
+     Two decorations breathing together read as a loop; out of phase they read
+     as a room with things in it. The base translate has to be carried in every
+     keyframe: it is the ledge's position, not part of the drift. */
+  animation: sx-mv-ledge-float 13s ease-in-out infinite;
+}
+@keyframes sx-mv-ledge-float {
+  0%, 100% { transform: translate3d(0, -46%, 0) rotate(0deg); }
+  27%      { transform: translate3d(4px, calc(-46% - 7px), 0) rotate(1.2deg); }
+  58%      { transform: translate3d(-2px, calc(-46% - 3px), 0) rotate(-0.7deg); }
+  81%      { transform: translate3d(3px, calc(-46% - 9px), 0) rotate(1.6deg); }
 }
 
 /* It is a control, so it says so — but quietly. A character that grows under
@@ -778,7 +801,8 @@
      selectors these override lose on source order — a media query adds no
      specificity of its own. Without the prefix the strip stayed animated AND
      unscrollable, which is the worst of both. */
-  #sx-move .sx-mv-kin span { animation: none; }
+  #sx-move .sx-mv-kin span,
+  #sx-move .sx-mv-ledge { animation: none; }
   /* No sprite, so nothing to trigger: the mascot stops being a control rather
      than staying one that does nothing. JS drops its button semantics to
      match; this is the half that stops it looking clickable. */
@@ -1426,11 +1450,11 @@
   animation: sx-cone-float 11s ease-in-out infinite;
 }
 @keyframes sx-cone-float {
-  0%   { transform: translate3d(0, 0, 0)      rotate(0deg); }
-  22%  { transform: translate3d(2px, -5px, 0) rotate(1.1deg); }
-  47%  { transform: translate3d(-1px, -2px, 0) rotate(-0.5deg); }
-  71%  { transform: translate3d(-3px, -6px, 0) rotate(-1.3deg); }
-  100% { transform: translate3d(0, 0, 0)      rotate(0deg); }
+  0%   { transform: translate3d(0, 0, 0)       rotate(0deg); }
+  22%  { transform: translate3d(3px, -8px, 0)  rotate(1.7deg); }
+  47%  { transform: translate3d(-2px, -3px, 0) rotate(-0.8deg); }
+  71%  { transform: translate3d(-4px, -10px, 0) rotate(-2deg); }
+  100% { transform: translate3d(0, 0, 0)       rotate(0deg); }
 }
 
 /* --- the shelf and the grid ---
