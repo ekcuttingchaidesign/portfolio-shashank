@@ -62,55 +62,81 @@ themselves"* says the same thing in the reader's words. Left as drawn.
 
 # Things that move
 
-## The projectionist — delivered
+## The mascot — two poses, delivered
 
-`mascot_moonwalk_dab2.png` is in, 24 frames of a moonwalk-into-dab cycle. It
-drives the mascot in Things that move, and its frame rate is the strip's rate:
-the character works hard while the reel is coming in fast, settles as the reel
-settles, and freezes mid-frame when you hit Pause.
+| Sheet | Grid | Frames | Role |
+| --- | --- | --- | --- |
+| `mascot_music_vibe.png` | 6 × 2 | 12 | **Default.** Vibing to the music, on a loop |
+| `mascot_moonwalk_dab2.png` | 6 × 4 | 24 | **On click.** Moonwalk into a dab, plays once, returns to vibing |
 
-### The sheet the page actually loads is generated
+Clicking the character plays the moonwalk and it goes back to vibing. It is a
+real button: keyboard-reachable, Enter and Space work, and it has a focus ring.
+Under reduced motion there is no sprite to play, so JS strips the button
+semantics rather than leaving a labelled control that answers Enter with
+nothing.
 
-`mascot_reel_sheet.webp` — built from the delivered PNG by
-`tools/normalize-sprite.mjs`, and it exists because the delivered sheet is not
-on a grid. It reads as one: six across, four down, evenly spaced. Measured, its
-row pitches are **271, 251 and 234px** and its columns run **240 to 262**.
-That is what an image model produces — figures placed approximately — and
-approximately is fatal here. A CSS window stepping by a fixed fraction across
-it showed most of the intended frame plus the feet of the frame above.
+The vibe's rate follows the strip's — it dances faster while the reel is coming
+in fast and settles as the reel settles, at a fifth of the strip's excess and
+capped at 1.8×. The moonwalk does not follow the strip: it is a performance
+someone asked for, so it plays at its own tempo, and it plays even while the
+strip is paused. A direct answer to a click outranks the ambient state.
 
-The tool finds each figure by its alpha and redraws all 24 into cells of one
-size (274px), centred horizontally and standing on a common baseline. Figures
-keep their own scale: a raised arm should make a frame taller, and normalising
-heights would squash exactly the poses that need the room.
+### The sheets the page loads are generated
 
-**If the sheet is ever re-exported, re-run it:**
+`mascot_music_vibe.webp` and `mascot_moonwalk_dab2.webp`, built by
+`tools/normalize-sprite.mjs` **in one run**. Two separate problems make this
+necessary, and the second is the one that bites.
+
+**Each sheet is off its own grid.** They read as even — six across, evenly
+spaced. Measured, the moonwalk's row pitches are **271, 251 and 234px** and its
+columns run **240 to 262**. That is what an image model produces: figures
+placed approximately. A CSS window stepping by a fixed fraction shows most of
+the intended frame plus the feet of the one above.
+
+**The two sheets are drawn at different sizes.** The vibe figures are **428px**
+tall; the moonwalk's are **208**. The same character, about twice as large.
+Normalised separately, each sheet would be internally perfect and the mascot
+would still double in size the instant it changed pose.
+
+So the tool takes both at once, scales them to a common standing height (each
+sheet's shortest figure is its most compact pose), and draws every frame into
+one shared 274px cell, centred and standing on a common baseline. Within a
+sheet figures keep their relative scale — a raised arm should make a frame
+taller, and flattening heights would squash exactly the dab poses that need
+the room.
+
+**Re-run it whenever either sheet is re-exported — and always pass both**, or
+they will drift apart in size again:
 
 ```bash
-node tools/normalize-sprite.mjs \
-  public/img/<new-sheet>.png public/img/mascot_reel_sheet.png 6 4
+node tools/normalize-sprite.mjs public/img \
+  public/img/mascot_music_vibe.png:6x2 \
+  public/img/mascot_moonwalk_dab2.png:6x4
 ```
 
-It writes both a `.png` and a `.webp`; only the WebP ships. It fails loudly if
-it cannot find exactly 6 × 4 figures, which is the check you want — a silently
-wrong grid is the bug it exists to prevent.
+It fails loudly if a sheet does not contain exactly the grid you claim, which
+is the check worth having — a silently wrong grid is the bug it exists to
+prevent. If a frame count or grid changes, the `POSES` table in
+`assets/js/sections.js` follows it, and each pose's `background-size` in the
+CSS.
 
-If the frame count or grid changes, three constants in `assets/js/sections.js`
-follow it: `SPRITE_COLS`, `SPRITE_ROWS`, `SPRITE_FRAMES`.
+### Weight
 
-### Why WebP
+143KB and 470KB as WebP, against 1.5MB and 2.1MB as PNG. The two PNG masters
+stay in the repo as the tool's input and are never requested by the page.
+WebP needs Safari 14; this page already needs container queries, which need
+Safari 16, so it costs no reach.
 
-470KB against 1.6MB for the same frames as PNG. The delivered 2.1MB master
-stays in the repo as the source for the tool but is never requested by the
-page. WebP needs Safari 14; this page already needs container queries, which
-need Safari 16 — so it costs no reach.
+The walk sheet is not fetched with the page — hovering or tabbing to the
+mascot warms it, and the click decodes before switching so a cold first click
+never blinks the character out.
 
 ### Worth knowing
 
-The frames render at up to 210px from 274px cells, so about 1.3× — fine on a
-standard display, slightly soft on a retina one. Sharper would mean a bigger
-master; it is a decorative character bobbing at the edge of a section, so this
-is the right trade unless you disagree.
+Frames render at up to 210px from 274px cells, so about 1.3× — fine on a
+standard display, slightly soft on a retina one. Sharper means a bigger master;
+for a character bobbing at the edge of a section this is the right trade unless
+you disagree.
 
 ## The fourteen tiles
 

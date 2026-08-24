@@ -1797,52 +1797,70 @@
        strip already cruising, which is the thing this section is not. */
     let paused = false, hovering = false, heat = 1;
 
-    /* --- the projectionist ---
-       24 frames on a 6 x 4 sheet, and the whole reason for wiring it this way
-       rather than as a fixed loop: its rate is the STRIP'S rate. The character
-       works hard while the reel is screaming in, settles as the reel settles,
-       and freezes mid-frame the moment you hit pause. It is doing the thing
-       the section is about rather than decorating it.
+    /* --- the mascot ---
+       Two poses. Vibing to the music is what it does; the moonwalk is a
+       one-shot you ask for, and it goes back to vibing after.
 
-       Not the strip's rate one-for-one, though. Nine times normal through 24
-       frames is 108fps of a 24-frame cycle, which is not effort, it is a
-       flicker. A quarter of the excess, capped at 2.6x, is as fast as a
-       drawn cycle can go before the eye stops reading poses. */
-    const SPRITE_COLS = 6, SPRITE_ROWS = 4, SPRITE_FRAMES = 24;
-    const SPRITE_CYCLE = 2000;    /* ms for one pass at normal speed — 12fps */
+       The vibe's rate is the STRIP'S rate, which is the reason for driving it
+       from here rather than as a fixed loop: the character dances faster while
+       the reel is coming in fast and settles as the reel settles. Not
+       one-for-one — nine times normal through twelve frames is a flicker, not
+       a dance — so it takes a fifth of the excess and caps at 1.8.
+
+       The moonwalk does NOT follow the strip. It is a performance someone
+       asked for, so it plays at its own tempo whatever the scroll is doing,
+       and it plays even while the strip is paused: a direct answer to a click
+       outranks the ambient state of the page. */
+    const POSES = {
+      vibe: { cols: 6, rows: 2, frames: 12, cycle: 1900, loop: Infinity },
+      walk: { cols: 6, rows: 4, frames: 24, cycle: 2100, loop: 1 },
+    };
     const mascot = document.getElementById('sx-mv-mascot');
-    let sprite = null;
+    let sprite = null, posing = false;
 
-    if (mascot && mascot.animate) {
+    /* A pose's keyframes: one held cell per frame. Held and never
+       interpolated — a sprite that tweens between two cells slides the sheet
+       across the window and shows halves of both. */
+    const poseKeys = ({ cols, rows, frames }) => {
       const keys = [];
-      for (let i = 0; i < SPRITE_FRAMES; i++) {
+      for (let i = 0; i < frames; i++) {
         keys.push({
           backgroundPosition:
-            `${(i % SPRITE_COLS) * (100 / (SPRITE_COLS - 1))}% ` +
-            `${Math.floor(i / SPRITE_COLS) * (100 / (SPRITE_ROWS - 1))}%`,
-          /* Held, never interpolated. A sprite that tweens between two cells
-             slides the sheet across the window and shows halves of two
-             frames. */
+            `${(i % cols) * (100 / (cols - 1))}% ` +
+            `${Math.floor(i / cols) * (rows > 1 ? 100 / (rows - 1) : 0)}%`,
           easing: 'steps(1, end)',
         });
       }
       keys.push({ backgroundPosition: '0% 0%' });
-      sprite = mascot.animate(keys,
-        { duration: SPRITE_CYCLE, iterations: Infinity });
-    }
+      return keys;
+    };
 
+    const playPose = name => {
+      if (!mascot || !mascot.animate) return null;
+      if (sprite) sprite.cancel();
+      const pose = POSES[name];
+      mascot.dataset.pose = name;
+      sprite = mascot.animate(poseKeys(pose),
+        { duration: pose.cycle, iterations: pose.loop });
+      return sprite;
+    };
+
+    const spriteRate = rate => Math.min(1.8, 1 + (rate - 1) * 0.2);
     const applySpeed = () => {
+      /* `posing` means the moonwalk has the sprite. Leave it alone — the
+         strip's state must not reach in and re-rate or pause a performance
+         that is halfway through. */
       if (paused || hovering) {
         roll.pause();
-        if (sprite) sprite.pause();
+        if (sprite && !posing) sprite.pause();
         return;
       }
       roll.play();
       const rate = 1 + (ENTRY_SPEED - 1) * heat * heat;
       roll.speed = rate;
-      if (sprite) {
+      if (sprite && !posing) {
         sprite.play();
-        sprite.playbackRate = Math.min(2.6, 1 + (rate - 1) * 0.25);
+        sprite.playbackRate = spriteRate(rate);
       }
     };
 
@@ -1885,8 +1903,48 @@
     /* A strip travelling behind a hidden tab is work nobody is watching. */
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) { roll.pause(); if (sprite) sprite.pause(); }
-      else applySpeed();
+      else { if (posing && sprite) sprite.play(); applySpeed(); }
     });
+
+    /* --- asking for the moonwalk --- */
+    if (mascot && mascot.animate) {
+      playPose('vibe');
+      applySpeed();
+
+      /* The walk sheet is 470KB and only ever wanted after a click, so it is
+         not fetched with the page. Hovering or tabbing to the mascot is the
+         intent signal; by the time the click lands it is usually decoded. */
+      let warm = null;
+      const preload = () => {
+        if (warm) return warm;
+        const img = new Image();
+        img.src = getComputedStyle(mascot, null)
+          .getPropertyValue('background-image')
+          .replace(/^url\(["']?/, '').replace(/["']?\)$/, '')
+          .replace('mascot_music_vibe', 'mascot_moonwalk_dab2');
+        warm = img.decode().catch(() => {});
+        return warm;
+      };
+      mascot.addEventListener('pointerenter', preload, { once: true });
+      mascot.addEventListener('focus', preload, { once: true });
+
+      mascot.addEventListener('click', async () => {
+        if (posing) return;
+        posing = true;
+        mascot.setAttribute('data-busy', '');
+        /* Decode before switching, or the first click on a cold cache swaps to
+           an image that is not there yet and the character blinks out. */
+        await preload();
+        const run = playPose('walk');
+        if (!run) { posing = false; mascot.removeAttribute('data-busy'); return; }
+        run.playbackRate = 1;
+        try { await run.finished; } catch { /* cancelled — pose already moved on */ }
+        posing = false;
+        mascot.removeAttribute('data-busy');
+        playPose('vibe');
+        applySpeed();
+      });
+    }
 
     /* The strip used to bend away at both ends — each cell turned about Y by
        how far it sat from the middle of the window. It is gone, and mixed
@@ -1913,6 +1971,20 @@
        which is most of what the curve was doing. */
 
     applySpeed();
+  }
+
+  /* With motion off — or with no Motion at all — there is no sprite, so the
+     mascot has nothing to play and stops being a control. Leaving a labelled
+     button in the tab order that answers Enter with nothing is worse than not
+     offering it: the promise is the problem, not the missing animation. */
+  if (!(M && M.animate) || reduced) {
+    const still = document.getElementById('sx-mv-mascot');
+    if (still) {
+      still.setAttribute('tabindex', '-1');
+      still.setAttribute('aria-hidden', 'true');
+      still.removeAttribute('aria-label');
+      still.disabled = true;
+    }
   }
 
   /* ------------------------------------------------------------------------
