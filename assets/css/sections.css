@@ -950,21 +950,20 @@
      end. The seams were the giveaway that this section arrived later than its
      neighbours. */
   background: var(--sx-wall);
-  /* The cone runs off the right edge by design, so the section takes what
-     leaves. `clip` on BOTH axes, deliberately: overflow-x on its own is a trap
-     — a box with one axis clipped and the other `visible` computes the visible
-     one to `auto`, which makes the section a scroll container and crops the
-     cone vertically. `clip` also never creates a scrollbar, which `hidden`
-     would, and never becomes a containing block the sticky work above could
-     start resolving against. */
-  overflow: clip;
-  /* ...but the cone is TALLER than the padding above it, and it has to be: at
-     the design's size its head reaches higher than the gap the two blocks are
-     allowed. So the clip is opened by exactly the lead-in, and the cone hangs
-     up into the stack's tail — which is empty by construction, since the tail
-     is the run after the last card. Sized so the cone never reaches the card
-     itself; there is about 25px of daylight between them at 1600. */
-  overflow-clip-margin: calc(var(--sx-st-lead) + 10px);
+  /* No clipping here, and it took two wrong answers to get to that.
+
+     The section clipped because the bloom behind the shelf was wide enough to
+     push the page sideways. Clipping at the section's own box then cut the
+     cone off dead level with the top edge — which reads exactly like a
+     background seam, and was reported as one. Opening the clip with
+     overflow-clip-margin freed the cone and brought the sideways scroll
+     straight back, because that property opens the clip on EVERY edge, not
+     only the one that needed it. (It also has to be a literal length: Chrome
+     rejects calc() there, and an invalid value silently means zero — which is
+     what cut the cone in the first place.)
+
+     The bloom is sized to fit instead, below. Then nothing needs clipping, and
+     the cone hangs into the gap above with nothing there to cut it. */
   padding-block: clamp(2.25rem, 2.4vw, 2.5rem) clamp(4rem, 12vh, 10rem);
 }
 
@@ -1071,10 +1070,18 @@
   position: absolute;
   z-index: 0;
   pointer-events: none;
-  /* 1296 x 671 centred 26 left of the grid's middle, in the Figma. */
-  left: 48.2%;
+  /* 1296 x 671 centred 26 left of the grid's middle, in the Figma — but held
+     to a width that cannot reach past the window. At 128% its right edge
+     landed 86px beyond the viewport at 1440 and the page could be dragged
+     sideways; the section clipped that away, and that clip was what cut the
+     cone. Sized to fit, no clip is needed and the cone is safe.
+
+     Almost nothing is given up: the gradient's last stops are 1.3% alpha and
+     then zero, so the twenty points of width this loses were already
+     invisible. */
+  left: 50%;
   top: 50%;
-  width: 128%;
+  width: 108%;
   height: 178%;
   transform: translate(-50%, -50%);
   background:
@@ -1094,6 +1101,18 @@
   z-index: 1;
   min-width: 0;
   container-type: inline-size;
+  /* The corner lives HERE, on the card, and the plate inherits it — even
+     though the plate is the box you can actually see the corner on.
+
+     45 and 36 on a 1461 shelf, and the Figma draws that same corner on all
+     four cards whatever their size, so the radius belongs to the shelf. These
+     cqw resolve against the nearest ancestor container, which for .sx-st is
+     the shelf; for .sx-st-lift it would be .sx-st, and a share of each card's
+     own width is a different number per card. Declared on the plate it gave
+     the three narrow cards the clamp's 20px floor and the wide banner 27.6 —
+     four cards, two corners, none of them the design's. */
+  border-radius: clamp(20px, 3.08cqw, 45px) clamp(16px, 2.46cqw, 36px)
+                 clamp(16px, 2.46cqw, 36px) clamp(20px, 3.08cqw, 45px);
   /* Written by JS on scroll. Declared here so the card is LANDED with no
      script and with motion off — the arrival is added, never assumed. */
   transform:
@@ -1112,12 +1131,8 @@
   height: 100%;
   overflow: hidden;
   border: 2px solid var(--sx-st-edge, #343434);
-  /* 45 and 36 on a 1461 shelf. These cqw resolve against the SHELF, not the
-     card — which is the behaviour wanted here rather than a thing to work
-     around: the Figma draws the same corner on all four cards whatever their
-     size, so the radius belongs to the shelf and not to the plate. */
-  border-radius: clamp(20px, 3.08cqw, 45px) clamp(16px, 2.46cqw, 36px)
-                 clamp(16px, 2.46cqw, 36px) clamp(20px, 3.08cqw, 45px);
+  /* Taken from .sx-st above, where it can be measured against the shelf. */
+  border-radius: inherit;
   background: var(--sx-st-ground, var(--sx-wall));
   /* Two shadows, and the second one is the point. The first is the card's
      weight on the shelf; the second is its OWN colour spilling onto the wall
@@ -1437,7 +1452,13 @@
   .sx-st--parental { --sx-st-pad: 4.4cqw; --sx-st-size: 5.4cqw; }
   .sx-st--parental .sx-st-copy { inset: auto auto 0 0; }
   .sx-st--parental .sx-st-kicker--lg { font-size: clamp(1rem, 4.1cqw, 2.2rem); }
-  .sx-st-cone { width: 46%; right: -6%; }
+  /* Inset, like the desktop one, and much smaller. It was 46% hanging 6% off
+     the right edge, which was the last thing still dragging the page sideways
+     below 1000 — and at that size its foot came down 120px into the first
+     card. The room it has here is the lead-in plus the shelf's padding plus a
+     heading band that has shrunk with the viewport, and 22% is what fits
+     inside all three. */
+  .sx-st-cone { width: 22%; right: clamp(4px, 2vw, 18px); }
 }
 @media (max-width: 620px) {
   .sx-st-cone { display: none; }
