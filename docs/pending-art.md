@@ -1,4 +1,6 @@
-# The More Stories renders
+# Art the page is waiting on
+
+## The More Stories renders
 
 All four are in. This is the record of what each slot holds and the one thing
 still worth doing.
@@ -54,3 +56,62 @@ is the Figma's copy and is what ships. `SR tickets` is internal Airtel
 vocabulary — a design lead reading this page will not know it means service
 requests. Something like *"Fewer support tickets, by letting people fix it
 themselves"* says the same thing in the reader's words. Left as drawn.
+
+
+---
+
+# Things that move
+
+## The projectionist — a new mascot pose
+
+The section currently ships the hero's `mascot.png` as a stand-in. It reads as a
+repeat rather than as a return, because it is literally the same pose the hero
+already used. Here is the brief for the real one.
+
+**File:** `public/img/mascot_projectionist.png` — drop it in and change the one
+`src` in `prototype/index.html`. Nothing else moves.
+
+| | |
+| --- | --- |
+| **Export** | 512 × 512, transparent PNG, 2× (so 256 CSS px) |
+| **Renders at** | `clamp(120px, 13vw, 210px)` wide — about 200px on a laptop |
+| **Framing** | Full body, feet near the bottom edge. It stands ON the film strip, so the silhouette's base wants to be flat-ish and the shadow should be baked out — the page has its own ground |
+| **Facing** | Slightly to its left (screen left), toward the heading and into the strip's travel |
+
+**The pose.** The strip arrives at speed and slows down. The character is what
+slowed it — a projectionist braking a reel. Anything that reads as *holding
+something in motion* works: a hand on a reel that is still spinning, leaning
+back against the pull, or one arm out steadying the strip as it passes. It
+should look like effort, not like posing.
+
+What it should NOT be: sitting at a laptop (that is the hero's pose), waving,
+or standing neutrally beside the strip. The character has a job in this section
+and the pose is the job.
+
+**Motion.** It bobs gently on a 6.5s loop, pivoting about its feet. So keep the
+feet planted and put the visual weight low — a top-heavy render will look like
+it is falling over rather than breathing.
+
+## The fourteen tiles
+
+Blocks for now, by design. Each plate takes a video with no code change:
+
+```html
+<div class="sx-cel-plate">
+  <video src="../public/video/reel/upi-receipt.mp4" muted loop playsinline
+         preload="metadata" poster="..."></video>
+</div>
+```
+
+Drop the `data-empty` attribute off the plate when you add one — that attribute
+is what draws the reserved hatch and the label.
+
+**Playback is already wired.** Tiles play only while on screen and pause the
+moment they leave, via IntersectionObserver — no scroll handler, no per-frame
+work. Fourteen decoders running at once would cost frames on a laptop and
+battery on a phone, and eleven of them would be painting outside the viewport.
+The observer also watches for tiles added later, so files can land in any
+order.
+
+Ratios are 16:9 and 9:16 and the strip is built for both — one shared height,
+width follows the aspect. Nothing needs cropping to fit.

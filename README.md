@@ -27,7 +27,7 @@ just dived into.
 | `assets/fonts/` | Satoshi, as woff2. The two weights the hero needs are preloaded. |
 | `public/video/` | The two source films (`into-the-screen`, `out-of-the-screen`). |
 | `public/img/` | The portrait, the three headline objects, and project covers. |
-| `docs/pending-art.md` | What each More Stories slot holds, and the two cards whose titles are still baked into their render. |
+| `docs/pending-art.md` | What each More Stories slot holds, the brief for the projectionist mascot, and how to drop films into the reel. |
 | `portfolio-content.html` | The hi-fi content wireframe all the copy below the hero comes from. Reference, not shipped. |
 | `portfolio_spec.md` | The written spec behind the same. Reference, not shipped. |
 | `serve.js` | Local dev server. See **Running it locally** — the usual one-liner does not work here. |
@@ -47,10 +47,16 @@ just dived into.
    pixels come alive*, *I capture moments that stay*. Each carries its own 3D
    object set into the line where a word would go; one box glides between the
    sentences and the objects crossfade inside it as it travels.
-3. **`#sx-work`** — Selected work, 01–03.
-4. **`#sx-archive`** — The rest of it.
-5. **`#sx-exp`** — How I got here.
-6. **`#sx-hand`**, **`#s-exit`**, **`#s-connect`** — the handoff, the dive back
+3. **`#sx-work`** — Featured work. Three case studies stacked in Z on one
+   sticky line, each receding as the next climbs over it.
+4. **`#sx-stories`** — More Stories. Four smaller projects on one shelf, which
+   assembles from its own edges as the block comes up the screen.
+5. **`#sx-move`** — Things that move. The motion reel, and the one section that
+   inverts the page's habit: everything else assembles out of stillness and
+   stops, this arrives already running and slows down as you reach it.
+6. **`#sx-archive`** — Built with AI.
+7. **`#sx-exp`** — How I got here.
+8. **`#sx-hand`**, **`#s-exit`**, **`#s-connect`** — the handoff, the dive back
    out, and *Say hello.*
 
 ## Direction

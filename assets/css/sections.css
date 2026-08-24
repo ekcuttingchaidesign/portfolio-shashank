@@ -431,6 +431,182 @@
    stops being clutter and becomes catalogue depth.
    ------------------------------------------------------------------------- */
 
+/* ===========================================================================
+   THINGS THAT MOVE
+   ===========================================================================
+   The inversion. Everything above assembles out of stillness and stops; this
+   arrives already running and decelerates into legibility. So there is no
+   entrance animation here in the usual sense — the entrance IS the strip
+   slowing down, and the scroll position is what slows it.
+
+   The strip itself is the reel that used to live inside the archive: full
+   bleed, masked at both edges, portrait and landscape sharing one height. That
+   part was already right and is reused whole. What is new is who drives it.
+   ------------------------------------------------------------------------- */
+#sx-move {
+  position: relative;
+  padding-block: clamp(4.5rem, 11vh, 8rem) clamp(4rem, 10vh, 7rem);
+}
+
+/* --- the heading --- */
+.sx-mv-lede { position: relative; }
+.sx-mv-head {
+  position: relative;
+  z-index: 2;
+  max-width: 46ch;
+}
+.sx-mv-title {
+  margin: .35em 0 0;
+  font-family: var(--sx-display);
+  font-weight: 300;
+  font-size: clamp(2.1rem, 5.4vw, 5rem);
+  line-height: 1.02;
+  letter-spacing: -.025em;
+  color: var(--sx-ink);
+}
+/* The one word on the page that never settles. Per-letter, on periods that do
+   not divide into one another, so the word breathes unevenly the way a hand
+   would move it rather than pulsing like a loader. It is the section's whole
+   argument in one word, so it is worth the four spans. */
+.sx-mv-kin {
+  font-style: normal;
+  font-weight: 900;
+  display: inline-block;
+  white-space: nowrap;
+}
+.sx-mv-kin span {
+  display: inline-block;
+  will-change: transform;
+  animation: sx-mv-letter var(--d, 3.4s) ease-in-out infinite;
+  animation-delay: var(--o, 0s);
+}
+.sx-mv-kin span:nth-child(1) { --d: 3.7s; --o: -0.0s; }
+.sx-mv-kin span:nth-child(2) { --d: 4.3s; --o: -0.7s; }
+.sx-mv-kin span:nth-child(3) { --d: 3.1s; --o: -1.4s; }
+.sx-mv-kin span:nth-child(4) { --d: 4.9s; --o: -2.1s; }
+@keyframes sx-mv-letter {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -.14em, 0); }
+}
+
+/* --- the projectionist ---
+   Placeholder pose. Sits at the right of the heading block, above the strip
+   and clear of it, and is the first thing to go when the column narrows. */
+.sx-mv-mascot {
+  position: absolute;
+  right: 0;
+  bottom: -1.25rem;
+  z-index: 1;
+  width: clamp(120px, 13vw, 210px);
+  height: auto;
+  pointer-events: none;
+  opacity: .92;
+  transform-origin: 50% 100%;
+  animation: sx-mv-bob 6.5s ease-in-out infinite;
+}
+@keyframes sx-mv-bob {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(0, -7px, 0) rotate(-1.4deg); }
+}
+
+/* --- the strip, once the script owns it ---
+   The CSS keyframe below is the no-script state and nothing more. The moment
+   the marquee is running from JS the attribute goes on and the keyframe comes
+   off, because two things animating one transform is one thing animating it. */
+#sx-move .sx-reel-strip[data-rolling] { animation: none; }
+
+/* --- the control ---
+   Anything that moves on its own has to be stoppable by someone who is not
+   holding a mouse. Hover-to-hold stays, but it is a convenience, not the
+   control. */
+.sx-mv-foot {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 1.75rem);
+  flex-wrap: wrap;
+  margin-top: clamp(1.1rem, 2.2vw, 1.8rem);
+}
+.sx-mv-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  /* 44 tall, which is the floor for a thing a thumb has to hit. */
+  min-height: 44px;
+  padding: 0 1.15rem;
+  border: 1px solid var(--sx-ink-4);
+  border-radius: 40px;
+  background: transparent;
+  color: var(--sx-ink-2);
+  font-family: var(--sx-ui);
+  font-weight: 500;
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color .3s var(--sx-ease), color .3s var(--sx-ease);
+}
+.sx-mv-toggle:hover { border-color: var(--sx-key); color: var(--sx-ink); }
+.sx-mv-toggle:focus-visible {
+  outline: 2px solid var(--sx-key);
+  outline-offset: 3px;
+}
+/* Two bars for pause, one triangle for play, drawn rather than shipped as two
+   files — it is six lines of CSS and no request. */
+.sx-mv-toggle-i {
+  width: 10px; height: 11px;
+  flex: none;
+  background: currentColor;
+  clip-path: polygon(0 0, 34% 0, 34% 100%, 0 100%, 0 0,
+                     66% 0, 100% 0, 100% 100%, 66% 100%);
+}
+.sx-mv-toggle[aria-pressed="true"] .sx-mv-toggle-i {
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+.sx-mv-count {
+  margin: 0;
+  font-family: var(--sx-ui);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--sx-ink-4);
+}
+
+@media (max-width: 860px) {
+  .sx-mv-mascot { display: none; }
+  .sx-mv-head { max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Nothing travels, nothing floats, nothing breathes. But a strip that has
+     stopped moving still has fourteen pieces on it and no way to reach the
+     eleven off screen — so with motion off it becomes what it should have
+     been all along for that reader: a row they scroll themselves, with the
+     edge mask lifted because a fade over a scrollable region hides content
+     rather than suggesting more of it.
+
+     Every selector here is prefixed with #sx-move on purpose. The reel's own
+     rules live two thousand lines further down this file, so the bare class
+     selectors these override lose on source order — a media query adds no
+     specificity of its own. Without the prefix the strip stayed animated AND
+     unscrollable, which is the worst of both. */
+  #sx-move .sx-mv-kin span,
+  #sx-move .sx-mv-mascot { animation: none; }
+  #sx-move .sx-reel-strip { animation: none; transform: none; }
+  #sx-move .sx-reel {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-mask-image: none;
+            mask-image: none;
+    scroll-snap-type: x proximity;
+  }
+  #sx-move .sx-cel {
+    scroll-snap-align: center;
+    opacity: 1;
+    transform: none;
+  }
+  #sx-move .sx-mv-foot { display: none; }
+}
+
 #sx-archive { padding-bottom: clamp(5rem, 12vh, 9rem); }
 
 .sx-arch-h {
@@ -1003,7 +1179,10 @@
    same relationship to the grid below at every size. In the Figma its artwork
    is 271 wide on a 1461 grid — 18.6% — starting 5.3% past the grid's right
    edge and rising 198 above the heading's top. */
-.sx-st-cone {
+/* Two elements again, and the same reason as the cards: the scroll drift owns
+   the holder's transform and the idle float owns the cone's. One element
+   cannot carry both — whichever wrote last would erase the other. */
+.sx-st-cone-hold {
   position: absolute;
   /* The export is the node's whole 362 x 369 box and the cone only occupies
      the right three-quarters of it — 90px of empty canvas down the left, 74
@@ -1032,14 +1211,33 @@
      was unnecessary and the design's number stands. */
   right: calc(-0.347 * var(--sx-cone-w));
   width: var(--sx-cone-w);
-  height: auto;
   pointer-events: none;
   z-index: 0;
+  line-height: 0;
   /* Parked by JS on scroll; the declaration here is the resting state so the
      shape is correct with no script and with motion off. */
   transform: translate3d(0, var(--sx-cone-y, 0px), 0) rotate(var(--sx-cone-r, 0deg));
   transform-origin: 50% 100%;
   will-change: transform;
+}
+.sx-st-cone {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* The float. Slow, small, and on a period that does not divide evenly into
+     anything else on the page, so it never falls into step with the marquee
+     below or with its own scroll drift — two motions locking phase is what
+     makes an idle animation read as a loop rather than as something adrift.
+     Pivoted at the foot, so it leans rather than slides. */
+  transform-origin: 50% 92%;
+  animation: sx-cone-float 11s ease-in-out infinite;
+}
+@keyframes sx-cone-float {
+  0%   { transform: translate3d(0, 0, 0)      rotate(0deg); }
+  22%  { transform: translate3d(2px, -5px, 0) rotate(1.1deg); }
+  47%  { transform: translate3d(-1px, -2px, 0) rotate(-0.5deg); }
+  71%  { transform: translate3d(-3px, -6px, 0) rotate(-1.3deg); }
+  100% { transform: translate3d(0, 0, 0)      rotate(0deg); }
 }
 
 /* --- the shelf and the grid ---
@@ -1467,7 +1665,7 @@
   #sx-stories { --sx-cone-w: 22vw; }
 }
 @media (max-width: 620px) {
-  .sx-st-cone { display: none; }
+  .sx-st-cone-hold { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1478,7 +1676,8 @@
   .sx-st { transform: none !important; opacity: 1 !important; }
   .sx-st-lift { transform: none !important; }
   .sx-st-art img { transform: none !important; }
-  .sx-st-cone { transform: none !important; }
+  .sx-st-cone-hold { transform: none !important; }
+  .sx-st-cone { animation: none; transform: none; }
 }
 
 /* ---------------------------------------------------------------------------
@@ -3506,8 +3705,25 @@
 
 .sx-cel {
   transform-style: preserve-3d;
-  /* --sx-ry and --sx-tz are written per frame from the cell's live position. */
-  transform: rotateY(var(--sx-ry, 0deg)) translateZ(var(--sx-tz, 0px));
+  /* ONE transform, carrying two systems. --sx-ry and --sx-tz are the cylinder,
+     written per frame from the cell's live position; --sx-mv-heat is the
+     arrival, and it is the same number for every cell. They have to share this
+     declaration — a second rule for the heat had higher specificity and simply
+     erased the curve, which is a bug you cannot see because the result still
+     looks like a strip of tiles.
+
+     Heat first, so the lift and the shrink happen in the cell's own upright
+     space and the cylinder then turns the result. Reversed, a cell near the
+     edge would lift along its own rotated axis and slide sideways as it rose. */
+  transform:
+    translate3d(0, calc(10px * var(--sx-mv-heat, 0)), 0)
+    scale(calc(1 - .04 * var(--sx-mv-heat, 0)))
+    rotateY(var(--sx-ry, 0deg))
+    translateZ(var(--sx-tz, 0px));
+  /* Coming in fast the tiles sit back and dim; as the strip slows they come
+     up. Speed is invisible on a run of evenly spaced tiles — there is no
+     landmark to track it against — so the tiles carry it instead. */
+  opacity: calc(1 - .48 * var(--sx-mv-heat, 0));
   transition: none;
 }
 .sx-cel-plate { backface-visibility: hidden; }
