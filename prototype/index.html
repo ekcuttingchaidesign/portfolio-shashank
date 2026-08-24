@@ -940,10 +940,13 @@
         <p class="sx-lede">Ten years of in-product motion, idents and film. Portrait and
         landscape on one strip, the way they actually arrive.</p>
       </header>
-      <!-- 24 frames on a 6x4 sheet. The box clips to one cell; the sheet
-           behind it steps. Frame 0 is a standing pose, so with no script and
-           with motion off the character is simply standing there. -->
-      <span class="sx-mv-mascot" id="sx-mv-mascot" aria-hidden="true"></span>
+      <!-- Two sheets, one window. The box clips to a single cell and the sheet
+           behind it steps; data-pose says which sheet. Vibing is the resting
+           state, the moonwalk is a one-shot it returns from. Frame 0 of the
+           vibe is a standing pose, so with no script the character is simply
+           standing there. -->
+      <button class="sx-mv-mascot" id="sx-mv-mascot" type="button"
+              data-pose="vibe" aria-label="Play the mascot's moonwalk"></button>
     </div>
 
       <div class="sx-reel" id="sx-reel" data-reveal>

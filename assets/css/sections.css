@@ -489,33 +489,26 @@
   50%      { transform: translate3d(0, -.14em, 0); }
 }
 
-/* --- the projectionist ---
-   A 6 x 4 sheet of 24 frames, clipped to one cell. The cell is a window and
-   the sheet steps behind it — 600% x 400% means the image is six cells wide
-   and four tall, so a background-position of 20% per column and 33.333% per
-   row lands each frame exactly.
+/* --- the mascot ---
+   Two sheets in one window. The box clips to a single cell; the sheet behind
+   it steps. 600% wide means the image is six cells across, so 20% of
+   background-position lands each column; the row divisor differs because the
+   sheets are different depths, which is the whole reason data-pose carries the
+   background-size as well as the file.
 
-   The file is generated, not the one that was delivered. The delivered sheet
-   was rendered by an image model, which places figures approximately: its row
-   pitches were 271, 251 and 234px and its columns ran 240 to 262. A window
-   stepping by a fixed fraction across that shows most of the intended frame
-   plus the feet of the one above it. tools/normalize-sprite.mjs finds each
-   figure by its alpha and redraws all 24 into cells of one size, centred and
-   standing on a common baseline. Re-run it if the sheet is ever re-exported.
+   Both files are generated, not delivered, and the second reason is more
+   interesting than the first. The delivered sheets are rendered by an image
+   model, which places figures approximately — the moonwalk's row pitches are
+   271, 251 and 234px, so a window stepping by a fixed fraction shows most of
+   the intended frame plus the feet of the one above. That is per-sheet. Across
+   sheets, the same character is drawn at different SIZES: the vibe figures are
+   428px tall and the moonwalk's are 208. Normalised separately each sheet
+   would be correct and the mascot would still double in size the instant it
+   changed pose. tools/normalize-sprite.mjs takes both in one run, scales them
+   to a common standing height and draws them into a common cell.
 
-   WebP because the same 24 frames are 470KB here against 1.6MB as PNG, and
-   this page already asks for container queries, which need a newer browser
-   than WebP does.
-
-   Stepped background-position rather than a stepped transform, which is the
-   opposite of the rule this file follows everywhere else. It is deliberate:
-   a transform needs two nested elements to walk a 2D grid, and the thing this
-   saves — a repaint — is a 210px box repainting twelve times a second. That is
-   not a cost worth two elements and two animations to avoid. Everywhere else
-   on this page the repainting box is card-sized and running at 60.
-
-   No bob. The sheet has its own vertical movement in it now; a CSS bob on top
-   would be a second, slower rhythm fighting the one the animator drew. */
+   WebP: 143KB and 470KB against 1.5MB and 2.1MB as PNG. This page already
+   needs container queries, which need a newer browser than WebP does. */
 .sx-mv-mascot {
   position: absolute;
   right: 0;
@@ -523,14 +516,42 @@
   z-index: 1;
   width: clamp(120px, 13vw, 210px);
   aspect-ratio: 1;
-  pointer-events: none;
-  opacity: .94;
-  background-image: url("../../public/img/mascot_reel_sheet.webp");
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background-color: transparent;
   background-repeat: no-repeat;
-  background-size: 600% 400%;
   /* Frame 0 — standing. The resting state with no script and with motion off. */
   background-position: 0% 0%;
+  opacity: .94;
+  cursor: pointer;
+  /* Only the transform transitions. The sprite owns background-position and a
+     transition on it would slide the sheet across the window between frames. */
+  transition: transform .35s var(--sx-ease), opacity .35s var(--sx-ease);
 }
+.sx-mv-mascot[data-pose="vibe"] {
+  background-image: url("../../public/img/mascot_music_vibe.webp");
+  background-size: 600% 200%;
+}
+.sx-mv-mascot[data-pose="walk"] {
+  background-image: url("../../public/img/mascot_moonwalk_dab2.webp");
+  background-size: 600% 400%;
+}
+/* It is a control, so it says so — but quietly. A character that grows under
+   the pointer is the whole affordance; a border would make it a widget. */
+@media (hover: hover) {
+  .sx-mv-mascot:hover { transform: scale(1.05); opacity: 1; }
+}
+.sx-mv-mascot:active { transform: scale(.98); }
+.sx-mv-mascot:focus-visible {
+  outline: 2px solid var(--sx-key);
+  outline-offset: 6px;
+  opacity: 1;
+}
+/* While the moonwalk is running the button is inert — the performance plays
+   out rather than restarting under a second click. */
+.sx-mv-mascot[data-busy] { cursor: default; }
+.sx-mv-mascot[data-busy]:hover { transform: none; }
 
 /* --- the strip, once the script owns it ---
    The CSS keyframe below is the no-script state and nothing more. The moment
@@ -612,8 +633,11 @@
      selectors these override lose on source order — a media query adds no
      specificity of its own. Without the prefix the strip stayed animated AND
      unscrollable, which is the worst of both. */
-  #sx-move .sx-mv-kin span,
-  #sx-move .sx-mv-mascot { animation: none; }
+  #sx-move .sx-mv-kin span { animation: none; }
+  /* No sprite, so nothing to trigger: the mascot stops being a control rather
+     than staying one that does nothing. JS drops its button semantics to
+     match; this is the half that stops it looking clickable. */
+  #sx-move .sx-mv-mascot { cursor: default; pointer-events: none; }
   #sx-move .sx-reel-strip { animation: none; transform: none; }
   #sx-move .sx-reel {
     overflow-x: auto;
