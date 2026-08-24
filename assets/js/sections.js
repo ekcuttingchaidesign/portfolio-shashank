@@ -1762,9 +1762,22 @@
 
   if (mvStrip && M && M.animate && !reduced) {
     /* One full run of the strip is half its width, because the run is
-       duplicated — so -50% is exactly one loop and the seam is invisible. */
+       duplicated — so -50% is exactly one loop and the seam is invisible.
+
+       This is the one number here that is a judgement rather than a
+       measurement, so it is worth saying what it buys. At 92s the strip runs
+       about 63px a second at 1600, which is half what it was: a landscape tile
+       takes nine seconds to cross, and the whole reel comes round in a minute
+       and a half. At the old 58s it was 128px/s and read as a ticker. Tried
+       135s too, and 43px/s is the other failure — a fourteen-piece reel that
+       takes over two minutes to loop stops feeling continuous and starts
+       feeling stalled.
+
+       Turn this one constant if it still is not right; everything else in the
+       section is a ratio off it, including the arrival and the mascot. */
+    const CRUISE = 92;
     const roll = M.animate(mvStrip, { x: ['0%', '-50%'] },
-      { duration: 58, ease: 'linear', repeat: Infinity });
+      { duration: CRUISE, ease: 'linear', repeat: Infinity });
 
     mvStrip.setAttribute('data-rolling', '');
 
@@ -1772,7 +1785,11 @@
        the strip is properly on screen. Squared falloff rather than linear: a
        linear ramp spends too long in the middle speeds, where the strip is
        neither excitingly fast nor calmly readable. */
-    const ENTRY_SPEED = 7;
+    /* Raised from 7 when the cruise slowed: the arrival is a ratio, not an
+       absolute, and 7x of the old cruise was a different experience from 7x of
+       this one. Nine keeps the gap between how it arrives and how it settles
+       roughly where it was. */
+    const ENTRY_SPEED = 9;
     /* Starts HOT. The strip is at full speed from the moment the page loads —
        it is off screen, so nobody sees the first seconds of it, and by the
        time it is in view the scroll has begun bringing it down. Starting at
@@ -1780,10 +1797,53 @@
        strip already cruising, which is the thing this section is not. */
     let paused = false, hovering = false, heat = 1;
 
+    /* --- the projectionist ---
+       24 frames on a 6 x 4 sheet, and the whole reason for wiring it this way
+       rather than as a fixed loop: its rate is the STRIP'S rate. The character
+       works hard while the reel is screaming in, settles as the reel settles,
+       and freezes mid-frame the moment you hit pause. It is doing the thing
+       the section is about rather than decorating it.
+
+       Not the strip's rate one-for-one, though. Nine times normal through 24
+       frames is 108fps of a 24-frame cycle, which is not effort, it is a
+       flicker. A quarter of the excess, capped at 2.6x, is as fast as a
+       drawn cycle can go before the eye stops reading poses. */
+    const SPRITE_COLS = 6, SPRITE_ROWS = 4, SPRITE_FRAMES = 24;
+    const SPRITE_CYCLE = 2000;    /* ms for one pass at normal speed — 12fps */
+    const mascot = document.getElementById('sx-mv-mascot');
+    let sprite = null;
+
+    if (mascot && mascot.animate) {
+      const keys = [];
+      for (let i = 0; i < SPRITE_FRAMES; i++) {
+        keys.push({
+          backgroundPosition:
+            `${(i % SPRITE_COLS) * (100 / (SPRITE_COLS - 1))}% ` +
+            `${Math.floor(i / SPRITE_COLS) * (100 / (SPRITE_ROWS - 1))}%`,
+          /* Held, never interpolated. A sprite that tweens between two cells
+             slides the sheet across the window and shows halves of two
+             frames. */
+          easing: 'steps(1, end)',
+        });
+      }
+      keys.push({ backgroundPosition: '0% 0%' });
+      sprite = mascot.animate(keys,
+        { duration: SPRITE_CYCLE, iterations: Infinity });
+    }
+
     const applySpeed = () => {
-      if (paused || hovering) { roll.pause(); return; }
+      if (paused || hovering) {
+        roll.pause();
+        if (sprite) sprite.pause();
+        return;
+      }
       roll.play();
-      roll.speed = 1 + (ENTRY_SPEED - 1) * heat * heat;
+      const rate = 1 + (ENTRY_SPEED - 1) * heat * heat;
+      roll.speed = rate;
+      if (sprite) {
+        sprite.play();
+        sprite.playbackRate = Math.min(2.6, 1 + (rate - 1) * 0.25);
+      }
     };
 
     if (M.scroll) {
@@ -1824,7 +1884,8 @@
 
     /* A strip travelling behind a hidden tab is work nobody is watching. */
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden) roll.pause(); else applySpeed();
+      if (document.hidden) { roll.pause(); if (sprite) sprite.pause(); }
+      else applySpeed();
     });
 
     /* The strip used to bend away at both ends — each cell turned about Y by

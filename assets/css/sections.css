@@ -490,23 +490,46 @@
 }
 
 /* --- the projectionist ---
-   Placeholder pose. Sits at the right of the heading block, above the strip
-   and clear of it, and is the first thing to go when the column narrows. */
+   A 6 x 4 sheet of 24 frames, clipped to one cell. The cell is a window and
+   the sheet steps behind it — 600% x 400% means the image is six cells wide
+   and four tall, so a background-position of 20% per column and 33.333% per
+   row lands each frame exactly.
+
+   The file is generated, not the one that was delivered. The delivered sheet
+   was rendered by an image model, which places figures approximately: its row
+   pitches were 271, 251 and 234px and its columns ran 240 to 262. A window
+   stepping by a fixed fraction across that shows most of the intended frame
+   plus the feet of the one above it. tools/normalize-sprite.mjs finds each
+   figure by its alpha and redraws all 24 into cells of one size, centred and
+   standing on a common baseline. Re-run it if the sheet is ever re-exported.
+
+   WebP because the same 24 frames are 470KB here against 1.6MB as PNG, and
+   this page already asks for container queries, which need a newer browser
+   than WebP does.
+
+   Stepped background-position rather than a stepped transform, which is the
+   opposite of the rule this file follows everywhere else. It is deliberate:
+   a transform needs two nested elements to walk a 2D grid, and the thing this
+   saves — a repaint — is a 210px box repainting twelve times a second. That is
+   not a cost worth two elements and two animations to avoid. Everywhere else
+   on this page the repainting box is card-sized and running at 60.
+
+   No bob. The sheet has its own vertical movement in it now; a CSS bob on top
+   would be a second, slower rhythm fighting the one the animator drew. */
 .sx-mv-mascot {
   position: absolute;
   right: 0;
   bottom: -1.25rem;
   z-index: 1;
   width: clamp(120px, 13vw, 210px);
-  height: auto;
+  aspect-ratio: 1;
   pointer-events: none;
-  opacity: .92;
-  transform-origin: 50% 100%;
-  animation: sx-mv-bob 6.5s ease-in-out infinite;
-}
-@keyframes sx-mv-bob {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-  50%      { transform: translate3d(0, -7px, 0) rotate(-1.4deg); }
+  opacity: .94;
+  background-image: url("../../public/img/mascot_reel_sheet.webp");
+  background-repeat: no-repeat;
+  background-size: 600% 400%;
+  /* Frame 0 — standing. The resting state with no script and with motion off. */
+  background-position: 0% 0%;
 }
 
 /* --- the strip, once the script owns it ---
