@@ -109,12 +109,27 @@ of the top face against the edge, which reads as exactly the gap it was meant
 to close. The section clips on the x axis only, so the character can still
 stand above its own box.
 
-**The spotlight is CSS, not a file.** Two static gradients: a conic wedge
-falling from up and to the right, and the radial pool it makes where it lands.
-Conic rather than a blurred shape because a beam is an angular sweep from a
-point, which is what conic is — and it costs one paint instead of a filter the
-compositor keeps re-running. The plinth's own gradients already imply a light;
-this is the thing casting it.
+**The spotlight** is `spotlight.svg`, softened by `blur(20px)` as in the Figma.
+Its throw is masked away toward the top: the beam is longer than the section it
+belongs to and its apex landed 500px up inside More Stories, where a warm wedge
+crossing the bento is nobody's idea. Cutting it at the seam would put a hard
+bright edge there — the apex is the brightest part of the beam — so instead it
+dissolves, and the light arrives from somewhere out of frame with its source
+lost in the dark. Which is what a beam does anyway.
+
+**The bloom** is the Figma's 348px `#FF8250` circle under a 700px layer blur,
+written as a radial gradient. That is a reading of the spec rather than an
+approximation of it: rendered literally and sampled, that blur peaks at **5.1%
+alpha** dead centre, is still 4.7% at 300px out and 2.4% at 700. There is no
+core and no edge — it is a wide, weak wash, which is the shape of a radial
+gradient. The stops in the CSS are those measurements. What it avoids is a
+filtered layer whose paint bounds run some 2000px past the element on every
+side, for a picture a gradient draws for nothing.
+
+The rule this follows, and the reason the featured cards' bloom is built the
+same way: on this page a blur is only worth its layer when the thing underneath
+has structure to lose. A flat circle has none. The 20px on the beam is a
+different case — small, static, and over an SVG with an actual edge to soften.
 
 ### The ledge
 
