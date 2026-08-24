@@ -109,7 +109,9 @@ of the top face against the edge, which reads as exactly the gap it was meant
 to close. The section clips on the x axis only, so the character can still
 stand above its own box.
 
-**The spotlight** is `spotlight.svg`, softened by `blur(20px)` as in the Figma.
+**The spotlight** is `spotlight.svg`, softened by `blur(10px)` — half the
+Figma's 20, which over the SVG's own soft gradient blurred the beam's edge away
+entirely and left a wash with no direction in it.
 Its throw is masked away toward the top: the beam is longer than the section it
 belongs to and its apex landed 500px up inside More Stories, where a warm wedge
 crossing the bento is nobody's idea. Cutting it at the seam would put a hard
@@ -117,10 +119,16 @@ bright edge there — the apex is the brightest part of the beam — so instead 
 dissolves, and the light arrives from somewhere out of frame with its source
 lost in the dark. Which is what a beam does anyway.
 
-**The bloom** is the Figma's 348px `#FF8250` circle under a 700px layer blur,
+**The bloom** is the Figma's 348px `#FF8250` circle under a 600px layer blur,
 written as a radial gradient. That is a reading of the spec rather than an
-approximation of it: rendered literally and sampled, that blur peaks at **5.1%
-alpha** dead centre, is still 4.7% at 300px out and 2.4% at 700. There is no
+approximation of it: rendered literally and sampled down its radius, that blur
+peaks at **5.1% alpha** dead centre and falls 4.71 / 3.92 / 2.75 / 1.96 / 1.18
+/ 0.78 / 0.39 at 300, 450, 600, 750, 900, 1050 and 1200px out.
+
+*If these are ever re-derived: the sample canvas has to be bigger than the
+blur.* The first pass measured the 700px version in a 1400px box and its tail
+read as a flat 2.4% — that was the clipped edge pixel repeating, not the
+falloff. There is no
 core and no edge — it is a wide, weak wash, which is the shape of a radial
 gradient. The stops in the CSS are those measurements. What it avoids is a
 filtered layer whose paint bounds run some 2000px past the element on every
