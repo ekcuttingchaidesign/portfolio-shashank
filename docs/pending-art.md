@@ -67,19 +67,19 @@ themselves"* says the same thing in the reader's words. Left as drawn.
 | Sheet | Grid | Frames | Role |
 | --- | --- | --- | --- |
 | `mascot_music_vibe.png` | 6 × 2 | 12 | **Default.** Vibing to the music |
-| `MASCOT_MOONWALK_ONLY.png` | 8 × 3 | 24 | **On hover / focus.** Moonwalks for as long as you stay on it |
-| `mascot_moonwalk_dab2.png` | 6 × 4 | 24 | *Kept for revert.* The moonwalk-into-dab it replaced |
+| `mascot_moonwalk_dab2.png` | 6 × 4 | 24 | **On hover / focus.** Moonwalk into a dab, for as long as you stay on it |
+| `MASCOT_MOONWALK_ONLY.png` | 8 × 3 | 24 | *Built and kept.* The walk-only cycle, tried and reverted |
 
 Hover the character and it moonwalks; move away and it goes back to vibing.
 Focus does the same, so a keyboard is not shut out of it. Both poses loop —
 the dab sheet had to play once because a dab has a beginning and an end, but a
 moonwalk is a cycle and it runs while you are looking at it.
 
-**To revert to the dab**, change two things: `POSES.walk` in
-`assets/js/sections.js` back to `{ cols: 6, rows: 4, frames: 24, cycle: 2100 }`,
-and `--sx-mv-walk` plus the `[data-pose="walk"]` `background-size` in the CSS
-back to `mascot_moonwalk_dab2.webp` / `600% 400%`. Both `.webp` files are
-already built, so nothing needs regenerating.
+**To try the walk-only cycle again**, change two things: `POSES.walk` in
+`assets/js/sections.js` to `{ cols: 8, rows: 3, frames: 24, cycle: 1500 }`, and
+`--sx-mv-walk` plus the `[data-pose="walk"]` `background-size` in the CSS to
+`MASCOT_MOONWALK_ONLY.webp` / `800% 300%`. Both `.webp` files are built and
+normalised to the same scale, so nothing needs regenerating either way.
 
 The vibe's rate follows the strip's — it dances faster while the reel is coming
 in fast — at a fifth of the strip's excess, capped at 1.8×. The moonwalk does
@@ -87,20 +87,43 @@ not follow it: it is danced at somebody, so it keeps its own tempo, and it
 dances even while the strip is paused. A direct answer to a pointer outranks
 the ambient state.
 
-### The plinth
+### The stand — light, plinth, character
+
+All three are one group, `.sx-mv-stand`, so attaching the whole thing to the
+right edge is one number rather than three that have to agree. The character's
+position is a share of the stand, not of the section, so it cannot come unstuck
+from the plinth it stands on.
 
 `mascot-dance-platform.svg` (renamed from `MASCOT DANCE PLATFORM.svg` — spaces
-and capitals in a URL are avoidable trouble). It sits behind the character and
-is sized and placed in fractions of the mascot's own width, so the two cannot
-drift apart at any viewport. The character stands about 40% down the stage
-rather than on its front edge at 47%: a step back from the lip is where a
-figure has to be for a plinth to read as something it is standing ON.
+and capitals in a URL are avoidable trouble). The character stands about 40%
+down the stage rather than on its front edge at 47%: a step back from the lip
+is where a figure has to be for a plinth to read as something it is standing
+ON.
 
-The "spotlight" is already in the file — the top face's gradient runs from
-`#553220` to transparent across the surface, which is light falling on it, and
-the front face fades downward the same way. No separate light asset is needed
-and none was added. If you want an actual cone of light above it, say so; it
-is a gradient, not a file.
+**Attached to the right edge of the WINDOW, not of the column.** The wrap stops
+at its gutter, and past 1560 it stops again at its max-width and centres, so
+reaching the glass means undoing both — that is the `max()` in the stand's
+`right`. It bleeds a little further still, because the plinth's front face only
+runs to 633 of the SVG's 763 and stopping flush would leave the thin, faded end
+of the top face against the edge, which reads as exactly the gap it was meant
+to close. The section clips on the x axis only, so the character can still
+stand above its own box.
+
+**The spotlight is CSS, not a file.** Two static gradients: a conic wedge
+falling from up and to the right, and the radial pool it makes where it lands.
+Conic rather than a blurred shape because a beam is an angular sweep from a
+point, which is what conic is — and it costs one paint instead of a filter the
+compositor keeps re-running. The plinth's own gradients already imply a light;
+this is the thing casting it.
+
+### The ledge
+
+`right_side_ledge.svg` — the hero's own, mirrored exactly as it is up there.
+Reusing the asset *and* its flip is the point: the page opens with a green
+wedge in one corner and this answers it in the other, which reads as a rhyme
+where a second, different shape would read as clutter. Its viewBox is correct
+as delivered, unlike `left_ledge.svg`, whose artwork overflows its declared box
+by about 3.4× and would need the same crop fix `conical_green.svg` had.
 
 ### The sheets the page loads are generated
 
