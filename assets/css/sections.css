@@ -1190,9 +1190,16 @@
   /* No opacity here, deliberately. A translucent card stops OCCLUDING: you see
      the page and the other cards straight through it, which is the one thing a
      stack of cards must never do. The card stays solid and the dimming happens
-     on its face — see the scrim on the shell below. */
-  filter: blur(calc(2.5px * var(--sx-dim, 0)));
-  will-change: transform, filter;
+     on its face — see the scrim on the shell below.
+
+     The depth blur is NOT here either, it is on .sx-feat-shell. This element
+     wraps the bloom as well as the card, and the bloom is 132% x 215% of the
+     card — a filter here rasterises that whole gradient every frame the radius
+     changes. Blurring an already-Gaussian falloff is a picture you cannot tell
+     apart from the unblurred one, so the stack was paying its largest raster
+     for nothing; on the third card, with two faces blurring at once, that was
+     the frame budget. Scoped to the shell it halves. */
+  will-change: transform;
 }
 
 /* The dimming, as a scrim ON the card rather than alpha applied TO it. Same
@@ -1212,8 +1219,11 @@
   pointer-events: none;
 }
 /* The bloom is outside the shell, so the scrim cannot reach it — and three
-   green blooms at full strength stacked on one another is a lot of green. */
-.sx-feat-bloom { opacity: calc(1 - var(--sx-dim, 0)); }
+   green blooms at full strength stacked on one another is a lot of green.
+   Driven by the STEPPED depth, not the continuous one — see the note in the
+   script: this gradient is the biggest surface on the card and repainting it
+   every frame is what was left of the third card's cost. */
+.sx-feat-bloom { opacity: calc(1 - var(--sx-glow, 0)); }
 /* A card behind is not a target. Without this the top card's own controls sit
    under three stacked hit areas. */
 .sx-feat-3d[data-back] { pointer-events: none; }
@@ -1277,6 +1287,18 @@
     inset 0 1px 0 rgba(243,244,246,.12),
     inset 0 0 0 1px rgba(243,244,246,.07),
     0 40px 90px -40px rgba(0,0,0,1);
+  /* The depth blur, on the card's own box rather than on .sx-feat-3d above —
+     see the note there. The radius arrives already quantised from JS, because
+     a filter is re-rasterised whenever its value changes and a continuous one
+     re-rasterises three cards on every frame of the scroll. The eye reads the
+     scrim's opacity, which stays continuous; it cannot read a fifth of a pixel
+     of blur. */
+  filter: blur(var(--sx-blur, 0px));
+  /* No will-change for it. Hinting the filter promotes all three shells to
+     permanent composited layers, and a card-sized filtered layer costs more to
+     keep than the promotion saves — measured at twice the frame time of leaving
+     it alone. The quantised radius is what makes the filter cheap; the hint
+     only takes that back. */
 }
 
 /* --- the cover --- */
@@ -1593,7 +1615,8 @@
      fully behind the next one — the recession would just clip the top of a card
      you are still reading. The stack unpins into a plain column. */
   .sx-feat { position: static; perspective: none; margin-bottom: clamp(3rem, 8vh, 5rem); }
-  .sx-feat-3d { transform: none !important; filter: none !important; }
+  .sx-feat-3d { transform: none !important; }
+  .sx-feat-shell { filter: none !important; }
   .sx-feat-shell::after { opacity: 0 !important; }
   .sx-feat-bloom { opacity: 1 !important; }
   /* Stacked, so the cover takes the whole row and the gap is out of the sum. */
@@ -1615,7 +1638,8 @@
   /* The stack is a motion effect and nothing else — with motion off the three
      cards are simply three cards, in order, at full size. */
   .sx-feat { position: static; perspective: none; margin-bottom: clamp(3rem, 8vh, 5rem); }
-  .sx-feat-3d { transform: none !important; filter: none !important; }
+  .sx-feat-3d { transform: none !important; }
+  .sx-feat-shell { filter: none !important; }
   .sx-feat-shell::after { opacity: 0 !important; }
   .sx-feat-bloom { opacity: 1 !important; }
 
