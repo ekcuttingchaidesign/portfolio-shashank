@@ -445,6 +445,10 @@
    ------------------------------------------------------------------------- */
 #sx-move {
   position: relative;
+  /* The plinth and the ledge both run off their side of the window, so the
+     section takes what leaves. X only: the character stands above its own box
+     and the vertical axis has to stay visible for it. */
+  overflow-x: clip;
   padding-block: clamp(4.5rem, 11vh, 8rem) clamp(4rem, 10vh, 7rem);
 }
 
@@ -510,16 +514,41 @@
    WebP: 143KB and 470KB against 1.5MB and 2.1MB as PNG. This page already
    needs container queries, which need a newer browser than WebP does. */
 .sx-mv-lede { --sx-mv-w: clamp(120px, 13vw, 210px); }
+
+/* --- the stand ---
+   Light, plinth and character as one group, so attaching the whole thing to
+   the right edge is one number instead of three that have to agree.
+
+   And it IS the right edge of the WINDOW, not of the column. The wrap stops at
+   its gutter, and past 1560 it stops again at its own max-width and centres —
+   so reaching the glass means undoing both. That is what the max() is: zero
+   until the wrap is capped, then half the leftover. It bleeds a little further
+   still, because the plinth's front face only runs to 633 of the SVG's 763 and
+   stopping flush would leave the last stretch of thin, faded top face against
+   the edge, which reads as exactly the gap it was meant to close. */
+.sx-mv-stand {
+  position: absolute;
+  bottom: 0;
+  right: calc(-1 * var(--sx-gut)
+              - max(0px, (100vw - var(--sx-max)) / 2)
+              - var(--sx-mv-w) * 0.30);
+  width: calc(var(--sx-mv-w) * 2.35);
+  aspect-ratio: 763 / 224;
+  z-index: 1;
+}
+
 .sx-mv-mascot {
   position: absolute;
-  /* Standing ON the plinth, so both numbers are the plinth's geometry rather
-     than the section's: far enough in from the right to sit near the middle of
-     the surface, and high enough that the plinth's front face has somewhere to
-     be. It used to sit flush above the strip, which left the plinth nothing
-     but a lip. */
-  right: calc(var(--sx-mv-w) * 0.55);
-  bottom: calc(var(--sx-mv-w) * 0.386);
-  z-index: 1;
+  /* Both numbers are now shares of the STAND, which is the plinth's own box —
+     so the character cannot come unstuck from the thing it stands on however
+     the group moves. 55.7% up puts the feet about 40% down the stage, a step
+     back from the front lip. 52% in from the right rather than the 30% that
+     would centre it on the stage: the stage runs 142px off the side of the
+     window, so centring on the STAGE put the character's shoulder against the
+     glass. It is centred on the part you can see. */
+  right: 52%;
+  bottom: 55.7%;
+  z-index: 2;
   width: var(--sx-mv-w);
   aspect-ratio: 1;
   padding: 0;
@@ -541,10 +570,10 @@
 }
 /* The walk sheet's URL also lives as a custom property, because the preloader
    has to know it before the pose has switched to it. One place to change. */
-.sx-mv-mascot { --sx-mv-walk: url("../../public/img/MASCOT_MOONWALK_ONLY.webp"); }
+.sx-mv-mascot { --sx-mv-walk: url("../../public/img/mascot_moonwalk_dab2.webp"); }
 .sx-mv-mascot[data-pose="walk"] {
   background-image: var(--sx-mv-walk);
-  background-size: 800% 300%;
+  background-size: 600% 400%;
 }
 /* --- the stage ---
    The plinth the character stands on. Sits behind the mascot and is sized off
@@ -555,10 +584,9 @@
    and no ground of its own — it simply thins out into the page. */
 .sx-mv-stage {
   position: absolute;
-  z-index: 0;
+  inset: 0;
+  z-index: 1;
   pointer-events: none;
-  width: calc(var(--sx-mv-w) * 2.35);
-  aspect-ratio: 763 / 224;
   /* Both offsets are fractions of the mascot's width, so the character and the
      thing it stands on cannot drift apart at any viewport size.
 
@@ -566,10 +594,55 @@
      its front edge at 47% — standing ON the surface, a step back from the lip,
      which is where a figure has to be for the plinth to read as something it
      is on rather than something it is balanced against. */
-  bottom: 0;
-  right: 0;
   background: url("../../public/img/mascot-dance-platform.svg") no-repeat center/contain;
   opacity: .9;
+}
+
+/* --- the spotlight ---
+   The thing lighting the plinth, which the plinth's own gradients imply and
+   nothing was casting. Two parts, both static so they paint once: a wedge
+   falling from up and to the right, and the pool it makes where it lands.
+
+   A conic gradient rather than a blurred shape — a beam is an angular sweep
+   from a point, which is what conic IS, and it costs one paint instead of a
+   filter the compositor has to keep re-running. */
+.sx-mv-glow {
+  position: absolute;
+  right: -12%;
+  bottom: -6%;
+  width: 132%;
+  height: 460%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    conic-gradient(from 186deg at 78% 1%,
+      rgba(255,190,126,0)    0deg,
+      rgba(255,190,126,.085) 5deg,
+      rgba(255,190,126,.155) 12deg,
+      rgba(255,190,126,.115) 19deg,
+      rgba(255,190,126,.035) 26deg,
+      rgba(255,190,126,0)    32deg),
+    radial-gradient(40% 10% at 40% 92%,
+      rgba(240,158,88,.34), rgba(240,158,88,0) 74%);
+}
+
+/* --- the ledge ---
+   The hero's own right_side_ledge, mirrored exactly as it is up there. Reusing
+   the asset AND its flip is the point: the page opens with a green wedge in
+   one corner and this answers it in the other, which reads as a rhyme where a
+   second, different shape would read as clutter. */
+.sx-mv-ledge {
+  position: absolute;
+  left: calc(-1 * var(--sx-gut) - max(0px, (100vw - var(--sx-max)) / 2)
+             - var(--sx-mv-w) * 0.22);
+  top: 50%;
+  width: clamp(96px, 9.5vw, 168px);
+  height: auto;
+  scale: -1 1;
+  transform: translateY(-46%);
+  opacity: .92;
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* It is a control, so it says so — but quietly. A character that grows under
@@ -653,7 +726,7 @@
 }
 
 @media (max-width: 860px) {
-  .sx-mv-mascot, .sx-mv-stage { display: none; }
+  .sx-mv-stand, .sx-mv-ledge { display: none; }
   .sx-mv-head { max-width: none; }
 }
 

@@ -1813,7 +1813,7 @@
        ambient state of the page. */
     const POSES = {
       vibe: { cols: 6, rows: 2, frames: 12, cycle: 1900 },
-      walk: { cols: 8, rows: 3, frames: 24, cycle: 1500 },
+      walk: { cols: 6, rows: 4, frames: 24, cycle: 2100 },
     };
     const mascot = document.getElementById('sx-mv-mascot');
     let sprite = null, posing = false;
