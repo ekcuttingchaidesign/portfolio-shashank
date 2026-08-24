@@ -14,39 +14,38 @@ Every file is exactly 2× its slot, and every one matches its slot's aspect
 ratio to three decimals — so `object-fit: cover` is not cropping any of them,
 on the shelf or in the single column below 1000px.
 
-## The two lettered cards
+## All four titles are live text
 
-Airtel Coins and Self-Serve IPTV came through clean, so their titles are live
-text: selectable, re-wrapping on a phone, crisp at any zoom.
+Every card's title is real DOM — selectable, re-wrapping on a phone, crisp at
+any zoom. Wynk Rewind and Parental Controls first arrived with their titles
+baked into the render and were held behind a `data-lettered` attribute that
+hid the duplicate copy; both have since been re-exported clean and the
+attribute is gone.
 
-**Wynk Rewind and Parental Controls arrived with their titles baked into the
-render**, which printed each of them twice — once from the PNG and once from
-the DOM. Those two cards now carry `data-lettered`, which takes the DOM copy
-off the screen while leaving it in the document, so a screen reader still has
-a name for the card and nothing is drawn twice.
-
-That is a working state, not the better one. The live text is sharper on a
-high-DPI screen, it re-wraps when the card narrows, and it can be selected and
-searched. To get it back:
-
-1. Re-export the two nodes from Figma with their text layers hidden — same
-   names, same 976 × 884 and 824 × 884.
-2. Delete the `data-lettered` attribute from the two `<article>` tags in
-   `prototype/index.html`.
-
-Nothing else changes; the copy is already sitting there.
-
-Wynk's big `20` / `21` numerals are **not** text for this purpose — they are
+Wynk's big `20` / `21` numerals stay in the render and should: they are
 Poppins Bold, rotated, at 144 and 288, and this site ships Satoshi only.
-They should stay in the render whatever else comes out of it.
+Baking them in is what avoids pulling a second webfont down for two numbers.
+
+If any card is ever re-exported, export it **with its text layers hidden** —
+the numerals being the one exception.
 
 ## `conical_green.svg`
 
-The uploaded export had a `viewBox` of `0 0 236 369` against artwork whose own
-bounds are `90.4, 29.4 → 361.5, 294.7` — roughly a third of the cone was cut
-off its right edge, with 75px of empty canvas hanging below it. The file now
-carries the artwork's own box. If it is re-exported, export the `conical_green`
-node on its own rather than its parent frame.
+Now the node's full `0 0 362 369` box, which is correct. The artwork occupies
+only the right three-quarters of it — 90px of empty canvas down the left, 74
+along the bottom — so the CSS sizes the element to the **file** and lets the
+artwork land where the file puts it.
+
+It is no longer bled off the right edge. The design runs it past the frame, but
+at this size that cut two-fifths of the shape away and read as a rendering
+fault rather than as a deliberate crop, so it is inset by a few px and the
+whole cone shows.
+
+The cone is wedged: about 20px of daylight above it to the last case study, and
+20 below to the top of the grid. That is why its width is capped at 272 rather
+than following vw all the way up, and why its scroll drift is only a few px.
+Both numbers come from the `--sx-st-lead` token — change that and the cone's
+room changes with it.
 
 ## One line worth a second look
 

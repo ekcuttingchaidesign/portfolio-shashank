@@ -756,26 +756,183 @@
     });
 
     /* The cone drifts against the scroll and unwinds the last of its lean as
-       it goes — a solid object passing the shelf, not a sticker on it. One
-       animation, same range, no per-frame work. */
+       it goes — a solid object passing the shelf, not a sticker on it.
+
+       The travel is small, and that is a constraint rather than a preference:
+       the cone is wedged between the last case study above it and the top of
+       the grid below, with about 20px of daylight at each end. It was ±40 and
+       it put the cone's head through the bottom of the card. Most of the life
+       is in the lean now, which pivots about the foot and so costs almost no
+       vertical room. */
     const cone = document.getElementById('sx-st-cone');
     if (cone) {
       M.scroll(
-        M.animate(cone, { y: [-46, 34], rotate: [-5, 2] },
+        M.animate(cone, { y: [-6, 10], rotate: [-3.5, 2] },
           { duration: 1, ease: 'linear' }),
         { target: stGrid, offset: ['start 1', 'end 0'] }
       );
     }
   }
 
-  /* The press is the only thing here that is not scrubbed, because a press is
-     not a scroll position — it is an answer to a finger. */
+  /* ------------------------------------------------------------------------
+     Picking a card up.
+     ------------------------------------------------------------------------
+     The card lifts toward you, leans after the pointer, and its own colour
+     spills onto the wall behind it while the art inside drifts the other way.
+     That last pair is the whole idea: a plate with a thickness, lit from
+     inside, rather than a rectangle that got 3% bigger.
+
+     Everything moves on SPRINGS fed by motion values, not on an animate() per
+     pointermove. Retargeting a duration curve sixty times a second is what
+     makes a follow effect feel like it is catching up with the pointer; a
+     spring is already a model of catching up, so it is handed the target and
+     left alone. It also means the pointer handler does no animation work at
+     all — it sets two numbers.
+
+     Every value rests at zero and every value is written as a CSS custom
+     property, so the stylesheet composes them into one transform. Nothing here
+     touches .sx-st, which the scroll assembly owns.
+     ---------------------------------------------------------------------- */
+  if (stGrid && M && M.motionValue && M.springValue && !reduced
+      && matchMedia('(hover: hover)').matches) {
+
+    /* Two tunings. The plate is heavier than the art it carries, so it arrives
+       a little later and settles without wobbling; the art is light and can
+       chase. Same idea as giving them different masses, which is what they
+       would have. */
+    const PLATE = { stiffness: 260, damping: 26, mass: 1.1 };
+    const ART   = { stiffness: 180, damping: 24, mass: 1 };
+
+    const TILT = 4.5;   /* degrees at the corner. Past about six a card stops
+                           reading as tipped and starts reading as skewed. */
+    const DRIFT = 14;   /* px the art travels against the tilt */
+    const LIFT = -10;   /* px toward the reader */
+
+    stGrid.querySelectorAll('[data-st]').forEach(card => {
+      const plate = card.querySelector('.sx-st-lift');
+      const art   = card.querySelector('.sx-st-art img');
+      if (!plate) return;
+
+      /* One spring per axis, per thing. bind() writes the settled value
+         straight to a custom property — the spring is the only thing on a
+         frame loop, and it stops itself once it has arrived. */
+      const spring = (unit, prop, target, cfg) => {
+        const raw = M.motionValue(0);
+        M.springValue(raw, cfg).on('change', v => {
+          target.style.setProperty(prop, v.toFixed(3) + unit);
+        });
+        return raw;
+      };
+
+      const rx   = spring('deg', '--sx-rx',    plate, PLATE);
+      const ry   = spring('deg', '--sx-ry',    plate, PLATE);
+      const lift = spring('px',  '--sx-lift',  plate, PLATE);
+      const ax   = art ? spring('px', '--sx-art-x', art, ART) : null;
+      const ay   = art ? spring('px', '--sx-art-y', art, ART) : null;
+
+      /* Scale rests at 1, not 0, so it gets its own pair. */
+      const popRaw = M.motionValue(1);
+      M.springValue(popRaw, PLATE).on('change',
+        v => plate.style.setProperty('--sx-pop', v.toFixed(4)));
+      const artSRaw = M.motionValue(1);
+      if (art) M.springValue(artSRaw, ART).on('change',
+        v => art.style.setProperty('--sx-art-s', v.toFixed(4)));
+
+      /* The pointer's position in the card, -0.5 to 0.5 on each axis. Read off
+         the CARD and not the plate: the plate is the thing being tilted, so
+         measuring it would feed the tilt back into its own input. */
+      let px = 0, py = 0, queued = 0;
+      const write = () => {
+        queued = 0;
+        rx.set(-py * 2 * TILT);
+        ry.set( px * 2 * TILT);
+        if (ax) { ax.set(-px * DRIFT); ay.set(-py * DRIFT); }
+      };
+
+      card.addEventListener('pointermove', e => {
+        if (e.pointerType === 'touch') return;
+        const r = card.getBoundingClientRect();
+        px = (e.clientX - r.left) / r.width  - .5;
+        py = (e.clientY - r.top)  / r.height - .5;
+        /* Coalesced to one write per frame. A pointer can fire well above
+           display rate and the springs only read their target once a frame. */
+        if (!queued) queued = requestAnimationFrame(write);
+      }, { passive: true });
+
+      /* Promote for the hover and only for the hover. The plate is a rounded,
+         clipped box with two large shadows, and a rotateX/rotateY on it makes
+         the browser re-rasterise all of that every frame — measured at half
+         again the frame cost. Hinted, the transform is the compositor's and
+         the raster happens once.
+
+         The hint is added on enter and dropped when the springs have settled,
+         which is the opposite of what the shelf's blur wanted earlier in this
+         file: there, three permanent layers cost more than they saved. One
+         layer, for as long as a pointer is actually on the card, is the case
+         will-change is for. */
+      let release = 0;
+      const promote = on => {
+        clearTimeout(release);
+        if (on) {
+          plate.style.willChange = 'transform';
+          if (art) art.style.willChange = 'transform';
+        } else {
+          /* After the springs stop, not with the pointer: dropping the hint
+             mid-flight re-rasterises on the busiest frames of the return. */
+          release = setTimeout(() => {
+            plate.style.willChange = '';
+            if (art) art.style.willChange = '';
+          }, 700);
+        }
+      };
+
+      card.addEventListener('pointerenter', e => {
+        if (e.pointerType === 'touch') return;
+        promote(true);
+        card.setAttribute('data-lit', '');
+        lift.set(LIFT);
+        popRaw.set(1.018);
+        artSRaw.set(1.06);
+      });
+
+      const drop = () => {
+        card.removeAttribute('data-lit');
+        promote(false);
+        if (queued) { cancelAnimationFrame(queued); queued = 0; }
+        px = py = 0;
+        rx.set(0); ry.set(0); lift.set(0); popRaw.set(1);
+        if (ax) { ax.set(0); ay.set(0); artSRaw.set(1); }
+      };
+      card.addEventListener('pointerleave', drop);
+      /* A card can lose the pointer without a leave — the pointer is captured
+         elsewhere, or the window goes away mid-hover. Both would strand the
+         card lifted. */
+      card.addEventListener('pointercancel', drop);
+      addEventListener('blur', drop);
+
+      /* Keyboard gets the light and the lift, but not the tilt: there is no
+         pointer to lean toward, and leaning toward nothing is just a card that
+         will not sit straight. */
+      card.addEventListener('focusin', () => {
+        promote(true);
+        card.setAttribute('data-lit', '');
+        lift.set(LIFT); popRaw.set(1.018);
+      });
+      card.addEventListener('focusout', drop);
+    });
+  }
+
+  /* The press is the only thing here that is not sprung from the pointer's
+     position, because a press is not a position — it is an answer to a
+     finger. It pushes the plate, so it composes with the lift rather than
+     fighting the assembly's transform on the card. */
   if (stGrid && M && M.press && !reduced) {
     stGrid.querySelectorAll('[data-st]').forEach(card => {
+      const plate = card.querySelector('.sx-st-lift');
+      if (!plate) return;
       M.press(card, () => {
-        M.animate(card, { scale: .988 }, { duration: .12 });
-        return () => M.animate(card, { scale: 1 },
-          { type: 'spring', stiffness: 420, damping: 18 });
+        plate.style.setProperty('--sx-press', '0.985');
+        return () => plate.style.setProperty('--sx-press', '1');
       });
     });
   }

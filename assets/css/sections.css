@@ -135,6 +135,14 @@
 
   --sx-ease: cubic-bezier(.19,.68,.3,1);
   --sx-ease-out: cubic-bezier(.22,1,.36,1);
+
+  /* The empty run between the featured stack's last card and More Stories.
+     Three things have to agree on this number — the stack owns the pixels as
+     its tail, the shelf's own top padding finishes the gap, and the cone hangs
+     UP into the tail — so it is a token rather than three numbers that drift.
+     Measured in vw, not vh: this is a gap between two blocks, and it should not
+     change because someone resized the window's height. */
+  --sx-st-lead: clamp(4rem, 6vw, 5.5rem);
 }
 
 /* ---------------------------------------------------------------------------
@@ -936,6 +944,12 @@
    ------------------------------------------------------------------------- */
 #sx-stories {
   position: relative;
+  /* Same ground as the sections either side. It was left transparent while the
+     gap above was 567px and nobody could see the join; at 125 the shelf sat on
+     pure black between two --sx-wall sections and drew a hard line at each
+     end. The seams were the giveaway that this section arrived later than its
+     neighbours. */
+  background: var(--sx-wall);
   /* The cone runs off the right edge by design, so the section takes what
      leaves. `clip` on BOTH axes, deliberately: overflow-x on its own is a trap
      — a box with one axis clipped and the other `visible` computes the visible
@@ -944,9 +958,14 @@
      would, and never becomes a containing block the sticky work above could
      start resolving against. */
   overflow: clip;
-  /* Deep enough at the top to hold the cone: it stands above the wordmark, and
-     the design has its foot roughly level with the wordmark's own baseline. */
-  padding-block: clamp(5rem, 15vh, 11rem) clamp(4rem, 12vh, 10rem);
+  /* ...but the cone is TALLER than the padding above it, and it has to be: at
+     the design's size its head reaches higher than the gap the two blocks are
+     allowed. So the clip is opened by exactly the lead-in, and the cone hangs
+     up into the stack's tail — which is empty by construction, since the tail
+     is the run after the last card. Sized so the cone never reaches the card
+     itself; there is about 25px of daylight between them at 1600. */
+  overflow-clip-margin: calc(var(--sx-st-lead) + 10px);
+  padding-block: clamp(2.25rem, 2.4vw, 2.5rem) clamp(4rem, 12vh, 10rem);
 }
 
 /* --- the heading ---
@@ -978,13 +997,27 @@
    edge and rising 198 above the heading's top. */
 .sx-st-cone {
   position: absolute;
-  /* 271 wide on a 1920 frame, its right edge 125 past that frame — 14.1vw and
-     -6.5vw. Sitting at the top of the section's own upper padding puts its
-     foot beside the wordmark and its head above it, which is the design's
-     arrangement. */
-  top: 0;
-  right: -6.5vw;
-  width: clamp(132px, 14.1vw, 272px);
+  /* The export is the node's whole 362 x 369 box and the cone only occupies
+     the right three-quarters of it — 90px of empty canvas down the left, 74
+     along the bottom — so the element is sized to the FILE and the artwork
+     lands where the file puts it. 362 on a 1920 frame is 18.85vw.
+
+     Not bled off the right edge any more. The design runs it past the frame,
+     but at this size that cut two-fifths of the shape off and read as a
+     rendering fault rather than as a deliberate crop, so it is inset instead
+     and the whole cone is visible.
+
+     Hung up by the lead-in, which puts its head in the stack's empty tail and
+     its foot level with the top of the grid. */
+  top: calc(-1 * var(--sx-st-lead));
+  right: clamp(6px, 1vw, 24px);
+  /* Capped at 272, not at the file's own 362. The room the cone has is the
+     lead-in plus the shelf's padding plus the heading band, and all three are
+     capped in rem — so a cone that kept growing with vw would grow past a
+     ceiling that had stopped moving and put its foot through the top of the
+     grid. 272 leaves about 22px of daylight above it and 20 below at every
+     width from 1440 up. */
+  width: clamp(150px, 18vw, 272px);
   height: auto;
   pointer-events: none;
   z-index: 0;
@@ -1059,18 +1092,8 @@
 .sx-st {
   position: relative;
   z-index: 1;
-  overflow: hidden;
   min-width: 0;
   container-type: inline-size;
-  border: 2px solid var(--sx-st-edge, #343434);
-  /* 45 and 36 on a 1461 shelf. These cqw resolve against the SHELF, not the
-     card — which is the behaviour wanted here rather than a thing to work
-     around: the Figma draws the same corner on all four cards whatever their
-     size, so the radius belongs to the shelf and not to the plate. */
-  border-radius: clamp(20px, 3.08cqw, 45px) clamp(16px, 2.46cqw, 36px)
-                 clamp(16px, 2.46cqw, 36px) clamp(20px, 3.08cqw, 45px);
-  background: var(--sx-st-ground, var(--sx-wall));
-  box-shadow: -7px 14px 60px rgba(0,0,0,.6);
   /* Written by JS on scroll. Declared here so the card is LANDED with no
      script and with motion off — the arrival is added, never assumed. */
   transform:
@@ -1079,10 +1102,70 @@
     scale(var(--sx-st-s, 1));
   opacity: var(--sx-st-o, 1);
 }
+
+/* The plate. Everything you can see of a card lives here, and the pointer
+   moves it — lift, tilt, and the light that comes up with them. Separate from
+   .sx-st above because the scroll assembly already owns that element's
+   transform, and two systems on one transform is one system. */
+.sx-st-lift {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border: 2px solid var(--sx-st-edge, #343434);
+  /* 45 and 36 on a 1461 shelf. These cqw resolve against the SHELF, not the
+     card — which is the behaviour wanted here rather than a thing to work
+     around: the Figma draws the same corner on all four cards whatever their
+     size, so the radius belongs to the shelf and not to the plate. */
+  border-radius: clamp(20px, 3.08cqw, 45px) clamp(16px, 2.46cqw, 36px)
+                 clamp(16px, 2.46cqw, 36px) clamp(20px, 3.08cqw, 45px);
+  background: var(--sx-st-ground, var(--sx-wall));
+  /* Two shadows, and the second one is the point. The first is the card's
+     weight on the shelf; the second is its OWN colour spilling onto the wall
+     behind it, off at rest and brought up by the pointer. Picking up a lit
+     object moves its light — that is the whole hover, and it is the card's own
+     colour rather than a generic glow, so all four behave alike and none of
+     them look alike.
+
+     At rest the second shadow is zero-sized, not merely transparent. A
+     transparent shadow with a 58px blur is still a 58px blur the rasteriser
+     has to run: leaving it at full size cost a third of the frame budget on
+     the scroll assembly, on four cards, for something nobody could see. Zero
+     blur and zero spread costs nothing and still gives the transition a
+     matching pair to interpolate between. */
+  box-shadow:
+    -7px 14px 60px rgba(0,0,0,.6),
+    0 0 0 0 transparent;
+  /* The pointer's numbers. All four are sprung from JS and all four rest at
+     zero, so a card with no script and a card nobody has touched are the same
+     card. */
+  transform:
+    /* The depth for the pointer's tilt, as a transform FUNCTION and not as a
+       `perspective` property on the card above. The property would put every
+       card in a 3D rendering context for the whole life of the page, and the
+       scroll assembly then composites four of them through it — measured at a
+       third more frame time on the arrival, for depth that only matters while
+       a pointer is on one card. As a function it costs nothing until rotateX
+       and rotateY are non-zero, which is exactly when it is wanted. Shallow at
+       900: the grid looks at four cards from far off, this looks at one from
+       close up. */
+    perspective(900px)
+    translate3d(0, var(--sx-lift, 0px), 0)
+    rotateX(var(--sx-rx, 0deg))
+    rotateY(var(--sx-ry, 0deg))
+    scale(var(--sx-pop, 1))
+    /* A second scale rather than folding the press into the first. The press
+       and the lift are different gestures with different lifetimes — releasing
+       a press while the pointer is still over the card must return the plate
+       to its LIFTED size, not to 1 — so they own a multiplier each and the
+       transform composes them. */
+    scale(var(--sx-press, 1));
+  transform-origin: 50% 50%;
+  transition: box-shadow .5s var(--sx-ease);
+}
 /* The coloured light each card throws on its own inside edge. A second box,
    not a second shadow on the card: an inset shadow on the element that also
    carries the border draws under the border and muddies it. */
-.sx-st::after {
+.sx-st-lift::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -1090,6 +1173,7 @@
   pointer-events: none;
   border-radius: inherit;
   box-shadow: var(--sx-st-inner, none);
+  transition: box-shadow .5s var(--sx-ease);
 }
 
 /* --- the artwork ---
@@ -1112,6 +1196,13 @@
   object-fit: cover;
   object-position: var(--sx-st-art-pos, 50% 50%);
   display: block;
+  /* Drifts the opposite way to the tilt, which is what sells the plate as
+     having a thickness the art sits under rather than a picture printed on it.
+     The scale is not decoration: an image that translates inside its own box
+     shows the box's edge on the side it left, and 1.06 is the smallest number
+     that covers the drift at every card size. */
+  transform: translate3d(var(--sx-art-x, 0px), var(--sx-art-y, 0px), 0)
+             scale(var(--sx-art-s, 1));
   transition: opacity .45s var(--sx-ease);
 }
 .sx-st-art:not([data-art="ready"]) img { opacity: 0; }
@@ -1274,17 +1365,30 @@
 }
 
 /* --- hover ---
-   The card lifts a little and its own inner light comes up. Nothing changes
-   colour and nothing scales: on a shelf this dense, four cards that grow on
-   hover would jostle each other. */
+   The lift, the tilt and the art's drift are sprung from JS; what is here is
+   the light, which is a paint and belongs in a transition rather than on a
+   spring. Keyed off [data-lit], written by the pointer handler, so a card that
+   is mid-spring and a card the pointer has left are never fighting over which
+   of :hover or the animation is true.
+
+   Each card raises its own colour. The cast is what the card throws on the
+   wall behind it; the inner is the same light coming back off its own edge. */
 @media (hover: hover) {
-  .sx-st { transition: box-shadow .45s var(--sx-ease); }
-  .sx-st::after { transition: box-shadow .45s var(--sx-ease); }
-  .sx-st:hover { box-shadow: -7px 20px 74px rgba(0,0,0,.68); }
-  .sx-st--coins:hover    { --sx-st-inner: inset 20px 4px 74px #8A5A05; }
-  .sx-st--iptv:hover     { --sx-st-inner: inset 6px 4px 74px #B70B0B; }
-  .sx-st--wynk:hover     { --sx-st-inner: inset 0 0 60px rgba(94,121,255,.42); }
-  .sx-st--parental:hover { --sx-st-inner: inset 0 0 60px rgba(175,44,50,.55); }
+  /* The lit card is the only one that ever pays for the second shadow. */
+  .sx-st[data-lit] .sx-st-lift {
+    box-shadow:
+      -7px 22px 78px rgba(0,0,0,.62),
+      0 18px 58px -12px var(--sx-st-cast, transparent);
+  }
+  .sx-st--coins[data-lit]    { --sx-st-cast: rgba(224,152,42,.30); }
+  .sx-st--iptv[data-lit]     { --sx-st-cast: rgba(200,44,40,.32); }
+  .sx-st--wynk[data-lit]     { --sx-st-cast: rgba(94,121,255,.34); }
+  .sx-st--parental[data-lit] { --sx-st-cast: rgba(175,44,50,.34); }
+
+  .sx-st--coins[data-lit]    { --sx-st-inner: inset 20px 4px 78px #8A5A05; }
+  .sx-st--iptv[data-lit]     { --sx-st-inner: inset 6px 4px 78px #B70B0B; }
+  .sx-st--wynk[data-lit]     { --sx-st-inner: inset 0 0 64px rgba(94,121,255,.40); }
+  .sx-st--parental[data-lit] { --sx-st-inner: inset 0 0 64px rgba(175,44,50,.52); }
 }
 
 /* --- narrow ---
@@ -1322,6 +1426,9 @@
      738. Pinned, the width is definite, and the cap clips the height instead
      of reshaping the card. */
   .sx-st { width: 100%; max-height: 80vh; }
+  /* No tilt on a touch screen — there is no pointer to tilt toward, and the
+     transform would only cost a layer. */
+  .sx-st-lift { transform: none; }
   /* cqw is a share of the CARD, and every card is now full width — so the
      ratios that made the type right in the grid make it wrong here. */
   .sx-st--coins    { --sx-st-pad: 4.4cqw; --sx-st-kick: 3.2cqw; --sx-st-size: 4.6cqw; }
@@ -1330,7 +1437,7 @@
   .sx-st--parental { --sx-st-pad: 4.4cqw; --sx-st-size: 5.4cqw; }
   .sx-st--parental .sx-st-copy { inset: auto auto 0 0; }
   .sx-st--parental .sx-st-kicker--lg { font-size: clamp(1rem, 4.1cqw, 2.2rem); }
-  .sx-st-cone { width: 30%; right: -8%; }
+  .sx-st-cone { width: 46%; right: -6%; }
 }
 @media (max-width: 620px) {
   .sx-st-cone { display: none; }
@@ -1338,8 +1445,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   /* The assembly is a motion effect and nothing else. With motion off the four
-     cards are simply four cards, already on the shelf. */
+     cards are simply four cards, already on the shelf — and the pointer moves
+     nothing. The light still comes up on hover: it is a change of state, not a
+     movement, and it is the one part of this that carries information. */
   .sx-st { transform: none !important; opacity: 1 !important; }
+  .sx-st-lift { transform: none !important; }
+  .sx-st-art img { transform: none !important; }
   .sx-st-cone { transform: none !important; }
 }
 
@@ -1586,8 +1697,15 @@
   --sx-feat-r: calc(var(--sx-cover-w) * 0.0431);
 }
 /* Nothing comes over the last card, so its margin is pure dwell: how long the
-   finished stack holds before the whole thing releases and scrolls away. */
-.sx-feat-stack > .sx-feat:last-child { margin-bottom: clamp(6rem, 46vh, 26rem); }
+   finished stack holds before the whole thing releases and scrolls away.
+
+   It used to be 46vh — 416px on a tall screen — and with the shelf's own top
+   padding under it that put 567px of black between the last case study and
+   More Stories. The dwell is real and worth keeping, but not at that price;
+   it is now the shared lead-in, which lands the two blocks about 125 apart.
+   The cost is honest: the last card releases sooner than it did, so the
+   finished stack holds for a beat rather than for a breath. */
+.sx-feat-stack > .sx-feat:last-child { margin-bottom: var(--sx-st-lead); }
 
 /* Everything that moves. Four numbers arrive from JS — the card's Y and Z at
    its current depth, how dark its face is, and the one fit scale the whole
