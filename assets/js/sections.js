@@ -2541,6 +2541,30 @@
      the other.
      ====================================================================== */
   const ccSection = document.getElementById('sx-cc');
+
+  /* TEMPORARY — flips the section between the two themes so both can be judged
+     on the real page. Remove alongside the button in the markup and the
+     .cc-switch rules in the stylesheet once the theme is chosen; nothing else
+     depends on it, because the themes are pure CSS off data-cc-theme.
+     The choice is remembered so a reload does not lose it mid-comparison. */
+  const ccSwitch = document.getElementById('cc-switch');
+  if (ccSection && ccSwitch) {
+    const label = ccSwitch.querySelector('.cc-switch-l');
+    const paint = theme => {
+      ccSection.dataset.ccTheme = theme;
+      ccSwitch.setAttribute('aria-pressed', theme === 'white' ? 'true' : 'false');
+      if (label) label.textContent = theme === 'white' ? 'Green theme' : 'White theme';
+    };
+    let saved = null;
+    try { saved = localStorage.getItem('sx-cc-theme'); } catch (_) {}
+    if (saved === 'white' || saved === 'green') paint(saved);
+    ccSwitch.addEventListener('click', () => {
+      const next = ccSection.dataset.ccTheme === 'white' ? 'green' : 'white';
+      paint(next);
+      try { localStorage.setItem('sx-cc-theme', next); } catch (_) {}
+    });
+  }
+
   if (ccSection && M && M.scroll && !reduced) {
     const ccSky = ccSection.querySelector('.cc-sky');
     const ccCrew = ccSection.querySelector('.cc-crew');

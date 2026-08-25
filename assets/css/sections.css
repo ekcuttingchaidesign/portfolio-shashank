@@ -971,6 +971,12 @@
      visible; the crew walks in from beyond the right edge and has to be cut. */
   overflow-x: clip;
   padding-block: clamp(3rem, 7vw, 6rem) clamp(4rem, 9vw, 7rem);
+  /* The ceiling is absolutely positioned ABOVE this box, so it does not push
+     anything: left to itself it climbs straight over whatever the previous
+     section ended with, which is how its teeth ended up in the reel's caption.
+     The margin therefore has to clear the teeth AND then leave a gap — the
+     first term is the ceiling's own height, the second is the breathing room. */
+  margin-top: calc(100vw * 102 / 1920 + clamp(2.5rem, 6vw, 5rem));
   /* Pixel art, so nothing here is allowed to be resampled smooth. */
   image-rendering: pixelated;
 }
@@ -1088,12 +1094,24 @@
 /* --- the stage ---
    Platform and crew as one group. The platform is the ground truth: the crew is
    sized and placed against IT, so the two cannot drift apart at any width. */
+/* Anchored to the right edge of the WINDOW, not of the column. The wrap stops
+   at its gutter and, past 1560, stops again at its own max-width and centres —
+   so reaching the glass means undoing both, which is what the max() is: zero
+   until the wrap is capped, then half the leftover. Same reckoning as the
+   mascot's plinth over in Things That Move.
+
+   It bleeds a little further still, because a platform that stops flush with
+   the edge reads as a platform that ENDS there; one that runs off it reads as
+   ground continuing past the frame, which is the whole idea of a side-scroller. */
 .cc-stage {
   position: relative;
   flex: none;
-  width: clamp(240px, 34vw, 560px);
+  width: clamp(240px, 40vw, 620px);
   aspect-ratio: 846 / 300;
   align-self: flex-end;
+  margin-right: calc(-1 * var(--sx-gut)
+                     - max(0px, (100vw - var(--sx-max)) / 2)
+                     - clamp(12px, 2vw, 40px));
 }
 .cc-platform {
   position: absolute;
@@ -1115,20 +1133,16 @@
      bottom and this puts that line on the platform's top face. 58% rather than
      66% leaves the platform reading as ground the crew is crossing instead of a
      shelf exactly their own size. */
-  right: 7%;
+  /* Inset from the stage's right, not flush to it — the STAGE now bleeds past
+     the window so the platform can run off the frame, and a crew pinned to its
+     right edge bleeds with it and loses a character to the crop. 30% keeps all
+     three in frame at every width while the ground still leaves the page. */
+  right: 30%;
   bottom: calc(100% * 92 / 300);
   width: 58%;
   height: auto;
   transform: translate3d(var(--cc-walk, 0px), 0, 0);
-  animation: cc-bob .62s steps(2, end) infinite;
   will-change: transform;
-}
-/* Stepped, not eased. A pixel character does not ease — it is on a frame or it
-   is on the next one, and a smooth bob is the one thing that would give the
-   whole level away as vector art pretending. */
-@keyframes cc-bob {
-  0%, 100% { translate: 0 0; }
-  50%      { translate: 0 -5px; }
 }
 
 /* --- the rail ---
@@ -1162,8 +1176,16 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  width: max-content;
-  max-width: 100%;
+  width: 100%;
+  /* Two of these today, so they sit in the middle; a dozen later, so they must
+     not. `safe` is the whole answer and it is why this is not plain `center`:
+     centred overflow in a scroll container pushes the first card off the start
+     edge where nothing can scroll back to it. `safe` says centre until that
+     would cost you content, then fall back to start — which is exactly the rule
+     a growing carousel needs, decided by the browser per width rather than by a
+     breakpoint I would have to guess. */
+  justify-content: center;
+  justify-content: safe center;
 }
 .cc-card {
   flex: 0 0 auto;
@@ -1176,7 +1198,10 @@
   border-radius: 22px;
   padding: 14px 14px 18px;
   text-decoration: none;
-  box-shadow: 0 10px 0 -4px rgba(0,0,0,.16), 0 22px 40px -26px rgba(0,0,0,.55);
+  /* The delivered drop shadow, one to one: X -9, Y 18, blur 77, spread 0, black
+     at 30%. Soft and wide, so it reads as the card floating above the level
+     rather than as a stacked pixel edge under it. */
+  box-shadow: -9px 18px 77px 0 rgba(0, 0, 0, .30);
   transition: transform .32s var(--sx-ease), box-shadow .32s var(--sx-ease);
 }
 .cc-shot {
@@ -1213,13 +1238,53 @@
 @media (hover: hover) {
   .cc-card-in:hover {
     transform: translateY(-8px);
-    box-shadow: 0 18px 0 -4px rgba(0,0,0,.16), 0 34px 54px -28px rgba(0,0,0,.6);
+    /* The same shadow, thrown a little further as the card lifts — the light
+       has not moved, only the card. */
+    box-shadow: -12px 26px 88px 0 rgba(0, 0, 0, .34);
   }
 }
 .cc-card-in:focus-visible {
   outline: 3px solid var(--cc-ink);
   outline-offset: 4px;
 }
+
+/* --- TEMPORARY: the theme switch ---
+   Here so both themes can be seen on the real page rather than in two
+   screenshots. It is deliberately plain and deliberately labelled: it is a
+   decision aid, not a feature, and it should come out with the button in the
+   markup once the theme is settled. Parked in the section's own top-right,
+   above the sky and clear of the crew. */
+.cc-switch {
+  position: absolute;
+  top: clamp(.9rem, 2vw, 1.6rem);
+  left: clamp(1.25rem, 5vw, 5rem);
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  min-height: 36px;
+  padding: 0 .9rem;
+  border: 2px solid var(--cc-ink);
+  border-radius: 0;                 /* square, like everything else in here */
+  background: var(--cc-card);
+  color: var(--cc-card-ink);
+  font-family: var(--sx-ui);
+  font-weight: 600;
+  font-size: .68rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 0 var(--cc-ink);
+}
+.cc-switch:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 var(--cc-ink); }
+.cc-switch:focus-visible { outline: 3px solid var(--cc-ink); outline-offset: 3px; }
+.cc-switch-dot {
+  width: 10px; height: 10px;
+  flex: none;
+  background: #57C74B;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.35);
+}
+#sx-cc[data-cc-theme="white"] .cc-switch-dot { background: #FFF; }
 
 /* --- the crab ---
    Patrols the floor and turns around at each end. Stepped for the same reason
@@ -1258,7 +1323,6 @@
      nothing drifts, nothing patrols — but every piece is still where it should
      be, which is why the walk's resting value is its settled one. */
   #sx-cc .cc-cloud,
-  #sx-cc .cc-crew,
   #sx-cc .cc-crab { animation: none; }
   #sx-cc .cc-cloud { transform: none; }
   #sx-cc .cc-crew { --cc-walk: 0px; }
@@ -1298,10 +1362,18 @@
    ------------------------------------------------------------------------- */
 
 /* Gradient bridge, ~36vh. A hard edge here would snap, and nothing snaps. */
+/* The seam still has to deliver the page from the machine's ground to the paper
+   the Experience section is printed on — but it no longer does it through dusk.
+   The blues were written when a near-black section sat above this; with the
+   level's green floor now biting down into it, a navy ramp read as a third
+   colour arriving between two that were already saying enough.
+
+   So it holds BLACK through the whole stretch the floor's teeth reach into, and
+   the climb to paper that follows is neutral. Same job, no hue of its own. */
 .sx-seam-paper {
   height: 36vh;
   background: linear-gradient(180deg,
-    var(--sx-wall) 0%, #2A3547 46%, #93A4C0 78%, var(--sx-paper) 100%);
+    #000 0%, #000 44%, #6E6A63 78%, var(--sx-paper) 100%);
 }
 
 #sx-exp {
