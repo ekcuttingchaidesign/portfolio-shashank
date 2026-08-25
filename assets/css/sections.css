@@ -613,18 +613,37 @@
   aspect-ratio: 587 / 1101;
   z-index: 0;
   pointer-events: none;
-  background: url("../../public/img/spotlight.svg") no-repeat bottom right / contain;
-  filter: blur(10px);
+  /* The delivered beam is faint by construction: fill-opacity .6 over a ramp
+     that already starts at stop-opacity .8, so the brightest pixel in the file
+     is 48% alpha and the mask below then takes most of that away again. It
+     read as a smudge rather than as a light.
+
+     Brightness cannot fix that — a filter scales RGB and the beam's problem is
+     ALPHA. So the file is laid down twice and the two copies are screened
+     together: 1-(1-a)^2 turns .48 into .73 at the core while leaving the tail
+     near zero, which brightens the throw without flattening its falloff. One
+     asset, one request, no repaint cost — the pair rasterises once. */
+  background-image: url("../../public/img/spotlight.svg"),
+                    url("../../public/img/spotlight.svg");
+  background-repeat: no-repeat, no-repeat;
+  background-position: bottom right, bottom right;
+  background-size: contain, contain;
+  background-blend-mode: screen;
+  filter: blur(10px) brightness(1.12);
   /* The beam is longer than the section it belongs to — its apex is the SVG's
      own top corner and lands 500px up inside More Stories, where a warm wedge
      crossing the bento is nobody's idea. Rather than cut it there, which would
      put a hard bright edge at the seam because the apex is the brightest part
      of it, the throw dissolves: the light arrives from somewhere out of frame
      and the source is lost in the dark. Which is what a beam does anyway. */
+  /* Floor lifted with the beam. The dissolve still has to happen — the apex
+     lands inside More Stories and a hard bright edge at the seam is the thing
+     it exists to prevent — but it now gives the throw back its middle, which
+     is the stretch that actually falls on the plinth. */
   -webkit-mask-image: linear-gradient(to bottom,
-    transparent 0%, rgba(0,0,0,.18) 20%, rgba(0,0,0,.62) 42%, #000 66%);
+    transparent 0%, rgba(0,0,0,.30) 17%, rgba(0,0,0,.78) 38%, #000 58%);
           mask-image: linear-gradient(to bottom,
-    transparent 0%, rgba(0,0,0,.18) 20%, rgba(0,0,0,.62) 42%, #000 66%);
+    transparent 0%, rgba(0,0,0,.30) 17%, rgba(0,0,0,.78) 38%, #000 58%);
   /* Deliberately no will-change. It never moves and never fades, so it is
      rasterised once and then it is a texture; hinting it would buy a permanent
      layer for an image that is already finished. */
@@ -652,7 +671,13 @@
    reason there is a rule about it: on this page a blur is only ever worth it
    when the thing underneath has structure to lose. A flat circle has none. */
 .sx-mv-bloom {
-  --sx-bloom: calc(var(--sx-mv-w) * 5.3);
+  /* Tightened from 5.3. The measured falloff is honest about what a 600px
+     blur does, but honest turned out to be invisible: spread over five and a
+     bit mascot-widths there was no radius at which the wash was dense enough
+     to see against #0A0A0A. Pulling it in concentrates the same shape into a
+     core that actually reads, which is what the Figma looks like even if it
+     is not what the Figma literally computes. */
+  --sx-bloom: calc(var(--sx-mv-w) * 4.4);
   position: absolute;
   right: calc(52% + var(--sx-mv-w) / 2 - var(--sx-bloom) / 2);
   bottom: calc(55.7% + var(--sx-mv-w) / 2 - var(--sx-bloom) / 2);
@@ -660,16 +685,21 @@
   height: var(--sx-bloom);
   z-index: 0;
   pointer-events: none;
+  /* The same curve, roughly 3.6x up. The shape of the falloff is kept — this
+     is still the blur's own profile rather than a fresh invention — but the
+     amplitude was set from a measurement of the filter and not from looking at
+     it on the page, and 5% alpha of a warm orange on a near-black ground is
+     under the threshold where anything is visible at all. */
   background: radial-gradient(closest-side circle,
-    rgba(255,130,80,.051)  0%,
-    rgba(255,130,80,.047) 22%,
-    rgba(255,130,80,.039) 33%,
-    rgba(255,130,80,.0275) 44%,
-    rgba(255,130,80,.0196) 56%,
-    rgba(255,130,80,.0118) 67%,
-    rgba(255,130,80,.0078) 78%,
-    rgba(255,130,80,.0039) 89%,
-    rgba(255,130,80,0)    100%);
+    rgba(255,132,82,.185) 0%,
+    rgba(255,132,82,.168) 22%,
+    rgba(255,132,82,.140) 33%,
+    rgba(255,132,82,.099) 44%,
+    rgba(255,132,82,.070) 56%,
+    rgba(255,132,82,.042) 67%,
+    rgba(255,132,82,.028) 78%,
+    rgba(255,132,82,.014) 89%,
+    rgba(255,132,82,0)   100%);
 }
 
 /* --- the ledge ---
@@ -685,8 +715,24 @@
   width: clamp(96px, 9.5vw, 168px);
   height: auto;
   scale: -1 1;
-  transform: translate3d(0, -46%, 0);
-  opacity: .92;
+  /* Three layers of motion on one element, and they are kept apart by WHICH
+     PROPERTY each one writes — the same trick the hero's slabs use.
+
+       transform   the scroll's depth flight, composed from the vars below
+       translate   } the idle float, so an ambient loop and a scrub can share
+       rotate      } one element without either clobbering the other
+
+     The perspective is per-element rather than inherited from a parent. The
+     hero can afford a shared .sx-hero-depth because everything in it is on the
+     flight; here the only thing travelling in Z is the ledge, and putting a
+     perspective on .sx-mv-lede would drag the heading, the plinth and the
+     character into a 3D context none of them asked for. */
+  transform:
+    perspective(1100px)
+    translate3d(0, calc(-46% + var(--sx-mvl-y, 0px)), var(--sx-mvl-z, 0px))
+    rotate(var(--sx-mvl-r, 0deg));
+  opacity: calc(.92 * var(--sx-mvl-o, 1));
+  will-change: transform, opacity;
   z-index: 0;
   pointer-events: none;
   /* 13s against the cone's 11 and the mascot's 1.9 — three periods that do not
@@ -696,11 +742,72 @@
      keyframe: it is the ledge's position, not part of the drift. */
   animation: sx-mv-ledge-float 13s ease-in-out infinite;
 }
+/* On `translate` and `rotate` rather than `transform`, which is what frees the
+   scroll to own `transform`. It also means the base -46% no longer has to be
+   restated in every keyframe — the float is now purely the float, and moving
+   the ledge is one number in one place. */
 @keyframes sx-mv-ledge-float {
-  0%, 100% { transform: translate3d(0, -46%, 0) rotate(0deg); }
-  27%      { transform: translate3d(4px, calc(-46% - 7px), 0) rotate(1.2deg); }
-  58%      { transform: translate3d(-2px, calc(-46% - 3px), 0) rotate(-0.7deg); }
-  81%      { transform: translate3d(3px, calc(-46% - 9px), 0) rotate(1.6deg); }
+  0%, 100% { translate: 0    0;    rotate: 0deg;    }
+  27%      { translate: 4px  -7px; rotate: 1.2deg;  }
+  58%      { translate: -2px -3px; rotate: -0.7deg; }
+  81%      { translate: 3px  -9px; rotate: 1.6deg;  }
+}
+
+/* --- the music notes ---
+   What the character is vibing TO. The sheet has it listening to something the
+   page never showed, so the notes are the missing half of that pose — and they
+   are tied to the pose rather than to hover: they come with the vibe and stop
+   dead when it moonwalks, because a moonwalk is danced at you and the music is
+   ambient.
+
+   The host is a ZERO-SIZED anchor pinned to the head, not a box around it. Every
+   note is absolutely placed at that one point and carries its own offset in its
+   transform, which means the spread is decided per note in script and the
+   stylesheet never has to know how wide the scatter is. It also means the
+   element can sit outside the mascot's own box without a clip anywhere.
+
+   Both numbers are the mascot's own share of the stand, matching .sx-mv-mascot,
+   so the anchor cannot come off the head at any viewport size: half a width in
+   from its right edge is the centre line, and 0.72 up from its foot is the head.
+
+   Colour: the delivered periwinkle and citron, both nudged for a near-black
+   ground. Deliberately NOT the vermilion key — the character is orange, and an
+   orange note leaving an orange shoulder is a note nobody sees. A cool blue and
+   a warm yellow are the two hues on this page that the mascot is not already
+   wearing, which is the whole reason they read as notes and not as debris. */
+.sx-mv-notes {
+  position: absolute;
+  right: calc(52% + var(--sx-mv-w) * 0.5);
+  bottom: calc(55.7% + var(--sx-mv-w) * 0.72);
+  width: 0;
+  height: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.sx-mv-note {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--n-size, 16px);
+  /* Masked, not <img>. The two files are different shapes — 38x64 and 48x52 —
+     so each carries its own ratio, and going through a mask means the colour
+     is the stylesheet's to set rather than the file's. One asset, any tint. */
+  height: calc(var(--n-size, 16px) * var(--n-ar, 1.68));
+  background-color: var(--n-tint, #8E97FF);
+  -webkit-mask: var(--n-src) no-repeat center / contain;
+          mask: var(--n-src) no-repeat center / contain;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.sx-mv-note[data-n="1"] {
+  --n-src: url("../../public/img/music_note1.svg");
+  --n-ar: 1.684;                 /*  64 / 38 */
+  --n-tint: #8E97FF;
+}
+.sx-mv-note[data-n="2"] {
+  --n-src: url("../../public/img/music_note2.svg");
+  --n-ar: 1.083;                 /*  52 / 48 */
+  --n-tint: #F3F977;
 }
 
 /* It is a control, so it says so — but quietly. A character that grows under
@@ -727,52 +834,22 @@
    off, because two things animating one transform is one thing animating it. */
 #sx-move .sx-reel-strip[data-rolling] { animation: none; }
 
-/* --- the control ---
-   Anything that moves on its own has to be stoppable by someone who is not
-   holding a mouse. Hover-to-hold stays, but it is a convenience, not the
-   control. */
+/* --- the foot ---
+   The pause button is gone. It was there because anything that moves on its own
+   has to be stoppable, and that requirement has not gone away — what changed is
+   that the strip now answers the hand directly, so the stopping is where the
+   reading is: the pointer over the reel holds it, and drag and wheel move it.
+   A separate button parked under the strip was the weaker of the two controls
+   and the only one that needed a label to explain itself.
+
+   Reduced motion still turns the whole strip into a plain scroller, which is
+   the real answer for a reader who cannot use either. */
 .sx-mv-foot {
   display: flex;
   align-items: center;
   gap: clamp(1rem, 2vw, 1.75rem);
   flex-wrap: wrap;
   margin-top: clamp(1.1rem, 2.2vw, 1.8rem);
-}
-.sx-mv-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: .6rem;
-  /* 44 tall, which is the floor for a thing a thumb has to hit. */
-  min-height: 44px;
-  padding: 0 1.15rem;
-  border: 1px solid var(--sx-ink-4);
-  border-radius: 40px;
-  background: transparent;
-  color: var(--sx-ink-2);
-  font-family: var(--sx-ui);
-  font-weight: 500;
-  font-size: var(--sx-t-mono);
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color .3s var(--sx-ease), color .3s var(--sx-ease);
-}
-.sx-mv-toggle:hover { border-color: var(--sx-key); color: var(--sx-ink); }
-.sx-mv-toggle:focus-visible {
-  outline: 2px solid var(--sx-key);
-  outline-offset: 3px;
-}
-/* Two bars for pause, one triangle for play, drawn rather than shipped as two
-   files — it is six lines of CSS and no request. */
-.sx-mv-toggle-i {
-  width: 10px; height: 11px;
-  flex: none;
-  background: currentColor;
-  clip-path: polygon(0 0, 34% 0, 34% 100%, 0 100%, 0 0,
-                     66% 0, 100% 0, 100% 100%, 66% 100%);
-}
-.sx-mv-toggle[aria-pressed="true"] .sx-mv-toggle-i {
-  clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 .sx-mv-count {
   margin: 0;
@@ -782,6 +859,9 @@
   text-transform: uppercase;
   color: var(--sx-ink-4);
 }
+/* The half of that line that is an instruction rather than a fact, lifted just
+   enough to be read as one. */
+.sx-mv-how { color: var(--sx-ink-3); }
 
 @media (max-width: 860px) {
   .sx-mv-stand, .sx-mv-ledge { display: none; }
@@ -803,6 +883,12 @@
      unscrollable, which is the worst of both. */
   #sx-move .sx-mv-kin span,
   #sx-move .sx-mv-ledge { animation: none; }
+  /* The scroll flight is JS-gated, but the vars have to be neutral in case the
+     preference is turned on mid-session after they were last written. */
+  #sx-move .sx-mv-ledge {
+    --sx-mvl-y: 0px; --sx-mvl-z: 0px; --sx-mvl-r: 0deg; --sx-mvl-o: 1;
+  }
+  #sx-move .sx-mv-notes { display: none; }
   /* No sprite, so nothing to trigger: the mascot stops being a control rather
      than staying one that does nothing. JS drops its button semantics to
      match; this is the half that stops it looking clickable. */
@@ -815,6 +901,14 @@
     -webkit-mask-image: none;
             mask-image: none;
     scroll-snap-type: x proximity;
+    /* Both of these have to be given back, and the touch-action is the one that
+       matters: the strip is a real horizontally scrollable region here, and
+       pan-y would tell the browser to refuse exactly the gesture that reads it.
+       The grab cursor goes too — nothing is being dragged, the region scrolls
+       itself, and a grab hand over a scrollbar is a promise of the wrong
+       interaction. */
+    touch-action: auto;
+    cursor: auto;
   }
   #sx-move .sx-cel {
     scroll-snap-align: center;
@@ -3763,7 +3857,24 @@
   overflow: hidden;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
           mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  /* The strip is a thing you can take hold of, so it says so before you touch
+     it. Cursor only — no border, no rail, no hint chrome. */
+  cursor: grab;
+  /* pan-y, not none. A sideways drag is the strip's; a vertical one is the
+     PAGE'S and always was. Declaring it means the browser can start scrolling
+     the page on the first touch-move instead of waiting to find out whether
+     script is going to preventDefault, which is the difference between a
+     section that scrolls and one that feels stuck. */
+  touch-action: pan-y;
+  /* A drag across a strip of captions should move the strip, not paint a
+     selection across six of them. */
+  -webkit-user-select: none;
+          user-select: none;
 }
+.sx-reel[data-grab] { cursor: grabbing; }
+/* Every image on the strip is a native drag source otherwise, and the browser's
+   own drag beats ours the moment the pointer crosses one. */
+.sx-reel img { -webkit-user-drag: none; user-drag: none; }
 /* Full-bleed: the reel breaks the gutter, which is what makes it read as a
    strip passing through the page instead of a widget parked inside it. */
 .sx-reel {
@@ -3827,15 +3938,50 @@
     135deg, transparent 0 10px, rgba(244,241,236,.022) 10px 20px);
 }
 /* Highlight by dimming: hovering one cell lowers the strip around it. */
-.sx-reel:hover .sx-cel { opacity: .38; transition: opacity .4s var(--sx-ease); }
+.sx-reel:hover .sx-cel { opacity: .32; transition: opacity .4s var(--sx-ease); }
 .sx-reel:hover .sx-cel:hover { opacity: 1; }
 .sx-cel { transition: opacity .4s var(--sx-ease); }
-.sx-cel:hover .sx-cel-plate {
-  transform: translateY(-4px);
+
+/* --- picking a cell out ---
+   Every transform here is on the PLATE, never on the cell, and that is the
+   rule the strip is built on rather than a detail of this block: each cell is a
+   different width, so a transform on the cell changes its rendered width by a
+   different number of pixels and the gaps stop being equal. The plate is inside
+   the cell and out of the layout, so it can lift, scale and tilt for nothing.
+
+   Now that the strip stops under the pointer this is a state you can actually
+   sit in, so it is worth more than four pixels of lift: the plate comes up and
+   forward, its edge lights, its shadow lengthens under it, and the caption —
+   which is the only text on the strip — comes up to full ink. */
+.sx-cel:hover .sx-cel-plate,
+.sx-cel:focus-within .sx-cel-plate {
+  transform: translateY(-10px) scale(1.028);
   box-shadow:
-    inset 0 1px 0 rgba(244,241,236,.14),
-    inset 0 0 0 1px rgba(244,241,236,.08),
-    0 34px 60px -30px #000;
+    inset 0 1px 0 rgba(244,241,236,.20),
+    inset 0 0 0 1px rgba(244,241,236,.13),
+    0 44px 70px -32px #000,
+    0 0 44px -14px rgba(224,84,42,.30);
+}
+.sx-cel figcaption { transition: color .4s var(--sx-ease); }
+.sx-cel:hover figcaption { color: var(--sx-ink); }
+/* The sheen the markup has been carrying all along. It sweeps once on entry
+   rather than looping, so it reads as light crossing a held object instead of
+   as a thing with a shimmer on it. */
+.sx-cel .sx-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(105deg,
+    transparent 38%, rgba(244,241,236,.13) 50%, transparent 62%);
+  background-size: 260% 100%;
+  background-position: 140% 0;
+}
+.sx-cel:hover .sx-sheen { animation: sx-cel-sheen .85s var(--sx-ease) forwards; }
+@keyframes sx-cel-sheen {
+  from { opacity: 1; background-position: 140% 0; }
+  to   { opacity: 1; background-position: -60% 0; }
 }
 .sx-cel figcaption {
   font-family: var(--sx-ui);
@@ -3898,6 +4044,7 @@
   .sx-reel-strip { animation: none; }
   .sx-cel-plate, .sx-cel, .sx-ai-shot img { transition: none; }
   .sx-reel:hover .sx-cel { opacity: 1; }
+  .sx-cel:hover .sx-sheen { animation: none; opacity: 0; }
 }
 
 
