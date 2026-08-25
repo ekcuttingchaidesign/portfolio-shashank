@@ -930,22 +930,340 @@
   #sx-move .sx-mv-foot { display: none; }
 }
 
-#sx-archive { padding-bottom: clamp(5rem, 12vh, 9rem); }
+/* ===========================================================================
+   BUILT WITH CLAUDE CODE
+   ===========================================================================
+   A level, not a section. Everything above this on the page is work being
+   SHOWN to you; this is the part that was played, so it gets a pixel sky, a
+   crenellated ceiling, clouds at three depths, a crew on a platform and a crab
+   patrolling the floor.
 
-.sx-arch-h {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1.5rem;
-  margin: clamp(2.5rem, 6vh, 4rem) 0 1.25rem;
-  padding-bottom: .8rem;
-  border-bottom: 1px solid var(--sx-ink-4);
+   --- the two themes ---
+   Every asset in here is a single-colour path, so none of them is drawn as an
+   image: each is a MASK with a background-color behind it. That is what makes
+   the theme a set of tokens rather than a set of files — data-cc-theme swaps
+   six custom properties and the whole level is repainted, artwork included,
+   with no second copy of any SVG.
+
+   Green is the default and the reason is structural rather than aesthetic. This
+   section sits directly above .sx-seam-paper, the dusk gradient that carries
+   the machine's black into the paper the Experience section is printed on —
+   the one big tonal event on the page. White here would put light against light
+   and spend that transition on nothing. Green also gives the white cards a
+   ground to sit on, where white-on-white left them held up by shadow alone, and
+   it picks up the green already running through the hero ledges and the cone.
+   ------------------------------------------------------------------------- */
+#sx-cc {
+  --cc-bg:      #57C74B;   /* the level */
+  --cc-ceiling: #57C74B;   /* the crenellated top — the level's own edge */
+  --cc-ground:  #2F7A2C;   /* the floor strip, a step down so it reads as depth */
+  --cc-ink:     #000;      /* wordmark and platform */
+  --cc-cloud:   #EAEAEA;
+  --cc-crab:    #000;
+  --cc-card:    #FFF;
+  --cc-card-ink:#111;
+  --cc-card-sub:#6B6B6B;
+
+  position: relative;
+  z-index: 0;
+  background: var(--cc-bg);
+  /* X only. The ceiling and floor hang outside the box on Y and have to stay
+     visible; the crew walks in from beyond the right edge and has to be cut. */
+  overflow-x: clip;
+  padding-block: clamp(3rem, 7vw, 6rem) clamp(4rem, 9vw, 7rem);
+  /* Pixel art, so nothing here is allowed to be resampled smooth. */
+  image-rendering: pixelated;
 }
-.sx-arch-h h3 {
-  font-family: var(--sx-serif);
-  font-weight: 400;
-  font-size: var(--sx-t-sub);
+
+/* The white theme, kept and switchable. One attribute, six values. */
+#sx-cc[data-cc-theme="white"] {
+  --cc-bg:      #FFF;
+  --cc-ceiling: #FFF;
+  --cc-ground:  #57C74B;
+  --cc-crab:    #D97757;   /* the delivered terracotta, which needs a light ground */
+}
+
+/* --- the ceiling and the floor ---
+   Both hang OUTSIDE the section: the ceiling's teeth bite up into the dark of
+   Things That Move, the floor's drip down into the seam below. Masked rather
+   than dropped in as images, so each takes its colour from the theme.
+
+   Sized in vw against the file's own 1920 so the pixel grid stays square at any
+   width — a strip stretched to 100% with a fixed height would shear the teeth. */
+.cc-edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  pointer-events: none;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+          mask-size: 100% 100%;
+}
+.cc-edge--top {
+  bottom: 100%;
+  height: calc(100vw * 102 / 1920);
+  background-color: var(--cc-ceiling);
+  -webkit-mask-image: url("../../public/img/Top_strip_white.svg");
+          mask-image: url("../../public/img/Top_strip_white.svg");
+}
+.cc-edge--bottom {
+  top: 100%;
+  height: calc(100vw * 142 / 1920);
+  background-color: var(--cc-ground);
+  -webkit-mask-image: url("../../public/img/Bottom_strip_green.svg");
+          mask-image: url("../../public/img/Bottom_strip_green.svg");
+}
+
+/* --- the sky ---
+   Three depths of cloud. --cd is the depth: how much of the scroll's parallax
+   each one takes, written by script into --cc-sky. A far cloud on .12 barely
+   moves and a near one on .72 crosses a long way, which is the whole of a
+   side-scroller's sense of distance and costs one multiply per cloud. */
+.cc-sky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.cc-cloud {
+  position: absolute;
+  left: var(--cx);
+  top: var(--cy);
+  width: calc(224px * var(--cs, 1));
+  height: calc(80px * var(--cs, 1));
+  background-color: var(--cc-cloud);
+  -webkit-mask: url("../../public/img/8bitcloud.svg") no-repeat center / contain;
+          mask: url("../../public/img/8bitcloud.svg") no-repeat center / contain;
+  /* The parallax, and a slow drift of its own so the sky is alive before you
+     scroll. Separate properties so the two never overwrite each other. */
+  transform: translate3d(calc(var(--cc-sky, 0px) * var(--cd, .3)), 0, 0);
+  animation: cc-drift calc(28s / var(--cd, .3)) linear infinite;
+  will-change: transform;
+}
+@keyframes cc-drift {
+  from { translate: 0 0; }
+  to   { translate: 40px 0; }
+}
+
+/* --- the heading --- */
+.cc-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(1rem, 4vw, 3rem);
+}
+.cc-kicker {
+  margin: 0 0 .5em;
+  font-family: var(--sx-ui);
+  font-weight: 500;
+  font-size: clamp(.85rem, 1.5vw, 1.35rem);
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--cc-ink);
+}
+/* The wordmark is artwork. The text stays in the heading for anything that
+   cannot see the picture, and is clipped away rather than display:none — a
+   hidden heading is a heading a screen reader skips. */
+.cc-word {
+  position: relative;
   margin: 0;
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
+}
+.cc-word-art {
+  display: block;
+  width: clamp(200px, 28vw, 544px);
+  aspect-ratio: 544 / 251;
+  background-color: var(--cc-ink);
+  -webkit-mask: url("../../public/img/Claude code.svg") no-repeat left top / contain;
+          mask: url("../../public/img/Claude code.svg") no-repeat left top / contain;
+}
+
+/* --- the stage ---
+   Platform and crew as one group. The platform is the ground truth: the crew is
+   sized and placed against IT, so the two cannot drift apart at any width. */
+.cc-stage {
+  position: relative;
+  flex: none;
+  width: clamp(240px, 34vw, 560px);
+  aspect-ratio: 846 / 300;
+  align-self: flex-end;
+}
+.cc-platform {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(100% * 112 / 300);
+  background-color: var(--cc-ink);
+  -webkit-mask: url("../../public/img/platform_strip_black.svg") no-repeat center bottom / 100% 100%;
+          mask: url("../../public/img/platform_strip_black.svg") no-repeat center bottom / 100% 100%;
+}
+/* Walks in from beyond the right edge as the section arrives — see the note in
+   sections.js. The walk owns `transform`; the bob owns `translate`, so an
+   ambient loop and a scrub can share one element. */
+.cc-crew {
+  position: absolute;
+  /* Standing ON the platform rather than in it: the crew's own art has a little
+     empty canvas under the shoes, so the feet land a touch above the box's
+     bottom and this puts that line on the platform's top face. 58% rather than
+     66% leaves the platform reading as ground the crew is crossing instead of a
+     shelf exactly their own size. */
+  right: 7%;
+  bottom: calc(100% * 92 / 300);
+  width: 58%;
+  height: auto;
+  transform: translate3d(var(--cc-walk, 0px), 0, 0);
+  animation: cc-bob .62s steps(2, end) infinite;
+  will-change: transform;
+}
+/* Stepped, not eased. A pixel character does not ease — it is on a frame or it
+   is on the next one, and a smooth bob is the one thing that would give the
+   whole level away as vector art pretending. */
+@keyframes cc-bob {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -5px; }
+}
+
+/* --- the rail ---
+   Two cards today and more later, so this is a carousel from the start: native
+   overflow scrolling with snap points. It needs no controls at this length, it
+   works on touch and with a keyboard at any length, and adding a piece is
+   adding an <li>. The scrollbar is hidden because the cards are obviously a
+   row — but the region stays focusable and arrow-keys still drive it. */
+.cc-rail {
+  position: relative;
+  z-index: 1;
+  margin-top: clamp(2rem, 5vw, 3.5rem);
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding-inline: var(--sx-gut);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  /* Room for the hover lift, the same lesson the reel taught: an overflow that
+     clips one axis clips the other, so the lift needs headroom inside the box. */
+  --cc-lift-room: 24px;
+  padding-block: var(--cc-lift-room);
+  margin-bottom: calc(-1 * var(--cc-lift-room));
+}
+.cc-rail::-webkit-scrollbar { display: none; }
+.cc-track {
+  display: flex;
+  gap: clamp(1rem, 2vw, 1.75rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: max-content;
+  max-width: 100%;
+}
+.cc-card {
+  flex: 0 0 auto;
+  width: clamp(260px, 34vw, 460px);
+  scroll-snap-align: start;
+}
+.cc-card-in {
+  display: block;
+  background: var(--cc-card);
+  border-radius: 22px;
+  padding: 14px 14px 18px;
+  text-decoration: none;
+  box-shadow: 0 10px 0 -4px rgba(0,0,0,.16), 0 22px 40px -26px rgba(0,0,0,.55);
+  transition: transform .32s var(--sx-ease), box-shadow .32s var(--sx-ease);
+}
+.cc-shot {
+  display: block;
+  aspect-ratio: 16 / 10;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #EDEDED;
+}
+.cc-shot img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  /* The covers are illustration, not pixel art — they are the one thing in
+     this section that must NOT be point-sampled. */
+  image-rendering: auto;
+}
+.cc-meta { display: block; padding: .95rem .35rem 0; }
+.cc-name {
+  display: block;
+  font-family: var(--sx-ui);
+  font-weight: 700;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  color: var(--cc-card-ink);
+}
+.cc-desc {
+  display: block;
+  margin-top: .3rem;
+  font-family: var(--sx-ui);
+  font-weight: 400;
+  font-size: clamp(.82rem, 1.1vw, .98rem);
+  color: var(--cc-card-sub);
+}
+@media (hover: hover) {
+  .cc-card-in:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 18px 0 -4px rgba(0,0,0,.16), 0 34px 54px -28px rgba(0,0,0,.6);
+  }
+}
+.cc-card-in:focus-visible {
+  outline: 3px solid var(--cc-ink);
+  outline-offset: 4px;
+}
+
+/* --- the crab ---
+   Patrols the floor and turns around at each end. Stepped for the same reason
+   the crew's bob is: it moves in pixel jumps or it is not a sprite. The flip is
+   in the same keyframe so the turn always happens at the wall. */
+.cc-crab {
+  position: absolute;
+  left: 0;
+  bottom: calc(100vw * 142 / 1920 * -0.06);
+  z-index: 2;
+  width: clamp(56px, 6vw, 100px);
+  aspect-ratio: 148 / 92;
+  pointer-events: none;
+  background-color: var(--cc-crab);
+  -webkit-mask: url("../../public/img/claude_crab.svg") no-repeat center / contain;
+          mask: url("../../public/img/claude_crab.svg") no-repeat center / contain;
+  animation: cc-patrol 19s steps(28, end) infinite;
+  will-change: transform;
+}
+@keyframes cc-patrol {
+  0%      { transform: translateX(6vw)  scaleX(1); }
+  48%     { transform: translateX(78vw) scaleX(1); }
+  50%     { transform: translateX(78vw) scaleX(-1); }
+  98%     { transform: translateX(6vw)  scaleX(-1); }
+  100%    { transform: translateX(6vw)  scaleX(1); }
+}
+
+@media (max-width: 860px) {
+  .cc-head { flex-direction: column; align-items: flex-start; }
+  .cc-stage { width: min(78vw, 420px); align-self: flex-end; }
+  .cc-card { width: min(76vw, 340px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The level stops being a level and becomes a picture of one. Nothing walks,
+     nothing drifts, nothing patrols — but every piece is still where it should
+     be, which is why the walk's resting value is its settled one. */
+  #sx-cc .cc-cloud,
+  #sx-cc .cc-crew,
+  #sx-cc .cc-crab { animation: none; }
+  #sx-cc .cc-cloud { transform: none; }
+  #sx-cc .cc-crew { --cc-walk: 0px; }
+  #sx-cc .cc-crab { transform: translateX(6vw); }
+  #sx-cc .cc-card-in { transition: none; }
 }
 
 .sx-row { display: grid; gap: clamp(.7rem, 1.2vw, 1rem); }
@@ -4044,41 +4362,10 @@
   content: ""; width: 22px; height: 1px; background: var(--sx-key);
 }
 
-/* --- Built with AI ---
-   Two things that run, so they get real covers rather than captions. */
-.sx-ai { padding: 0; overflow: hidden; }
-.sx-ai-shot {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  display: grid; place-items: center;
-}
-.sx-ai-shot img {
-  width: 100%; height: 100%; object-fit: cover; display: block;
-  transition: transform .8s var(--sx-ease);
-}
-.sx-ai:hover .sx-ai-shot img { transform: scale(1.04); }
-.sx-ai-shot[data-empty]::after {
-  content: attr(data-empty);
-  font-family: var(--sx-ui); font-weight: 500;
-  font-size: var(--sx-t-mono); letter-spacing: .16em; text-transform: uppercase;
-  color: var(--sx-ink-3);
-}
-.sx-ai figcaption {
-  display: flex; flex-direction: column; gap: .3rem;
-  padding: clamp(1rem, 1.6vw, 1.4rem);
-}
-.sx-ai-name {
-  font-family: var(--sx-display);
-  font-weight: 500;
-  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
-  letter-spacing: -.02em;
-  color: var(--sx-ink);
-}
 
 @media (prefers-reduced-motion: reduce) {
   .sx-reel-strip { animation: none; }
-  .sx-cel-plate, .sx-cel, .sx-ai-shot img { transition: none; }
+  .sx-cel-plate, .sx-cel { transition: none; }
   .sx-reel:hover .sx-cel { opacity: 1; }
   .sx-cel:hover .sx-sheen { animation: none; opacity: 0; }
 }

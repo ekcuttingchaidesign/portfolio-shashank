@@ -2514,6 +2514,67 @@
     }
   }
 
+  /* ========================================================================
+     BUILT WITH CLAUDE CODE — the level scrolls
+     ========================================================================
+     Two scroll-driven things, and both are side-scroller grammar rather than
+     web-page grammar.
+
+     THE SKY has three depths. One number is written for the whole sky and each
+     cloud multiplies it by its own --cd, so a far cloud on .12 barely shifts
+     while a near one on .72 crosses a long way. That is the entire trick behind
+     depth in a 2D platformer and it costs one multiply per cloud, in CSS, on
+     the compositor. Writing one property on the container rather than five on
+     the clouds also means adding a cloud is adding a <span>.
+
+     THE CREW walks in. They enter from beyond the right edge and arrive at
+     their spot on the platform as the section does, which is the one entrance
+     that belongs to this section specifically: everything else on this page
+     assembles or lands, and a crew of pixel characters neither assembles nor
+     lands — it WALKS ON. Their stepped bob is in the stylesheet and runs the
+     whole time, so they are walking before they arrive and still walking after,
+     and the scroll only decides where along the platform they have got to.
+
+     Both are written as custom properties for the same reason as everything
+     else here: the stylesheet is already composing a bob onto the crew and a
+     drift onto the clouds, and handing either of them a transform would erase
+     the other.
+     ====================================================================== */
+  const ccSection = document.getElementById('sx-cc');
+  if (ccSection && M && M.scroll && !reduced) {
+    const ccSky = ccSection.querySelector('.cc-sky');
+    const ccCrew = ccSection.querySelector('.cc-crew');
+
+    if (ccSky) {
+      /* Negative, so the sky travels the OTHER way to the page — clouds slide
+         left as you go down, which is what reads as walking right past them.
+         The span is a share of the viewport rather than a fixed distance, so
+         the parallax is the same gesture on a laptop and on a monitor. */
+      /* Small on purpose. The sweep is +/- half of this times the depth, and at
+         .42 the near clouds crossed 235px — far enough to wander in behind the
+         wordmark, which is the one place they must not be. At .20 the deepest
+         cloud moves about 70px: plainly parallax, and it stays in its lane. */
+      const SKY = 0.20;
+      M.scroll(p => {
+        const vw = innerWidth || 1200;
+        ccSky.style.setProperty('--cc-sky',
+          ((0.5 - clamp01(p)) * vw * SKY).toFixed(1) + 'px');
+      }, { target: ccSection, offset: ['start end', 'end start'] });
+    }
+
+    if (ccCrew) {
+      /* Arrives by the time the section is properly on screen and then stays
+         put — the walk is an entrance, not a ride. Squared falloff so they are
+         already slowing as they reach their mark rather than stopping dead on
+         it, which is what a character does and a slider does not. */
+      M.scroll(p => {
+        const left = 1 - clamp01(p);
+        ccCrew.style.setProperty('--cc-walk',
+          (left * left * (innerWidth || 1200) * 0.55).toFixed(1) + 'px');
+      }, { target: ccSection, offset: ['start 0.98', 'start 0.42'] });
+    }
+  }
+
   /* ------------------------------------------------------------------------
      The tiles, once they hold video.
      ------------------------------------------------------------------------
