@@ -3931,12 +3931,13 @@
 .sx-cel-plate {
   position: relative;
   height: clamp(190px, 26vw, 330px);
-  /* 36, per the design. Much rounder than the 6 it replaces, which changes what
-     the strip is made of: at 6 these were plates, at 36 they are screens, and a
-     reel of in-product motion is a reel of screens. Worth knowing if it is ever
-     revisited — on the narrowest portrait cell the radius is about a third of
-     the width, so it is doing a lot of work down there. */
-  border-radius: 36px;
+  /* 28. Much rounder than the 6 it replaces, which changes what the strip is
+     made of: at 6 these were plates, at 28 they are screens, and a reel of
+     in-product motion is a reel of screens. Came down from 36, which read as too
+     much at the top end — on the narrowest portrait cell that was nearly a third
+     of the card's width, and the corner started competing with the content
+     rather than framing it. */
+  border-radius: 28px;
   overflow: hidden;
   background: var(--sx-surface);
   box-shadow:
