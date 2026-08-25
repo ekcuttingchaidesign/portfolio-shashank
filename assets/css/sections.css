@@ -3862,7 +3862,6 @@
 
 .sx-reel {
   position: relative;
-  margin-top: 1.25rem;
   /* The strip is width:max-content, so without this the document itself scrolls
      sideways. Clipped to the section and faded at both edges so the run reads
      as continuing past the page rather than stopping at it. */
@@ -3893,6 +3892,25 @@
   width: 100vw;
   margin-left: calc(50% - 50vw);
   padding-inline: var(--sx-gut);
+
+  /* --- headroom for the lift ---
+     The strip has to clip horizontally — it is width:max-content and the
+     document would scroll sideways without it — and `overflow: hidden` clips
+     BOTH axes. So the hover lift was being cut off at the top: translateY(-10px)
+     plus half of the 1.028 scale on a 330px plate puts the card 14.6px above the
+     reel's own box, and every one of those pixels was chopped.
+
+     The fix is headroom rather than a different overflow. Switching to
+     `overflow-x: clip` with a visible Y would let the card escape, but it would
+     escape into the lede above it and the footer below, and a card that overlaps
+     the paragraph explaining it is a worse bug than a clipped corner.
+
+     Padding gives the room inside the box, and the two negative margins give the
+     layout back — so this is pure clearance and moves nothing on the page. */
+  --sx-lift-room: 26px;
+  padding-block: var(--sx-lift-room);
+  margin-top: calc(1.25rem - var(--sx-lift-room));
+  margin-bottom: calc(-1 * var(--sx-lift-room));
 }
 
 .sx-reel-strip {
@@ -3913,7 +3931,12 @@
 .sx-cel-plate {
   position: relative;
   height: clamp(190px, 26vw, 330px);
-  border-radius: 6px;
+  /* 36, per the design. Much rounder than the 6 it replaces, which changes what
+     the strip is made of: at 6 these were plates, at 36 they are screens, and a
+     reel of in-product motion is a reel of screens. Worth knowing if it is ever
+     revisited — on the narrowest portrait cell the radius is about a third of
+     the width, so it is doing a lot of work down there. */
+  border-radius: 36px;
   overflow: hidden;
   background: var(--sx-surface);
   box-shadow:
