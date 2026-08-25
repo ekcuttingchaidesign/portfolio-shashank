@@ -729,7 +729,9 @@
      character into a 3D context none of them asked for. */
   transform:
     perspective(1100px)
-    translate3d(0, calc(-46% + var(--sx-mvl-y, 0px)), var(--sx-mvl-z, 0px))
+    translate3d(var(--sx-mvl-x, 0px),
+                calc(-46% + var(--sx-mvl-y, 0px)),
+                var(--sx-mvl-z, 0px))
     rotate(var(--sx-mvl-r, 0deg));
   opacity: calc(.92 * var(--sx-mvl-o, 1));
   will-change: transform, opacity;
@@ -799,15 +801,24 @@
   opacity: 0;
   will-change: transform, opacity;
 }
+/* Lighter and less saturated than the delivered pair, which is a balloon note
+   rather than a sticker note: a floating thing is lit by the air around it, so
+   it sits near the top of the value range and near the bottom of the chroma
+   range. The delivered #7982FF and #F3F977 were correct hues and too solid —
+   at full chroma on near-black they read as two bright chips pasted over the
+   character rather than as something drifting past it.
+
+   Still not the vermilion key, and that is the one hard rule here: the mascot is
+   orange, and an orange note leaving an orange shoulder is a note nobody sees. */
 .sx-mv-note[data-n="1"] {
   --n-src: url("../../public/img/music_note1.svg");
   --n-ar: 1.684;                 /*  64 / 38 */
-  --n-tint: #8E97FF;
+  --n-tint: #C3CBFF;             /* pale periwinkle */
 }
 .sx-mv-note[data-n="2"] {
   --n-src: url("../../public/img/music_note2.svg");
   --n-ar: 1.083;                 /*  52 / 48 */
-  --n-tint: #F3F977;
+  --n-tint: #F2ECB4;             /* pale gold */
 }
 
 /* It is a control, so it says so — but quietly. A character that grows under
@@ -886,7 +897,8 @@
   /* The scroll flight is JS-gated, but the vars have to be neutral in case the
      preference is turned on mid-session after they were last written. */
   #sx-move .sx-mv-ledge {
-    --sx-mvl-y: 0px; --sx-mvl-z: 0px; --sx-mvl-r: 0deg; --sx-mvl-o: 1;
+    --sx-mvl-x: 0px; --sx-mvl-y: 0px; --sx-mvl-z: 0px;
+    --sx-mvl-r: 0deg; --sx-mvl-o: 1;
   }
   #sx-move .sx-mv-notes { display: none; }
   /* No sprite, so nothing to trigger: the mascot stops being a control rather
