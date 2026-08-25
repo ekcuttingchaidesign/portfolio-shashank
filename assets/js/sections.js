@@ -758,16 +758,34 @@
     /* The cone drifts against the scroll and unwinds the last of its lean as
        it goes — a solid object passing the shelf, not a sticker on it.
 
-       The travel is small, and that is a constraint rather than a preference:
-       the cone is wedged between the last case study above it and the top of
-       the grid below, with about 20px of daylight at each end. It was ±40 and
-       it put the cone's head through the bottom of the card. Most of the life
-       is in the lean now, which pivots about the foot and so costs almost no
-       vertical room. */
+       The travel used to be ±8px and read as nothing at all, for a reason that
+       was real: the cone is wedged between the last case study above it and the
+       top of the grid below, with about 20px of daylight at each end, and an
+       earlier ±40 put its head through the bottom of the card.
+
+       What was missing is that the constraint is on the HEAD and the parallax
+       does not have to be. transform-origin is 50% 100% — the foot — so a scale
+       grows the shape upward from a fixed bottom edge, which means a scale DOWN
+       lowers the head and a scale UP raises it. Pair the scale with the drift so
+       the two cancel at the head and the numbers come out like this:
+
+           entering   y -30 (up)    scale 0.88 → head +32 down    net  +2
+           leaving    y +46 (down)  scale 1.16 → head -43 up      net  +3
+
+       The head effectively stands still inside its 20px of daylight while the
+       foot swings 76px and the whole shape breathes between 0.88x and 1.16x.
+       That is a depth cue rather than a slide, it is far more visible than what
+       it replaces, and it costs no vertical room at all — which is the thing
+       the old note had concluded was impossible.
+
+       The horizontal drift is free money: the cone bleeds off the right edge
+       already, so it has a whole viewport of room on that axis and nothing to
+       collide with. */
     const cone = document.getElementById('sx-st-cone');
     if (cone) {
       M.scroll(
-        M.animate(cone, { y: [-6, 10], rotate: [-3.5, 2] },
+        M.animate(cone,
+          { y: [-30, 46], x: [-12, 30], rotate: [-6, 4], scale: [0.88, 1.16] },
           { duration: 1, ease: 'linear' }),
         { target: stGrid, offset: ['start 1', 'end 0'] }
       );
@@ -1749,7 +1767,6 @@
      ====================================================================== */
   const mvReel  = document.getElementById('sx-reel');
   const mvStrip = mvReel && mvReel.querySelector('.sx-reel-strip');
-  const mvToggle = document.getElementById('sx-mv-toggle');
 
   /* Counted, not typed. The strip is duplicated for the loop so the first run
      is the real inventory — and a number in the markup is a number that goes
@@ -1761,41 +1778,228 @@
   }
 
   if (mvStrip && M && M.animate && !reduced) {
-    /* One full run of the strip is half its width, because the run is
-       duplicated — so -50% is exactly one loop and the seam is invisible.
+    /* --- the strip, and why it is no longer an animation ---
+       This used to be one Motion animation from 0% to -50% with its `speed`
+       turned by the scroll. That was the right shape for a strip that only had
+       to arrive: an animation object has a playback rate you can turn
+       continuously, which a CSS keyframe does not.
 
-       This is the one number here that is a judgement rather than a
-       measurement, so it is worth saying what it buys. At 92s the strip runs
-       about 63px a second at 1600, which is half what it was: a landscape tile
-       takes nine seconds to cross, and the whole reel comes round in a minute
-       and a half. At the old 58s it was 128px/s and read as a ticker. Tried
-       135s too, and 43px/s is the other failure — a fourteen-piece reel that
-       takes over two minutes to loop stops feeling continuous and starts
-       feeling stalled.
+       It is the wrong shape for a strip you can take hold of. An animation owns
+       its own transform and its own clock, so a drag has to fight it for both —
+       you can seek it, but seeking a -50% keyframe means converting pixels of
+       hand movement into a fraction of a duration and back, twice a frame, and
+       every hand-off between "the animation is driving" and "the pointer is
+       driving" is a seam you can feel.
 
-       Turn this one constant if it still is not right; everything else in the
-       section is a ratio off it, including the arrival and the mascot. */
-    const CRUISE = 92;
-    const roll = M.animate(mvStrip, { x: ['0%', '-50%'] },
-      { duration: CRUISE, ease: 'linear', repeat: Infinity });
+       So the position is now just a NUMBER, and one loop writes it. Cruise,
+       scroll heat, drag, flick and wheel are five things that all add into the
+       same number, which means none of them has to know about the others and
+       none of them can contradict another. The strip is where `offset` says it
+       is, always.
+       ------------------------------------------------------------------ */
+    const firstRun = mvStrip.querySelector('.sx-reel-run');
+
+    /* One lap is a run PLUS one gap, and it is measured rather than assumed.
+       The old -50% was very slightly wrong for exactly this reason: half of
+       (run + gap + run) is a run plus half a gap, so the loop jumped back by
+       half a gap on every pass. At 8px in 92 seconds nobody was ever going to
+       see it, but the modulo below has to be exact or the seam walks. */
+    let lap = 0;
+    /* Declared up here with lap, because measure() -> place() touches it and
+       the first measure() runs before the block below. */
+    let offset = 0;              /* px the strip is shifted left; the whole state */
+
+    const lapNow = () => {
+      if (!firstRun) return 0;
+      const gap = parseFloat(getComputedStyle(mvStrip).columnGap) || 0;
+      return firstRun.getBoundingClientRect().width + gap;
+    };
+    const measure = () => {
+      const next = lapNow();
+      if (!next || Math.abs(next - lap) < 0.5) return;
+      lap = next;
+      place();
+    };
+
+    /* --- why the lap is re-measured at the wrap and not just at startup ---
+       A cell is `flex: none`, so its width is its max-content width — and a
+       caption wider than its plate is what sets it. Captions are text, text is
+       webfont, and the webfont arrives after this script does. The run measured
+       at startup is the run in the FALLBACK face, and it is not the run you end
+       up looking at: measured here, the difference was 225px on a 5.6kpx lap.
+
+       A stale lap does not drift, it JUMPS. The modulo hands the strip back 225px
+       short exactly once per lap, which is a teleport in the middle of the one
+       section on the page that cannot afford one — and it is invisible in
+       testing until you happen to watch the seam.
+
+       The obvious fix is a ResizeObserver on the run, and it is here, along with
+       the font and resize signals. But none of them is TRUSTED, because none of
+       them proved reliable for this particular reflow — the observer sat silent
+       through a swap that moved the run 225px. So the guarantee comes from
+       place() instead: the lap is re-read at the instant the strip is about to
+       wrap, which is the only instant its value can be observed. That costs one
+       layout read per lap — about one every ninety seconds at cruise — and it
+       is right by construction rather than by a notification arriving. */
+    if ('ResizeObserver' in window && firstRun) new ResizeObserver(measure).observe(firstRun);
+    addEventListener('resize', measure, { passive: true });
+    addEventListener('load', measure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure).catch(() => {});
+    measure();
+
+    /* The cruise, in pixels per second rather than as a duration, because the
+       loop now thinks in speed. 63px/s is what the old 92-second cruise worked
+       out to at 1600 and it is the same judgement it always was: a landscape
+       tile takes nine seconds to cross, the reel comes round in about a minute
+       and a half. Faster reads as a ticker, slower reads as stalled.
+
+       Stating it as a speed rather than a duration also fixes something the
+       duration quietly got wrong — a fixed 92s meant a longer strip travelled
+       FASTER. Pixels per second is the same reel at any inventory. */
+    const CRUISE_PX = 63;
+    const ENTRY_SPEED = 9;
+    const MAX_FLICK = 4500;      /* px/s — past this it is a blur, not a browse */
+    const FRICTION = 0.94;       /* per 60th — a thrown strip glides about a second */
+
+    let heat = 1;                /* 1 arriving hot, 0 settled */
+    let vel = 0;                 /* px/s the hand has added on top of the cruise */
+    let hovering = false;
+    let dragging = false;
+    let onScreen = true;
+    let raf = 0, last = 0;
 
     mvStrip.setAttribute('data-rolling', '');
 
-    /* Speed is the entrance. 7x at the section's first edge, 1x by the time
-       the strip is properly on screen. Squared falloff rather than linear: a
-       linear ramp spends too long in the middle speeds, where the strip is
-       neither excitingly fast nor calmly readable. */
-    /* Raised from 7 when the cruise slowed: the arrival is a ratio, not an
-       absolute, and 7x of the old cruise was a different experience from 7x of
-       this one. Nine keeps the gap between how it arrives and how it settles
-       roughly where it was. */
-    const ENTRY_SPEED = 9;
-    /* Starts HOT. The strip is at full speed from the moment the page loads —
-       it is off screen, so nobody sees the first seconds of it, and by the
-       time it is in view the scroll has begun bringing it down. Starting at
-       zero and waiting for the scroll to raise it would mean arriving at a
-       strip already cruising, which is the thing this section is not. */
-    let paused = false, hovering = false, heat = 1;
+    /* Hover holds the cruise — but only the cruise. Drag and wheel still move
+       the strip while the pointer is on it, which is the whole model: hover to
+       hold it still, then move it yourself. */
+    const cruise = () =>
+      (hovering || dragging) ? 0 : CRUISE_PX * (1 + (ENTRY_SPEED - 1) * heat * heat);
+
+    /* A declaration rather than a const arrow: measure() calls it, and the
+       first measure() runs above this line. */
+    function place() {
+      /* About to wrap — so this is the moment the lap has to be right. See the
+         note above measure(): a stale lap is a visible teleport at the seam,
+         and this is the one place that can catch it without polling. */
+      if (lap <= 0 || offset >= lap || offset < 0) {
+        const fresh = lapNow();
+        if (fresh) lap = fresh;
+      }
+      if (lap > 0) offset = ((offset % lap) + lap) % lap;
+      mvStrip.style.transform = 'translate3d(' + (-offset).toFixed(2) + 'px, 0, 0)';
+    }
+
+    /* Parked whenever there is nothing to do — off screen, in a hidden tab, or
+       held still with no throw left in it. A marquee painting behind a tab
+       nobody is looking at is the cheapest frame on the page to not draw. */
+    const busy = () => onScreen && !document.hidden && (dragging || vel !== 0 || cruise() > 0);
+    const wake = () => {
+      if (raf || !busy()) return;
+      last = performance.now();
+      raf = requestAnimationFrame(tick);
+    };
+    function tick(now) {
+      raf = 0;
+      /* Clamped, so a tab that was backgrounded for a minute does not come
+         back and teleport the strip a minute's worth of travel. */
+      const dt = Math.min(0.05, (now - last) / 1000) || 0;
+      last = now;
+      if (!dragging) {
+        offset += (cruise() + vel) * dt;
+        vel *= Math.pow(FRICTION, dt * 60);
+        if (Math.abs(vel) < 2) vel = 0;
+      }
+      place();
+      if (busy()) raf = requestAnimationFrame(tick);
+    }
+
+    /* --- taking hold of it ---
+       Pointer events rather than mouse or touch, so a mouse, a trackpad press,
+       a pen and a finger are one code path. The capture is what makes a drag
+       survive leaving the strip: let go somewhere over the footer and the
+       throw still lands. */
+    let dragId = null, lastX = 0, lastT = 0, moved = 0;
+    if (mvReel) {
+      mvReel.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        dragId = e.pointerId;
+        dragging = true;
+        vel = 0;
+        moved = 0;
+        lastX = e.clientX;
+        lastT = e.timeStamp;
+        mvReel.dataset.grab = '';
+        try { mvReel.setPointerCapture(e.pointerId); } catch (_) {}
+        wake();
+      });
+
+      mvReel.addEventListener('pointermove', e => {
+        if (!dragging || e.pointerId !== dragId) return;
+        const dx = e.clientX - lastX;
+        const dt = Math.max(1, e.timeStamp - lastT);
+        lastX = e.clientX;
+        lastT = e.timeStamp;
+        moved += Math.abs(dx);
+        /* Drag right, strip goes right. offset counts leftward travel, so it
+           takes the opposite sign — the content follows the hand, which is the
+           only mapping anybody ever expects. */
+        offset -= dx;
+        place();
+        /* A rolling average rather than the last sample. One jittery frame at
+           the moment of release should not decide how hard the strip is thrown,
+           and on a trackpad the last sample before lift-off is very often a
+           stray pixel in the wrong direction. */
+        vel = vel * 0.72 + (-dx / dt * 1000) * 0.28;
+      });
+
+      const release = e => {
+        if (!dragging || (dragId !== null && e.pointerId !== dragId)) return;
+        dragging = false;
+        dragId = null;
+        delete mvReel.dataset.grab;
+        vel = Math.max(-MAX_FLICK, Math.min(MAX_FLICK, vel));
+        wake();
+      };
+      mvReel.addEventListener('pointerup', release);
+      mvReel.addEventListener('pointercancel', release);
+      /* A pointer that vanishes without an up — the window going away
+         mid-drag — otherwise leaves the strip frozen mid-grab forever. */
+      addEventListener('blur', () => { if (dragging) release({ pointerId: dragId }); });
+
+      /* --- the wheel ---
+         Two gestures arrive here and they are NOT the same gesture, so they are
+         not treated the same.
+
+         A sideways swipe on a trackpad is unambiguous: nothing else on this page
+         reads deltaX, the user is pushing horizontally at a horizontal thing, so
+         it is taken outright and mapped one-to-one. The trackpad's own inertia
+         keeps arriving as decaying deltas after the fingers lift, which is why
+         this needs no momentum of its own — the OS already sent it.
+
+         A vertical wheel is the page's, and swallowing it would trap the reader
+         at this section with no way past a full-bleed strip. So it is BORROWED
+         rather than taken: the page scrolls exactly as it always would, and the
+         same spin also shoves the strip along. Spin the wheel over the reel and
+         it whips; spin it anywhere else and the page just scrolls. Nothing is
+         taken away from anybody. */
+      mvReel.addEventListener('wheel', e => {
+        const horiz = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+        const raw = horiz ? e.deltaX : e.deltaY;
+        /* Firefox reports lines, and some setups report pages. */
+        const px = e.deltaMode === 1 ? raw * 16
+                 : e.deltaMode === 2 ? raw * (innerHeight || 800)
+                 : raw;
+        if (horiz) {
+          e.preventDefault();
+          offset += px;
+          place();
+        } else {
+          vel = Math.max(-MAX_FLICK, Math.min(MAX_FLICK, vel + px * 6));
+        }
+        wake();
+      }, { passive: false });
+    }
 
     /* --- the mascot ---
        Two poses. Vibing to the music is what it does; the moonwalk is a
@@ -1807,10 +2011,15 @@
        one-for-one — nine times normal through twelve frames is a flicker, not
        a dance — so it takes a fifth of the excess and caps at 1.8.
 
-       The moonwalk does NOT follow the strip. It is danced at somebody, so it
-       keeps its own tempo whatever the scroll is doing, and it dances even
-       while the strip is paused: a direct answer to a pointer outranks the
-       ambient state of the page. */
+       It follows the strip's HEAT and no longer its hover. Those used to be one
+       state, and holding the strip froze the character too; now that the strip
+       stops under any pointer that crosses it, that would mean the music
+       stopping every time somebody reached for a tile. The reel settling is
+       something the character is dancing to. The reel being touched is not.
+
+       The moonwalk does NOT follow the strip at all. It is danced at somebody,
+       so it keeps its own tempo whatever the scroll is doing: a direct answer
+       to a pointer outranks the ambient state of the page. */
     const POSES = {
       vibe: { cols: 6, rows: 2, frames: 12, cycle: 1900 },
       walk: { cols: 6, rows: 4, frames: 24, cycle: 2100 },
@@ -1847,21 +2056,16 @@
 
     const spriteRate = rate => Math.min(1.8, 1 + (rate - 1) * 0.2);
     const applySpeed = () => {
-      /* `posing` means the moonwalk has the sprite. Leave it alone — the
-         strip's state must not reach in and re-rate or pause a performance
-         that is halfway through. */
-      if (paused || hovering) {
-        roll.pause();
-        if (sprite && !posing) sprite.pause();
-        return;
-      }
-      roll.play();
       const rate = 1 + (ENTRY_SPEED - 1) * heat * heat;
-      roll.speed = rate;
+      /* `posing` means the moonwalk has the sprite. Leave it alone — the
+         strip's state must not reach in and re-rate a performance that is
+         halfway through. */
       if (sprite && !posing) {
-        sprite.play();
-        sprite.playbackRate = spriteRate(rate);
+        if (document.hidden) sprite.pause();
+        else { sprite.play(); sprite.playbackRate = spriteRate(rate); }
       }
+      syncNotes();
+      wake();
     };
 
     if (M.scroll) {
@@ -1878,33 +2082,127 @@
       }, { target: mvReel, offset: ['start 0.95', 'start 0.32'] });
     }
 
-    /* Hover holds it, which is the convenience. The button below is the
-       control — the two share one state so they cannot disagree. */
+    /* Hover holds it, which is the convenience — and now that the button is
+       gone it is also the control, together with the drag and the wheel. */
     if (mvReel) {
       mvReel.addEventListener('pointerenter', e => {
         if (e.pointerType === 'touch') return;
-        hovering = true; applySpeed();
+        hovering = true; wake();
       });
-      mvReel.addEventListener('pointerleave', () => { hovering = false; applySpeed(); });
-      mvReel.addEventListener('focusin',  () => { hovering = true;  applySpeed(); });
-      mvReel.addEventListener('focusout', () => { hovering = false; applySpeed(); });
+      mvReel.addEventListener('pointerleave', () => { hovering = false; wake(); });
+      mvReel.addEventListener('focusin',  () => { hovering = true;  wake(); });
+      mvReel.addEventListener('focusout', () => { hovering = false; wake(); });
     }
 
-    if (mvToggle) {
-      const label = mvToggle.querySelector('.sx-mv-toggle-l');
-      mvToggle.addEventListener('click', () => {
-        paused = !paused;
-        mvToggle.setAttribute('aria-pressed', paused ? 'true' : 'false');
-        if (label) label.textContent = paused ? 'Play' : 'Pause';
-        applySpeed();
-      });
+    /* A strip travelling behind a hidden tab, or a hundred viewport-heights up
+       the page, is work nobody is watching. */
+    if ('IntersectionObserver' in window && mvReel) {
+      new IntersectionObserver(es => {
+        onScreen = es.some(e => e.isIntersecting);
+        wake();
+      }, { rootMargin: '20% 0px' }).observe(mvReel);
     }
-
-    /* A strip travelling behind a hidden tab is work nobody is watching. */
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden) { roll.pause(); if (sprite) sprite.pause(); }
-      else { if (posing && sprite) sprite.play(); applySpeed(); }
+      if (document.hidden) { if (sprite) sprite.pause(); }
+      else if (posing && sprite) sprite.play();
+      applySpeed();
     });
+
+    /* ====================================================================
+       THE MUSIC NOTES
+       ====================================================================
+       The vibe sheet has the character listening to something the page never
+       showed. These are that something.
+
+       Tied to the POSE, not to hover: they come with the vibe and stop the
+       instant it moonwalks, because the moonwalk is danced at you and the music
+       is ambient. They also stop when the stand is off screen or the tab is
+       hidden, for the same reason the strip does.
+
+       Each note is spawned, flown once and thrown away. Nothing is pooled and
+       nothing is reused, which is deliberate: there are two or three of these
+       alive at a time and a pool would be more state than the thing is worth.
+       ==================================================================== */
+    const noteHost = document.getElementById('sx-mv-notes');
+    let notesOn = false, noteTimer = 0, standSeen = true;
+
+    const spawnNote = () => {
+      if (!noteHost || !mascot) return;
+      const w = mascot.getBoundingClientRect().width || 140;
+      const el = document.createElement('span');
+      el.className = 'sx-mv-note';
+      el.dataset.n = Math.random() < 0.5 ? '1' : '2';
+
+      /* Which shoulder it comes off, and how far out. Notes that all rise from
+         one point read as a fountain; off both sides at different distances and
+         different heights they read as coming off a character. Every number is
+         a share of the mascot's own width, so the scatter scales with it. */
+      const side  = Math.random() < 0.5 ? -1 : 1;
+      const x0    = side * w * (0.14 + Math.random() * 0.30);
+      const y0    = w * (Math.random() * 0.16 - 0.05);
+      const rise  = w * (0.58 + Math.random() * 0.46);
+      const dx    = side * w * (0.10 + Math.random() * 0.28);
+      const sway  = 8 + Math.random() * 13;
+      const r0    = Math.random() * 26 - 13;
+      const size  = w * (0.10 + Math.random() * 0.055);
+      el.style.setProperty('--n-size', size.toFixed(1) + 'px');
+
+      const at = (fx, fy, rot, sc, op) => ({
+        transform: 'translate3d(' + (x0 + dx * fx).toFixed(1) + 'px, '
+                                  + (y0 - rise * fy).toFixed(1) + 'px, 0) '
+                 + 'rotate(' + rot.toFixed(1) + 'deg) scale(' + sc + ')',
+        opacity: String(op),
+      });
+
+      noteHost.appendChild(el);
+      /* Pops in, drifts up and across on a lazy S, then thins out at the top.
+         It never fades from full — the last quarter is where all the fade is,
+         so a note is solid for as long as it is worth looking at and then it
+         is simply not there. */
+      const a = el.animate([
+        { ...at(0,    0,    r0,               0.35, 0),    offset: 0,
+          easing: 'cubic-bezier(.2,.7,.3,1)' },
+        { ...at(0.28, 0.27, r0 + sway,        1,    1),    offset: 0.22,
+          easing: 'linear' },
+        { ...at(0.72, 0.68, r0 - sway * 0.7,  1,    0.95), offset: 0.64,
+          easing: 'cubic-bezier(.4,0,.7,.4)' },
+        { ...at(1,    1,    r0 + sway * 1.4,  0.82, 0),    offset: 1 },
+      ], { duration: 1700 + Math.random() * 900, fill: 'forwards' });
+
+      const drop = () => el.remove();
+      a.onfinish = drop;
+      a.oncancel = drop;
+    };
+
+    const noteBeat = () => {
+      noteTimer = 0;
+      if (!notesOn) return;
+      spawnNote();
+      /* Uneven on purpose. A fixed interval is a metronome, and a metronome is
+         the one thing music notes must not look like. */
+      noteTimer = setTimeout(noteBeat, 250 + Math.random() * 430);
+    };
+
+    function syncNotes() {
+      const want = !!noteHost && !posing && standSeen && !document.hidden
+                   && mascot && mascot.dataset.pose === 'vibe';
+      if (want === notesOn) return;
+      notesOn = want;
+      if (want) noteBeat();
+      else if (noteTimer) { clearTimeout(noteTimer); noteTimer = 0; }
+      /* Notes already in the air are left to finish. Cutting them at the same
+         moment the pose changes reads as a glitch; letting the last two rise
+         and fade reads as the music trailing off. */
+    }
+
+    const stand = mascot && (mascot.closest('.sx-mv-stand') || mascot.parentElement);
+    if (stand && 'IntersectionObserver' in window) {
+      standSeen = false;
+      new IntersectionObserver(es => {
+        standSeen = es.some(e => e.isIntersecting);
+        syncNotes();
+      }, { rootMargin: '10% 0px' }).observe(stand);
+    }
 
     /* --- asking for the moonwalk ---
        Hover, not click, and that changes what this control IS. A click is a
@@ -1922,35 +2220,102 @@
       playPose('vibe');
       applySpeed();
 
-      /* The walk sheet is only wanted once somebody reaches for the character,
-         so it is not fetched with the page. With a click there was a hover
-         beforehand to warm it; with hover there is no earlier signal, so the
-         first hover has to decode before it can switch — hence `wants`, which
-         catches the pointer having left while that was happening. */
-      let warm = null, wants = false;
+      /* --- warming the walk sheet ---
+         This is where the character used to vanish.
+
+         The old preloader was `img.decode().catch(() => {})`, and the catch is
+         the bug. Chrome rejects decode() intermittently — an interrupted or
+         collected decode, nothing to do with the bytes being bad — and a
+         swallowed rejection RESOLVED THE WAIT EARLY. dance() then switched
+         data-pose to `walk`, which switched background-image to a 470KB sheet
+         the browser had not finished fetching, and the mascot painted nothing
+         at all until it landed. An empty plinth for a second or two, on some
+         hovers and not others, exactly as reported.
+
+         Three things fix it, and the third is the one that makes it impossible
+         rather than unlikely:
+
+           1. resolve on load OR decode, so a rejected decode is not mistaken
+              for a finished one;
+           2. do not cache a failure — the next hover gets to try again;
+           3. never switch pose unless the sheet is genuinely ready. Vibing is
+              a pose the character HAS. If the sheet is not there, it keeps
+              vibing, which is a worse moonwalk and a much better mascot than
+              an empty plinth. */
+      let warm = null, ready = false, wants = false, inflight = false;
+
+      const walkURL = () => {
+        const raw = getComputedStyle(mascot).getPropertyValue('--sx-mv-walk')
+          .trim().replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
+        /* Declared in the stylesheet, so it is relative to the STYLESHEET —
+           which is two directories from this document, not from the page. It
+           happens to survive being resolved against the document today because
+           the extra `..` is clamped at the root, but that is luck and not a
+           contract. Resolved against the sheet it came from instead. */
+        const link = document.querySelector('link[rel="stylesheet"][href*="sections.css"]');
+        try { return new URL(raw, link ? link.href : location.href).href; }
+        catch (_) { return raw; }
+      };
+
       const preload = () => {
         if (warm) return warm;
-        const img = new Image();
-        img.src = getComputedStyle(mascot).getPropertyValue('--sx-mv-walk')
-          .trim().replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
-        warm = img.decode().catch(() => {});
+        warm = new Promise(resolve => {
+          const img = new Image();
+          img.decoding = 'async';
+          img.onload = () => resolve(true);
+          img.onerror = () => resolve(false);
+          img.src = walkURL();
+          /* Raced against load, never trusted alone, and its rejection is
+             ignored rather than treated as an answer — load will answer. */
+          img.decode().then(() => resolve(true), () => {});
+        }).then(ok => {
+          ready = ok;
+          if (!ok) warm = null;
+          return ok;
+        });
         return warm;
       };
 
+      /* Warmed on approach rather than on contact. The old code started the
+         fetch on the first pointerenter of a 120px target, so the first hover
+         was always the one that had to wait for it; the section coming into
+         view is seconds of warning earlier, and hovering the stand — a target
+         several times the size — is the backstop. */
+      if ('IntersectionObserver' in window && stand) {
+        const warmer = new IntersectionObserver(es => {
+          if (!es.some(e => e.isIntersecting)) return;
+          warmer.disconnect();
+          preload();
+        }, { rootMargin: '40% 0px' });
+        warmer.observe(stand);
+      } else {
+        preload();
+      }
+      if (stand) stand.addEventListener('pointerenter', preload, { once: true });
+
       const dance = async () => {
-        if (posing) return;
-        posing = true; wants = true;
-        await preload();
-        if (!wants) { posing = false; return; }
+        if (posing || inflight) return;
+        wants = true;
+        if (!ready) {
+          inflight = true;
+          const ok = await preload();
+          inflight = false;
+          if (!ok) return;             /* keep vibing rather than go blank */
+        }
+        /* The pointer may well have left while that was in flight. */
+        if (!wants || posing) return;
+        posing = true;
+        syncNotes();                   /* the music stops for the moonwalk */
         playPose('walk');
         sprite.playbackRate = 1;
       };
+
       const settle = () => {
         wants = false;
         if (!posing) return;
         posing = false;
         playPose('vibe');
-        applySpeed();
+        applySpeed();                  /* which re-starts the notes */
       };
 
       mascot.addEventListener('pointerenter', e => {
@@ -1980,18 +2345,61 @@
        which on a strip whose whole job is even continuous motion is the one
        thing it cannot do.
 
-       The note that used to sit here argued the effect was safe because at 14°
-       the width loss is only 3%. That is true, and it was reasoned for cards
-       of equal width; 3% of 587 and 3% of 186 are not the same gap. The
-       premise did not survive putting portrait and landscape on one strip, and
-       the strip is the point.
+       That rule is why the hover in the stylesheet lifts the PLATE and never
+       the cell: the plate is inside the cell and out of the layout, so it can
+       be transformed for nothing. Anything that touches a cell's own geometry
+       breaks the spacing of the whole run. */
 
-       Losing it costs a depth cue and buys three things: rigid spacing, the
-       whole per-frame loop, and one less reason for the run to draw attention
-       to itself. The edge mask already says the strip continues past the page,
-       which is most of what the curve was doing. */
-
+    place();
     applySpeed();
+    wake();
+  }
+
+  /* ------------------------------------------------------------------------
+     The ledge, on the page's own depth.
+     ------------------------------------------------------------------------
+     The hero's right_side_ledge, reused here and now given the hero's read as
+     well as its shape. Up there the corner pieces hang free in the frame and
+     come toward the camera as the section leaves; this is the same idea
+     stretched across a whole pass rather than an exit, because this ledge is
+     something you scroll BY rather than something you scroll away from.
+
+     So the driver is signed: -1 as the section's bottom edge comes up into the
+     window, 0 with the section centred, +1 as its top edge leaves. That makes
+     the flight symmetrical about the middle — it approaches on the way in and
+     recedes on the way out, which is what "incoming and outgoing" has to mean
+     for an object you pass rather than one you leave behind.
+
+     It writes CUSTOM PROPERTIES rather than a transform, because the stylesheet
+     is already composing three things onto this element — the base -46%, the
+     idle float and now this. Handing it a transform would erase the other two.
+
+     Raw off the rect with no smoothing. A decoration that lags the scrollbar
+     reads as the page tearing, and the idle float is already supplying all the
+     looseness this needs.
+     ---------------------------------------------------------------------- */
+  const mvLedge = document.querySelector('.sx-mv-ledge');
+  const mvSection = document.getElementById('sx-move');
+  if (mvLedge && mvSection && M && M.scroll && !reduced) {
+    /* Vertical travel is a share of the VIEWPORT, not of the section: the
+       parallax is against the window the reader is looking through, and a
+       fixed pixel figure is a different effect on a laptop and a monitor. */
+    const DRIFT = 0.085;   /* of the viewport, each way — ~160px total at 950 */
+    const DEPTH = 165;     /* px toward a camera 1100 out: 0.87x to 1.18x */
+    const TIP   = 5.5;     /* degrees, each way */
+    M.scroll(p => {
+      const s = clamp01(p) * 2 - 1;
+      const vh = innerHeight || 800;
+      mvLedge.style.setProperty('--sx-mvl-y', (-s * vh * DRIFT).toFixed(1) + 'px');
+      mvLedge.style.setProperty('--sx-mvl-z', (s * DEPTH).toFixed(1) + 'px');
+      mvLedge.style.setProperty('--sx-mvl-r', (s * TIP).toFixed(2) + 'deg');
+      /* Cubed, so the fade is nothing at all through the middle of the pass and
+         only bites at the two ends — where the shape is furthest from its home
+         and closest to reading as a stray green wedge rather than as the
+         hero's corner answering itself. */
+      mvLedge.style.setProperty('--sx-mvl-o',
+        (1 - Math.pow(Math.abs(s), 3) * 0.5).toFixed(3));
+    }, { target: mvSection, offset: ['start end', 'end start'] });
   }
 
   /* With motion off — or with no Motion at all — there is no sprite, so the

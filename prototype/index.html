@@ -958,6 +958,11 @@
         <span class="sx-mv-stage" aria-hidden="true"></span>
         <button class="sx-mv-mascot" id="sx-mv-mascot" type="button"
                 data-pose="vibe" aria-label="Make the mascot dance"></button>
+        <!-- What it is vibing TO. Empty in the markup: every note is spawned,
+             flown and thrown away by script, because the whole point is that
+             there is never a fixed number of them in a fixed place. A
+             zero-sized anchor on the head is all the stylesheet needs. -->
+        <span class="sx-mv-notes" id="sx-mv-notes" aria-hidden="true"></span>
       </div>
     </div>
 
@@ -1083,13 +1088,12 @@
       </div>
 
     <div class="sx-wrap sx-mv-foot">
-      <!-- A real control, not just hover-to-hold. Anything that moves on its
-           own has to be stoppable by someone who is not holding a mouse. -->
-      <button class="sx-mv-toggle" id="sx-mv-toggle" type="button" aria-pressed="false">
-        <span class="sx-mv-toggle-i" aria-hidden="true"></span>
-        <span class="sx-mv-toggle-l">Pause</span>
-      </button>
-      <p class="sx-mv-count"><span id="sx-mv-n">14</span> pieces &middot; portrait and landscape</p>
+      <!-- The pause button is gone; the strip itself is the control now. Hover
+           holds it, drag throws it, the wheel scrubs it — so what used to be a
+           labelled widget under the reel is a line of text saying where the
+           controls actually are. -->
+      <p class="sx-mv-count"><span id="sx-mv-n">14</span> pieces &middot; portrait and landscape
+      &middot; <span class="sx-mv-how">drag or scroll to browse</span></p>
     </div>
   </section>
 
