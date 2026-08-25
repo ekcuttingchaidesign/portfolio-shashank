@@ -778,14 +778,21 @@
        it replaces, and it costs no vertical room at all — which is the thing
        the old note had concluded was impossible.
 
-       The horizontal drift is free money: the cone bleeds off the right edge
-       already, so it has a whole viewport of room on that axis and nothing to
-       collide with. */
+       The horizontal drift is where most of the visible movement now lives, and
+       the DIRECTION of it is the correction. The cone bleeds 35% of its width off
+       the right edge, so it has the same problem the section ledge had: drifting
+       it further right spends the motion outside the frame where nobody can see
+       it, and growing it does the same. The first pass moved it right, which is
+       why it read as nothing.
+
+       So it travels LEFT as you scroll, out of the bleed and into the page, and
+       back again. Crossing the frame edge is what makes it legible — the shape
+       is revealed and re-hidden against a boundary the eye is already using. */
     const cone = document.getElementById('sx-st-cone');
     if (cone) {
       M.scroll(
         M.animate(cone,
-          { y: [-30, 46], x: [-12, 30], rotate: [-6, 4], scale: [0.88, 1.16] },
+          { y: [-44, 76], x: [46, -98], rotate: [-12, 8], scale: [0.74, 1.34] },
           { duration: 1, ease: 'linear' }),
         { target: stGrid, offset: ['start 1', 'end 0'] }
       );
@@ -2126,8 +2133,39 @@
     const noteHost = document.getElementById('sx-mv-notes');
     let notesOn = false, noteTimer = 0, standSeen = true;
 
+    /* A note's whole flight, sampled rather than keyframed.
+
+       The first version had four keyframes with three different easings between
+       them, and that is exactly why it read as jerky: every boundary between two
+       different easing curves is a step change in VELOCITY. The eye does not see
+       the positions, it sees the sudden changes in speed, and there were three of
+       them in under two seconds.
+
+       So the path is now a continuous function sampled at thirty points with
+       `linear` between each — piecewise-linear through a smooth curve is smooth,
+       and there is no boundary anywhere for a velocity to jump at.
+
+       The function is a balloon, which is a specific thing and not just "slow":
+         · it rises at CONSTANT speed. Buoyancy does not ease out, and an
+           ease-out rise is the single thing that most makes a floating object
+           read as an animation instead of as an object.
+         · it sways side to side on a long lazy period, and the sway WIDENS as it
+           climbs — higher air is looser air.
+         · it rocks in step with the sway, a beat behind it, the way a balloon
+           hangs off its own string.
+         · it never shrinks. Things that recede shrink; things that drift toward
+           you swell slightly, and a balloon does the latter.
+         · it thins out rather than switching off — the fade takes the whole top
+           two-fifths of the flight. */
+    const smooth = u => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
+
     const spawnNote = () => {
       if (!noteHost || !mascot) return;
+      /* Two or three in the air, never a swarm. The cadence below mostly keeps
+         it there; this is the ceiling that holds even if a tab wakes up with
+         several beats owed. */
+      if (noteHost.childElementCount >= 3) return;
+
       const w = mascot.getBoundingClientRect().width || 140;
       const el = document.createElement('span');
       el.className = 'sx-mv-note';
@@ -2135,40 +2173,42 @@
 
       /* Which shoulder it comes off, and how far out. Notes that all rise from
          one point read as a fountain; off both sides at different distances and
-         different heights they read as coming off a character. Every number is
-         a share of the mascot's own width, so the scatter scales with it. */
+         heights they read as coming off a character. Every number is a share of
+         the mascot's own width, so the scatter scales with it. */
       const side  = Math.random() < 0.5 ? -1 : 1;
-      const x0    = side * w * (0.14 + Math.random() * 0.30);
-      const y0    = w * (Math.random() * 0.16 - 0.05);
-      const rise  = w * (0.58 + Math.random() * 0.46);
-      const dx    = side * w * (0.10 + Math.random() * 0.28);
-      const sway  = 8 + Math.random() * 13;
-      const r0    = Math.random() * 26 - 13;
-      const size  = w * (0.10 + Math.random() * 0.055);
+      const x0    = side * w * (0.13 + Math.random() * 0.26);
+      const y0    = w * (Math.random() * 0.14 - 0.04);
+      const rise  = w * (0.80 + Math.random() * 0.55);
+      const dx    = side * w * (0.05 + Math.random() * 0.16);
+      const amp   = w * (0.045 + Math.random() * 0.055);   /* sway */
+      const turns = 0.85 + Math.random() * 0.7;            /* sway cycles per flight */
+      const phase = Math.random() * Math.PI * 2;
+      const tilt  = 7 + Math.random() * 9;
+      const r0    = Math.random() * 16 - 8;
+      const size  = w * (0.085 + Math.random() * 0.038);
       el.style.setProperty('--n-size', size.toFixed(1) + 'px');
 
-      const at = (fx, fy, rot, sc, op) => ({
-        transform: 'translate3d(' + (x0 + dx * fx).toFixed(1) + 'px, '
-                                  + (y0 - rise * fy).toFixed(1) + 'px, 0) '
-                 + 'rotate(' + rot.toFixed(1) + 'deg) scale(' + sc + ')',
-        opacity: String(op),
-      });
+      const STEPS = 30, PEAK = 0.88;
+      const keys = [];
+      for (let i = 0; i <= STEPS; i++) {
+        const t = i / STEPS;
+        const wob = Math.sin(phase + t * Math.PI * 2 * turns);
+        const y   = y0 - rise * t;
+        const x   = x0 + dx * t + amp * wob * (0.4 + t);
+        const rot = r0 + tilt * Math.sin(phase + t * Math.PI * 2 * turns - 0.55);
+        const sc  = (0.66 + 0.34 * smooth(t / 0.20)) * (1 + t * 0.06);
+        const op  = smooth(t / 0.12) * (1 - smooth((t - 0.58) / 0.42));
+        keys.push({
+          offset: t,
+          transform: 'translate3d(' + x.toFixed(2) + 'px, ' + y.toFixed(2) + 'px, 0) '
+                   + 'rotate(' + rot.toFixed(2) + 'deg) scale(' + sc.toFixed(3) + ')',
+          opacity: (op * PEAK).toFixed(3),
+          easing: 'linear',
+        });
+      }
 
       noteHost.appendChild(el);
-      /* Pops in, drifts up and across on a lazy S, then thins out at the top.
-         It never fades from full — the last quarter is where all the fade is,
-         so a note is solid for as long as it is worth looking at and then it
-         is simply not there. */
-      const a = el.animate([
-        { ...at(0,    0,    r0,               0.35, 0),    offset: 0,
-          easing: 'cubic-bezier(.2,.7,.3,1)' },
-        { ...at(0.28, 0.27, r0 + sway,        1,    1),    offset: 0.22,
-          easing: 'linear' },
-        { ...at(0.72, 0.68, r0 - sway * 0.7,  1,    0.95), offset: 0.64,
-          easing: 'cubic-bezier(.4,0,.7,.4)' },
-        { ...at(1,    1,    r0 + sway * 1.4,  0.82, 0),    offset: 1 },
-      ], { duration: 1700 + Math.random() * 900, fill: 'forwards' });
-
+      const a = el.animate(keys, { duration: 3600 + Math.random() * 1600, fill: 'forwards' });
       const drop = () => el.remove();
       a.onfinish = drop;
       a.oncancel = drop;
@@ -2179,8 +2219,12 @@
       if (!notesOn) return;
       spawnNote();
       /* Uneven on purpose. A fixed interval is a metronome, and a metronome is
-         the one thing music notes must not look like. */
-      noteTimer = setTimeout(noteBeat, 250 + Math.random() * 430);
+         the one thing music notes must not look like.
+
+         Against a four-and-a-bit-second flight this keeps two or three in the
+         air. It was 250-680ms, which put five or six up at once and turned a
+         character humming along into a character being swarmed. */
+      noteTimer = setTimeout(noteBeat, 1500 + Math.random() * 1100);
     };
 
     function syncNotes() {
@@ -2381,24 +2425,49 @@
   const mvLedge = document.querySelector('.sx-mv-ledge');
   const mvSection = document.getElementById('sx-move');
   if (mvLedge && mvSection && M && M.scroll && !reduced) {
-    /* Vertical travel is a share of the VIEWPORT, not of the section: the
-       parallax is against the window the reader is looking through, and a
-       fixed pixel figure is a different effect on a laptop and a monitor. */
-    const DRIFT = 0.085;   /* of the viewport, each way — ~160px total at 950 */
-    const DEPTH = 165;     /* px toward a camera 1100 out: 0.87x to 1.18x */
-    const TIP   = 5.5;     /* degrees, each way */
+    /* --- why the first pass at this was invisible ---
+       It moved the ledge 160px vertically and grew it from 0.87x to 1.18x, and
+       measured on its own element every one of those numbers was doing what it
+       said. On the page you could not see any of it, and the reason is the one
+       thing the numbers do not describe: WHERE THE SHAPE IS.
+
+       The ledge is anchored off the left edge of the window and about a third of
+       it is already outside. So it is clipped, and a clipped shape hides exactly
+       the two cues this was spending its whole budget on. Growth pushes the new
+       pixels off the edge — measured across a full pass, the ledge's width went
+       148px to 180px while the part you can SEE went 120px to 127px. Seven
+       pixels. And vertical drift against a page that is itself scrolling is a
+       differential, so 160px spread over 1850px of scroll is a 9% difference
+       nobody reads as movement.
+
+       The fix is not bigger numbers on the same axes, it is the RIGHT AXIS. For
+       a shape pinned to an edge, the legible move is across that edge: the ledge
+       now slides out of the corner and back into it, which is unmissable because
+       the boundary it crosses is the frame itself. The depth and the tip stay,
+       and they are bigger, but they are now the seasoning rather than the meal.
+
+       The X sign looks backwards and is not. `scale: -1 1` mirrors the element,
+       and individual transform properties apply OUTSIDE `transform` — so the
+       translate happens first in local space and is then flipped. Negative x
+       here moves the ledge RIGHT on screen, out of the corner.
+       ---------------------------------------------------------------------- */
+    const REVEAL = 128;    /* px across the frame edge — the move you actually see */
+    const DRIFT  = 0.16;   /* of the viewport, each way, against the page */
+    const DEPTH  = 300;    /* px toward a camera 1100 out: 0.79x to 1.38x */
+    const TIP    = 10;     /* degrees, each way */
     M.scroll(p => {
       const s = clamp01(p) * 2 - 1;
       const vh = innerHeight || 800;
+      mvLedge.style.setProperty('--sx-mvl-x', (-s * REVEAL).toFixed(1) + 'px');
       mvLedge.style.setProperty('--sx-mvl-y', (-s * vh * DRIFT).toFixed(1) + 'px');
       mvLedge.style.setProperty('--sx-mvl-z', (s * DEPTH).toFixed(1) + 'px');
       mvLedge.style.setProperty('--sx-mvl-r', (s * TIP).toFixed(2) + 'deg');
       /* Cubed, so the fade is nothing at all through the middle of the pass and
-         only bites at the two ends — where the shape is furthest from its home
-         and closest to reading as a stray green wedge rather than as the
-         hero's corner answering itself. */
+         only bites at the two ends — where the shape is furthest from home and
+         closest to reading as a stray green wedge rather than as the hero's
+         corner answering itself. */
       mvLedge.style.setProperty('--sx-mvl-o',
-        (1 - Math.pow(Math.abs(s), 3) * 0.5).toFixed(3));
+        (1 - Math.pow(Math.abs(s), 3) * 0.45).toFixed(3));
     }, { target: mvSection, offset: ['start end', 'end start'] });
   }
 
