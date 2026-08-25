@@ -1154,20 +1154,44 @@
 .cc-rail {
   position: relative;
   z-index: 1;
-  margin-top: clamp(2rem, 5vw, 3.5rem);
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  padding-inline: var(--sx-gut);
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  /* Room for the hover lift, the same lesson the reel taught: an overflow that
-     clips one axis clips the other, so the lift needs headroom inside the box. */
-  --cc-lift-room: 24px;
-  padding-block: var(--cc-lift-room);
-  margin-bottom: calc(-1 * var(--cc-lift-room));
+  /* --- room for the shadow, not just for the lift ---
+     Same trap as the reel and a much bigger one, because the thing needing room
+     here is not an 8px lift but a 77px BLUR. `overflow-x: auto` cannot leave the
+     other axis visible — the spec turns a `visible` partner into `auto`, which
+     would put a vertical scrollbar on a horizontal rail — so the box clips on Y
+     whatever we do, and the only way out is to make the box big enough.
+
+     The numbers are derived rather than guessed. A CSS blur of B feathers about
+     B/2 past the shadow rectangle's edge, and the rectangle is the card offset
+     by the shadow's own x/y:
+
+                       below   above    left   right
+         rest   -9/18/77       56.5px  20.5px  47.5px  29.5px
+         hover -12/26/88 (+8)  62.0px  26.0px  56.0px  32.0px
+
+     At 24px all round the bottom was 38px short, and a Gaussian falloff cut
+     mid-slope is exactly the hard horizontal line that showed up under the
+     cards. These are the worst case of the two rows, rounded up.
+
+     The margins give every pixel of it back, so this is pure clearance and
+     nothing on the page moves. */
+  --cc-room-top: 32px;
+  --cc-room-bottom: 72px;
+  --cc-room-side: 60px;
+  padding-top: var(--cc-room-top);
+  padding-bottom: var(--cc-room-bottom);
+  /* The side room only ever ADDS to the gutter — at wide widths the gutter is
+     already bigger than the shadow needs, and at narrow ones this tops it up. */
+  padding-inline: max(var(--sx-gut), var(--cc-room-side));
+  margin-top: calc(clamp(2rem, 5vw, 3.5rem) - var(--cc-room-top));
+  margin-bottom: calc(-1 * var(--cc-room-bottom));
 }
 .cc-rail::-webkit-scrollbar { display: none; }
 .cc-track {
