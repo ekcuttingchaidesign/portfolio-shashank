@@ -1138,7 +1138,30 @@
      right edge bleeds with it and loses a character to the crop. 30% keeps all
      three in frame at every width while the ground still leaves the page. */
   right: 30%;
-  bottom: calc(100% * 92 / 300);
+  /* --- standing ON the platform, solved rather than eyeballed ---
+     92/300 floated them 8px clear of the ground at a 620px stage, and the reason
+     is a mismatch between two assets' internal padding that no amount of
+     nudging would have explained:
+
+       · mascot_meme.png ends its artwork 5px from the bottom of a 542px canvas,
+         so the shoes are effectively AT the image's foot;
+       · platform_strip_black.svg puts its walking surface 28px down a 112px
+         canvas, so the top face is a quarter of the way into the box rather
+         than at its top edge.
+
+     Solving that puts the crew's box at 0.0957 W, which is 81/300, and the
+     browser agrees — at 81 the shoes land dead on the surface. This sits one
+     unit below, planting them 0.7px in, because a figure balanced exactly on a
+     line reads as hovering over it where one planted a hair in reads as
+     standing on it.
+
+     Swept and measured rather than eyeballed:
+       92/300  8.1px floating   <- what was shipped
+       84/300  2.2px floating
+       81/300  dead on
+       80/300  0.7px planted    <- here
+       78/300  2.2px planted                                                  */
+  bottom: calc(100% * 80 / 300);
   width: 58%;
   height: auto;
   transform: translate3d(var(--cc-walk, 0px), 0, 0);
