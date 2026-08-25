@@ -2149,22 +2149,40 @@
          · it rises at CONSTANT speed. Buoyancy does not ease out, and an
            ease-out rise is the single thing that most makes a floating object
            read as an animation instead of as an object.
-         · it sways side to side on a long lazy period, and the sway WIDENS as it
-           climbs — higher air is looser air.
+         · it sways side to side, and the sway WIDENS as it climbs — higher air
+           is looser air.
          · it rocks in step with the sway, a beat behind it, the way a balloon
            hangs off its own string.
          · it never shrinks. Things that recede shrink; things that drift toward
            you swell slightly, and a balloon does the latter.
-         · it thins out rather than switching off — the fade takes the whole top
-           two-fifths of the flight. */
+         · it thins out rather than switching off, over the top third.
+
+       --- on the tempo ---
+       The smooth version of this was also a SLOW version of it, and those two
+       things were never the same requirement. The first pass was jerky and
+       lively; the second was smooth and sleepy, and the sleepiness was the part
+       that stopped matching the character — the mascot is vibing at up to 1.8x
+       through a twelve-frame loop, and notes taking five seconds to clear its
+       head belong to a different animal.
+
+       So the smoothness stays, because that came from the sampling and costs
+       nothing, and the TIMING goes back to roughly where it was: a flight of two
+       to three seconds against the old 1.7-2.6, and a pop-in rather than a swell.
+       What does not go back is the count — three or four in the air, not six.
+       Lively is a rate of change; a swarm is just a lot of objects.
+
+       The sway period is set against the vibe's own 1.9s cycle rather than
+       against the note's duration, so the notes and the dance share a beat
+       instead of drifting through each other. That is the one thing here that is
+       new rather than recovered. */
     const smooth = u => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
 
     const spawnNote = () => {
       if (!noteHost || !mascot) return;
-      /* Two or three in the air, never a swarm. The cadence below mostly keeps
+      /* Three or four in the air, never a swarm. The cadence below mostly keeps
          it there; this is the ceiling that holds even if a tab wakes up with
          several beats owed. */
-      if (noteHost.childElementCount >= 3) return;
+      if (noteHost.childElementCount >= 4) return;
 
       const w = mascot.getBoundingClientRect().width || 140;
       const el = document.createElement('span');
@@ -2178,15 +2196,22 @@
       const side  = Math.random() < 0.5 ? -1 : 1;
       const x0    = side * w * (0.13 + Math.random() * 0.26);
       const y0    = w * (Math.random() * 0.14 - 0.04);
-      const rise  = w * (0.80 + Math.random() * 0.55);
+      const rise  = w * (0.72 + Math.random() * 0.50);
       const dx    = side * w * (0.05 + Math.random() * 0.16);
-      const amp   = w * (0.045 + Math.random() * 0.055);   /* sway */
-      const turns = 0.85 + Math.random() * 0.7;            /* sway cycles per flight */
+      const amp   = w * (0.05 + Math.random() * 0.055);    /* sway */
       const phase = Math.random() * Math.PI * 2;
-      const tilt  = 7 + Math.random() * 9;
+      const tilt  = 8 + Math.random() * 10;
       const r0    = Math.random() * 16 - 8;
       const size  = w * (0.085 + Math.random() * 0.038);
       el.style.setProperty('--n-size', size.toFixed(1) + 'px');
+
+      /* Two to three seconds, near where the first version was. */
+      const dur = 2000 + Math.random() * 900;
+      /* Sway cycles measured against the VIBE's cycle, not against the note's
+         own duration — so a short flight gets fewer sways rather than faster
+         ones, and every note is swinging on the same beat the character is
+         dancing to. */
+      const turns = (dur / POSES.vibe.cycle) * (0.62 + Math.random() * 0.34);
 
       const STEPS = 30, PEAK = 0.88;
       const keys = [];
@@ -2196,8 +2221,10 @@
         const y   = y0 - rise * t;
         const x   = x0 + dx * t + amp * wob * (0.4 + t);
         const rot = r0 + tilt * Math.sin(phase + t * Math.PI * 2 * turns - 0.55);
-        const sc  = (0.66 + 0.34 * smooth(t / 0.20)) * (1 + t * 0.06);
-        const op  = smooth(t / 0.12) * (1 - smooth((t - 0.58) / 0.42));
+        /* Pops in over the first eighth rather than swelling over the first
+           fifth — the snap the original had, kept smooth by the smoothstep. */
+        const sc  = (0.48 + 0.52 * smooth(t / 0.13)) * (1 + t * 0.07);
+        const op  = smooth(t / 0.09) * (1 - smooth((t - 0.66) / 0.34));
         keys.push({
           offset: t,
           transform: 'translate3d(' + x.toFixed(2) + 'px, ' + y.toFixed(2) + 'px, 0) '
@@ -2208,7 +2235,7 @@
       }
 
       noteHost.appendChild(el);
-      const a = el.animate(keys, { duration: 3600 + Math.random() * 1600, fill: 'forwards' });
+      const a = el.animate(keys, { duration: dur, fill: 'forwards' });
       const drop = () => el.remove();
       a.onfinish = drop;
       a.oncancel = drop;
@@ -2221,10 +2248,12 @@
       /* Uneven on purpose. A fixed interval is a metronome, and a metronome is
          the one thing music notes must not look like.
 
-         Against a four-and-a-bit-second flight this keeps two or three in the
-         air. It was 250-680ms, which put five or six up at once and turned a
-         character humming along into a character being swarmed. */
-      noteTimer = setTimeout(noteBeat, 1500 + Math.random() * 1100);
+         Against a two-and-a-half-second flight this keeps three or so in the
+         air. The first version's 250-680ms put five or six up and turned a
+         character humming along into a character being swarmed; 1500-2600 then
+         over-corrected into one note at a time drifting through a long silence.
+         This sits between them, which is where it should have been. */
+      noteTimer = setTimeout(noteBeat, 620 + Math.random() * 560);
     };
 
     function syncNotes() {
