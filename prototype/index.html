@@ -1097,34 +1097,98 @@
     </div>
   </section>
 
-  <!-- ---------- 5 · BUILT WITH AI ---------- -->
-  <section id="sx-archive">
-    <div class="sx-wrap">
-      <div class="sx-arch-h" data-reveal>
-        <h3>Built with AI</h3>
-        <p class="sx-mono">2 · run inline</p>
-      </div>
-      <div class="sx-row" data-cols="2" data-stagger="90">
-        <figure class="sx-tile sx-ai" data-reveal data-tile>
-          <div class="sx-ai-shot">
-            <img src="../public/img/poprush-cover.png" alt="Poprush cover art"
-                 width="1672" height="941" loading="lazy" decoding="async">
-          </div>
-          <figcaption>
-            <span class="sx-ai-name">Poprush</span>
-            <span class="sx-mono">Rive · plays in the page</span>
-          </figcaption>
-        </figure>
-        <figure class="sx-tile sx-ai" data-reveal data-tile>
-          <div class="sx-ai-shot" data-empty="upbusdriver.wtf"><span class="sx-sheen"></span></div>
-          <figcaption>
-            <span class="sx-ai-name">upbusdriver.wtf</span>
-            <span class="sx-mono">Built and shipped solo</span>
-          </figcaption>
-        </figure>
+  <!-- ---------- 5 · BUILT WITH CLAUDE CODE ----------
+       The one section on the page that is not the machine's ground, and the
+       break is the point: everything above is a portfolio being shown to you,
+       this is the part that was PLAYED. So it is a level — a pixel sky with a
+       crenellated ceiling, clouds at three depths, a crew walking a platform,
+       and a crab patrolling the floor.
+
+       Green rather than white, and that is a structural choice rather than a
+       taste one. This section sits immediately above .sx-seam-paper, which is
+       the page's one big tonal event: the dusk gradient that carries the
+       machine's black into the paper the Experience section is printed on. A
+       white block here would put light against light and spend that transition
+       on nothing. Green keeps the seam's job intact, makes the white cards pop
+       instead of dissolving, and picks up the green that already runs through
+       the page in the hero ledges and the cone.
+
+       Both themes are still here. data-cc-theme on the section is the whole
+       switch — every asset is a single-colour path drawn through a MASK, so the
+       colour is the stylesheet's and swapping themes recolours the artwork
+       without touching a file.
+       -------------------------------------------------------------------- */
+  -->
+  <section id="sx-cc" data-cc-theme="green">
+    <!-- The ceiling. Sits above the section's own box so the teeth bite up
+         into the dark of Things That Move. -->
+    <span class="cc-edge cc-edge--top" aria-hidden="true"></span>
+
+    <!-- Three depths. The far clouds barely move, the near ones drift a long
+         way — which is the whole of a side-scroller's sense of distance. -->
+    <div class="cc-sky" aria-hidden="true">
+      <!-- Placed around the furniture, not on top of it: the wordmark owns the
+           left third and the crew owns the right, so the sky lives in the band
+           above them both and in the gap between them. A cloud behind black
+           pixel letters reads as a rendering fault rather than as weather. -->
+      <span class="cc-cloud" style="--cx:2%;  --cy:5%;  --cs:.5;  --cd:.16"></span>
+      <span class="cc-cloud" style="--cx:40%; --cy:9%;  --cs:.45; --cd:.12"></span>
+      <span class="cc-cloud" style="--cx:63%; --cy:3%;  --cs:.55; --cd:.26"></span>
+      <span class="cc-cloud" style="--cx:88%; --cy:8%;  --cs:.7;  --cd:.45"></span>
+      <span class="cc-cloud" style="--cx:50%; --cy:29%; --cs:.95; --cd:.34"></span>
+    </div>
+
+    <div class="sx-wrap cc-head">
+      <div class="cc-title" data-reveal>
+        <p class="cc-kicker">Built with</p>
+        <!-- The wordmark is artwork, so the text lives in the heading for
+             anything that cannot see it and the picture is decoration. -->
+        <h2 class="cc-word"><span class="cc-word-art" aria-hidden="true"></span>Claude Code</h2>
       </div>
 
+      <div class="cc-stage" aria-hidden="true">
+        <span class="cc-platform"></span>
+        <img class="cc-crew" src="../public/img/mascot_meme.png" alt=""
+             width="813" height="542" loading="lazy" decoding="async">
+      </div>
     </div>
+
+    <!-- A rail rather than a row, because there are two of these today and
+         there will be more. Native scroll with snap points: it is a carousel at
+         any length, it works on touch and with a keyboard, and adding a card is
+         adding a card. -->
+    <div class="cc-rail" id="cc-rail">
+      <ul class="cc-track">
+        <li class="cc-card" data-reveal>
+          <a class="cc-card-in" href="#" aria-label="Poprush — mini time tickle game built in Rive">
+            <span class="cc-shot">
+              <img src="../public/img/poprush%20new.png" alt="Poprush cover art"
+                   width="1672" height="941" loading="lazy" decoding="async">
+            </span>
+            <span class="cc-meta">
+              <span class="cc-name">Poprush</span>
+              <span class="cc-desc">Mini time tickle game built in Rive</span>
+            </span>
+          </a>
+        </li>
+        <li class="cc-card" data-reveal>
+          <a class="cc-card-in" href="#" aria-label="upbusdriver.wtf — a jukebox that plays bollywood 90s bangers">
+            <span class="cc-shot">
+              <img src="../public/img/uproadways.png" alt="upbusdriver.wtf screenshot"
+                   width="1200" height="630" loading="lazy" decoding="async">
+            </span>
+            <span class="cc-meta">
+              <span class="cc-name">upbusdriver.wtf</span>
+              <span class="cc-desc">A jukebox that plays bollywood 90s bangers</span>
+            </span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- The floor, and the thing that walks it. -->
+    <span class="cc-crab" aria-hidden="true"></span>
+    <span class="cc-edge cc-edge--bottom" aria-hidden="true"></span>
   </section>
 
   <div class="sx-seam-paper" aria-hidden="true"></div>
