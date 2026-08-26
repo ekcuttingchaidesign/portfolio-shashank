@@ -960,9 +960,21 @@
   --cc-ink:     #000;      /* wordmark and platform */
   --cc-cloud:   #EAEAEA;
   --cc-crab:    #000;
+  /* The card is two background layers, not one: the body is clipped to the
+     padding box and the stroke fills the border box behind a transparent 1px
+     border. That is what lets a BORDER carry a gradient, which no border-color
+     can. Both themes go through the same mechanism — green just happens to
+     supply white for both layers — so the theme stays a set of values and never
+     becomes a second set of rules. */
+  --cc-card-body:  linear-gradient(180deg, #FFF 0%, #FFF 100%);
+  --cc-card-edge:  linear-gradient(180deg, #FFF 0%, #FFF 100%);
+  --cc-card-title: #111;
+  --cc-card-sub:   #6B6B6B;
+  --cc-shot-bg:    #EDEDED;
+  /* The temporary theme switch keeps its own pair, so it stays a white chip
+     with dark type in both themes rather than inverting with the cards. */
   --cc-card:    #FFF;
   --cc-card-ink:#111;
-  --cc-card-sub:#6B6B6B;
 
   position: relative;
   z-index: 0;
@@ -987,6 +999,18 @@
   --cc-ceiling: #FFF;
   --cc-ground:  #57C74B;
   --cc-crab:    #D97757;   /* the delivered terracotta, which needs a light ground */
+  /* The cards invert on this theme. On a white level a white card had nothing
+     to sit against and was held up by its shadow alone; dark plates give the
+     covers a frame and the section its contrast back. Gradients are the
+     delivered values, top to bottom, which is the axis Figma's linear default
+     uses. */
+  --cc-card-body:  linear-gradient(180deg, #151515 0%, #000000 50%, #1A1A1A 100%);
+  --cc-card-edge:  linear-gradient(180deg, #6E6E6E 0%, #4E4D4D 100%);
+  --cc-card-title: #FFF;
+  --cc-card-sub:   #BABABA;
+  /* The cover placeholder follows the plate, or it flashes a light rectangle
+     inside a dark card while the image is still arriving. */
+  --cc-shot-bg:    #101010;
 }
 
 /* --- the ceiling and the floor ---
@@ -1241,7 +1265,13 @@
 }
 .cc-card-in {
   display: block;
-  background: var(--cc-card);
+  /* Two layers and a transparent border — see the note on the tokens. The body
+     is clipped to the padding box; the stroke gradient fills the border box and
+     shows through the 1px the border leaves for it. */
+  border: 1px solid transparent;
+  background:
+    var(--cc-card-body) padding-box,
+    var(--cc-card-edge) border-box;
   border-radius: 22px;
   padding: 14px 14px 18px;
   text-decoration: none;
@@ -1256,7 +1286,7 @@
   aspect-ratio: 16 / 10;
   border-radius: 14px;
   overflow: hidden;
-  background: #EDEDED;
+  background: var(--cc-shot-bg);
 }
 .cc-shot img {
   width: 100%; height: 100%;
@@ -1272,7 +1302,7 @@
   font-family: var(--sx-ui);
   font-weight: 700;
   font-size: clamp(1rem, 1.5vw, 1.25rem);
-  color: var(--cc-card-ink);
+  color: var(--cc-card-title);
 }
 .cc-desc {
   display: block;
