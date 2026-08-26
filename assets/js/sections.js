@@ -2563,6 +2563,22 @@
       }, { target: ccSection, offset: ['start end', 'end start'] });
     }
 
+    /* --- the ledge arrives first ---
+       The ground was static while the crew walked onto it, which reads as a
+       set that was always there and a character who wasn't. Now both slide in
+       and the LEDGE leads: a shorter travel over a window that closes sooner,
+       so it is settled by the time the crew catches up to it. Minor on purpose
+       — enough that the ground feels placed rather than painted on, not enough
+       to become a second entrance competing with the walk. */
+    const ccLedge = ccSection.querySelector('.cc-ledge');
+    if (ccLedge) {
+      M.scroll(p => {
+        const left = 1 - clamp01(p);
+        ccLedge.style.setProperty('--cc-ledge-x',
+          (left * left * (innerWidth || 1200) * 0.16).toFixed(1) + 'px');
+      }, { target: ccSection, offset: ['start 1', 'start 0.56'] });
+    }
+
     if (ccCrew) {
       /* Arrives by the time the section is properly on screen and then stays
          put — the walk is an entrance, not a ride. Squared falloff so they are
