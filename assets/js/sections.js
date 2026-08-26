@@ -2542,33 +2542,6 @@
      ====================================================================== */
   const ccSection = document.getElementById('sx-cc');
 
-  /* TEMPORARY — flips the section between the two themes so both can be judged
-     on the real page. Remove alongside the button in the markup and the
-     .cc-switch rules in the stylesheet once the theme is chosen; nothing else
-     depends on it, because the themes are pure CSS off data-cc-theme.
-     The choice is remembered so a reload does not lose it mid-comparison. */
-  const ccSwitch = document.getElementById('cc-switch');
-  if (ccSection && ccSwitch) {
-    const label = ccSwitch.querySelector('.cc-switch-l');
-    const paint = theme => {
-      ccSection.dataset.ccTheme = theme;
-      ccSwitch.setAttribute('aria-pressed', theme === 'white' ? 'true' : 'false');
-      if (label) label.textContent = theme === 'white' ? 'Green theme' : 'White theme';
-    };
-    /* Paint from the markup's own default first, so the button's label and
-       pressed state always describe what is actually on screen rather than
-       whichever theme happened to be the default when it was written. */
-    paint(ccSection.dataset.ccTheme === 'white' ? 'white' : 'green');
-    let saved = null;
-    try { saved = localStorage.getItem('sx-cc-theme'); } catch (_) {}
-    if (saved === 'white' || saved === 'green') paint(saved);
-    ccSwitch.addEventListener('click', () => {
-      const next = ccSection.dataset.ccTheme === 'white' ? 'green' : 'white';
-      paint(next);
-      try { localStorage.setItem('sx-cc-theme', next); } catch (_) {}
-    });
-  }
-
   if (ccSection && M && M.scroll && !reduced) {
     const ccSky = ccSection.querySelector('.cc-sky');
     const ccCrew = ccSection.querySelector('.cc-crew');
@@ -2601,6 +2574,80 @@
           (left * left * (innerWidth || 1200) * 0.55).toFixed(1) + 'px');
       }, { target: ccSection, offset: ['start 0.98', 'start 0.42'] });
     }
+  }
+
+  /* --- picking a card up ---
+     The same machinery the More Stories cards use, and deliberately so: this
+     page already has a way cards answer a pointer, and a second one would be a
+     second thing to learn. The plate tips after the pointer, lifts, and the art
+     inside drifts AGAINST the tilt — that last part is what gives the plate a
+     thickness rather than just making the picture bigger.
+
+     Springs rather than a transition, because a transition retargeted sixty
+     times a second is a thing perpetually catching up with the pointer, where a
+     spring is already a model of catching up. The handler does no animation
+     work at all: it sets four numbers. */
+  if (ccSection && M && M.motionValue && M.springValue && !reduced
+      && matchMedia('(hover: hover)').matches) {
+    /* The plate is heavier than the art it carries, so it arrives a little
+       later and settles without wobbling; the art is light and can chase. */
+    const PLATE = { stiffness: 260, damping: 26, mass: 1.1 };
+    const ART   = { stiffness: 180, damping: 24, mass: 1 };
+    const TILT = 5;      /* degrees at the corner */
+    const DRIFT = 12;    /* px the cover travels against the tilt */
+    const LIFT = -12;    /* px toward the reader */
+
+    ccSection.querySelectorAll('.cc-card-in').forEach(plate => {
+      const art = plate.querySelector('.cc-shot img');
+
+      const spring = (unit, prop, target, cfg, rest) => {
+        const raw = M.motionValue(rest);
+        M.springValue(raw, cfg).on('change', v => {
+          target.style.setProperty(prop, v.toFixed(3) + unit);
+        });
+        return raw;
+      };
+      const rx   = spring('deg', '--cc-rx',   plate, PLATE, 0);
+      const ry   = spring('deg', '--cc-ry',   plate, PLATE, 0);
+      const lift = spring('px',  '--cc-lift', plate, PLATE, 0);
+      const pop  = spring('',    '--cc-pop',  plate, PLATE, 1);
+      const ax   = art ? spring('px', '--cc-art-x', art, ART, 0) : null;
+      const ay   = art ? spring('px', '--cc-art-y', art, ART, 0) : null;
+      const as   = art ? spring('',   '--cc-art-s', art, ART, 1) : null;
+
+      /* Read off the CARD, not the plate. The plate is the thing being tilted,
+         so measuring it would feed the tilt back into its own input. */
+      const card = plate.closest('.cc-card') || plate;
+      let px = 0, py = 0, queued = 0;
+      const write = () => {
+        queued = 0;
+        rx.set(-py * 2 * TILT);
+        ry.set( px * 2 * TILT);
+        if (ax) { ax.set(-px * DRIFT); ay.set(-py * DRIFT); }
+      };
+
+      plate.addEventListener('pointermove', e => {
+        if (e.pointerType === 'touch') return;
+        const r = card.getBoundingClientRect();
+        px = (e.clientX - r.left) / r.width  - .5;
+        py = (e.clientY - r.top)  / r.height - .5;
+        /* Coalesced to one write per frame — a pointer fires well above display
+           rate and the springs only read their target once a frame. */
+        if (!queued) queued = requestAnimationFrame(write);
+      });
+      plate.addEventListener('pointerenter', e => {
+        if (e.pointerType === 'touch') return;
+        lift.set(LIFT); pop.set(1.02); if (as) as.set(1.06);
+      });
+      const settle = () => {
+        if (queued) { cancelAnimationFrame(queued); queued = 0; }
+        rx.set(0); ry.set(0); lift.set(0); pop.set(1);
+        if (ax) { ax.set(0); ay.set(0); as.set(1); }
+      };
+      plate.addEventListener('pointerleave', settle);
+      plate.addEventListener('pointercancel', settle);
+      addEventListener('blur', settle);
+    });
   }
 
   /* ------------------------------------------------------------------------

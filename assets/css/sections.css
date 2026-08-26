@@ -938,46 +938,34 @@
    crenellated ceiling, clouds at three depths, a crew on a platform and a crab
    patrolling the floor.
 
-   --- the two themes ---
-   Every asset in here is a single-colour path, so none of them is drawn as an
-   image: each is a MASK with a background-color behind it. That is what makes
-   the theme a set of tokens rather than a set of files — data-cc-theme swaps
-   six custom properties and the whole level is repainted, artwork included,
-   with no second copy of any SVG.
+   --- how it is painted ---
+   Almost every asset in here is a single-colour path, so none of those is drawn
+   as an image: each is a MASK with a background-color behind it, and the colour
+   is the stylesheet's rather than the file's. That began as a way to carry two
+   themes on one set of files; the second theme is gone now and the mechanism
+   stayed, because it is still the cheapest way to keep a palette in one place.
 
-   Green is the default and the reason is structural rather than aesthetic. This
-   section sits directly above .sx-seam-paper, the dusk gradient that carries
-   the machine's black into the paper the Experience section is printed on —
-   the one big tonal event on the page. White here would put light against light
-   and spend that transition on nothing. Green also gives the white cards a
-   ground to sit on, where white-on-white left them held up by shadow alone, and
-   it picks up the green already running through the hero ledges and the cone.
+   The exception is the ledge, which carries a gradient and so goes in as an
+   <img> — a mask would keep its shape and throw away its shading.
    ------------------------------------------------------------------------- */
 #sx-cc {
-  --cc-bg:      #57C74B;   /* the level */
-  --cc-ceiling: #57C74B;   /* the crenellated top — the level's own edge */
-  --cc-ground:  #2F7A2C;   /* the floor strip, a step down so it reads as depth */
-  --cc-ink:     #000;      /* wordmark and platform */
+  /* One theme now. These were split across a base and a [data-cc-theme="white"]
+     override while the two were being compared; white won, so the override is
+     folded in and the attribute, the switch and the green values are gone. The
+     tokens stay, because they are still what every masked asset in here takes
+     its colour from — a palette is worth having even when there is only one. */
+  --cc-bg:      #FFF;      /* the level */
+  --cc-ceiling: #FFF;      /* the crenellated top — the level's own edge */
+  --cc-ground:  #57C74B;   /* the floor strip that carries into the seam */
+  --cc-ink:     #000;      /* wordmark */
   --cc-cloud:   #EAEAEA;
-  --cc-crab:    #000;
-  /* The card is two background layers, not one: the body is clipped to the
-     padding box and the stroke fills the border box behind a transparent 1px
-     border. That is what lets a BORDER carry a gradient, which no border-color
-     can. Both themes go through the same mechanism — green just happens to
-     supply white for both layers — so the theme stays a set of values and never
-     becomes a second set of rules. */
+  --cc-crab:    #D97757;   /* the delivered terracotta, which needs a light ground */
+
   --cc-card-body:  linear-gradient(180deg, #FFF 0%, #FFF 100%);
   --cc-card-edge:  linear-gradient(180deg, #FFF 0%, #FFF 100%);
   --cc-card-title: #111;
   --cc-card-sub:   #6B6B6B;
   --cc-shot-bg:    #EDEDED;
-  /* The hard offset block behind a hovered card. Blurless on purpose — see the
-     hover note further down. */
-  --cc-card-pop:   rgba(0, 0, 0, .88);
-  /* The temporary theme switch keeps its own pair, so it stays a white chip
-     with dark type in both themes rather than inverting with the cards. */
-  --cc-card:    #FFF;
-  --cc-card-ink:#111;
 
   position: relative;
   z-index: 0;
@@ -996,13 +984,6 @@
   image-rendering: pixelated;
 }
 
-/* The white theme, kept and switchable. One attribute, six values. */
-#sx-cc[data-cc-theme="white"] {
-  --cc-bg:      #FFF;
-  --cc-ceiling: #FFF;
-  --cc-ground:  #57C74B;
-  --cc-crab:    #D97757;   /* the delivered terracotta, which needs a light ground */
-}
 
 /* --- the ceiling and the floor ---
    Both hang OUTSIDE the section: the ceiling's teeth bite up into the dark of
@@ -1139,7 +1120,7 @@
      below the heading's baseline and nothing shows. Shifting rather than
      re-laying-out, so the ledge and the crew move as one and the column below
      is untouched. */
-  translate: 0 clamp(16px, 3vw, 46px);
+  translate: 0 clamp(48px, 8.5vw, 130px);
   margin-right: calc(-1 * var(--sx-gut)
                      - max(0px, (100vw - var(--sx-max)) / 2)
                      - clamp(12px, 2vw, 40px));
@@ -1165,11 +1146,12 @@
      368 at 5% across and has risen to row 7 by 35%, then holds. So the crew
      lives in the right two-thirds, where there is actually something to stand
      on. */
-  /* 12 rather than 8: the ledge is a narrower box than the platform it replaced,
-     so the same inset left the trailing character 11px off the frame edge.
-     There is no constraint pulling them right — the top face's FRONT edge runs
-     the full width of the slab, so they can stand anywhere along it. */
-  right: 12%;
+  /* Centred on the slab rather than shoved to one end of it: 55% wide leaves
+     45% to split, so 22.5% a side. The top face's front edge runs the full
+     width, so there is no constraint pulling them anywhere in particular — and
+     an even margin either side is what reads as three characters standing on a
+     ledge instead of three characters about to walk off it. */
+  right: 22.5%;
   width: 55%;
   /* Read off the ledge's own path data rather than off its alpha, and that
      distinction is the whole of it. The slab's top face is a parallelogram from
@@ -1272,7 +1254,10 @@
      at 30%. Soft and wide, so it reads as the card floating above the level
      rather than as a stacked pixel edge under it. */
   box-shadow: -9px 18px 77px 0 rgba(0, 0, 0, .30);
-  transition: transform .32s var(--sx-ease), box-shadow .32s var(--sx-ease);
+  /* Only the shadow transitions. The transform is written by a spring every
+     frame, and a duration curve on top of a spring is two things arguing about
+     where the card is. */
+  transition: box-shadow .45s var(--sx-ease);
 }
 .cc-shot {
   display: block;
@@ -1306,24 +1291,39 @@
   color: var(--cc-card-sub);
 }
 /* --- picking a card up ---
-   Four things move and they are all one idea: the card is a cartridge being
-   pulled off a shelf in an arcade.
+   The first version of this snapped a hard, blurless block in behind the card —
+   an arcade selection cue. It read badly for a reason worth writing down: a
+   shadow with no blur sitting under a shadow with 77px of it does not look like
+   two shadows, it looks like ONE shadow cut off with a straight edge. The
+   complaint that the shadow was being chopped and the complaint that the effect
+   was not working turned out to be the same complaint.
 
-     · it LIFTS and comes very slightly toward you;
-     · a HARD-EDGED block snaps in behind it. That is the arcade half — a
-       blurless offset shadow is the oldest selection cue there is, it is what
-       the theme switch in this section already uses, and it is the one effect
-       that reads instantly as "this is the one" rather than as a card that got
-       3% bigger;
-     · the COVER pushes in slightly against its own rounded frame, so the art
-       moves against the card instead of with it, which is what gives the plate
-       a thickness;
-     · an ARROW arrives after the title. It is the only part that says the card
-       is a link rather than a picture, and it costs one pseudo-element.
+   So this borrows the vocabulary the page already has, from the cards in More
+   Stories: the plate tips after the pointer on springs, lifts toward the reader,
+   and the art inside drifts the other way. That last part is the whole trick —
+   a cover moving AGAINST the tilt is what gives the plate a thickness, where a
+   cover moving with it is just a bigger picture. The soft shadow stays the only
+   shadow and merely deepens: the light has not moved, the card has.
 
-   The soft delivered shadow stays underneath all of it and only deepens — the
-   light has not moved, the card has. */
-.cc-shot img { transition: transform .5s var(--sx-ease); }
+   Every value rests at zero (or 1) and every one is a custom property, so a card
+   nobody has touched and a card with no script are the same card. */
+.cc-card-in {
+  transform:
+    /* perspective as a FUNCTION, not a property — the property would put every
+       card in a 3D context for the life of the page, for depth that only matters
+       while a pointer is on one of them. Same reckoning as .sx-st-lift. */
+    perspective(900px)
+    translate3d(0, var(--cc-lift, 0px), 0)
+    rotateX(var(--cc-rx, 0deg))
+    rotateY(var(--cc-ry, 0deg))
+    scale(var(--cc-pop, 1));
+  transform-origin: 50% 50%;
+}
+.cc-shot img {
+  transform:
+    translate3d(var(--cc-art-x, 0px), var(--cc-art-y, 0px), 0)
+    scale(var(--cc-art-s, 1));
+}
 .cc-name::after {
   content: "\2192";
   display: inline-block;
@@ -1336,62 +1336,24 @@
 @media (hover: hover) {
   .cc-card-in:hover,
   .cc-card-in:focus-visible {
-    transform: translateY(-10px) scale(1.015);
-    box-shadow:
-      10px 10px 0 0 var(--cc-card-pop),
-      -12px 26px 88px 0 rgba(0, 0, 0, .34);
+    /* One shadow, deepened. Nothing beside it to read as a cut. */
+    box-shadow: -14px 30px 92px 0 rgba(0, 0, 0, .34);
   }
-  .cc-card-in:hover .cc-shot img,
-  .cc-card-in:focus-visible .cc-shot img { transform: scale(1.06); }
   .cc-card-in:hover .cc-name::after,
   .cc-card-in:focus-visible .cc-name::after {
     opacity: 1;
     margin-left: .45em;
     transform: translateX(0);
   }
+  /* A keyboard has no pointer to spring the tilt from, so focus gets the lift
+     on its own — the card still answers, it just answers squarely. */
+  .cc-card-in:focus-visible { --cc-lift: -10px; --cc-pop: 1.02; }
 }
+
 .cc-card-in:focus-visible {
   outline: 3px solid var(--cc-ink);
   outline-offset: 4px;
 }
-
-/* --- TEMPORARY: the theme switch ---
-   Here so both themes can be seen on the real page rather than in two
-   screenshots. It is deliberately plain and deliberately labelled: it is a
-   decision aid, not a feature, and it should come out with the button in the
-   markup once the theme is settled. Parked in the section's own top-right,
-   above the sky and clear of the crew. */
-.cc-switch {
-  position: absolute;
-  top: clamp(.9rem, 2vw, 1.6rem);
-  left: clamp(1.25rem, 5vw, 5rem);
-  z-index: 4;
-  display: inline-flex;
-  align-items: center;
-  gap: .55rem;
-  min-height: 36px;
-  padding: 0 .9rem;
-  border: 2px solid var(--cc-ink);
-  border-radius: 0;                 /* square, like everything else in here */
-  background: var(--cc-card);
-  color: var(--cc-card-ink);
-  font-family: var(--sx-ui);
-  font-weight: 600;
-  font-size: .68rem;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  cursor: pointer;
-  box-shadow: 3px 3px 0 0 var(--cc-ink);
-}
-.cc-switch:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 var(--cc-ink); }
-.cc-switch:focus-visible { outline: 3px solid var(--cc-ink); outline-offset: 3px; }
-.cc-switch-dot {
-  width: 10px; height: 10px;
-  flex: none;
-  background: #57C74B;
-  box-shadow: inset 0 0 0 2px rgba(0,0,0,.35);
-}
-#sx-cc[data-cc-theme="white"] .cc-switch-dot { background: #FFF; }
 
 /* --- the crab ---
    Patrols the floor and turns around at each end. Stepped for the same reason
@@ -1439,6 +1401,10 @@
   #sx-cc .cc-card-in,
   #sx-cc .cc-shot img,
   #sx-cc .cc-name::after { transition: none; }
+  /* The springs are JS-gated, but the vars have to be neutral in case the
+     preference is turned on mid-session after they were last written. */
+  #sx-cc .cc-card-in { --cc-lift: 0px; --cc-rx: 0deg; --cc-ry: 0deg; --cc-pop: 1; }
+  #sx-cc .cc-shot img { --cc-art-x: 0px; --cc-art-y: 0px; --cc-art-s: 1; }
 }
 
 .sx-row { display: grid; gap: clamp(.7rem, 1.2vw, 1rem); }
