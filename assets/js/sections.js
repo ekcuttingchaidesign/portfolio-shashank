@@ -2555,6 +2555,10 @@
       ccSwitch.setAttribute('aria-pressed', theme === 'white' ? 'true' : 'false');
       if (label) label.textContent = theme === 'white' ? 'Green theme' : 'White theme';
     };
+    /* Paint from the markup's own default first, so the button's label and
+       pressed state always describe what is actually on screen rather than
+       whichever theme happened to be the default when it was written. */
+    paint(ccSection.dataset.ccTheme === 'white' ? 'white' : 'green');
     let saved = null;
     try { saved = localStorage.getItem('sx-cc-theme'); } catch (_) {}
     if (saved === 'white' || saved === 'green') paint(saved);
