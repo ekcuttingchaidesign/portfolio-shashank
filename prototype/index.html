@@ -1104,22 +1104,15 @@
        crenellated ceiling, clouds at three depths, a crew walking a platform,
        and a crab patrolling the floor.
 
-       Green rather than white, and that is a structural choice rather than a
-       taste one. This section sits immediately above .sx-seam-paper, which is
-       the page's one big tonal event: the dusk gradient that carries the
-       machine's black into the paper the Experience section is printed on. A
-       white block here would put light against light and spend that transition
-       on nothing. Green keeps the seam's job intact, makes the white cards pop
-       instead of dissolving, and picks up the green that already runs through
-       the page in the hero ledges and the cone.
-
-       Both themes are still here. data-cc-theme on the section is the whole
-       switch — every asset is a single-colour path drawn through a MASK, so the
-       colour is the stylesheet's and swapping themes recolours the artwork
-       without touching a file.
+       It is white, and it was built against a green alternative for a while so
+       the two could be judged side by side on the real page. White won; the
+       green values, the data-cc-theme attribute and the switch that flipped
+       between them are all gone. What stayed is the mechanism underneath — the
+       masked assets still take their colour from tokens, which is one place to
+       change a palette rather than six files to re-export.
        -------------------------------------------------------------------- */
   -->
-  <section id="sx-cc" data-cc-theme="white">
+  <section id="sx-cc">
     <!-- The ceiling. Sits above the section's own box so the teeth bite up
          into the dark of Things That Move. -->
     <span class="cc-edge cc-edge--top" aria-hidden="true"></span>
@@ -1186,17 +1179,6 @@
         </li>
       </ul>
     </div>
-
-    <!-- ============================================================
-         TEMPORARY — theme switch, for picking between white and green.
-         Delete this button and the cc-switch rules in sections.css once the
-         theme is chosen; the section itself needs nothing but the
-         data-cc-theme attribute above, which this only toggles.
-         ============================================================ -->
-    <button class="cc-switch" id="cc-switch" type="button" aria-pressed="false">
-      <span class="cc-switch-dot" aria-hidden="true"></span>
-      <span class="cc-switch-l">Green theme</span>
-    </button>
 
     <!-- The floor, and the thing that walks it. -->
     <span class="cc-crab" aria-hidden="true"></span>
