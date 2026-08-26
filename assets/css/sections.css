@@ -1022,17 +1022,17 @@
   -webkit-mask-size: 100% 100%;
           mask-size: 100% 100%;
 }
-/* The ceiling ships as a PNG — it arrived named .svg but the bytes are a
-   1915x91 RGBA image, which a browser will not parse as SVG, so it is renamed
-   to what it is. It still works as a MASK: a mask takes its shape from alpha,
-   and alpha is exactly what the export has. Nothing else about the theme
-   mechanism changes. */
+/* Back on a real SVG. The first re-export arrived named .svg with the bytes of a
+   1915x91 PNG, which a browser will not parse as SVG at all — it failed to load
+   and the ceiling went missing. This one is genuine vector: one path, one white
+   fill, same 1915x91 box, so it masks the way every other asset in here does and
+   scales without resampling. */
 .cc-edge--top {
   bottom: 100%;
   height: calc(100vw * 91 / 1915);
   background-color: var(--cc-ceiling);
-  -webkit-mask-image: url("../../public/img/Top_strip_white.png");
-          mask-image: url("../../public/img/Top_strip_white.png");
+  -webkit-mask-image: url("../../public/img/Top_strip_white.svg");
+          mask-image: url("../../public/img/Top_strip_white.svg");
 }
 .cc-edge--bottom {
   top: 100%;
