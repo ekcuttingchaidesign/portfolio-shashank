@@ -971,6 +971,9 @@
   --cc-card-title: #111;
   --cc-card-sub:   #6B6B6B;
   --cc-shot-bg:    #EDEDED;
+  /* The hard offset block behind a hovered card. Blurless on purpose — see the
+     hover note further down. */
+  --cc-card-pop:   rgba(0, 0, 0, .88);
   /* The temporary theme switch keeps its own pair, so it stays a white chip
      with dark type in both themes rather than inverting with the cards. */
   --cc-card:    #FFF;
@@ -999,18 +1002,6 @@
   --cc-ceiling: #FFF;
   --cc-ground:  #57C74B;
   --cc-crab:    #D97757;   /* the delivered terracotta, which needs a light ground */
-  /* The cards invert on this theme. On a white level a white card had nothing
-     to sit against and was held up by its shadow alone; dark plates give the
-     covers a frame and the section its contrast back. Gradients are the
-     delivered values, top to bottom, which is the axis Figma's linear default
-     uses. */
-  --cc-card-body:  linear-gradient(180deg, #151515 0%, #000000 50%, #1A1A1A 100%);
-  --cc-card-edge:  linear-gradient(180deg, #6E6E6E 0%, #4E4D4D 100%);
-  --cc-card-title: #FFF;
-  --cc-card-sub:   #BABABA;
-  /* The cover placeholder follows the plate, or it flashes a light rectangle
-     inside a dark card while the image is still arriving. */
-  --cc-shot-bg:    #101010;
 }
 
 /* --- the ceiling and the floor ---
@@ -1031,16 +1022,21 @@
   -webkit-mask-size: 100% 100%;
           mask-size: 100% 100%;
 }
+/* The ceiling ships as a PNG — it arrived named .svg but the bytes are a
+   1915x91 RGBA image, which a browser will not parse as SVG, so it is renamed
+   to what it is. It still works as a MASK: a mask takes its shape from alpha,
+   and alpha is exactly what the export has. Nothing else about the theme
+   mechanism changes. */
 .cc-edge--top {
   bottom: 100%;
-  height: calc(100vw * 102 / 1920);
+  height: calc(100vw * 91 / 1915);
   background-color: var(--cc-ceiling);
-  -webkit-mask-image: url("../../public/img/Top_strip_white.svg");
-          mask-image: url("../../public/img/Top_strip_white.svg");
+  -webkit-mask-image: url("../../public/img/Top_strip_white.png");
+          mask-image: url("../../public/img/Top_strip_white.png");
 }
 .cc-edge--bottom {
   top: 100%;
-  height: calc(100vw * 142 / 1920);
+  height: calc(100vw * 91 / 1920);
   background-color: var(--cc-ground);
   -webkit-mask-image: url("../../public/img/Bottom_strip_green.svg");
           mask-image: url("../../public/img/Bottom_strip_green.svg");
@@ -1124,69 +1120,66 @@
    until the wrap is capped, then half the leftover. Same reckoning as the
    mascot's plinth over in Things That Move.
 
-   It bleeds a little further still, because a platform that stops flush with
-   the edge reads as a platform that ENDS there; one that runs off it reads as
-   ground continuing past the frame, which is the whole idea of a side-scroller. */
+   It bleeds a little further still, because a ledge that stops flush with the
+   edge reads as a ledge that ENDS there; one that runs off it reads as ground
+   continuing past the frame, which is the whole idea of a side-scroller.
+
+   The stage now takes the LEDGE's own aspect, and the crew overflows it upward.
+   That is deliberate: the box only has to describe the ground, and letting the
+   characters stand out of it means their height never has to be budgeted for
+   twice. Nothing clips them — the section clips on X only. */
 .cc-stage {
   position: relative;
   flex: none;
-  width: clamp(240px, 40vw, 620px);
-  aspect-ratio: 846 / 300;
+  width: clamp(220px, 34vw, 540px);
+  aspect-ratio: 739 / 368;
   align-self: flex-end;
+  /* The slab's front face is three-quarters of its own box and fades to white
+     at the foot, so the bottom of this box is not a visible edge — it can hang
+     below the heading's baseline and nothing shows. Shifting rather than
+     re-laying-out, so the ledge and the crew move as one and the column below
+     is untouched. */
+  translate: 0 clamp(16px, 3vw, 46px);
   margin-right: calc(-1 * var(--sx-gut)
                      - max(0px, (100vw - var(--sx-max)) / 2)
                      - clamp(12px, 2vw, 40px));
 }
-.cc-platform {
+/* An <img>, not a mask. The ledge carries a gradient down its front face, and a
+   mask keeps only the SHAPE — running this one through the theme machinery
+   would flatten a two-tone slab into a flat silhouette. It stays green on both
+   themes, which is what its name says it is. */
+.cc-ledge {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: calc(100% * 112 / 300);
-  background-color: var(--cc-ink);
-  -webkit-mask: url("../../public/img/platform_strip_black.svg") no-repeat center bottom / 100% 100%;
-          mask: url("../../public/img/platform_strip_black.svg") no-repeat center bottom / 100% 100%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
+
 /* Walks in from beyond the right edge as the section arrives — see the note in
-   sections.js. The walk owns `transform`; the bob owns `translate`, so an
-   ambient loop and a scrub can share one element. */
+   sections.js. The walk owns `transform`, which is why nothing else here does. */
 .cc-crew {
   position: absolute;
-  /* Standing ON the platform rather than in it: the crew's own art has a little
-     empty canvas under the shoes, so the feet land a touch above the box's
-     bottom and this puts that line on the platform's top face. 58% rather than
-     66% leaves the platform reading as ground the crew is crossing instead of a
-     shelf exactly their own size. */
-  /* Inset from the stage's right, not flush to it — the STAGE now bleeds past
-     the window so the platform can run off the frame, and a crew pinned to its
-     right edge bleeds with it and loses a character to the crop. 30% keeps all
-     three in frame at every width while the ground still leaves the page. */
-  right: 30%;
-  /* --- standing ON the platform, solved rather than eyeballed ---
-     92/300 floated them 8px clear of the ground at a 620px stage, and the reason
-     is a mismatch between two assets' internal padding that no amount of
-     nudging would have explained:
-
-       · mascot_meme.png ends its artwork 5px from the bottom of a 542px canvas,
-         so the shoes are effectively AT the image's foot;
-       · platform_strip_black.svg puts its walking surface 28px down a 112px
-         canvas, so the top face is a quarter of the way into the box rather
-         than at its top edge.
-
-     Solving that puts the crew's box at 0.0957 W, which is 81/300, and the
-     browser agrees — at 81 the shoes land dead on the surface. This sits one
-     unit below, planting them 0.7px in, because a figure balanced exactly on a
-     line reads as hovering over it where one planted a hair in reads as
-     standing on it.
-
-     Swept and measured rather than eyeballed:
-       92/300  8.1px floating   <- what was shipped
-       84/300  2.2px floating
-       81/300  dead on
-       80/300  0.7px planted    <- here
-       78/300  2.2px planted                                                  */
-  bottom: calc(100% * 80 / 300);
-  width: 58%;
+  /* On the flat of the ledge. Its top face is not level across the whole slab:
+     the near-left corner falls away — measured, the surface sits at row 65 of
+     368 at 5% across and has risen to row 7 by 35%, then holds. So the crew
+     lives in the right two-thirds, where there is actually something to stand
+     on. */
+  /* 12 rather than 8: the ledge is a narrower box than the platform it replaced,
+     so the same inset left the trailing character 11px off the frame edge.
+     There is no constraint pulling them right — the top face's FRONT edge runs
+     the full width of the slab, so they can stand anywhere along it. */
+  right: 12%;
+  width: 55%;
+  /* Read off the ledge's own path data rather than off its alpha, and that
+     distinction is the whole of it. The slab's top face is a parallelogram from
+     (9.7, 75.2) to (763.2, 65.1) at the front and (183.7, 10.6) to (880.2, 3.5)
+     at the back. Measuring the topmost opaque pixel finds the BACK edge — row 7
+     — and standing the crew there would have put them behind the ledge rather
+     than on it. The front edge, y≈70 of 368, is the line feet actually meet:
+     19.06% down the slab, so 80.94% of the stage height above its floor, less
+     the 0.68% of empty canvas under the shoes. */
+  bottom: 80.26%;
   height: auto;
   transform: translate3d(var(--cc-walk, 0px), 0, 0);
   will-change: transform;
@@ -1312,12 +1305,49 @@
   font-size: clamp(.82rem, 1.1vw, .98rem);
   color: var(--cc-card-sub);
 }
+/* --- picking a card up ---
+   Four things move and they are all one idea: the card is a cartridge being
+   pulled off a shelf in an arcade.
+
+     · it LIFTS and comes very slightly toward you;
+     · a HARD-EDGED block snaps in behind it. That is the arcade half — a
+       blurless offset shadow is the oldest selection cue there is, it is what
+       the theme switch in this section already uses, and it is the one effect
+       that reads instantly as "this is the one" rather than as a card that got
+       3% bigger;
+     · the COVER pushes in slightly against its own rounded frame, so the art
+       moves against the card instead of with it, which is what gives the plate
+       a thickness;
+     · an ARROW arrives after the title. It is the only part that says the card
+       is a link rather than a picture, and it costs one pseudo-element.
+
+   The soft delivered shadow stays underneath all of it and only deepens — the
+   light has not moved, the card has. */
+.cc-shot img { transition: transform .5s var(--sx-ease); }
+.cc-name::after {
+  content: "\2192";
+  display: inline-block;
+  margin-left: 0;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity .3s var(--sx-ease), transform .3s var(--sx-ease),
+              margin-left .3s var(--sx-ease);
+}
 @media (hover: hover) {
-  .cc-card-in:hover {
-    transform: translateY(-8px);
-    /* The same shadow, thrown a little further as the card lifts — the light
-       has not moved, only the card. */
-    box-shadow: -12px 26px 88px 0 rgba(0, 0, 0, .34);
+  .cc-card-in:hover,
+  .cc-card-in:focus-visible {
+    transform: translateY(-10px) scale(1.015);
+    box-shadow:
+      10px 10px 0 0 var(--cc-card-pop),
+      -12px 26px 88px 0 rgba(0, 0, 0, .34);
+  }
+  .cc-card-in:hover .cc-shot img,
+  .cc-card-in:focus-visible .cc-shot img { transform: scale(1.06); }
+  .cc-card-in:hover .cc-name::after,
+  .cc-card-in:focus-visible .cc-name::after {
+    opacity: 1;
+    margin-left: .45em;
+    transform: translateX(0);
   }
 }
 .cc-card-in:focus-visible {
@@ -1404,7 +1434,11 @@
   #sx-cc .cc-cloud { transform: none; }
   #sx-cc .cc-crew { --cc-walk: 0px; }
   #sx-cc .cc-crab { transform: translateX(6vw); }
-  #sx-cc .cc-card-in { transition: none; }
+  /* The hover still happens — it is a state, not an animation — but nothing
+     tweens into it, including the two pieces the card moves besides itself. */
+  #sx-cc .cc-card-in,
+  #sx-cc .cc-shot img,
+  #sx-cc .cc-name::after { transition: none; }
 }
 
 .sx-row { display: grid; gap: clamp(.7rem, 1.2vw, 1rem); }
