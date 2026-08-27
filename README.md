@@ -22,7 +22,7 @@ just dived into.
 | `index.html` | Root page; forwards to `prototype/`. Replace once a real landing page exists. |
 | `prototype/index.html` | The page. Hero markup and the whole scrub engine are inline here; the sections below it are markup only. |
 | `assets/css/sections.css` | Every style on the page except the scrub engine's own. The `:root` block at the top holds the palette and type scale. |
-| `assets/js/sections.js` | Hero arrival, the headline rotator, the scroll reveals, and the hand-off. Uses Motion. |
+| `assets/js/sections.js` | Hero arrival, the headline rotator, the scroll reveals, the Experience reels, and the hand-off. Uses Motion. |
 | `assets/vendor/motion.js` | [Motion](https://motion.dev) 13.1.0, vendored as a UMD bundle so there is no build step. |
 | `assets/fonts/` | Satoshi, as woff2. The two weights the hero needs are preloaded. |
 | `public/video/` | The two source films (`into-the-screen`, `out-of-the-screen`). |
@@ -56,14 +56,10 @@ just dived into.
    inverts the page's habit: everything else assembles out of stillness and
    stops, this arrives already running and slows down as you reach it.
 6. **`#sx-archive`** — Built with AI.
-7. **`#sx-hand`**, **`#s-exit`**, **`#s-connect`** — the handoff, the dive back
+7. **`#sx-exp`** — How I got here. Four stops down one rail, with a sticky
+   stage beside it where the character changes company as you scroll.
+8. **`#sx-hand`**, **`#s-exit`**, **`#s-connect`** — the handoff, the dive back
    out, and *Say hello.*
-
-There is no Experience section on the page at the moment. *How I got here* —
-the career drawn as a rig levelling up — has been taken out, and the seam that
-used to climb from the level up to paper now stays dark and hands the page
-straight to the hand-off. The light palette it ran on is still in `:root`, so
-whatever goes back in that slot can be printed on the same values.
 
 ## Direction
 
@@ -72,10 +68,23 @@ interface running on it rather than as a document. Structural devices come from
 the world the work is actually in — entertainment products and the motion inside
 them — so spec strips read like title cards and key visuals behave like players.
 
-**The signature is currently unspent.** It used to be the Experience section —
-the career drawn as a rig levelling up, one piece of hardware added per role —
-and nearly all the page's boldness went there. With that section gone the page
-is all quiet, and the next thing to land in its slot is what should carry it.
+**The signature is the Experience section**, and it is the character rather
+than the layout. An earlier version drew the career as a rig levelling up — kit
+accumulating on a desk — and the four renders that replaced it say something
+better: at each stop he is a *different person*. A student in a plaid shirt, a
+commuter with a laptop under one arm, a flying thing in a spider hoodie, and
+finally someone who just walks. The character IS the timeline, so nearly all the
+page's boldness is spent on him changing and everything around him stays quiet.
+
+He changes by **re-render**: one vermilion bar crosses the stage, the outgoing
+character is clipped away behind it and the incoming one resolves in front of
+it. A dissolve would have been a transition between two pictures; a bar reads as
+a render pass finishing, which is the world this page is already in.
+
+The rail beside him is not evenly divided, because the CV is not. Three short
+stops, then five years of Airtel carrying five stints inside it — so the Airtel
+segment runs long, its rule is thicker, and it opens into five rather than
+closing into one line. The shape of the rail is the shape of the career.
 
 | | |
 | --- | --- |
@@ -91,6 +100,8 @@ the same way the page's accent was sampled from the portrait.
 | What | Where |
 | --- | --- |
 | Length of the hero's arrival, and the hold after it | `HERO_VH` / `HERO_HOLD_VH` in the inline script in `prototype/index.html` |
+| How long each Experience stop stays on the stage | `.sx-xp-stop`'s `padding-bottom` in `sections.css` — the gap between two stop tops IS the time a company holds |
+| Which sheet, how many frames and how fast, per company | `REELS` in `sections.js` |
 | How long each headline sentence holds, and how long the change takes | `SWAP_HOLD` / `SWAP_MS` in `sections.js` |
 | When the objects crossfade inside the glide | `FACE_MIX_IN` / `FACE_MIX_OUT` in `sections.js` |
 | Size of the objects set into the headline | `--sx-face-size` in the `:root` block in `sections.css` |
