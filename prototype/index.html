@@ -16,8 +16,8 @@
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/Satoshi-Light.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/Satoshi-BlackItalic.woff2" crossorigin>
 
-<!-- Work · Archive · Experience. Kept out of this file so the hero above stays
-     readable — the two never share a selector (everything below is `sx-`). -->
+<!-- Work · Archive · the hand-off. Kept out of this file so the hero above
+     stays readable — the two never share a selector (everything below is `sx-`). -->
 <link rel="stylesheet" href="../assets/css/sections.css">
 
 <style>
@@ -334,11 +334,12 @@
   }
 
   /* ---------- content ----------
-     The Work and Experience placeholders that used to live here are gone —
-     they're real sections now, styled by ../assets/css/sections.css. What's
-     left belongs to #s-connect alone, and is SCOPED to it: the bare `h2` this
-     block used to carry would otherwise have reached into every heading in
-     those new sections and quietly overridden their type scale. */
+     The Work and Experience placeholders that used to live here are gone: Work
+     is a real section now, styled by ../assets/css/sections.css, and Experience
+     has since been taken out of the page altogether. What's left belongs to
+     #s-connect alone, and is SCOPED to it: the bare `h2` this block used to
+     carry would otherwise have reached into every heading in those real
+     sections and quietly overridden their type scale. */
   #s-connect { min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
                padding: 0 6vw; gap: 1.25rem; background: transparent; }
   #s-connect .tag { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .7rem;
@@ -1185,208 +1186,21 @@
     <span class="cc-edge cc-edge--bottom" aria-hidden="true"></span>
   </section>
 
-  <div class="sx-seam-paper" aria-hidden="true"></div>
-
-  <!-- ---------- 4 · EXPERIENCE ----------
-       Runs light. Work was the machine's output so it sat on the machine's
-       ground; this is ten years of a person, so it sits on paper. The one dark
-       thing is the figure's own panel, because he is still lit by a monitor. -->
-  <section id="sx-exp">
-    <div class="sx-wrap">
-      <header class="sx-sec-head" data-reveal>
-        <p class="sx-mono">02 — Experience · 2016 → 2026</p>
-        <h2 class="sx-serif">How I got here</h2>
-        <p class="sx-lede" style="margin-top:1rem">Same person, better kit. Four stops, forward —
-        so the timeline lands on now instead of receding from it.</p>
-      </header>
-
-      <div class="sx-exp-layout">
-
-        <!-- The pinned rig. Reserved aspect ratio on the stage means the panel
-             never changes height as the character upgrades, which is what stops
-             the sticky column jittering mid-scroll. -->
-        <aside class="sx-rig" id="sx-rig">
-          <div class="sx-rig-head">
-            <span>Loadout</span><span class="sx-sp"></span><span id="sx-lv-name">before</span>
-          </div>
-          <p class="sx-lv"><small>LV</small><span id="sx-lv-num">00</span></p>
-
-          <div class="sx-stage">
-            <svg id="sx-figure" data-level="0" viewBox="14 44 372 228" role="img"
-                 aria-label="A seated designer at a desk, gaining equipment at each career stop">
-              <defs>
-                <linearGradient id="sx-glass" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stop-color="#5B8DEF" stop-opacity=".55"/>
-                  <stop offset="100%" stop-color="#5B8DEF" stop-opacity=".12"/>
-                </linearGradient>
-                <linearGradient id="sx-rim" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%"   stop-color="#C7DBFF" stop-opacity=".85"/>
-                  <stop offset="55%"  stop-color="#C7DBFF" stop-opacity="0"/>
-                </linearGradient>
-                <radialGradient id="sx-spill" cx="50%" cy="40%" r="60%">
-                  <stop offset="0%"   stop-color="#5B8DEF" stop-opacity=".34"/>
-                  <stop offset="100%" stop-color="#5B8DEF" stop-opacity="0"/>
-                </radialGradient>
-              </defs>
-
-              <!-- the monitor's spill onto the room. the key light. -->
-              <ellipse class="sx-spill" cx="210" cy="150" rx="190" ry="130" fill="url(#sx-spill)"/>
-
-              <!-- second monitor, angled away -->
-              <g data-kit="monitor2" data-on="0">
-                <path d="M292 92 L368 84 L368 152 L292 148 Z" fill="#111A2B"/>
-                <path d="M297 97 L363 90 L363 146 L297 143 Z" fill="url(#sx-glass)"/>
-                <path d="M326 148 L332 148 L332 168 L326 168 Z" fill="#111A2B"/>
-              </g>
-
-              <!-- the motion tool. 2024. the one warm object in the rig. -->
-              <g data-kit="tool" data-on="0">
-                <rect x="46" y="100" width="86" height="52" rx="4" fill="#161B24"/>
-                <rect x="46" y="100" width="86" height="11" rx="4" fill="#D08544" fill-opacity=".22"/>
-                <path d="M54 133 q9 -16 18 0 t18 0 t18 0 t14 0" stroke="#D08544"
-                      stroke-width="1.8" fill="none" stroke-linecap="round"/>
-                <rect x="54" y="118" width="30" height="2.5" rx="1.25" fill="#D08544" fill-opacity=".5"/>
-                <rect x="88" y="118" width="16" height="2.5" rx="1.25" fill="#D08544" fill-opacity=".28"/>
-              </g>
-
-              <!-- main monitor -->
-              <rect x="138" y="52" width="146" height="100" rx="4" fill="#131C2C"/>
-              <rect x="144" y="58" width="134" height="88" rx="2" fill="url(#sx-glass)"/>
-              <rect x="204" y="152" width="14" height="20" fill="#131C2C"/>
-              <rect x="182" y="172" width="58" height="5" rx="2.5" fill="#131C2C"/>
-
-              <!-- desk -->
-              <path d="M18 238 L382 238" stroke="#1E2839" stroke-width="3" stroke-linecap="round"/>
-              <path d="M18 238 L382 238" stroke="#5B8DEF" stroke-opacity=".16" stroke-width="1"/>
-
-              <!-- kit on the desk. drawn before the figure, so his body occludes
-                   what sits beyond him — we are behind his shoulder. -->
-              <g data-kit="keyboard" data-on="0">
-                <rect x="168" y="224" width="84" height="12" rx="2.5" fill="#1B2434"/>
-                <rect x="173" y="227" width="74" height="2" rx="1" fill="#5B8DEF" fill-opacity=".3"/>
-                <rect x="173" y="231" width="52" height="2" rx="1" fill="#5B8DEF" fill-opacity=".18"/>
-              </g>
-              <g data-kit="mouse" data-on="0">
-                <ellipse cx="272" cy="230" rx="9" ry="12" fill="#1B2434"/>
-                <path d="M272 220 v7" stroke="#5B8DEF" stroke-opacity=".45" stroke-width="1.5"/>
-              </g>
-              <g data-kit="tablet" data-on="0">
-                <rect x="100" y="220" width="56" height="18" rx="3" fill="#1B2434"
-                      transform="rotate(-7 128 229)"/>
-                <rect x="106" y="224" width="44" height="10" rx="2" fill="#5B8DEF" fill-opacity=".2"
-                      transform="rotate(-7 128 229)"/>
-                <path d="M92 216 L104 226" stroke="#C7DBFF" stroke-opacity=".55"
-                      stroke-width="2.4" stroke-linecap="round"/>
-              </g>
-
-              <!-- the figure. mostly silhouette with one rim edge — without the
-                   rim he reads as a blob, which is the note the render's
-                   lighting plan makes in bold. -->
-              <g data-body>
-                <path d="M158 262 C 162 234, 184 221, 210 221 C 236 221, 258 234, 262 262 Z"
-                      fill="#0A0F1C"/>
-                <circle cx="210" cy="203" r="21" fill="#0A0F1C"/>
-                <path d="M158 262 C 162 234, 184 221, 210 221" stroke="url(#sx-rim)"
-                      stroke-width="2.2" fill="none"/>
-                <path d="M210 182 A 21 21 0 0 0 191 213" stroke="url(#sx-rim)"
-                      stroke-width="2.2" fill="none"/>
-
-                <g data-kit="cans" data-on="0">
-                  <path d="M189 202 A 21 21 0 0 1 231 202" stroke="#5C6E8E"
-                        stroke-width="3.4" fill="none" stroke-linecap="round"/>
-                  <rect x="184" y="199" width="9" height="15" rx="4.5" fill="#5C6E8E"/>
-                  <rect x="227" y="199" width="9" height="15" rx="4.5" fill="#5C6E8E"/>
-                </g>
-
-                <g data-kit="crown" data-on="0">
-                  <path d="M193 178 L199 166 L210 175 L221 166 L227 178 Z" fill="#D9A441"/>
-                  <rect x="193" y="178" width="34" height="4" rx="1.5" fill="#D9A441"/>
-                </g>
-              </g>
-            </svg>
-          </div>
-
-          <div class="sx-slots">
-            <div class="sx-slot" data-on="0">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect data-stroke x="8" y="3" width="8" height="18" rx="4" stroke-width="1.6"/><path data-stroke d="M12 7v3" stroke-width="1.6" stroke-linecap="round"/></svg>
-              <span class="sx-slot-l">Mouse</span>
-            </div>
-            <div class="sx-slot" data-on="0">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect data-stroke x="3" y="6" width="15" height="12" rx="2" stroke-width="1.6"/><path data-stroke d="M20 5l1.5 1.5L17 11" stroke-width="1.6" stroke-linecap="round"/></svg>
-              <span class="sx-slot-l">Tablet</span>
-            </div>
-            <div class="sx-slot" data-on="0">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path data-stroke d="M5 13v-2a7 7 0 0 1 14 0v2" stroke-width="1.6" stroke-linecap="round"/><rect data-stroke x="3" y="13" width="4" height="7" rx="2" stroke-width="1.6"/><rect data-stroke x="17" y="13" width="4" height="7" rx="2" stroke-width="1.6"/></svg>
-              <span class="sx-slot-l">Full kit</span>
-            </div>
-            <div class="sx-slot" data-on="0">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect data-stroke x="2" y="5" width="9" height="11" rx="1.5" stroke-width="1.6"/><rect data-stroke x="13" y="5" width="9" height="11" rx="1.5" stroke-width="1.6"/><path data-stroke d="M6.5 16v3M17.5 16v3" stroke-width="1.6" stroke-linecap="round"/></svg>
-              <span class="sx-slot-l">Dual + motion</span>
-            </div>
-          </div>
-        </aside>
-
-        <!-- The stops. Three lines per card is the hard ceiling — longer and
-             people read cards instead of watching the character. -->
-        <div class="sx-stops">
-
-          <article class="sx-stop" data-co="MediaAgility" data-active="0" data-reveal>
-            <p class="sx-yr">2016 — 17 <i></i></p>
-            <h3>MediaAgility</h3>
-            <p class="sx-role">Designer</p>
-            <p class="sx-desc">Banners and creatives, a year after teaching myself the tools.
-            The first job that paid for design.</p>
-            <p class="sx-gain"><span class="sx-plus">+</span> Acquired <b>mouse</b></p>
-          </article>
-
-          <article class="sx-stop" data-co="Appinventiv" data-active="0" data-reveal>
-            <p class="sx-yr">2017 — 18 <i></i></p>
-            <h3>Appinventiv</h3>
-            <p class="sx-desc">UI designer across ecommerce, healthcare and B2B. Enough different
-            problems in one year to stop guessing.</p>
-            <p class="sx-role" style="margin:.9rem 0 0">UI designer</p>
-            <p class="sx-gain"><span class="sx-plus">+</span> Acquired <b>tablet</b></p>
-          </article>
-
-          <article class="sx-stop" data-co="Gamezop" data-active="0" data-reveal>
-            <p class="sx-yr">2018 — 21 <i></i></p>
-            <h3>Gamezop</h3>
-            <p class="sx-role">First designer → design lead</p>
-            <p class="sx-desc">Employee-designer number one. Built the team to ten and shipped
-            Skillclash from nothing.</p>
-            <p class="sx-gain"><span class="sx-plus">+</span> Acquired <b>full kit</b> · <b>crown</b></p>
-          </article>
-
-          <!-- The last stop carries a mid-stop beat: the motion tool arrives in
-               2024, partway through Airtel rather than at its start, because
-               that is when it happened. 2023 is a thin year and it is stated
-               plainly — which is what makes 2024 read as reinvention, not drift. -->
-          <article class="sx-stop" data-co="Airtel" data-active="0" data-midbeat data-reveal>
-            <p class="sx-yr">2021 — now <i></i></p>
-            <h3>Airtel</h3>
-            <p class="sx-role">Senior PD → Lead PD</p>
-            <p class="sx-desc">Wynk, Gaming, the motion pod, IPTV. 2023 was a thin year; 2024 is
-            when the motion practice started paying for itself.</p>
-            <p class="sx-gain"><span class="sx-plus">+</span> Acquired <b>dual monitors</b></p>
-            <p class="sx-gain" data-warm><span class="sx-plus">+</span> 2024 — Acquired <b>motion tool</b></p>
-          </article>
-
-        </div>
-      </div>
-    </div>
-  </section>
-
+  <!-- The seam out of the level. It used to ramp to paper for the Experience
+       section; with that section gone it stays dark the whole way, so the
+       green floor's teeth still bite into black and the page goes straight
+       from the level into the hand-off. -->
   <div class="sx-seam-out" aria-hidden="true"></div>
 
-  <!-- ---------- 5 · HANDOFF ----------
-       He walks past the last card and sits down at the monitor you are
+  <!-- ---------- 4 · HANDOFF ----------
+       The last thing the level shows sits down at the monitor you are
        currently inside. The block is already receding before the film takes
        over, so there is no cut to notice. -->
   <section id="sx-hand">
     <div class="sx-wrap">
       <div class="sx-hand-stage">
         <div class="sx-slab" style="aspect-ratio:21/9"
-             data-empty="He sits down at the monitor you are inside&#10;the section recedes · the pull-out composites underneath">
+             data-empty="The desk you have been looking at, from inside the monitor&#10;the section recedes · the pull-out composites underneath">
           <span class="sx-sheen"></span>
         </div>
         <p class="sx-hand-line">And that's where you came in.</p>
@@ -1448,26 +1262,21 @@
 
   <span class="sx-nav-glide" aria-hidden="true"></span>
   <a class="sx-nav-i" href="#sx-work" data-sec="work" data-label="Work">Work</a>
-  <a class="sx-nav-i" href="#sx-exp" data-sec="exp" data-label="Experience">Experience</a>
   <!-- The pull-out: the out-of-the-screen film, where the desk rotates. -->
   <a class="sx-nav-i" href="#s-exit" data-sec="outside" data-label="Outside work">Outside work</a>
 
   <!-- The marker. Three columns, 5px each: a white pip sits over the column for
        the section you are in and the orange staircase leans toward it, so the
-       glyph reads as how far along you are rather than as three unrelated
-       shapes. The pip stepping 0 -> 5 -> 10 is the Figma's own. -->
+       glyph reads as how far along you are rather than as two unrelated
+       shapes. With Experience gone there are two stops, so the pip steps the
+       Figma's outer two — 0 for Work, 10 for Outside work — and the middle
+       glyph goes with the section it belonged to. -->
   <span class="sx-nav-mark" aria-hidden="true">
     <svg viewBox="0 0 15 20" data-for="work" fill="none">
       <rect x="0" y="0" width="5" height="5" class="sx-mark-pip"/>
       <rect x="0" y="6" width="5" height="14"/>
       <rect x="5" y="12" width="5" height="8"/>
       <rect x="10" y="16" width="5" height="4"/>
-    </svg>
-    <svg viewBox="0 0 15 20" data-for="exp" fill="none">
-      <rect x="5" y="0" width="5" height="5" class="sx-mark-pip"/>
-      <rect x="0" y="14" width="5" height="6"/>
-      <rect x="5" y="6" width="5" height="14"/>
-      <rect x="10" y="12" width="5" height="8"/>
     </svg>
     <svg viewBox="0 0 15 20" data-for="outside" fill="none">
       <rect x="10" y="0" width="5" height="5" class="sx-mark-pip"/>

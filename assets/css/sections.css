@@ -1,5 +1,5 @@
 /* ============================================================================
-   Work · Experience — the sections on the other side of the glass.
+   Work · Archive · the hand-off — the sections on the other side of the glass.
 
    Namespaced `sx-`. The landing file still carries bare `h2` and generic
    .card/.panel/.rail selectors from its placeholder era; the prefix is what
@@ -86,7 +86,10 @@
   --sx-ink-3: rgba(244,241,236,.54);   /*  6.4:1 on --sx-wall */
   --sx-ink-4: rgba(244,241,236,.12);   /* hairlines and rules, never type */
 
-  /* Paper half (Experience) — warm, matching the cream rather than a blue sheet. */
+  /* Paper half — warm, matching the cream rather than a blue sheet. Nothing
+     uses it right now: it was the Experience section's ground, and that section
+     has been taken out. Kept because it is the page's only light palette and
+     whatever comes back on paper should be printed on the same values. */
   --sx-paper:   #EDEAE3;
   --sx-slate:   #100F0E;
   --sx-slate-2: rgba(16,15,14,.74);
@@ -1442,268 +1445,27 @@
 .sx-row .sx-tile { transition: opacity .35s var(--sx-ease); }
 
 /* ---------------------------------------------------------------------------
-   4 · EXPERIENCE — light. The tonal flip IS the section change.
-   ---------------------------------------------------------------------------
-   Work was the machine's output, so it ran on the machine's ground. This is ten
-   years of a person, so it runs on paper. The one thing that stays dark is the
-   figure's own panel — because he is still lit by a monitor. Light and dark are
-   nested here rather than sequential, which is what lets both exist on one page
-   without either looking like a theme toggle.
-   ------------------------------------------------------------------------- */
-
-/* Gradient bridge, ~36vh. A hard edge here would snap, and nothing snaps. */
-/* The seam still has to deliver the page from the machine's ground to the paper
-   the Experience section is printed on — but it no longer does it through dusk.
-   The blues were written when a near-black section sat above this; with the
-   level's green floor now biting down into it, a navy ramp read as a third
-   colour arriving between two that were already saying enough.
-
-   So it holds BLACK through the whole stretch the floor's teeth reach into, and
-   the climb to paper that follows is neutral. Same job, no hue of its own. */
-.sx-seam-paper {
-  height: 36vh;
-  background: linear-gradient(180deg,
-    #000 0%, #000 44%, #6E6A63 78%, var(--sx-paper) 100%);
-}
-
-#sx-exp {
-  background: var(--sx-paper);
-  color: var(--sx-slate);
-  padding-bottom: clamp(4rem, 10vh, 7rem);
-}
-#sx-exp .sx-mono { color: var(--sx-slate-3); }
-#sx-exp .sx-lede { color: var(--sx-slate-2); }
-#sx-exp h2 { color: var(--sx-slate); }
-
-.sx-exp-layout {
-  display: grid;
-  grid-template-columns: minmax(280px, 5fr) minmax(0, 7fr);
-  gap: clamp(1.5rem, 4vw, 4rem);
-  align-items: start;
-}
-
-/* --- the pinned character panel --- */
-.sx-rig {
-  position: sticky;
-  top: max(4vh, calc(50vh - 300px));
-  border-radius: 6px;
-  overflow: hidden;
-  background:
-    radial-gradient(120% 90% at 50% 8%, rgba(233,162,59,.16) 0%, transparent 58%),
-    linear-gradient(180deg, #131518 0%, var(--sx-void) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(237,239,242,.12),
-    0 40px 80px -40px rgba(17,18,20,.55);
-  padding: clamp(1.1rem, 2vw, 1.6rem);
-  color: var(--sx-ink);
-}
-
-.sx-rig-head {
-  display: flex;
-  align-items: center;
-  gap: .7rem;
-  font-family: var(--sx-mono);
-  font-size: var(--sx-t-mono);
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--sx-ink-3);
-  margin-bottom: .5rem;
-}
-.sx-rig-head .sx-sp { flex: 1; }
-/* The company is a proper noun. Uppercasing it turned "MediaAgility" into
-   "MEDIAAGILITY", which reads as a typo. */
-.sx-rig-head #sx-lv-name { text-transform: none; letter-spacing: .1em; color: var(--sx-ink-2); }
-
-/* The level readout. Tabular figures so the number cannot shift the layout when
-   it ticks — a counter that nudges its own label is the classic HUD bug. */
-.sx-lv {
-  font-family: var(--sx-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: clamp(1.6rem, 3vw, 2.3rem);
-  line-height: 1;
-  letter-spacing: -.02em;
-  color: var(--sx-ice);
-  display: flex;
-  align-items: baseline;
-  gap: .4rem;
-}
-.sx-lv small {
-  font-size: var(--sx-t-mono);
-  letter-spacing: .2em;
-  color: var(--sx-ink-3);
-  align-self: center;
-}
-
-/* The stage the figure is drawn on. Fixed aspect so the pinned panel never
-   changes height as the character upgrades — reserving the space is what keeps
-   the sticky column from jittering. */
-.sx-stage {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  margin: .9rem 0 1rem;
-}
-.sx-stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-
-/* --- loadout slots --- */
-.sx-slots {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: .5rem;
-}
-.sx-slot {
-  position: relative;
-  border-radius: 3px;
-  padding: .55rem .5rem .5rem;
-  background: rgba(237,239,242,.035);
-  box-shadow: inset 0 1px 0 rgba(237,239,242,.07);
-  text-align: center;
-  transition: background .5s var(--sx-ease), box-shadow .5s var(--sx-ease);
-}
-.sx-slot svg { width: 22px; height: 22px; display: block; margin: 0 auto .4rem; }
-.sx-slot .sx-slot-l {
-  font-family: var(--sx-mono);
-  font-size: 9px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--sx-ink-3);
-  line-height: 1.3;
-  display: block;
-}
-.sx-slot [data-stroke] { stroke: var(--sx-ink-4); fill: none; transition: stroke .5s var(--sx-ease); }
-
-.sx-slot[data-on="1"] {
-  background: rgba(233,162,59,.12);
-  box-shadow: inset 0 1px 0 rgba(237,239,242,.18);
-}
-.sx-slot[data-on="1"] [data-stroke] { stroke: var(--sx-ice); }
-.sx-slot[data-on="1"] .sx-slot-l { color: var(--sx-ink-2); }
-
-/* --- the stops --- */
-.sx-stops { display: grid; gap: clamp(1rem, 2.5vh, 1.75rem); }
-
-.sx-stop {
-  position: relative;
-  padding: clamp(1.5rem, 3.5vw, 2.4rem);
-  border-radius: 5px;
-  background: #FFFFFF;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,1),
-    0 1px 2px rgba(17,18,20,.05),
-    0 18px 40px -28px rgba(17,18,20,.3);
-  transition: transform .6s var(--sx-ease), box-shadow .6s var(--sx-ease), opacity .6s var(--sx-ease);
-}
-
-/* Long stops need breathing room so the sticky rig has scroll to react to. */
-.sx-stop:not(:last-child) { margin-bottom: clamp(4rem, 14vh, 11rem); }
-
-/* The active stop is the one currently driving the character.
-   Emphasis is LIFT plus an accent rail — never a text fade. Dropping the whole
-   card to 50% opacity took its body copy from 7.4:1 to roughly 4.3:1, under AA,
-   and an unreadable card is a bad way to say "look at the other one". */
-.sx-stop::before {
-  content: "";
-  position: absolute;
-  left: 0; top: 1.4rem; bottom: 1.4rem;
-  width: 2px;
-  border-radius: 0 2px 2px 0;
-  background: var(--sx-accent);
-  opacity: 0;
-  transition: opacity .5s var(--sx-ease);
-}
-.sx-stop[data-active="1"]::before { opacity: 1; }
-.sx-stop[data-active="0"] {
-  transform: scale(.988);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,1),
-    0 1px 2px rgba(17,18,20,.04),
-    0 10px 24px -20px rgba(17,18,20,.22);
-}
-.sx-stop[data-active="1"] {
-  transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,1),
-    0 2px 4px rgba(17,18,20,.06),
-    0 28px 60px -30px rgba(17,18,20,.38);
-}
-
-.sx-stop .sx-yr {
-  font-family: var(--sx-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: var(--sx-t-mono);
-  letter-spacing: .18em;
-  color: var(--sx-slate-3);
-  margin: 0 0 .55rem;
-  display: flex;
-  align-items: center;
-  gap: .8rem;
-}
-.sx-stop .sx-yr i {
-  height: 1px; flex: 1; max-width: 3rem;
-  background: var(--sx-slate-4);
-  display: block;
-}
-.sx-stop h3 {
-  font-family: var(--sx-serif);
-  font-weight: 400;
-  font-size: clamp(1.7rem, 3.1vw, 2.5rem);
-  line-height: 1.06;
-  letter-spacing: -.015em;
-  margin: 0 0 .3rem;
-  color: var(--sx-slate);
-}
-.sx-stop .sx-role {
-  font-family: var(--sx-mono);
-  font-size: var(--sx-t-mono);
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--sx-glow-ink);
-  margin: 0 0 .9rem;
-}
-.sx-stop p.sx-desc {
-  margin: 0;
-  color: var(--sx-slate-2);
-  max-width: 48ch;
-}
-
-/* The acquisition line. This is the sentence that makes the upgrade legible in
-   words as well as in the figure — three lines per card is the hard ceiling, or
-   people read cards instead of watching the character. */
-.sx-gain {
-  display: flex;
-  align-items: center;
-  gap: .7rem;
-  margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--sx-slate-4);
-  font-family: var(--sx-mono);
-  font-size: var(--sx-t-mono);
-  letter-spacing: .13em;
-  text-transform: uppercase;
-  color: var(--sx-slate-3);
-}
-.sx-gain b { color: var(--sx-slate); font-weight: 500; }
-/* Airtel carries two gains. Only the first opens a rule — consecutive ones are
-   the same list continuing, not a new block. */
-.sx-gain + .sx-gain { border-top: 0; padding-top: 0; margin-top: .5rem; }
-.sx-gain .sx-plus { color: var(--sx-glow-ink); }
-
-/* 2024, the motion tool. The reinvention beat, and the only warm thing in the
-   light half of the site. Warmth appears twice site-wide; this is the second. */
-.sx-gain[data-warm] .sx-plus,
-.sx-gain[data-warm] b { color: var(--sx-chai); }
-
-/* ---------------------------------------------------------------------------
-   5 · HANDOFF — the light drains and the figure sits down at the monitor.
+   4 · HANDOFF — the level's light drains and the monitor takes back over.
    ---------------------------------------------------------------------------
    The failure mode at this seam is a static thing abruptly becoming a moving
    thing. This block is already receding before the video takes over, so there
    is no cut to notice — just something moving away that keeps moving away.
    ------------------------------------------------------------------------- */
 
+/* The only seam left between the level and the film. It used to climb out of
+   paper, because the Experience section was printed on paper; with that gone
+   the level hands straight to the void, so it holds black through the stretch
+   the green floor's teeth reach into and settles the last few percent onto the
+   void's own value. Same job, and now no hue of its own at all. */
 .sx-seam-out {
-  height: 40vh;
+  /* 40vh was written when a whole section stood between the level and this.
+     On its own it put the hand-off slab barely 300px below the floor's teeth,
+     which read as the two colliding rather than as one draining into the
+     other. 60vh is the shortest run that lets the teeth resolve into black
+     before anything else arrives. */
+  height: 60vh;
   background: linear-gradient(180deg,
-    var(--sx-paper) 0%, #93A4C0 22%, #2A3547 54%, var(--sx-void) 100%);
+    #000 0%, #000 62%, var(--sx-void) 100%);
 }
 
 #sx-hand {
@@ -1763,53 +1525,6 @@
   .sx-entry-aside,
   .sx-entry-vis { grid-column: 1 / 13; }
 
-  .sx-exp-layout { grid-template-columns: 1fr; }
-
-  /* The rig becomes a compact bar pinned to the top of the viewport rather than
-     a tall column. It has to stay SHORT: anything taller sits on top of the
-     card heading the reader is trying to get to, and the heading is the whole
-     point of the card. One row — figure, level, slots — and nothing else. */
-  .sx-rig {
-    top: 0;
-    z-index: 5;
-    display: grid;
-    /* Placed explicitly, not auto-flowed. Auto-flow follows source order — which
-       is level, figure, slots — so any change to the column count silently
-       reshuffles them into the wrong cells. */
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-areas:
-      "fig lv"
-      "fig slots";
-    align-items: center;
-    column-gap: clamp(.7rem, 3vw, 1.1rem);
-    row-gap: .4rem;
-    padding: .6rem .85rem;
-    margin-bottom: 1.5rem;
-    border-radius: 0 0 6px 6px;
-    /* Reads as a deliberate overlay rather than a collision with whatever card
-       happens to be passing under it. */
-    box-shadow:
-      inset 0 -1px 0 rgba(237,239,242,.1),
-      0 14px 28px -18px rgba(17,18,20,.5);
-  }
-  /* The label row is the first thing to go — "LOADOUT" and the company name are
-     both already said by the card the rig is reacting to. */
-  .sx-rig-head { display: none; }
-  .sx-stage {
-    grid-area: fig;
-    margin: 0;
-    width: clamp(72px, 20vw, 96px);
-    aspect-ratio: 16 / 10;   /* the figure's own proportion; 1:1 letterboxed it */
-  }
-  .sx-lv { grid-area: lv; font-size: clamp(1.25rem, 5vw, 1.6rem); }
-  .sx-slots { grid-area: slots; gap: .3rem; }
-  .sx-slot { padding: .35rem .25rem; }
-  .sx-slot svg { width: 18px; height: 18px; margin-bottom: 0; }
-
-  /* Anchoring and keyboard focus must clear the pinned bar, or jumping to a
-     stop lands it underneath. */
-  .sx-stop { scroll-margin-top: 7.5rem; }
-
   .sx-row[data-cols="6"] { grid-template-columns: repeat(4, 1fr); }
 }
 
@@ -1820,22 +1535,13 @@
   .sx-pair { grid-template-columns: 1fr; }
   .sx-facts { gap: 1.25rem 2rem; }
   .sx-facts div { flex: 1 1 40%; }
-  .sx-stop:not(:last-child) { margin-bottom: 3rem; }
-  .sx-slots { grid-template-columns: repeat(4, 1fr); gap: .3rem; }
-  .sx-slot .sx-slot-l { display: none; }
-  .sx-slot svg { margin-bottom: 0; }
-}
-
-@media (max-width: 420px) {
-  .sx-stage { width: 64px; }
-  .sx-rig { padding: .5rem .65rem; }
 }
 
 /* ---------------------------------------------------------------------------
    Reduced motion.
    Everything that MOVES stops. Everything that COMMUNICATES stays: the boot
-   text is fully typed, the character sits at its final loadout, reveals are
-   simply on. The section still tells the same story without animating it.
+   text is fully typed and reveals are simply on. The section still tells the
+   same story without animating it.
    ------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1844,73 +1550,9 @@
   .sx-js [data-reveal] { opacity: 1; transform: none; filter: none; }
   .sx-js [data-reveal][data-in] { transition: none; }
 
-  .sx-stop, .sx-slot, .sx-sheen, .sx-row .sx-tile { transition: none; }
-  .sx-stop[data-active="0"] { opacity: 1; }
+  .sx-sheen, .sx-row .sx-tile { transition: none; }
   .sx-hand-stage { transform: none; opacity: 1; }
 }
-
-/* ---------------------------------------------------------------------------
-   The figure
-   ---------------------------------------------------------------------------
-   Kit is toggled by [data-on] rather than by adding and removing nodes, so
-   every item is in the DOM from the start and scrolling back up puts it away
-   instead of destroying it. `transform-box: fill-box` is what makes
-   transform-origin behave inside SVG — without it every item scales about the
-   viewBox origin and flies in from the corner.
-   ------------------------------------------------------------------------- */
-
-#sx-figure [data-kit] {
-  opacity: 0;
-  transform: translateY(7px) scale(.86);
-  transform-box: fill-box;
-  transform-origin: 50% 70%;
-  transition:
-    opacity .55s var(--sx-ease-out),
-    transform .7s var(--sx-ease-out);
-}
-#sx-figure [data-kit][data-on="1"] { opacity: 1; transform: none; }
-
-/* The crown drops in from above rather than rising — it is placed on him. */
-#sx-figure [data-kit="crown"] { transform: translateY(-10px) scale(.8); }
-
-/* The second monitor slides in from the right edge, which is where a second
-   monitor actually comes from. */
-#sx-figure [data-kit="monitor2"] { transform: translateX(16px) scale(.94); }
-
-/* Posture. He sits fractionally taller at each stop — scaled about the seat so
-   the desk line stays exactly where it is. This is the content file's 34/38/44/52
-   figure heights expressed as a transform instead of four different drawings. */
-#sx-figure [data-body] {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  transition: transform .9s var(--sx-ease-out);
-}
-#sx-figure[data-level="1"] [data-body] { transform: scale(1.015); }
-#sx-figure[data-level="2"] [data-body] { transform: scale(1.03); }
-#sx-figure[data-level="3"] [data-body] { transform: scale(1.05); }
-#sx-figure[data-level="4"] [data-body] { transform: scale(1.075); }
-
-/* The monitor spill brightens as the rig grows. The room is lit by the work. */
-#sx-figure .sx-spill {
-  opacity: .45;
-  transition: opacity 1s var(--sx-ease-out);
-}
-#sx-figure[data-level="1"] .sx-spill { opacity: .6; }
-#sx-figure[data-level="2"] .sx-spill { opacity: .72; }
-#sx-figure[data-level="3"] .sx-spill { opacity: .86; }
-#sx-figure[data-level="4"] .sx-spill { opacity: 1; }
-
-/* The 2024 line sits dimmed until the beat lands, so the last card visibly has
-   something still to come rather than showing both gains at once. */
-.sx-gain[data-warm] { transition: opacity .6s var(--sx-ease); }
-
-@media (prefers-reduced-motion: reduce) {
-  #sx-figure [data-kit],
-  #sx-figure [data-body],
-  #sx-figure .sx-spill,
-  .sx-gain[data-warm] { transition: none; }
-}
-
 
 /* ===========================================================================
    MORE STORIES — the bento
@@ -3613,9 +3255,11 @@
     rgba(16,16,15,.76);         /* see the note on contrast below */
   /* Two things are darkening this, and the split matters.
 
-     The Figma only ever shows the pill on black, but the page has a light half
-     — Experience fades to paper — and glass over paper turns pale, which left
-     cream labels on a cream surface at 2.7:1. Unreadable.
+     The Figma only ever shows the pill on black, but the page has a light
+     stretch — the Claude Code level is white — and glass over white turns pale,
+     which left cream labels on a cream surface at 2.7:1. Unreadable. (The half
+     this was first tuned against was Experience's paper; that section is gone
+     and the level, being whiter still, inherited the worst case.)
 
      brightness() below fixes that elegantly when it runs: it darkens the
      BACKDROP rather than stacking a fill over it, so black stays black and only
@@ -3625,7 +3269,7 @@
 
      So the tint above carries the contrast ON ITS OWN, and brightness is an
      enhancement on top. At .76 the fallback measures 16:1 over the dark
-     sections and stays legible over paper, while over black it composites to
+     sections and stays legible over the level, while over black it composites to
      the same rgb(32,32,31) the Figma's own fill gives — the design's look is
      unchanged where the design specified it. */
   -webkit-backdrop-filter: blur(22px) saturate(1.7) brightness(.45);
@@ -3659,11 +3303,12 @@
        still read what is behind it, which is the whole point of a glass.
 
        .38 and brightness(.40) are the most transparent pair that survives the
-       page's worst case — the pill over the paper half of Experience with the
-       Gamezop headline behind it. Sampled off a render there, the brightest
-       tenth of the pill's own surface measures rgb(111) and no lighter, which
-       holds the active label at 5.0:1 and the quiet ones at 4.5:1. Thinner
-       than this and the labels go under 4.5 against their own background. */
+       page's worst case. That case used to be the paper half of Experience;
+       with that section gone it is the pill over the white Claude Code level,
+       which is paler still. Re-sampled there, the brightest tenth of the pill's
+       own surface holds the active label at 7.2:1 and the quiet ones at 4.7:1.
+       Thinner than this and the labels go under 4.5 against their own
+       background. */
     -webkit-backdrop-filter: blur(10px) saturate(1.9) contrast(1.06) brightness(.40);
             backdrop-filter: blur(10px) saturate(1.9) contrast(1.06) brightness(.40);
   }
@@ -3847,7 +3492,6 @@
 .sx-nav-i:focus-visible { color: #fff; }
 
 .sx-nav[data-active="work"]    .sx-nav-i[data-sec="work"],
-.sx-nav[data-active="exp"]     .sx-nav-i[data-sec="exp"],
 .sx-nav[data-active="outside"] .sx-nav-i[data-sec="outside"] {
   font-weight: 700;
   color: #fff;
@@ -3900,7 +3544,6 @@
 .sx-nav-mark .sx-mark-pip { fill: #fff; }
 
 .sx-nav[data-active="work"]    .sx-nav-mark svg[data-for="work"],
-.sx-nav[data-active="exp"]     .sx-nav-mark svg[data-for="exp"],
 .sx-nav[data-active="outside"] .sx-nav-mark svg[data-for="outside"] { opacity: 1; }
 /* Nothing to mark at the top of the page — that state belongs to the portrait. */
 .sx-nav[data-active="hero"] .sx-nav-mark { --mo: 0; }
