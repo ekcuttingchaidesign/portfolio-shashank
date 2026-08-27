@@ -283,6 +283,15 @@ near each nominal boundary instead.
 
 **Always pass all four in one command**, or they drift apart again.
 
+## The hand-off no longer reserves a slab
+
+There used to be a 21:9 plate here waiting on a render of the desk, captioned
+*"The desk you have been looking at, from inside the monitor"*. It is gone. A
+placeholder standing in a whole screen of its own, between the last job and the
+last sentence, cost more than the missing art did — the line reads better
+arriving straight off the end of the career. If that render is ever made, it
+belongs composited into the pull-out film, not in a box above it.
+
 ## Loading
 
 Nothing is fetched with the page. The first sheet is warmed when the section

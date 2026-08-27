@@ -352,7 +352,6 @@
     const celB   = reel && reel.querySelector('[data-cel="b"]');
     const sweep  = reel && reel.querySelector('.sx-xp-sweep');
     const card   = xp.querySelector('.sx-xp-card');
-    const elN    = document.getElementById('sx-xp-n');
     const elCo   = document.getElementById('sx-xp-co');
     const elYr   = document.getElementById('sx-xp-yr');
     const pips   = [...document.querySelectorAll('#sx-xp-pips li')];
@@ -539,14 +538,12 @@
       });
     };
 
-    const pad2 = n => String(n).padStart(2, '0');
-
     const readout = i => {
       const s = xpStops[i];
       if (!s) return;
-      if (elN) elN.textContent = `${pad2(i + 1)} / ${pad2(xpStops.length)}`;
       /* The dot belongs to the stop, not to the card, so it lights only on the
-         one that has not ended. */
+         one that has not ended. The numeric counter that used to sit beside it
+         is gone — the pips say the same thing without a second reading. */
       if (card) s.hasAttribute('data-current')
         ? card.setAttribute('data-current', '')
         : card.removeAttribute('data-current');
