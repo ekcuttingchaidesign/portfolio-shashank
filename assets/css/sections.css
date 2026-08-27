@@ -1595,6 +1595,7 @@
    inconsistency: down there it floats over scrolling text and needs a ground to
    stay legible against.) */
 .sx-xp-card {
+  position: relative;
   border: 0;
   background: none;
   padding: 0;
@@ -1609,11 +1610,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: .45rem;
-  font-family: var(--sx-mono);
-  font-size: var(--sx-t-mono);
-  letter-spacing: .16em;
-  text-transform: uppercase;
+  gap: .5rem;
+  /* Satoshi, not the mono. At mono's --sx-t-mono this was a 10px tracked-out
+     caption under a 32px name — it read as a stamp on the picture rather than
+     as half of the label. In the page's own face at body size it is the second
+     line of a two-line title, which is what it is.
+
+     No uppercasing either: these are digits and an en dash, and a
+     text-transform on them only bought the letter-spacing an excuse. */
+  font-family: var(--sx-sans);
+  font-weight: 400;
+  font-size: clamp(.94rem, 1.15vw, 1.1rem);
+  letter-spacing: .01em;
   color: var(--sx-ink-3);
   font-variant-numeric: tabular-nums;
   margin: clamp(.9rem, 2.5vh, 1.4rem) 0 0;
@@ -1649,33 +1657,37 @@
 }
 /* The light he stands in. Its warmth is written by script as the career runs,
    so the room gets brighter as the jobs get bigger. */
-/* The bloom behind him. Warm, wide and weak — the same reading of a big soft
-   light the mascot's plinth over in Things That Move uses: a broad radial
-   wash rather than a filtered layer, because a blur is only worth its layer
-   when the thing underneath has structure to lose, and this has none.
+/* The bloom behind him.
 
-   It brightens as the career does, so the room he is standing in gets warmer
-   from MediaAgility to Airtel without anything announcing that it has. */
+   It was a 50%-radius gradient inside the frame, which put its whole falloff
+   inside the character's own box — bright at his middle and finished at his
+   edges, which is a hot spot behind a figure rather than a room he is standing
+   in. Now it is a sibling of the frame, half again as wide as he is, and its
+   peak alpha is roughly halved: a wide weak wash with no core and no edge,
+   which is the shape a big soft light actually makes. Same reading the mascot's
+   plinth downstairs uses, and for the same reason — a blur is only worth its
+   layer when what is under it has structure to lose, and this has none.
+
+   It brightens as the career runs, so the room gets warmer from MediaAgility to
+   Airtel without anything announcing that it has. */
 .sx-xp-glow {
   position: absolute;
-  inset: -18% -12% -10%;
-  background: radial-gradient(50% 42% at 50% 66%,
-    rgba(224,84,42, calc(.10 + var(--sx-xp-heat, 0) * .13)) 0%,
-    rgba(224,84,42, calc(.05 + var(--sx-xp-heat, 0) * .07)) 38%,
-    rgba(224,84,42, 0) 72%);
+  left: -26%; right: -26%;
+  top: -14%;
+  /* Tied to the frame's square, so the wash scales with the character rather
+     than with however tall the readout under him happens to be. */
+  aspect-ratio: 1 / 1;
+  background: radial-gradient(58% 50% at 50% 58%,
+    rgba(224,84,42, calc(.052 + var(--sx-xp-heat, 0) * .055)) 0%,
+    rgba(224,84,42, calc(.034 + var(--sx-xp-heat, 0) * .038)) 32%,
+    rgba(224,84,42, calc(.014 + var(--sx-xp-heat, 0) * .018)) 58%,
+    rgba(224,84,42, 0) 82%);
   transition: background .9s var(--sx-ease-out);
   pointer-events: none;
+  z-index: 0;
 }
-/* The ground line. Not a drawn floor — just where the light stops. */
-.sx-xp-floor {
-  position: absolute;
-  left: 12%; right: 12%;
-  bottom: 11.5%;
-  height: 1px;
-  background: linear-gradient(90deg,
-    transparent, rgba(244,241,236,.16) 26%, rgba(244,241,236,.16) 74%, transparent);
-  pointer-events: none;
-}
+/* Everything on the card sits over the wash. */
+.sx-xp-frame, .sx-xp-yr, .sx-xp-co, .sx-xp-pips { position: relative; z-index: 1; }
 
 .sx-xp-reel { position: absolute; inset: 0; }
 
@@ -2014,7 +2026,6 @@
        as a box in a box at this size. */
     background: none;
   }
-  .sx-xp-floor { display: none; }
   .sx-xp-co { grid-area: co; margin: 0; font-size: 1.02rem; line-height: 1.2; text-align: left; }
   .sx-xp-pips { grid-area: pips; margin: .28rem 0 .1rem; }
 

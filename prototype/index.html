@@ -1273,10 +1273,15 @@
         <aside class="sx-xp-stage" id="sx-xp-stage" aria-hidden="true">
           <div class="sx-xp-card">
 
-            <div class="sx-xp-frame">
-              <!-- The light he stands in. Warms as the career does. -->
-              <span class="sx-xp-glow" aria-hidden="true"></span>
+            <!-- The light he stands in, and it sits OUTSIDE the frame on
+                 purpose. The frame clips — the re-render's bar has to end
+                 somewhere — so a bloom inside it could never be wider than the
+                 character's own box, which is exactly why it read as a hot spot
+                 behind him rather than as a room he is lit in. Out here it can
+                 spread past him. -->
+            <span class="sx-xp-glow" aria-hidden="true"></span>
 
+            <div class="sx-xp-frame">
               <div class="sx-xp-reel" id="sx-xp-reel">
                 <span class="sx-xp-cel" data-cel="a" aria-hidden="true"></span>
                 <span class="sx-xp-cel" data-cel="b" aria-hidden="true"></span>
@@ -1782,6 +1787,36 @@
     return Math.min(Math.max(-r.top / travel, 0), 1);
   }
 
+  /* The pull-out's lead-in.
+     ------------------------------------------------------------------------
+     The out-film becomes the live clip the moment #s-exit enters the screen —
+     that is what `exitVisible` decides — but progressOf only starts counting
+     once the section's TOP has climbed all the way to y=0. Between those two
+     moments the picture is up and completely still. Measured at 1440x900: the
+     film appeared at scroll 13695 and did not move until 14595. Nine hundred
+     pixels, a whole viewport, of a frozen frame — and Experience finished at
+     14165, in the middle of it, which is why the dive back out felt like it
+     began long after the career had ended.
+
+     The lead starts the scrub half a screen earlier, which puts the first
+     frame of movement within about twenty pixels of Experience's last. The
+     film therefore reaches its end half a screen before the section does, and
+     holds the final frame there — which is not dead scroll, because that is
+     exactly the stretch #s-connect is fading up over.
+
+     Entry is deliberately untouched: the dive IN is anchored to the top of the
+     page and has no frozen window to close. */
+  const EXIT_LEAD = () => innerHeight * 0.5;
+
+  function exitProgressOf(el) {
+    const r = el.getBoundingClientRect();
+    const travel = r.height - innerHeight;
+    /* Below the breakpoint the scrub sections unpin to 100vh and there is no
+       timeline left to lead into. */
+    if (travel <= 0) return r.top <= 0 ? 1 : 0;
+    return Math.min(Math.max((-r.top + EXIT_LEAD()) / travel, 0), 1);
+  }
+
   /* Where the hero IS, as a scroll position.
      ------------------------------------------------------------------------
      The hero is not a section you can scroll to. It is a stretch of #s-enter's
@@ -1889,7 +1924,7 @@
   let curEnter = 0, curExit = 0, rafId = 0, idle = 0;
 
   function frame() {
-    const tEnter = progressOf(sEnter), tExit = progressOf(sExit);
+    const tEnter = progressOf(sEnter), tExit = exitProgressOf(sExit);
 
     if (reduced) { curEnter = tEnter; curExit = tExit; }
     else {
@@ -2090,7 +2125,7 @@
   fitScreenToGlass();
   fitStage();
   curEnter = progressOf(sEnter);    // start settled, so a mid-page reload doesn't ease in
-  curExit  = progressOf(sExit);
+  curExit  = exitProgressOf(sExit);
   update(curEnter, curExit);        // paint the right state now, not on the first frame
   kick();
 })();
