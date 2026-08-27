@@ -497,11 +497,11 @@
 }
 
 /* --- the mascot ---
-   Two sheets in one window. The box clips to a single cell; the sheet behind
-   it steps. 600% wide means the image is six cells across, so 20% of
-   background-position lands each column; the row divisor differs because the
-   sheets are different depths, which is the whole reason data-pose carries the
-   background-size as well as the file.
+   Two sheets, one window, a layer each. The box clips to a single cell; the
+   sheet behind it steps. 600% wide means the image is six cells across, so 20%
+   of background-position lands each column; the row divisor differs because
+   the sheets are different depths, which is why each layer carries its own
+   background-size rather than the pose swapping one.
 
    Both files are generated, not delivered, and the second reason is more
    interesting than the first. The delivered sheets are rendered by an image
@@ -557,27 +557,56 @@
   padding: 0;
   border: 0;
   border-radius: 12px;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  /* Frame 0 — standing. The resting state with no script and with motion off. */
-  background-position: 0% 0%;
+  background: transparent;
   opacity: .94;
   cursor: pointer;
-  /* Only the transform transitions. The sprite owns background-position and a
+  /* Only the transform transitions. A sheet owns background-position and a
      transition on it would slide the sheet across the window between frames. */
   transition: transform .35s var(--sx-ease), opacity .35s var(--sx-ease);
 }
-.sx-mv-mascot[data-pose="vibe"] {
+
+/* --- the two sheets ---
+   One layer each, and the pose decides only which one is VISIBLE.
+
+   This used to be one element whose background-image the pose swapped. That is
+   what put an empty plinth on screen: a CSS background is a resource of its
+   own, unrelated to any Image() the script may have warmed, so flipping to the
+   walk pose sent the browser back for the 470KB sheet AT THE MOMENT OF THE
+   HOVER — and the character painted nothing until the fetch and the decode both
+   landed. With a warm HTTP cache that is invisible; ten minutes later, or on a
+   phone, it is a second of nothing. Which is exactly "sometimes".
+
+   Declared on layers instead, the file is fetched once when the section is
+   approached and the hover costs an opacity flip. will-change keeps each layer
+   on the compositor so the flip never waits on a raster either. */
+.sx-mv-sheet {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  /* Frame 0 — standing. The resting state with no script and with motion off. */
+  background-position: 0% 0%;
+  opacity: 0;
+  will-change: opacity;
+  pointer-events: none;
+}
+.sx-mv-sheet[data-sheet="vibe"] {
   background-image: url("../../public/img/mascot_music_vibe.webp");
   background-size: 600% 200%;
 }
-/* The walk sheet's URL also lives as a custom property, because the preloader
-   has to know it before the pose has switched to it. One place to change. */
+/* The walk sheet's URL lives as a custom property, because the warmer has to
+   know it before the layer is wearing it. One place to change.
+
+   It is declared only under [data-warm], which the script sets as the section
+   comes up the screen. That keeps the deferred fetch the sheet was always
+   given — it is the heavier of the two and nobody has hovered yet — while
+   still moving that fetch off the hover and onto the approach. */
 .sx-mv-mascot { --sx-mv-walk: url("../../public/img/mascot_moonwalk_dab2.webp"); }
-.sx-mv-mascot[data-pose="walk"] {
+.sx-mv-mascot[data-warm] .sx-mv-sheet[data-sheet="walk"] {
   background-image: var(--sx-mv-walk);
   background-size: 600% 400%;
 }
+.sx-mv-mascot[data-pose="vibe"] .sx-mv-sheet[data-sheet="vibe"],
+.sx-mv-mascot[data-pose="walk"] .sx-mv-sheet[data-sheet="walk"] { opacity: 1; }
 /* --- the stage ---
    The plinth the character stands on. Sits behind the mascot and is sized off
    it, so the two cannot drift apart: the SVG's own top face ends 105 of its
@@ -1445,27 +1474,503 @@
 .sx-row .sx-tile { transition: opacity .35s var(--sx-ease); }
 
 /* ---------------------------------------------------------------------------
-   4 · HANDOFF — the level's light drains and the monitor takes back over.
+   4 · EXPERIENCE — the career as a rail, and a character who travels it.
+   ---------------------------------------------------------------------------
+   Dark, not paper. The previous version of this section ran on paper because
+   the argument was "work is the machine's output, this is a person" — a good
+   argument, and the wrong one for this art. All four renders are lit for a dark
+   room: the Gamezop frames carry neon tool glyphs, the Airtel walk throws
+   orange arcs off the shoulders, and every figure has a rim light on it. On
+   #EDEAE3 the glows have nothing to glow against. So the tonal flip that used
+   to mark this section is spent instead on the thing above it — the level is
+   white, and coming down off it into black is a bigger change than paper ever
+   was.
+
+   Nearly all this page's remaining boldness is here, in one place: the
+   character changing. Everything around him is deliberately quiet.
+   ------------------------------------------------------------------------- */
+
+/* Down off the level's green floor. Black through the stretch the teeth reach
+   into, then onto the page's own ground rather than a colour of its own. */
+.sx-seam-exp {
+  height: 46vh;
+  background: linear-gradient(180deg,
+    #000 0%, #000 58%, var(--sx-wall) 100%);
+}
+
+#sx-exp {
+  position: relative;
+  padding-bottom: clamp(5rem, 12vh, 9rem);
+}
+
+.sx-xp-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 5fr) minmax(0, 7fr);
+  gap: clamp(1.5rem, 4vw, 4.5rem);
+  align-items: start;
+  margin-top: clamp(2rem, 5vh, 3.5rem);
+}
+
+/* --- the stage -------------------------------------------------------------
+   Sticky, and its height is RESERVED. The frame below holds a fixed aspect
+   ratio and the character is drawn inside it, so the panel is exactly as tall
+   at MediaAgility as it is at Airtel. A sticky column that changes height
+   mid-scroll drags the scroll position with it. */
+.sx-xp-stage {
+  position: sticky;
+  top: max(4vh, calc(50vh - 290px));
+}
+.sx-xp-card {
+  border: 1px solid var(--sx-ink-4);
+  border-radius: 8px;
+  background:
+    radial-gradient(120% 80% at 50% 8%, rgba(224,84,42,.05), transparent 62%),
+    var(--sx-surface);
+  padding: clamp(.85rem, 1.6vw, 1.15rem);
+}
+
+/* The title card. Spec strips on this page read like title cards, and this is
+   the one that says which reel is running. */
+.sx-xp-head {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  margin: 0 0 .7rem;
+}
+.sx-xp-head .sx-sp { flex: 1; }
+.sx-xp-n {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-variant-numeric: tabular-nums;
+}
+/* The running dot, and it is held back on purpose. It appears on exactly one
+   of the four stops — the one that has not ended — so it means "this is still
+   happening" rather than "this is the slide you are looking at", which the
+   counter beside it already says. The only thing on the card that moves of its
+   own accord, spent on the only fact that earns it. */
+.sx-xp-n::before {
+  content: "";
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--sx-key);
+  opacity: 0;
+  transition: opacity .4s var(--sx-ease);
+}
+.sx-xp-card[data-current] .sx-xp-n { color: var(--sx-key); }
+.sx-xp-card[data-current] .sx-xp-n::before {
+  opacity: 1;
+  animation: sx-xp-live 2.4s var(--sx-ease) infinite;
+}
+@keyframes sx-xp-live { 0%, 100% { opacity: 1 } 50% { opacity: .25 } }
+.sx-xp-yr { font-variant-numeric: tabular-nums; }
+
+/* --- the frame the character stands in --- */
+.sx-xp-frame {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 5px;
+  overflow: hidden;
+  background:
+    radial-gradient(80% 60% at 50% 108%, rgba(224,84,42,.10), transparent 70%),
+    linear-gradient(180deg, #0C0C0B 0%, #131312 100%);
+}
+/* The light he stands in. Its warmth is written by script as the career runs,
+   so the room gets brighter as the jobs get bigger. */
+.sx-xp-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(58% 46% at 50% 78%,
+    rgba(224,84,42, calc(.05 + var(--sx-xp-heat, 0) * .17)), transparent 72%);
+  transition: background .9s var(--sx-ease-out);
+  pointer-events: none;
+}
+/* The ground line. Not a drawn floor — just where the light stops. */
+.sx-xp-floor {
+  position: absolute;
+  left: 12%; right: 12%;
+  bottom: 11.5%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent, rgba(244,241,236,.16) 26%, rgba(244,241,236,.16) 74%, transparent);
+  pointer-events: none;
+}
+
+.sx-xp-reel { position: absolute; inset: 0; }
+
+/* --- the two cels ---
+   One layer per sheet, both painted, and the company only decides which is
+   visible. The mascot in Things That Move learned this the expensive way: a
+   CSS background is a resource of its own, so a state change that swaps
+   background-image sends the browser back to the network at the exact moment
+   it is needed and paints nothing until the file lands. Here the sprite is
+   handed to a layer by script BEFORE that layer is ever revealed. */
+.sx-xp-cel {
+  position: absolute;
+  /* Inset off the bottom so the feet sit on the floor line rather than on the
+     frame's own edge, and off the top so the tallest pose has headroom. The
+     normaliser already put every figure's feet on one baseline inside its
+     cell, so this is the only place the standing height is decided. */
+  left: 6%; right: 6%;
+  top: 4%; bottom: 8%;
+  background-repeat: no-repeat;
+  background-position: 0% 50%;
+  background-size: 500% 100%;   /* five frames across, one row */
+  opacity: 0;
+  will-change: opacity, clip-path, transform;
+  transform-origin: 50% 92%;
+}
+.sx-xp-cel[data-live] { opacity: 1; }
+
+/* --- the re-render ---
+   A single vermilion bar crossing the stage. The outgoing character is clipped
+   away behind it and the incoming one is revealed in front of it, so the swap
+   reads as one pass of a renderer rather than as a dissolve between two
+   pictures. Everything here is driven off ONE progress number in script, which
+   is what lets a fast scroll cancel it mid-flight and land on the right
+   character rather than stranding a half-wiped one. */
+.sx-xp-sweep {
+  position: absolute;
+  left: -8%; right: -8%;
+  height: 26%;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, var(--sx-xp-sweep-y, -40%), 0);
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(224,84,42,.00) 12%,
+    rgba(224,84,42,.30) 42%,
+    rgba(253,248,207,.85) 52%,
+    rgba(224,84,42,.30) 62%,
+    transparent 100%);
+  filter: blur(0.5px);
+  mix-blend-mode: screen;
+}
+
+/* --- the readout --- */
+.sx-xp-co {
+  font-family: var(--sx-display);
+  font-weight: 300;
+  font-size: var(--sx-t-sub);
+  line-height: 1.15;
+  color: var(--sx-ink);
+  margin: .85rem 0 0;
+}
+/* Four pips: where you are, and how many there are. */
+.sx-xp-pips {
+  display: flex;
+  gap: 5px;
+  list-style: none;
+  margin: .95rem 0 0;
+  padding: 0;
+}
+.sx-xp-pips li {
+  height: 3px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--sx-ink-4);
+  transition: background .45s var(--sx-ease);
+}
+.sx-xp-pips li[data-on] { background: var(--sx-key); }
+
+/* --- the rail --------------------------------------------------------------
+   The line down the left of the stops, and the stops themselves. The rail is
+   drawn on the list rather than on each item so it is continuous through the
+   gaps — a career is not four separate lines. */
+.sx-xp-rail {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 clamp(1.35rem, 3vw, 2.25rem);
+}
+.sx-xp-rail::before {
+  content: "";
+  position: absolute;
+  left: 0; top: .55em; bottom: 0;
+  width: 1px;
+  background: var(--sx-ink-4);
+}
+/* How far you have travelled it. Written by script, so the filled length is
+   the reading position rather than a decoration that animates once. */
+.sx-xp-rail::after {
+  content: "";
+  position: absolute;
+  left: 0; top: .55em;
+  width: 1px;
+  height: calc(var(--sx-xp-run, 0) * (100% - .55em));
+  background: linear-gradient(180deg, var(--sx-key-dim), var(--sx-key));
+  transition: height .35s linear;
+}
+
+.sx-xp-stop {
+  position: relative;
+  /* The travel each stop gets, and it is the section's most important number.
+
+     A stop goes live when its top crosses the trigger line, so the distance
+     between two stop tops IS how long a company stays on the stage. At the
+     first pass this was 11vh, which gave each stop about a third of a screen:
+     the character swapped, and before the wipe had finished crossing the frame
+     the next stop had already taken the trigger. Four changes in barely more
+     than one screen reads as a flicker, not a career.
+
+     54vh puts roughly four fifths of a screen between tops — enough to read
+     the stop, watch him arrive, and have him stand there a moment being that
+     person before the next one is asked for. */
+  padding-bottom: clamp(5rem, 54vh, 24rem);
+  transition: opacity .55s var(--sx-ease);
+}
+.sx-xp-stop:last-child { padding-bottom: 0; }
+/* Quiet until it is the one being read. Never below .38 — a stop you cannot
+   read is a stop you cannot skim ahead to, and this is a CV. */
+.sx-xp-stop[data-active="0"] { opacity: .38; }
+.sx-xp-stop[data-active="1"] { opacity: 1; }
+
+/* The node on the rail. */
+.sx-xp-stop::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * clamp(1.35rem, 3vw, 2.25rem) - 3.5px);
+  top: .55em;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--sx-wall);
+  box-shadow: inset 0 0 0 1px var(--sx-ink-3);
+  transition: box-shadow .45s var(--sx-ease), background .45s var(--sx-ease);
+}
+.sx-xp-stop[data-active="1"]::before {
+  background: var(--sx-key);
+  box-shadow: inset 0 0 0 1px var(--sx-key), 0 0 0 4px rgba(224,84,42,.16);
+}
+
+/* Years, then the shape of the job. Skim the four of these down the rail and
+   you have the whole arc before reading a paragraph: the way in, execution,
+   ownership, lead. */
+.sx-xp-when {
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.sx-xp-when i {
+  font-style: normal;
+  color: var(--sx-key);
+  opacity: .85;
+}
+.sx-xp-when i::before {
+  content: "";
+  display: inline-block;
+  width: 14px; height: 1px;
+  margin-right: .55rem;
+  vertical-align: middle;
+  background: var(--sx-ink-4);
+}
+.sx-xp-stop h3 {
+  font-family: var(--sx-display);
+  font-weight: 300;
+  font-size: var(--sx-t-head);
+  line-height: 1.05;
+  margin: .45rem 0 0;
+  color: var(--sx-ink);
+}
+.sx-xp-role {
+  font-size: var(--sx-t-body);
+  color: var(--sx-key);
+  margin: .5rem 0 0;
+}
+.sx-xp-copy {
+  font-size: var(--sx-t-lede);
+  color: var(--sx-ink-2);
+  margin: .85rem 0 0;
+  max-width: 46ch;
+}
+
+/* --- Airtel's five stints ---
+   The only stop that opens instead of closing. Its rule is thicker because the
+   segment is five years and five jobs, and the reader should be able to see
+   that before reading a word of it. */
+.sx-xp-stints {
+  list-style: none;
+  margin: clamp(1.25rem, 3vh, 1.9rem) 0 0;
+  padding: 0 0 0 clamp(.9rem, 2vw, 1.4rem);
+  border-left: 2px solid rgba(224,84,42,.28);
+  display: grid;
+  gap: clamp(.9rem, 2.2vh, 1.35rem);
+}
+.sx-xp-stints > li { max-width: 44ch; }
+.sx-xp-stint-h {
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+  margin: 0 0 .18rem;
+}
+.sx-xp-stint-h b {
+  font-weight: 500;
+  color: var(--sx-ink);
+  font-size: var(--sx-t-body);
+}
+.sx-xp-stint-h span {
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.sx-xp-stints > li > p:last-child {
+  margin: 0;
+  color: var(--sx-ink-3);
+  font-size: var(--sx-t-body);
+}
+/* The one that outlived its product, and the one that is running now. Warmth
+   is the page's way of saying "this is the part worth telling". */
+.sx-xp-stints > li[data-key] .sx-xp-stint-h b,
+.sx-xp-stints > li[data-now] .sx-xp-stint-h b { color: var(--sx-key); }
+.sx-xp-stints > li[data-key] > p:last-child { color: var(--sx-ink-2); }
+
+/* --- Responsive ---------------------------------------------------------- */
+@media (max-width: 1080px) {
+  .sx-xp-layout { grid-template-columns: 1fr; }
+
+  /* --- the now-playing bar ---
+     On a narrow screen the stage stops being a panel and becomes a bar. It
+     goes to the BOTTOM, and both halves of that are deliberate.
+
+     The top is taken. The page's nav pill is fixed up there, and a second
+     floating bar under it stacked two pieces of chrome into the first 170px of
+     an 844px screen — a fifth of the viewport permanently spent, with the
+     company name landing behind the pill. Measured, not guessed: the pill sits
+     at y15 and runs 40px tall on a 390 screen.
+
+     And the bottom is where this belongs anyway. A small strip carrying a
+     picture, a title and a position is a now-playing bar, and half the work in
+     this section is Wynk and Xstream — the shape is borrowed from the products
+     the story is about rather than from a generic sticky header. */
+  /* Both children share ONE grid cell, and that is what makes the bar work at
+     all. A sticky element can only travel inside its containing block, and for
+     a grid item that block is its own grid AREA — so a stage sitting in its own
+     row had a containing block exactly its own height and could not move a
+     pixel. Measured: it scrolled away to y-427 instead of holding the bottom.
+     Overlaid on the rail, the stage is as tall as the whole list, and the card
+     inside it has the entire section to stick through. */
+  .sx-xp-stage, .sx-xp-rail { grid-area: 1 / 1; }
+  .sx-xp-stage {
+    position: relative;
+    top: auto;
+    /* The layout sets align-items:start for the desktop column, which stops
+       this stretching — so sharing the rail's cell was not enough on its own:
+       the stage stayed 80px tall and the card inside it still had exactly its
+       own height to travel through. Stretched, the stage is as tall as the
+       rail and the card can hold the viewport floor for the whole section. */
+    align-self: stretch;
+    /* The card is parked at the BOTTOM of the stage, and that is the whole
+       trick. Sticky `bottom` only ever pulls an element UP — it holds a thing
+       that would otherwise sit below the viewport floor at the floor instead;
+       it never pushes a thing down. Started at the top of the stage the card
+       simply tracked the stage's top edge off the screen, measured at every
+       scroll position. Parked at the bottom of a 1960px stage it is below the
+       fold from the moment the section opens, so sticky pulls it up to the
+       floor and holds it there until the stage's own bottom arrives. */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    z-index: 5;
+    /* It lies over the rail, and there is nothing in it to click — so the
+       reader's finger, and any selection they drag, go to the text underneath. */
+    pointer-events: none;
+  }
+  .sx-xp-card {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    /* Clear of the home indicator on a phone that has one. */
+    margin-bottom: env(safe-area-inset-bottom, 0px);
+    display: grid;
+    /* Placed explicitly rather than auto-flowed: auto-flow follows source
+       order, so any change to the column count silently reshuffles the cells. */
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "fig head"
+      "fig co"
+      "fig pips";
+    align-items: center;
+    column-gap: clamp(.7rem, 3vw, 1.1rem);
+    row-gap: .15rem;
+    padding: .5rem .7rem;
+    border-radius: 10px 10px 0 0;
+    /* It floats over the rail, so it has to read as chrome rather than as a
+       block that got stuck. An opaque ground and a lift off the page. */
+    background: var(--sx-raise);
+    box-shadow: 0 -18px 30px -22px rgba(0,0,0,.9);
+  }
+  .sx-xp-head { grid-area: head; margin: 0; }
+  .sx-xp-frame {
+    grid-area: fig;
+    width: clamp(56px, 16vw, 76px);
+    aspect-ratio: 1 / 1;
+    /* The bar's own ground already does this; a second panel inside it reads
+       as a box in a box at this size. */
+    background: none;
+  }
+  .sx-xp-floor { display: none; }
+  .sx-xp-co { grid-area: co; margin: 0; font-size: 1.02rem; line-height: 1.2; }
+  .sx-xp-pips { grid-area: pips; margin: .28rem 0 .1rem; }
+
+  /* The bar sits over the end of the rail, so the rail has to end above it. */
+  .sx-xp-rail { padding-bottom: 5.5rem; }
+  /* Anchoring and keyboard focus clear the nav pill at the top. */
+  .sx-xp-stop { scroll-margin-top: 5.5rem; }
+}
+
+@media (max-width: 720px) {
+  /* Less travel on a phone, and for a reason rather than to save pixels: the
+     stops are full-width here so they are already taller, and the stage is a
+     72px bar rather than a half-screen panel — there is far less to watch, so
+     holding a stop for four fifths of a tall screen is just empty scrolling. */
+  .sx-xp-stop { padding-bottom: clamp(3rem, 22vh, 9rem); }
+  .sx-xp-copy, .sx-xp-stints > li { max-width: none; }
+}
+
+/* --- Reduced motion --------------------------------------------------------
+   Everything that MOVES stops; everything that COMMUNICATES stays. The
+   character holds his standing frame instead of cycling, the re-render never
+   runs, and every stop is at full opacity — so the section still reads as a
+   timeline, it just does not perform one. */
+@media (prefers-reduced-motion: reduce) {
+  .sx-xp-n::before { animation: none; }
+  .sx-xp-cel, .sx-xp-stop, .sx-xp-pips li, .sx-xp-glow { transition: none; }
+  .sx-xp-stop[data-active="0"] { opacity: 1; }
+  .sx-xp-rail::after { transition: none; }
+  .sx-xp-sweep { display: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   5 · HANDOFF — the light drains and the monitor takes back over.
    ---------------------------------------------------------------------------
    The failure mode at this seam is a static thing abruptly becoming a moving
    thing. This block is already receding before the video takes over, so there
    is no cut to notice — just something moving away that keeps moving away.
    ------------------------------------------------------------------------- */
 
-/* The only seam left between the level and the film. It used to climb out of
-   paper, because the Experience section was printed on paper; with that gone
-   the level hands straight to the void, so it holds black through the stretch
-   the green floor's teeth reach into and settles the last few percent onto the
-   void's own value. Same job, and now no hue of its own at all. */
+/* Experience's ground down into the void the film starts from. Both ends are
+   near-black, so this is a settle rather than a ramp — there is no hue between
+   them to cross, and inventing one would put a third colour into a seam that
+   two were already saying enough about. */
 .sx-seam-out {
-  /* 40vh was written when a whole section stood between the level and this.
-     On its own it put the hand-off slab barely 300px below the floor's teeth,
-     which read as the two colliding rather than as one draining into the
-     other. 60vh is the shortest run that lets the teeth resolve into black
-     before anything else arrives. */
-  height: 60vh;
+  height: 40vh;
   background: linear-gradient(180deg,
-    #000 0%, #000 62%, var(--sx-void) 100%);
+    var(--sx-wall) 0%, #060606 55%, var(--sx-void) 100%);
 }
 
 #sx-hand {
@@ -3492,6 +3997,7 @@
 .sx-nav-i:focus-visible { color: #fff; }
 
 .sx-nav[data-active="work"]    .sx-nav-i[data-sec="work"],
+.sx-nav[data-active="exp"]     .sx-nav-i[data-sec="exp"],
 .sx-nav[data-active="outside"] .sx-nav-i[data-sec="outside"] {
   font-weight: 700;
   color: #fff;
@@ -3544,6 +4050,7 @@
 .sx-nav-mark .sx-mark-pip { fill: #fff; }
 
 .sx-nav[data-active="work"]    .sx-nav-mark svg[data-for="work"],
+.sx-nav[data-active="exp"]     .sx-nav-mark svg[data-for="exp"],
 .sx-nav[data-active="outside"] .sx-nav-mark svg[data-for="outside"] { opacity: 1; }
 /* Nothing to mark at the top of the page — that state belongs to the portrait. */
 .sx-nav[data-active="hero"] .sx-nav-mark { --mo: 0; }

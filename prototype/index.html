@@ -20,6 +20,26 @@
      stays readable — the two never share a selector (everything below is `sx-`). -->
 <link rel="stylesheet" href="../assets/css/sections.css">
 
+<!-- With no script the Experience stage would be an empty box: its two cels are
+     handed their sheets by JS, on purpose, so that four sprite sheets are not
+     all fetched at page load. This puts the first character on the stage,
+     standing, for readers with scripting off — the same courtesy the mascot in
+     Things That Move gets from its own frame 0.
+
+     In <noscript> rather than behind a :not(.sx-js) selector because that class
+     is added by a DEFERRED script: the browser can lay the page out and start
+     fetching the background before the class arrives, which would cost every
+     visitor 277KB to serve the few who need it. Inside <noscript> the rule does
+     not exist at all unless scripting is off. -->
+<noscript><style>
+  .sx-xp-cel[data-cel="a"] {
+    opacity: 1;
+    background-image: url("../public/img/fresher.webp");
+    background-size: 500% 100%;
+    background-position: 0% 50%;
+  }
+</style></noscript>
+
 <style>
   :root {
     /* Straight off the Figma frame */
@@ -945,11 +965,12 @@
         <p class="sx-lede">Ten years of in-product motion, idents and film. Portrait and
         landscape on one strip, the way they actually arrive.</p>
       </header>
-      <!-- Two sheets, one window. The box clips to a single cell and the sheet
-           behind it steps; data-pose says which sheet. Vibing is the resting
-           state, the moonwalk is a one-shot it returns from. Frame 0 of the
-           vibe is a standing pose, so with no script the character is simply
-           standing there. -->
+      <!-- Two sheets, one window, a layer each. The box clips to a single cell
+           and the sheet behind it steps; data-pose says which LAYER is visible,
+           never which file to go and fetch. Vibing is the resting state, the
+           moonwalk is a one-shot it returns from. Frame 0 of the vibe is a
+           standing pose, so with no script the character is simply standing
+           there. -->
       <!-- One group: the light, the plinth it falls on, and the character
            standing on it. Grouped so "attached to the right edge" is one
            number on the group rather than three that have to agree. -->
@@ -957,8 +978,17 @@
         <span class="sx-mv-bloom" aria-hidden="true"></span>
         <span class="sx-mv-glow" aria-hidden="true"></span>
         <span class="sx-mv-stage" aria-hidden="true"></span>
+        <!-- One layer per sheet, both permanently declared, because the pose
+             must never be the thing that asks for a file. Swapping
+             background-image on hover sent the browser back to the network for
+             the 470KB walk sheet at the exact moment it was needed, and the
+             character painted nothing until it landed. The pose now only
+             decides which of these two is visible. -->
         <button class="sx-mv-mascot" id="sx-mv-mascot" type="button"
-                data-pose="vibe" aria-label="Make the mascot dance"></button>
+                data-pose="vibe" aria-label="Make the mascot dance">
+          <span class="sx-mv-sheet" data-sheet="vibe" aria-hidden="true"></span>
+          <span class="sx-mv-sheet" data-sheet="walk" aria-hidden="true"></span>
+        </button>
         <!-- What it is vibing TO. Empty in the markup: every note is spawned,
              flown and thrown away by script, because the whole point is that
              there is never a fixed number of them in a fixed place. A
@@ -1186,14 +1216,185 @@
     <span class="cc-edge cc-edge--bottom" aria-hidden="true"></span>
   </section>
 
-  <!-- The seam out of the level. It used to ramp to paper for the Experience
-       section; with that section gone it stays dark the whole way, so the
-       green floor's teeth still bite into black and the page goes straight
-       from the level into the hand-off. -->
+  <!-- The seam down out of the level and into Experience. Holds black through
+       the stretch the green floor's teeth reach into, then settles onto the
+       page's own ground. -->
+  <div class="sx-seam-exp" aria-hidden="true"></div>
+
+  <!-- ---------- 4 · EXPERIENCE ----------
+       The career as one rail, and the character as the thing travelling it.
+
+       The old version of this section drew the career as a rig levelling up —
+       kit accumulating on a desk. These four renders say something better and
+       truer: at each stop he is a DIFFERENT PERSON. A student in a plaid shirt,
+       a commuter with a laptop under one arm, a flying thing in a spider hoodie,
+       and finally someone who just walks. The character IS the timeline, so the
+       page spends its boldness on him changing and keeps the rail beside him
+       quiet.
+
+       The rail is not decoration and it is not evenly divided. Three short
+       stops, then five years of Airtel carrying five stints inside it — so the
+       Airtel segment is long, thicker, and subdivided, and the first three are
+       short and single. The shape of the rail is the shape of the CV. -->
+  <section id="sx-exp">
+    <div class="sx-wrap">
+      <header class="sx-sec-head" data-reveal>
+        <p class="sx-mono">Experience · 2016 → now</p>
+        <h2 class="sx-serif">How I got here</h2>
+        <p class="sx-lede" style="margin-top:1rem">Ten years, four places, one line through them:
+        execution, then ownership, then a nought-to-one, then a practice of my own — and
+        entertainment products the whole way.</p>
+      </header>
+
+      <div class="sx-xp-layout">
+
+        <!-- ---- the stage ----
+             Sticky, and reserved at a fixed aspect ratio so it cannot change
+             height as the character changes. A stage that resizes mid-scroll
+             drags the sticky column with it, which is the one thing guaranteed
+             to make a scroll-driven section feel broken.
+
+             Two sprite layers, never one. The character swaps by CROSS-WIPING
+             between two layers that are both already painted — the same rule
+             the mascot over in Things That Move had to learn the hard way: a
+             pose must never be the thing that asks for a file. -->
+        <!-- Hidden from assistive tech on purpose: every fact on this card —
+             company, years, where it sits in the run — is real text in the rail
+             beside it, so announcing it twice is noise, not access. The shape
+             verb used to live only here; it has moved into the rail so nothing
+             is lost by hiding this. -->
+        <aside class="sx-xp-stage" id="sx-xp-stage" aria-hidden="true">
+          <div class="sx-xp-card">
+
+            <!-- Stop counter on the left, years on the right. It said "Now"
+                 at first, which put the word NOW beside "2018 — 21" and made
+                 the card argue with itself. A counter is what the reader
+                 actually wants here anyway: which of these am I on, and how
+                 many are left. The live dot is held back for the one stop
+                 that genuinely is now. -->
+            <p class="sx-xp-head">
+              <span class="sx-xp-n" id="sx-xp-n">01 / 04</span>
+              <span class="sx-sp"></span>
+              <span class="sx-xp-yr" id="sx-xp-yr">2016 — 17</span>
+            </p>
+
+            <div class="sx-xp-frame">
+              <!-- The light he stands in. Warms as the career does. -->
+              <span class="sx-xp-glow" aria-hidden="true"></span>
+
+              <div class="sx-xp-reel" id="sx-xp-reel">
+                <span class="sx-xp-cel" data-cel="a" aria-hidden="true"></span>
+                <span class="sx-xp-cel" data-cel="b" aria-hidden="true"></span>
+                <!-- The re-render. One vermilion bar crosses the stage and the
+                     character is different behind it — the page's own world is
+                     rendering and motion tooling, so the magic that swaps him
+                     is a render pass finishing rather than a puff of sparkles. -->
+                <span class="sx-xp-sweep" aria-hidden="true"></span>
+              </div>
+
+              <span class="sx-xp-floor" aria-hidden="true"></span>
+            </div>
+
+            <!-- The company, and only the company. The shape verb was here too
+                 until it moved into the rail; with both on screen at once the
+                 card and the stop beside it were saying the same two lines a
+                 few centimetres apart. A label for a picture is the card's
+                 whole job. -->
+            <p class="sx-xp-co" id="sx-xp-co">MediaAgility</p>
+
+            <!-- Four pips. Which stop you are on, and how many there are — the
+                 one thing a scroll-driven section owes you that a static list
+                 gives away for free. -->
+            <ol class="sx-xp-pips" id="sx-xp-pips" aria-hidden="true">
+              <li data-on="1"></li><li></li><li></li><li></li>
+            </ol>
+          </div>
+        </aside>
+
+        <!-- ---- the rail ----
+             One ordered list, because it IS one: this is the only numbered
+             thing on the page where the order carries information the reader
+             needs. -->
+        <ol class="sx-xp-rail">
+
+          <li class="sx-xp-stop" data-stop="0" data-co="MediaAgility"
+              data-yr="2016 — 17" data-reveal>
+            <p class="sx-xp-when"><span>2016 — 17</span><i>the way in</i></p>
+            <h3>MediaAgility</h3>
+            <p class="sx-xp-role">Designer</p>
+            <p class="sx-xp-copy">The first job that paid for design, a year after teaching
+            myself the tools and walking out of engineering at TCS. Banners and creatives —
+            small work, and the whole point was that the pivot had landed.</p>
+          </li>
+
+          <li class="sx-xp-stop" data-stop="1" data-co="Appinventiv"
+              data-yr="2017 — 18" data-reveal>
+            <p class="sx-xp-when"><span>2017 — 18</span><i>execution</i></p>
+            <h3>Appinventiv</h3>
+            <p class="sx-xp-role">UI designer · agency</p>
+            <p class="sx-xp-copy">Ecommerce, healthcare, B2B — many clients and a great many
+            screens in a single year. Agencies teach you speed because they never give you
+            time, and this is where the hands got quick.</p>
+          </li>
+
+          <li class="sx-xp-stop" data-stop="2" data-co="Gamezop"
+              data-yr="2018 — 21" data-reveal>
+            <p class="sx-xp-when"><span>2018 — 21</span><i>ownership</i></p>
+            <h3>Gamezop</h3>
+            <p class="sx-xp-role">First designer → design lead</p>
+            <p class="sx-xp-copy">Employee-designer number one, and Skillclash built from
+            nothing. The jump is not the title — it is going from executing a brief to owning
+            a product with no design function anywhere around you to check it against.</p>
+          </li>
+
+          <!-- Airtel is half the timeline and the rail says so: the segment
+               runs long, its rule is thicker, and it opens into five stints
+               rather than closing into one line of summary. -->
+          <li class="sx-xp-stop" data-stop="3" data-co="Airtel"
+              data-yr="2021 — now" data-current data-long data-reveal>
+            <p class="sx-xp-when"><span>2021 — now</span><i>lead</i></p>
+            <h3>Airtel</h3>
+            <p class="sx-xp-role">Senior → Lead Product Designer</p>
+            <p class="sx-xp-copy">Five years and five different jobs inside one company —
+            two core products, a nought-to-one, and a practice I ran on my own.</p>
+
+            <ol class="sx-xp-stints">
+              <li>
+                <p class="sx-xp-stint-h"><b>Wynk Music</b><span>2022</span></p>
+                <p>The streaming experience, and the flagship of that year.</p>
+              </li>
+              <li data-key>
+                <p class="sx-xp-stint-h"><b>Airtel Gaming</b><span>0 → 1</span></p>
+                <p>Led it from nothing to launch. It was later shut down — and its
+                design language is still running, because it migrated into Xstream
+                and Wynk. That part outlived the product.</p>
+              </li>
+              <li>
+                <p class="sx-xp-stint-h"><b>Xstream</b><span>video</span></p>
+                <p>Back into a core product, on the video side.</p>
+              </li>
+              <li>
+                <p class="sx-xp-stint-h"><b>The motion pod</b><span>2024</span></p>
+                <p>A solo practice: in-product motion as a discipline the org did not
+                have yet, including the UPI payments work.</p>
+              </li>
+              <li data-now>
+                <p class="sx-xp-stint-h"><b>IPTV</b><span>2025 — now</span></p>
+                <p>Current. The bundling work is this year's.</p>
+              </li>
+            </ol>
+          </li>
+
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- The seam out of Experience and into the hand-off. -->
   <div class="sx-seam-out" aria-hidden="true"></div>
 
-  <!-- ---------- 4 · HANDOFF ----------
-       The last thing the level shows sits down at the monitor you are
+  <!-- ---------- 5 · HANDOFF ----------
+       The last thing the page shows sits down at the monitor you are
        currently inside. The block is already receding before the film takes
        over, so there is no cut to notice. -->
   <section id="sx-hand">
@@ -1262,21 +1463,26 @@
 
   <span class="sx-nav-glide" aria-hidden="true"></span>
   <a class="sx-nav-i" href="#sx-work" data-sec="work" data-label="Work">Work</a>
+  <a class="sx-nav-i" href="#sx-exp" data-sec="exp" data-label="Experience">Experience</a>
   <!-- The pull-out: the out-of-the-screen film, where the desk rotates. -->
   <a class="sx-nav-i" href="#s-exit" data-sec="outside" data-label="Outside work">Outside work</a>
 
   <!-- The marker. Three columns, 5px each: a white pip sits over the column for
        the section you are in and the orange staircase leans toward it, so the
-       glyph reads as how far along you are rather than as two unrelated
-       shapes. With Experience gone there are two stops, so the pip steps the
-       Figma's outer two — 0 for Work, 10 for Outside work — and the middle
-       glyph goes with the section it belonged to. -->
+       glyph reads as how far along you are rather than as three unrelated
+       shapes. The pip stepping 0 -> 5 -> 10 is the Figma's own. -->
   <span class="sx-nav-mark" aria-hidden="true">
     <svg viewBox="0 0 15 20" data-for="work" fill="none">
       <rect x="0" y="0" width="5" height="5" class="sx-mark-pip"/>
       <rect x="0" y="6" width="5" height="14"/>
       <rect x="5" y="12" width="5" height="8"/>
       <rect x="10" y="16" width="5" height="4"/>
+    </svg>
+    <svg viewBox="0 0 15 20" data-for="exp" fill="none">
+      <rect x="5" y="0" width="5" height="5" class="sx-mark-pip"/>
+      <rect x="0" y="14" width="5" height="6"/>
+      <rect x="5" y="6" width="5" height="14"/>
+      <rect x="10" y="12" width="5" height="8"/>
     </svg>
     <svg viewBox="0 0 15 20" data-for="outside" fill="none">
       <rect x="10" y="0" width="5" height="5" class="sx-mark-pip"/>

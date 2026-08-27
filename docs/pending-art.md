@@ -77,7 +77,8 @@ moonwalk is a cycle and it runs while you are looking at it.
 
 **To try the walk-only cycle again**, change two things: `POSES.walk` in
 `assets/js/sections.js` to `{ cols: 8, rows: 3, frames: 24, cycle: 1500 }`, and
-`--sx-mv-walk` plus the `[data-pose="walk"]` `background-size` in the CSS to
+`--sx-mv-walk` plus the `background-size` on
+`.sx-mv-mascot[data-warm] .sx-mv-sheet[data-sheet="walk"]` in the CSS to
 `MASCOT_MOONWALK_ONLY.webp` / `800% 300%`. Both `.webp` files are built and
 normalised to the same scale, so nothing needs regenerating either way.
 
@@ -187,9 +188,18 @@ node tools/normalize-sprite.mjs public/img \
 ### Weight
 
 176KB, 323KB and 470KB as WebP against 1.5MB, 1.6MB and 2.1MB as PNG. The PNG
-masters stay in the repo as the tool's input and are never requested. The walk
-sheet is not fetched with the page — the first hover decodes it before
-switching, so a cold first hover never blinks the character out.
+masters stay in the repo as the tool's input and are never requested.
+
+The walk sheet is still not fetched with the page. It is fetched when the
+section is APPROACHED, not when the character is hovered, and that distinction
+is the whole of a bug that outlived one fix. Each sheet now owns a layer of its
+own and the pose only flips which layer is visible; hovering costs an opacity
+change and never asks for a file. Under reduced motion, and on the phone
+breakpoint where the stand is hidden, the walk sheet is never fetched at all.
+
+**So do not put a `background-image` behind a pose again.** A CSS background is
+a resource of its own — warming an `Image()` with the same URL does not warm it,
+which is exactly how the character kept vanishing after the first fix went in.
 
 ## The fourteen tiles
 
@@ -214,3 +224,80 @@ order.
 
 Ratios are 16:9 and 9:16 and the strip is built for both — one shared height,
 width follows the aspect. Nothing needs cropping to fit.
+
+
+---
+
+# The Experience reels
+
+Four sheets, one per company, delivered at 3:1 and **five frames across one
+row** each.
+
+| Master (in `public/img/`) | Ships as | Company | Frames played |
+| --- | --- | --- | --- |
+| `fresher.png` 2172×724 | `fresher.webp` 277KB | MediaAgility | 4 |
+| `appinventiv.png` 2667×889 | `appinventiv.webp` 325KB | Appinventiv | 4 |
+| `gamezop.png` 3018×1006 | `gamezop.webp` 379KB | Gamezop | 4 |
+| `airtel_walk.png` 2355×785 | `airtel_walk.webp` 238KB | Airtel | 5 |
+
+## Three of them play four frames, not five
+
+Measured rather than assumed. Normalised and aligned, then compared cell by
+cell: on fresher, appinventiv and gamezop the fifth cell differs from the first
+by mean levels of **2.7, 3.6 and 5.2** — they are the same drawing, a loop
+closer. Every genuinely different pair on those sheets scores 17 or more. Play
+all five and the character freezes for one beat every cycle.
+
+`airtel_walk` is the exception at **25**, because a five-position walk cycle has
+no repeat in it. It plays all five.
+
+The step is always a fifth of the sheet either way — `cols` stays 5 in `REELS`,
+because that is the grid the sheets were written onto. Only `frames` changes.
+
+## They were normalised together, and had to be
+
+```bash
+node tools/normalize-sprite.mjs public/img \
+  public/img/fresher.png:5x1 \
+  public/img/appinventiv.png:5x1 \
+  public/img/gamezop.png:5x1 \
+  public/img/airtel_walk.png:5x1
+```
+
+Both of the tool's reasons applied here.
+
+**The pitch is irregular on every sheet.** fresher's frame pitches are 426,
+457, 460 and 415 against a nominal 434 — a window stepping by a fixed fifth
+would show most of one frame and the shoulder of the next.
+
+**And the figures are drawn at wildly different sizes**: median standing heights
+of 600, 813, 846 and 649. Normalised separately each sheet would be internally
+perfect and the character would still change size the instant he changed job.
+All four are now scaled to a common 600px standing height in a shared 698px
+cell, feet on one baseline.
+
+`gamezop` also needed the tool's touching-figures fallback: its neon tool
+glyphs bleed between neighbouring frames, so strict band detection found four
+figures where there are five and the splitter had to cut at the quietest column
+near each nominal boundary instead.
+
+**Always pass all four in one command**, or they drift apart again.
+
+## Loading
+
+Nothing is fetched with the page. The first sheet is warmed when the section
+comes within 60% of the viewport, and after that each sheet is warmed one stop
+before it is wanted — so reading MediaAgility does not pay for Airtel. Verified:
+four requests total, none at page load, none during a pose change.
+
+**A company must never be the thing that asks for a file.** Both cels are
+handed their sheet before the wipe that reveals them, for the same reason the
+mascot over in Things That Move had to stop swapping `background-image` on
+hover: a CSS background is a resource of its own, and a state change that
+fetches one paints nothing until it lands.
+
+With scripting off the cels get no sheet at all, so a `<noscript>` block in the
+page head puts the first character on the stage standing. It is in `<noscript>`
+rather than behind a `:not(.sx-js)` selector because that class arrives from a
+deferred script — late enough that the browser may already have started the
+fetch, which would cost every visitor 277KB to serve the few who need it.

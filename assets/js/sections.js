@@ -317,8 +317,304 @@
     }
   });
 
+  let runExperience = null;
+
   /* ========================================================================
-     4 · THE HANDOFF
+     4 · EXPERIENCE — the character is the timeline
+     ========================================================================
+     Four stops scroll past a sticky stage. Each one that crosses the trigger
+     line makes its company the live one, and the character on the stage
+     becomes a different person — a student, a commuter, a flying thing, and
+     finally someone who just walks.
+
+     Two rules shape everything below.
+
+     ONE: state is recomputed from scroll position every frame, never
+     incremented on an event. Scrolling back up therefore walks the career
+     backwards correctly, and a reload halfway down the page lands on the right
+     stop instead of replaying from 2016.
+
+     TWO: a sprite is never asked for at the moment it is needed. Each stop owns
+     a sheet, the sheet is handed to a layer well before that layer is
+     revealed, and the swap is a wipe between two layers that are BOTH already
+     painted. This is the lesson the mascot in Things That Move cost us: a CSS
+     background is a resource of its own, so a state change that swaps
+     background-image sends the browser back to the network at exactly the
+     wrong moment and paints nothing until the file lands.
+     ====================================================================== */
+
+  const xp = document.getElementById('sx-exp');
+  const xpStops = xp ? [...xp.querySelectorAll('.sx-xp-stop')] : [];
+
+  if (xp && xpStops.length) {
+    const reel   = document.getElementById('sx-xp-reel');
+    const celA   = reel && reel.querySelector('[data-cel="a"]');
+    const celB   = reel && reel.querySelector('[data-cel="b"]');
+    const sweep  = reel && reel.querySelector('.sx-xp-sweep');
+    const card   = xp.querySelector('.sx-xp-card');
+    const elN    = document.getElementById('sx-xp-n');
+    const elCo   = document.getElementById('sx-xp-co');
+    const elYr   = document.getElementById('sx-xp-yr');
+    const pips   = [...document.querySelectorAll('#sx-xp-pips li')];
+    const rail   = xp.querySelector('.sx-xp-rail');
+
+    /* One reel per stop.
+
+       `frames` is not always the sheet's cell count. Three of the four sheets
+       close their loop by repeating frame 0 in the fifth cell — measured, not
+       assumed: aligned and compared, cell 4 differs from cell 0 by 2.7, 3.6 and
+       5.2 mean levels against 17-plus for every genuinely different pair. Play
+       all five and the character freezes for one beat every cycle. The walk is
+       the exception: its five cells are five distinct positions, so it plays
+       all five.
+
+       `cols` stays 5 for every sheet because the NORMALISER wrote them all onto
+       one 5-cell grid — the step is a fifth of the sheet whatever we choose to
+       play. */
+    const REELS = [
+      { file: 'fresher.webp',     cols: 5, frames: 4, cycle: 1150 },
+      { file: 'appinventiv.webp', cols: 5, frames: 4, cycle: 1000 },
+      { file: 'gamezop.webp',     cols: 5, frames: 4, cycle:  900 },
+      { file: 'airtel_walk.webp', cols: 5, frames: 5, cycle:  820 },
+    ];
+    /* The cycles shorten as the career runs. Not a gimmick — it is the one
+       thing the four sheets have in common that can carry the story: he is
+       standing still in 2016 and moving by 2021, and the tempo says so before
+       any of the copy does. */
+
+    /* Sheet URLs resolve against the DOCUMENT (this file is loaded from the
+       page, not from the stylesheet), so they are written here rather than
+       lifted out of a custom property the way the mascot's is. */
+    const sheetURL = file => new URL('../public/img/' + file, location.href).href;
+
+    /* --- keeping the sheets warm ---------------------------------------
+       An <img> per reel, retained for the life of the page. Retained matters:
+       an unreferenced Image can have its decode collected, and then the layer
+       has to decode again at the worst possible moment. The layer's own
+       background-image is set from the same URL at the same time, so by the
+       time a wipe reveals it there is nothing left to fetch.
+
+       Warming is progressive. Four sheets is about 1.2MB and nobody should pay
+       for Airtel while they are reading MediaAgility, so stop N's sheet is
+       warmed when stop N-1 becomes live, and the first is warmed as the
+       section comes up the screen. */
+    const warmed = [];       /* retained images, indexed by stop */
+    const warming = [];      /* in-flight promises, indexed by stop */
+
+    const warm = i => {
+      if (i < 0 || i >= REELS.length) return Promise.resolve(false);
+      if (warming[i]) return warming[i];
+      warming[i] = new Promise(resolve => {
+        const img = new Image();
+        img.decoding = 'async';
+        const done = () => resolve(img.complete && img.naturalWidth > 0);
+        img.onload = done;
+        img.onerror = done;
+        img.src = sheetURL(REELS[i].file);
+        warmed[i] = img;                       /* retained */
+        /* Raced against load, never trusted alone: Chrome rejects decode()
+           intermittently for reasons that have nothing to do with the bytes,
+           so its rejection is ignored and load is what answers. */
+        img.decode().then(done, () => {});
+      }).then(ok => {
+        if (!ok) { warming[i] = null; warmed[i] = null; }   /* let it retry */
+        return ok;
+      });
+      return warming[i];
+    };
+    const sheetReady = i => !!(warmed[i] && warmed[i].complete && warmed[i].naturalWidth);
+
+    /* --- the sprite loop ---
+       Held cells, never interpolated. A sprite that tweens between two cells
+       slides the sheet across its window and shows halves of both. */
+    const reelKeys = ({ cols, frames }) => {
+      const keys = [];
+      for (let i = 0; i < frames; i++) {
+        keys.push({
+          backgroundPosition: `${(i % cols) * (100 / (cols - 1))}% 50%`,
+          easing: 'steps(1, end)',
+        });
+      }
+      keys.push({ backgroundPosition: '0% 50%' });
+      return keys;
+    };
+
+    let liveCel = celA, idleCel = celB;   /* which layer is on screen */
+    let spin = null;                      /* the running sprite loop */
+
+    const dress = (cel, i) => {
+      cel.style.backgroundImage = `url("${sheetURL(REELS[i].file)}")`;
+      cel.style.backgroundSize = `${REELS[i].cols * 100}% 100%`;
+    };
+
+    const play = (cel, i) => {
+      if (spin) { spin.cancel(); spin = null; }
+      if (reduced || !cel.animate) { cel.style.backgroundPosition = '0% 50%'; return; }
+      spin = cel.animate(reelKeys(REELS[i]),
+        { duration: REELS[i].cycle, iterations: Infinity });
+    };
+
+    /* --- the re-render -------------------------------------------------
+       One progress number from 0 to 1 drives all of it: the bar's travel, how
+       much of the outgoing character has been clipped away behind it, and how
+       much of the incoming one has been revealed in front of it. Deriving
+       everything from one value is what makes a fast scroll safe — there is a
+       single animation to cancel, and cancelling it can never leave two half-
+       wiped characters on the stage.
+
+       The alternative, three animations timed to agree with each other, is the
+       thing the UX guidance calls out by name: never depend on a transition
+       finishing for the state to be correct. */
+    let wipe = null, shown = -1, wanted = -1;
+
+    const paintWipe = p => {
+      /* The bar leads; the wipe edge follows it down the frame. */
+      const edge = clamp01((p - 0.06) / 0.82) * 100;
+      sweep.style.setProperty('--sx-xp-sweep-y', (-40 + p * 180).toFixed(1) + '%');
+      sweep.style.opacity = (Math.sin(Math.PI * clamp01(p)) * 0.95).toFixed(3);
+      /* Outgoing is eaten from the top down; incoming is uncovered behind it. */
+      idleCel.style.clipPath = `inset(0 0 ${(100 - edge).toFixed(2)}% 0)`;
+      liveCel.style.clipPath = `inset(${edge.toFixed(2)}% 0 0 0)`;
+    };
+
+    const clearWipe = () => {
+      sweep.style.opacity = '0';
+      celA.style.clipPath = 'none';
+      celB.style.clipPath = 'none';
+    };
+
+    /* Swap to stop `i`. Idempotent: asking for the stop already on screen is a
+       no-op, and asking for a different one mid-wipe replaces the wipe rather
+       than queueing behind it. */
+    const showStop = async i => {
+      wanted = i;
+      if (i === shown) return;
+
+      if (!sheetReady(i)) {
+        const ok = await warm(i);
+        /* The reader may have scrolled on while that was in flight. */
+        if (!ok || wanted !== i) return;
+        if (i === shown) return;
+      }
+
+      /* Dress the layer that is NOT on screen, then reveal it. Nothing is
+         fetched at this point — warm() has already been and gone. */
+      dress(idleCel, i);
+      idleCel.style.backgroundPosition = '0% 50%';
+      idleCel.setAttribute('data-live', '');
+
+      const from = shown;
+      shown = i;
+      readout(i);
+
+      if (reduced || !M || !M.animate) {
+        /* No performance: the new character is simply there. */
+        if (wipe) { try { wipe.stop(); } catch (e) {} wipe = null; }
+        clearWipe();
+        liveCel.removeAttribute('data-live');
+        [liveCel, idleCel] = [idleCel, liveCel];
+        play(liveCel, i);
+        return;
+      }
+
+      if (wipe) { try { wipe.stop(); } catch (e) {} wipe = null; }
+      /* The incoming character starts its own loop immediately, so he is
+         already alive as the bar uncovers him rather than snapping to life
+         once it has passed. */
+      play(idleCel, i);
+
+      const first = from < 0;
+      const box = { v: 0 };
+      wipe = M.animate(box, { v: 1 }, {
+        duration: first ? 0.34 : 0.62,
+        ease: [0.22, 1, 0.36, 1],
+        onUpdate: () => paintWipe(box.v),
+        /* The layers trade places only once the bar is off the bottom. */
+        onComplete: () => {
+          liveCel.removeAttribute('data-live');
+          [liveCel, idleCel] = [idleCel, liveCel];
+          clearWipe();
+          wipe = null;
+        },
+      });
+    };
+
+    const pad2 = n => String(n).padStart(2, '0');
+
+    const readout = i => {
+      const s = xpStops[i];
+      if (!s) return;
+      if (elN) elN.textContent = `${pad2(i + 1)} / ${pad2(xpStops.length)}`;
+      /* The dot belongs to the stop, not to the card, so it lights only on the
+         one that has not ended. */
+      if (card) s.hasAttribute('data-current')
+        ? card.setAttribute('data-current', '')
+        : card.removeAttribute('data-current');
+      if (elCo)    elCo.textContent    = s.getAttribute('data-co') || '';
+      if (elYr)    elYr.textContent    = s.getAttribute('data-yr') || '';
+      pips.forEach((p, n) => n <= i ? p.setAttribute('data-on', '')
+                                    : p.removeAttribute('data-on'));
+      /* The room warms as the career does. */
+      if (xp) xp.style.setProperty('--sx-xp-heat',
+        (i / Math.max(xpStops.length - 1, 1)).toFixed(3));
+    };
+
+    /* --- which stop is being read -------------------------------------- */
+    function updateExperience() {
+      /* The trigger is a stop's own TOP crossing 62% of the viewport, not its
+         centre. These stops are wildly different heights — Airtel carries five
+         stints and is several times the height of MediaAgility — so a centre
+         test would hold Gamezop live for most of Airtel's copy. The top edge
+         arriving is what "I am reading this one now" actually means when the
+         blocks are not the same size. */
+      const line = innerHeight * 0.62;
+      let live = 0;
+      for (let i = 0; i < xpStops.length; i++) {
+        if (xpStops[i].getBoundingClientRect().top <= line) live = i;
+      }
+
+      xpStops.forEach((s, i) =>
+        s.setAttribute('data-active', i === live ? '1' : '0'));
+
+      /* How far down the rail the reading position is, as a fraction of the
+         whole list. Drawn as the rail's filled length. */
+      if (rail) {
+        const r = rail.getBoundingClientRect();
+        const run = clamp01((line - r.top) / Math.max(r.height, 1));
+        xp.style.setProperty('--sx-xp-run', run.toFixed(4));
+      }
+
+      showStop(live);
+      warm(live + 1);            /* the next sheet, well before it is wanted */
+    }
+
+    /* First paint, and the warm-up that pays for it.
+
+       Handing updateExperience to the frame loop is ALSO what starts this
+       section, and that ordering is the whole point. Assigned up front it ran
+       from the first frame of the page — which called showStop(0), which
+       warmed two sheets before the reader had left the hero. Measured: fresher
+       and appinventiv both arrived during page load, four screens early. The
+       observer decides when this section starts costing anything, so nothing
+       reaches the loop until it has fired. */
+    const start = () => {
+      runExperience = updateExperience;
+      warm(0).then(() => updateExperience());
+    };
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(es => {
+        if (!es.some(e => e.isIntersecting)) return;
+        io.disconnect();
+        start();
+      }, { rootMargin: '60% 0px' });
+      io.observe(xp);
+    } else {
+      start();
+    }
+  }
+
+  /* ========================================================================
+     5 · THE HANDOFF
      ========================================================================
      The block recedes before the video takes over, so there is no cut to
      notice — just something moving away that keeps moving away. Scale and
@@ -881,6 +1177,7 @@
     const moved = y !== lastY;
     lastY = y;
 
+    if (runExperience) runExperience();
     updateHandoff();
     updateMarquee();
     updateStack();
@@ -895,7 +1192,9 @@
   document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(); });
 
   /* Paint the correct state now rather than on the first scroll, so a reload
-     halfway down the page doesn't start from a cold state and animate up. */
+     halfway down the page doesn't start from a cold state and animate up.
+     Experience is not called here — it paints itself once its first sheet is
+     warm, which is the only moment it has anything to paint. */
   updateMarquee();
   updateStack();
   updateHandoff();
@@ -1936,6 +2235,13 @@
       walk: { cols: 6, rows: 4, frames: 24, cycle: 2100 },
     };
     const mascot = document.getElementById('sx-mv-mascot');
+    /* One layer per sheet. The sprite animates whichever layer the pose has
+       made visible; the pose itself never touches a background-image, which is
+       what used to send the browser back to the network mid-hover. */
+    const sheets = mascot ? {
+      vibe: mascot.querySelector('.sx-mv-sheet[data-sheet="vibe"]'),
+      walk: mascot.querySelector('.sx-mv-sheet[data-sheet="walk"]'),
+    } : {};
     let sprite = null, posing = false;
 
     /* A pose's keyframes: one held cell per frame. Held and never
@@ -1956,11 +2262,12 @@
     };
 
     const playPose = name => {
-      if (!mascot || !mascot.animate) return null;
+      const layer = sheets[name];
+      if (!layer || !layer.animate) return null;
       if (sprite) sprite.cancel();
       const pose = POSES[name];
       mascot.dataset.pose = name;
-      sprite = mascot.animate(poseKeys(pose),
+      sprite = layer.animate(poseKeys(pose),
         { duration: pose.cycle, iterations: Infinity });
       return sprite;
     };
@@ -2198,28 +2505,38 @@
       applySpeed();
 
       /* --- warming the walk sheet ---
-         This is where the character used to vanish.
+         This is where the character used to vanish, and the previous fix
+         warmed the wrong thing.
 
-         The old preloader was `img.decode().catch(() => {})`, and the catch is
-         the bug. Chrome rejects decode() intermittently — an interrupted or
-         collected decode, nothing to do with the bytes being bad — and a
-         swallowed rejection RESOLVED THE WAIT EARLY. dance() then switched
-         data-pose to `walk`, which switched background-image to a 470KB sheet
-         the browser had not finished fetching, and the mascot painted nothing
-         at all until it landed. An empty plinth for a second or two, on some
-         hovers and not others, exactly as reported.
+         It preloaded the sheet into an `Image()` and waited for that, which is
+         a perfectly good way to know the BYTES have arrived — and then the pose
+         switched `background-image`, and a CSS background is a resource of its
+         own. The browser went back out for the file at the moment of the hover,
+         and the character painted nothing until it landed. Two requests for the
+         same sheet, the second one on the interaction path. With the file still
+         fresh in the HTTP cache that is invisible; once it has gone stale, or
+         on a slow link, it is a second of empty plinth. Exactly "sometimes".
 
-         Three things fix it, and the third is the one that makes it impossible
-         rather than unlikely:
+         So the pose no longer asks for a file at all — the stylesheet gives
+         each sheet its own layer and the pose only flips which is visible. What
+         is left here is the warm-up that puts the walk layer on screen (at zero
+         opacity) BEFORE anybody hovers, and the readiness gate that keeps the
+         pose from switching to a layer that is not painted yet:
 
-           1. resolve on load OR decode, so a rejected decode is not mistaken
-              for a finished one;
-           2. do not cache a failure — the next hover gets to try again;
-           3. never switch pose unless the sheet is genuinely ready. Vibing is
-              a pose the character HAS. If the sheet is not there, it keeps
-              vibing, which is a worse moonwalk and a much better mascot than
-              an empty plinth. */
-      let warm = null, ready = false, wants = false, inflight = false;
+           1. `data-warm` is what hands the layer its background-image, so the
+              fetch happens on approach rather than on contact;
+           2. the Image() beside it is the SIGNAL — same URL, so it costs
+              nothing extra — and it is RETAINED, because an unreferenced image
+              can have its decode collected and then the layer has to decode
+              again at the worst possible moment;
+           3. readiness is re-tested from that image every time rather than
+              cached in a boolean that can outlive the thing it describes;
+           4. a rejected decode() is still never mistaken for an answer, and a
+              failure is never cached — the next hover gets to try again;
+           5. and if the sheet is genuinely not there, the character keeps
+              vibing. Vibing is a pose it HAS. A worse moonwalk is a much better
+              mascot than an empty plinth. */
+      let warmImg = null, warming = null, wants = false, inflight = false;
 
       const walkURL = () => {
         const raw = getComputedStyle(mascot).getPropertyValue('--sx-mv-walk')
@@ -2234,49 +2551,63 @@
         catch (_) { return raw; }
       };
 
-      const preload = () => {
-        if (warm) return warm;
-        warm = new Promise(resolve => {
+      /* The one true test, asked fresh each time. */
+      const sheetReady = () => !!(warmImg && warmImg.complete && warmImg.naturalWidth);
+
+      const warm = () => {
+        if (warming) return warming;
+        /* This is the line that starts the layer's own fetch. */
+        mascot.dataset.warm = '1';
+        warming = new Promise(resolve => {
           const img = new Image();
           img.decoding = 'async';
-          img.onload = () => resolve(true);
-          img.onerror = () => resolve(false);
+          const done = () => resolve(img.complete && img.naturalWidth > 0);
+          img.onload = done;
+          img.onerror = done;
           img.src = walkURL();
+          warmImg = img;                 /* retained for the life of the page */
           /* Raced against load, never trusted alone, and its rejection is
              ignored rather than treated as an answer — load will answer. */
-          img.decode().then(() => resolve(true), () => {});
+          img.decode().then(done, () => {});
         }).then(ok => {
-          ready = ok;
-          if (!ok) warm = null;
+          if (!ok) {                     /* let the next hover try again */
+            warming = null;
+            warmImg = null;
+            delete mascot.dataset.warm;
+          }
           return ok;
         });
-        return warm;
+        return warming;
       };
 
-      /* Warmed on approach rather than on contact. The old code started the
-         fetch on the first pointerenter of a 120px target, so the first hover
-         was always the one that had to wait for it; the section coming into
-         view is seconds of warning earlier, and hovering the stand — a target
-         several times the size — is the backstop. */
+      /* Warmed on approach rather than on contact. The section coming into
+         view is seconds of warning; hovering the stand — a target several times
+         the size of the character — is the backstop. */
       if ('IntersectionObserver' in window && stand) {
         const warmer = new IntersectionObserver(es => {
           if (!es.some(e => e.isIntersecting)) return;
           warmer.disconnect();
-          preload();
+          warm();
         }, { rootMargin: '40% 0px' });
         warmer.observe(stand);
       } else {
-        preload();
+        warm();
       }
-      if (stand) stand.addEventListener('pointerenter', preload, { once: true });
+      if (stand) stand.addEventListener('pointerenter', warm, { once: true });
 
       const dance = async () => {
-        if (posing || inflight) return;
+        /* Recorded BEFORE any early return. Bailing out first meant that
+           re-entering the character while a warm-up was still in flight left
+           `wants` false, the in-flight call then found nothing was wanted, and
+           the mascot sat there vibing under a pointer that was asking it to
+           dance until you moved away and came back. */
         wants = true;
-        if (!ready) {
+        if (posing || inflight) return;
+
+        if (!sheetReady()) {
           inflight = true;
-          const ok = await preload();
-          inflight = false;
+          let ok = false;
+          try { ok = await warm(); } finally { inflight = false; }
           if (!ok) return;             /* keep vibing rather than go blank */
         }
         /* The pointer may well have left while that was in flight. */
@@ -2868,7 +3199,8 @@
       const ZONES = [
         ['s-enter',    'hero'],
         ['sx-work',    'work'],
-        ['sx-archive', 'work'],
+        ['sx-cc',      'work'],
+        ['sx-exp',     'exp'],
         ['sx-hand',    'outside'],
         ['s-exit',     'outside']
       ].map(([id, key]) => ({ el: document.getElementById(id), key }))
