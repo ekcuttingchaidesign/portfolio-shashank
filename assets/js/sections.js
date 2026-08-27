@@ -1,5 +1,5 @@
 /* ============================================================================
-   Work · Archive · Experience — behaviour.
+   Work · Archive · the hand-off — behaviour.
 
    Deliberately independent of the landing page's scrub engine. That engine owns
    the film and the hero, it is tuned, and it works; this module owns everything
@@ -318,101 +318,7 @@
   });
 
   /* ========================================================================
-     4 · EXPERIENCE — the character
-     ========================================================================
-     Four stops scroll vertically past a pinned figure. Each one that crosses
-     the trigger line levels him up and fills a loadout slot. Airtel carries a
-     mid-stop beat: the motion tool arrives in 2024, partway through the stop
-     rather than at its start, because that is when it actually happened.
-
-     Level state is cumulative and idempotent — recomputed from scroll position
-     every frame rather than incremented on an event, so scrolling back up
-     downgrades correctly and a mid-page reload lands in the right state.
-     ====================================================================== */
-
-  const exp = document.getElementById('sx-exp');
-  const stops = exp ? [...exp.querySelectorAll('.sx-stop')] : [];
-  const rig = document.getElementById('sx-rig');
-  const lvNum = document.getElementById('sx-lv-num');
-  const lvName = document.getElementById('sx-lv-name');
-  const slots = rig ? [...rig.querySelectorAll('.sx-slot')] : [];
-  const figure = document.getElementById('sx-figure');
-
-  /* Kit that belongs to each level, cumulative. Index 0 is the base state
-     before any stop has been reached. */
-  const KIT = [
-    [],
-    ['mouse'],
-    ['mouse', 'tablet'],
-    ['mouse', 'tablet', 'keyboard', 'cans', 'crown'],
-    ['mouse', 'tablet', 'keyboard', 'cans', 'crown', 'monitor2']
-  ];
-
-  let lastLevel = -1, lastTool = null;
-
-  function applyLevel(level, tool) {
-    if (level === lastLevel && tool === lastTool) return;
-    lastLevel = level; lastTool = tool;
-
-    const kit = new Set(KIT[level] || []);
-    if (tool) kit.add('tool');
-
-    if (figure) {
-      figure.querySelectorAll('[data-kit]').forEach(el => {
-        el.setAttribute('data-on', kit.has(el.getAttribute('data-kit')) ? '1' : '0');
-      });
-      /* Posture: the figure sits a little taller each level. The content file
-         encodes this as figure heights 34/38/44/52 — the same idea, as a scale
-         about the seat rather than a height change, so the desk stays put. */
-      figure.setAttribute('data-level', String(level));
-    }
-
-    slots.forEach((s, i) => s.setAttribute('data-on', i < level ? '1' : '0'));
-
-    if (lvNum) lvNum.textContent = String(level).padStart(2, '0');
-    if (lvName) {
-      lvName.textContent = level === 0
-        ? 'before'
-        : (stops[level - 1] ? stops[level - 1].getAttribute('data-co') : '');
-    }
-  }
-
-  function updateExperience() {
-    if (!stops.length) return;
-
-    /* The trigger is the stop's CENTRE crossing a line at 55% of the viewport,
-       not its top edge. Measuring the top edge levels the character up the
-       moment a card peeks in from below — which put the HUD on Airtel while
-       Gamezop was still the card sitting in front of the reader. A stop counts
-       when it has actually arrived. */
-    const line = innerHeight * 0.55;
-    let level = 0, tool = false;
-
-    for (let i = 0; i < stops.length; i++) {
-      const r = stops[i].getBoundingClientRect();
-      const passed = (r.top + r.height / 2) <= line;
-      if (passed) level = i + 1;
-
-      /* The 2024 beat, inside the last stop: the motion tool arrives partway
-         through Airtel rather than at its start, because that is when it
-         happened. Measured from the stop's own centre, same as the trigger. */
-      if (i === stops.length - 1 && passed && stops[i].hasAttribute('data-midbeat')) {
-        tool = (line - (r.top + r.height / 2)) / Math.max(r.height, 1) > 0.35;
-      }
-    }
-
-    /* Active = the deepest stop reached. Marked after the loop so exactly one
-       card is ever live, whatever the spacing does at a given viewport. */
-    stops.forEach((s, i) => s.setAttribute('data-active', i === level - 1 ? '1' : '0'));
-
-    applyLevel(level, tool);
-
-    const beat = exp.querySelector('[data-warm]');
-    if (beat) beat.style.opacity = tool ? '1' : '.35';
-  }
-
-  /* ========================================================================
-     5 · THE HANDOFF
+     4 · THE HANDOFF
      ========================================================================
      The block recedes before the video takes over, so there is no cut to
      notice — just something moving away that keeps moving away. Scale and
@@ -975,7 +881,6 @@
     const moved = y !== lastY;
     lastY = y;
 
-    updateExperience();
     updateHandoff();
     updateMarquee();
     updateStack();
@@ -990,8 +895,7 @@
   document.addEventListener('visibilitychange', () => { if (!document.hidden) kick(); });
 
   /* Paint the correct state now rather than on the first scroll, so a reload
-     halfway down the page doesn't start from level zero and animate up. */
-  updateExperience();
+     halfway down the page doesn't start from a cold state and animate up. */
   updateMarquee();
   updateStack();
   updateHandoff();
@@ -2965,7 +2869,6 @@
         ['s-enter',    'hero'],
         ['sx-work',    'work'],
         ['sx-archive', 'work'],
-        ['sx-exp',     'exp'],
         ['sx-hand',    'outside'],
         ['s-exit',     'outside']
       ].map(([id, key]) => ({ el: document.getElementById(id), key }))

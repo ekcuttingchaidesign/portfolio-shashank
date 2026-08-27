@@ -22,7 +22,7 @@ just dived into.
 | `index.html` | Root page; forwards to `prototype/`. Replace once a real landing page exists. |
 | `prototype/index.html` | The page. Hero markup and the whole scrub engine are inline here; the sections below it are markup only. |
 | `assets/css/sections.css` | Every style on the page except the scrub engine's own. The `:root` block at the top holds the palette and type scale. |
-| `assets/js/sections.js` | Hero arrival, the headline rotator, the scroll reveals, and the Experience rig. Uses Motion. |
+| `assets/js/sections.js` | Hero arrival, the headline rotator, the scroll reveals, and the hand-off. Uses Motion. |
 | `assets/vendor/motion.js` | [Motion](https://motion.dev) 13.1.0, vendored as a UMD bundle so there is no build step. |
 | `assets/fonts/` | Satoshi, as woff2. The two weights the hero needs are preloaded. |
 | `public/video/` | The two source films (`into-the-screen`, `out-of-the-screen`). |
@@ -56,9 +56,14 @@ just dived into.
    inverts the page's habit: everything else assembles out of stillness and
    stops, this arrives already running and slows down as you reach it.
 6. **`#sx-archive`** — Built with AI.
-7. **`#sx-exp`** — How I got here.
-8. **`#sx-hand`**, **`#s-exit`**, **`#s-connect`** — the handoff, the dive back
+7. **`#sx-hand`**, **`#s-exit`**, **`#s-connect`** — the handoff, the dive back
    out, and *Say hello.*
+
+There is no Experience section on the page at the moment. *How I got here* —
+the career drawn as a rig levelling up — has been taken out, and the seam that
+used to climb from the level up to paper now stays dark and hands the page
+straight to the hand-off. The light palette it ran on is still in `:root`, so
+whatever goes back in that slot can be printed on the same values.
 
 ## Direction
 
@@ -67,11 +72,10 @@ interface running on it rather than as a document. Structural devices come from
 the world the work is actually in — entertainment products and the motion inside
 them — so spec strips read like title cards and key visuals behave like players.
 
-**The signature is the Experience section**: the career is drawn as a rig
-levelling up. Each role adds hardware — mouse, tablet, full kit, dual monitors,
-a motion tool in 2024 — and the figure at the desk sits fractionally taller as
-the kit fills in. Nearly all the boldness is spent there; everything around it
-stays quiet.
+**The signature is currently unspent.** It used to be the Experience section —
+the career drawn as a rig levelling up, one piece of hardware added per role —
+and nearly all the page's boldness went there. With that section gone the page
+is all quiet, and the next thing to land in its slot is what should carry it.
 
 | | |
 | --- | --- |
