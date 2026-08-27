@@ -1211,6 +1211,48 @@
   will-change: transform;
 }
 
+/* --- the ledge ---
+   The hero's own right_side_ledge, in the hero's own orientation. Things That
+   Move mirrors this asset into the left corner; here it stays right, where the
+   hero puts it, so the page reads as the same object turning up again rather
+   than as a third decoration. It sits behind everything and answers the green
+   the rail is drawn in.
+
+   Bled off the right edge of the window, not of the column: the wrap stops at
+   its gutter and stops again at its max-width, so reaching the glass means
+   undoing both — which is what the max() is. */
+.sx-xp-ledge {
+  position: absolute;
+  /* The bleed is a share of the ledge's OWN width, not the page gutter. Written
+     against the gutter it hung 71px off a 124px shape at 1440 — more than half
+     of it gone, which reads as a rendering fault rather than as a deliberate
+     crop. A fifth of itself past the glass is the amount that says "this
+     continues" without losing the shape. */
+  --w: clamp(88px, 8.5vw, 150px);
+  right: calc(var(--w) * -0.2);
+  top: 46%;
+  width: var(--w);
+  height: auto;
+  transform: translateY(-46%);
+  /* .8 put a bright green wedge the size of a headline against a near-black
+     page and it pulled the eye off the writing. This is the corner of the room,
+     not a thing to read. */
+  opacity: .55;
+  z-index: 0;
+  pointer-events: none;
+  /* 17s, against the mascot's 1.9 and the ledge downstairs on 13 — three
+     periods that do not divide into each other, so the corners of the page
+     never fall into step. */
+  animation: sx-xp-ledge-float 17s ease-in-out infinite;
+}
+@keyframes sx-xp-ledge-float {
+  0%, 100% { translate: 0     0;    rotate: 0deg;    }
+  31%      { translate: -4px -8px;  rotate: -1.1deg; }
+  64%      { translate: 2px  -3px;  rotate: 0.8deg;  }
+}
+/* Everything the reader is actually here for sits over it. */
+.sx-xp-layout, .sx-sec-head { position: relative; z-index: 1; }
+
 /* --- the rail ---
    Two cards today and more later, so this is a carousel from the start: native
    overflow scrolling with snap points. It needs no controls at this length, it
@@ -1491,16 +1533,38 @@
    ------------------------------------------------------------------------- */
 
 /* Down off the level's green floor. Black through the stretch the teeth reach
-   into, then onto the page's own ground rather than a colour of its own. */
+   into, then onto the page's own ground rather than a colour of its own.
+
+   It ran 46vh, which is close to half a screen of nothing between the level and
+   the career — the two read as unrelated pages rather than as one scroll. The
+   floor's teeth are the only hard constraint: they hang about 68px below the
+   level at 1440 wide and must resolve into black before anything else starts,
+   which the first 60% of 180px covers with room to spare. */
 .sx-seam-exp {
-  height: 46vh;
+  height: clamp(150px, 13vh, 200px);
   background: linear-gradient(180deg,
-    #000 0%, #000 58%, var(--sx-wall) 100%);
+    #000 0%, #000 60%, var(--sx-wall) 100%);
 }
 
 #sx-exp {
   position: relative;
+  /* X only, and only because the ledge bleeds past the right edge. `clip`
+     rather than `hidden`: hidden would make this a scroll container and take
+     the sticky stage down with it. The level above clips the same way for the
+     same reason. */
+  overflow-x: clip;
   padding-bottom: clamp(5rem, 12vh, 9rem);
+  /* The rail's own colour, and it is not the page's accent.
+
+     Vermilion is this page's ONE type accent — roles, links, the words that
+     carry a claim — and running the timeline in it made the rail compete with
+     the writing beside it for the same meaning. Green is already on the page
+     one section up: it is the Claude Code level's floor, the thing you have
+     just walked off to get here. Structure in the floor's colour and type in
+     the portrait's keeps the two jobs apart, and ties this section to the one
+     above it rather than inventing a third hue. */
+  --sx-xp-line: #57C74B;
+  --sx-xp-line-dim: #2F6B27;
 }
 
 .sx-xp-layout {
@@ -1520,73 +1584,85 @@
   position: sticky;
   top: max(4vh, calc(50vh - 290px));
 }
+/* No card. He stands on the page.
+
+   A panel around him made the character an exhibit — a picture of a person in
+   a frame, beside a list. Free of it he is simply in the room the section is
+   in, which is the whole reason four different renders were drawn. The only
+   thing left holding him is a bloom and a floor line.
+
+   (On the phone breakpoint below, the card comes back as a bar. That is not an
+   inconsistency: down there it floats over scrolling text and needs a ground to
+   stay legible against.) */
 .sx-xp-card {
-  border: 1px solid var(--sx-ink-4);
-  border-radius: 8px;
-  background:
-    radial-gradient(120% 80% at 50% 8%, rgba(224,84,42,.05), transparent 62%),
-    var(--sx-surface);
-  padding: clamp(.85rem, 1.6vw, 1.15rem);
+  border: 0;
+  background: none;
+  padding: 0;
 }
 
-/* The title card. Spec strips on this page read like title cards, and this is
-   the one that says which reel is running. */
-.sx-xp-head {
+/* --- the readout, under him ---------------------------------------------
+   Year then company, reading downward off the character: this person, then
+   when, then where. It was a strip ABOVE him — a counter and a year on one
+   line — which put the label before the thing it labels and needed a card to
+   sit on. */
+.sx-xp-yr {
   display: flex;
   align-items: center;
-  gap: .5rem;
+  justify-content: center;
+  gap: .45rem;
   font-family: var(--sx-mono);
   font-size: var(--sx-t-mono);
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--sx-ink-3);
-  margin: 0 0 .7rem;
-}
-.sx-xp-head .sx-sp { flex: 1; }
-.sx-xp-n {
-  display: inline-flex;
-  align-items: center;
-  gap: .4rem;
   font-variant-numeric: tabular-nums;
+  margin: clamp(.9rem, 2.5vh, 1.4rem) 0 0;
 }
-/* The running dot, and it is held back on purpose. It appears on exactly one
-   of the four stops — the one that has not ended — so it means "this is still
-   happening" rather than "this is the slide you are looking at", which the
-   counter beside it already says. The only thing on the card that moves of its
-   own accord, spent on the only fact that earns it. */
-.sx-xp-n::before {
+/* The running dot, held back on purpose. It appears on exactly one of the four
+   stops — the one that has not ended — so it means "this is still happening"
+   rather than "this is the slide you are looking at", which the pips already
+   say. The only thing here that moves of its own accord, spent on the only
+   fact that earns it. */
+.sx-xp-yr::before {
   content: "";
   width: 5px; height: 5px;
   border-radius: 50%;
-  background: var(--sx-key);
+  background: var(--sx-xp-line);
   opacity: 0;
   transition: opacity .4s var(--sx-ease);
 }
-.sx-xp-card[data-current] .sx-xp-n { color: var(--sx-key); }
-.sx-xp-card[data-current] .sx-xp-n::before {
+.sx-xp-card[data-current] .sx-xp-yr { color: var(--sx-ink-2); }
+.sx-xp-card[data-current] .sx-xp-yr::before {
   opacity: 1;
   animation: sx-xp-live 2.4s var(--sx-ease) infinite;
 }
 @keyframes sx-xp-live { 0%, 100% { opacity: 1 } 50% { opacity: .25 } }
-.sx-xp-yr { font-variant-numeric: tabular-nums; }
 
 /* --- the frame the character stands in --- */
+/* The box is still here and still clips — the re-render's bar has to end
+   somewhere — but it no longer paints anything. An invisible stage. */
 .sx-xp-frame {
   position: relative;
   aspect-ratio: 1 / 1;
-  border-radius: 5px;
   overflow: hidden;
-  background:
-    radial-gradient(80% 60% at 50% 108%, rgba(224,84,42,.10), transparent 70%),
-    linear-gradient(180deg, #0C0C0B 0%, #131312 100%);
+  background: none;
 }
 /* The light he stands in. Its warmth is written by script as the career runs,
    so the room gets brighter as the jobs get bigger. */
+/* The bloom behind him. Warm, wide and weak — the same reading of a big soft
+   light the mascot's plinth over in Things That Move uses: a broad radial
+   wash rather than a filtered layer, because a blur is only worth its layer
+   when the thing underneath has structure to lose, and this has none.
+
+   It brightens as the career does, so the room he is standing in gets warmer
+   from MediaAgility to Airtel without anything announcing that it has. */
 .sx-xp-glow {
   position: absolute;
-  inset: 0;
-  background: radial-gradient(58% 46% at 50% 78%,
-    rgba(224,84,42, calc(.05 + var(--sx-xp-heat, 0) * .17)), transparent 72%);
+  inset: -18% -12% -10%;
+  background: radial-gradient(50% 42% at 50% 66%,
+    rgba(224,84,42, calc(.10 + var(--sx-xp-heat, 0) * .13)) 0%,
+    rgba(224,84,42, calc(.05 + var(--sx-xp-heat, 0) * .07)) 38%,
+    rgba(224,84,42, 0) 72%);
   transition: background .9s var(--sx-ease-out);
   pointer-events: none;
 }
@@ -1656,19 +1732,24 @@
 /* --- the readout --- */
 .sx-xp-co {
   font-family: var(--sx-display);
-  font-weight: 300;
+  font-weight: 700;
   font-size: var(--sx-t-sub);
   line-height: 1.15;
   color: var(--sx-ink);
-  margin: .85rem 0 0;
+  margin: .3rem 0 0;
+  text-align: center;
 }
 /* Four pips: where you are, and how many there are. */
+/* Four pips, sized to the readout rather than to the column. Inside the old
+   card they were naturally short; free on the page they stretched to the full
+   width of the stage and read as four rules rather than as a position. */
 .sx-xp-pips {
   display: flex;
   gap: 5px;
   list-style: none;
-  margin: .95rem 0 0;
+  margin: .9rem auto 0;
   padding: 0;
+  width: min(230px, 70%);
 }
 .sx-xp-pips li {
   height: 3px;
@@ -1677,7 +1758,7 @@
   background: var(--sx-ink-4);
   transition: background .45s var(--sx-ease);
 }
-.sx-xp-pips li[data-on] { background: var(--sx-key); }
+.sx-xp-pips li[data-on] { background: var(--sx-xp-line); }
 
 /* --- the rail --------------------------------------------------------------
    The line down the left of the stops, and the stops themselves. The rail is
@@ -1704,7 +1785,7 @@
   left: 0; top: .55em;
   width: 1px;
   height: calc(var(--sx-xp-run, 0) * (100% - .55em));
-  background: linear-gradient(180deg, var(--sx-key-dim), var(--sx-key));
+  background: linear-gradient(180deg, var(--sx-xp-line-dim), var(--sx-xp-line));
   transition: height .35s linear;
 }
 
@@ -1719,10 +1800,12 @@
      the next stop had already taken the trigger. Four changes in barely more
      than one screen reads as a flicker, not a career.
 
-     54vh puts roughly four fifths of a screen between tops — enough to read
-     the stop, watch him arrive, and have him stand there a moment being that
-     person before the next one is asked for. */
-  padding-bottom: clamp(5rem, 54vh, 24rem);
+     54vh was the other way wrong: nearly a full screen of empty page beside a
+     sticky character between one company and the next, which read as the
+     section having stalled. 30vh puts a little over half a screen between
+     tops — still more than the 620ms wipe needs to land and be watched, and
+     no longer a wait. */
+  padding-bottom: clamp(4rem, 30vh, 15rem);
   transition: opacity .55s var(--sx-ease);
 }
 .sx-xp-stop:last-child { padding-bottom: 0; }
@@ -1744,8 +1827,8 @@
   transition: box-shadow .45s var(--sx-ease), background .45s var(--sx-ease);
 }
 .sx-xp-stop[data-active="1"]::before {
-  background: var(--sx-key);
-  box-shadow: inset 0 0 0 1px var(--sx-key), 0 0 0 4px rgba(224,84,42,.16);
+  background: var(--sx-xp-line);
+  box-shadow: inset 0 0 0 1px var(--sx-xp-line), 0 0 0 4px rgba(87,199,75,.16);
 }
 
 /* Years, then the shape of the job. Skim the four of these down the rail and
@@ -1765,8 +1848,8 @@
 }
 .sx-xp-when i {
   font-style: normal;
-  color: var(--sx-key);
-  opacity: .85;
+  color: var(--sx-xp-line);
+  opacity: .9;
 }
 .sx-xp-when i::before {
   content: "";
@@ -1778,9 +1861,13 @@
 }
 .sx-xp-stop h3 {
   font-family: var(--sx-display);
-  font-weight: 300;
+  /* Bold, where every other heading on this page is Light. A company name is a
+     proper noun doing the work of a heading, and at Light it read as another
+     line of the same weight as the copy under it. */
+  font-weight: 700;
   font-size: var(--sx-t-head);
   line-height: 1.05;
+  letter-spacing: -.015em;
   margin: .45rem 0 0;
   color: var(--sx-ink);
 }
@@ -1804,7 +1891,9 @@
   list-style: none;
   margin: clamp(1.25rem, 3vh, 1.9rem) 0 0;
   padding: 0 0 0 clamp(.9rem, 2vw, 1.4rem);
-  border-left: 2px solid rgba(224,84,42,.28);
+  /* Thicker, and in the rail's colour — it is a branch of the rail, not a
+     quote. */
+  border-left: 2px solid rgba(87,199,75,.30);
   display: grid;
   gap: clamp(.9rem, 2.2vh, 1.35rem);
 }
@@ -1901,7 +1990,7 @@
        order, so any change to the column count silently reshuffles the cells. */
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-areas:
-      "fig head"
+      "fig yr"
       "fig co"
       "fig pips";
     align-items: center;
@@ -1909,12 +1998,14 @@
     row-gap: .15rem;
     padding: .5rem .7rem;
     border-radius: 10px 10px 0 0;
-    /* It floats over the rail, so it has to read as chrome rather than as a
-       block that got stuck. An opaque ground and a lift off the page. */
+    /* The desktop card is gone and the character stands free up there. Down
+         here he cannot: the bar floats over scrolling text, and without a
+         ground the copy runs straight through him. So the card comes back at
+         this width only, as chrome. */
     background: var(--sx-raise);
     box-shadow: 0 -18px 30px -22px rgba(0,0,0,.9);
   }
-  .sx-xp-head { grid-area: head; margin: 0; }
+  .sx-xp-yr { grid-area: yr; margin: 0; justify-content: flex-start; }
   .sx-xp-frame {
     grid-area: fig;
     width: clamp(56px, 16vw, 76px);
@@ -1924,7 +2015,7 @@
     background: none;
   }
   .sx-xp-floor { display: none; }
-  .sx-xp-co { grid-area: co; margin: 0; font-size: 1.02rem; line-height: 1.2; }
+  .sx-xp-co { grid-area: co; margin: 0; font-size: 1.02rem; line-height: 1.2; text-align: left; }
   .sx-xp-pips { grid-area: pips; margin: .28rem 0 .1rem; }
 
   /* The bar sits over the end of the rail, so the rail has to end above it. */
@@ -1948,8 +2039,9 @@
    runs, and every stop is at full opacity — so the section still reads as a
    timeline, it just does not perform one. */
 @media (prefers-reduced-motion: reduce) {
-  .sx-xp-n::before { animation: none; }
+  .sx-xp-yr::before { animation: none; }
   .sx-xp-cel, .sx-xp-stop, .sx-xp-pips li, .sx-xp-glow { transition: none; }
+  .sx-xp-ledge { animation: none; }
   .sx-xp-stop[data-active="0"] { opacity: 1; }
   .sx-xp-rail::after { transition: none; }
   .sx-xp-sweep { display: none; }
@@ -1963,23 +2055,26 @@
    is no cut to notice — just something moving away that keeps moving away.
    ------------------------------------------------------------------------- */
 
-/* Experience's ground down into the void the film starts from. Both ends are
-   near-black, so this is a settle rather than a ramp — there is no hue between
-   them to cross, and inventing one would put a third colour into a seam that
-   two were already saying enough about. */
+/* Experience's ground down into the void the film starts from, and it is now
+   the whole of the gap: 250px, then the line, then the pull-out. It used to be
+   40vh followed by a full screen of hand-off holding a placeholder slab, which
+   put most of a screen of nothing between the last job and the last sentence.
+   Both ends are near-black, so this is a settle rather than a ramp — inventing
+   a hue between them would put a third colour into a seam that two were
+   already saying enough about. */
 .sx-seam-out {
-  height: 40vh;
+  height: 250px;
   background: linear-gradient(180deg,
     var(--sx-wall) 0%, #060606 55%, var(--sx-void) 100%);
 }
 
+/* One line on the void, and then the film. No min-height: the section is as
+   tall as the sentence in it plus the room it needs to recede through, so the
+   pull-out begins right after rather than a screen later. */
 #sx-hand {
   position: relative;
-  min-height: 100vh;
   background: var(--sx-void);
-  display: grid;
-  align-content: center;
-  padding-block: clamp(4rem, 10vh, 7rem);
+  padding-block: 0 clamp(6rem, 14vh, 10rem);
 }
 .sx-hand-stage {
   transform: scale(var(--sx-hand-s, 1)) translateY(var(--sx-hand-y, 0px));
@@ -1992,7 +2087,7 @@
   font-weight: 300;
   font-size: var(--sx-t-sub);
   color: var(--sx-ink-2);
-  margin: clamp(1.5rem, 4vh, 2.5rem) 0 0;
+  margin: 0;
   text-align: center;
 }
 

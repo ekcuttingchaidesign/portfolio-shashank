@@ -59,7 +59,8 @@ just dived into.
 7. **`#sx-exp`** — How I got here. Four stops down one rail, with a sticky
    stage beside it where the character changes company as you scroll.
 8. **`#sx-hand`**, **`#s-exit`**, **`#s-connect`** — the handoff, the dive back
-   out, and *Say hello.*
+   out, and *Say hello.* The handoff is one line, 250px under Experience, and
+   the pull-out starts straight after it.
 
 ## Direction
 
@@ -81,6 +82,17 @@ character is clipped away behind it and the incoming one resolves in front of
 it. A dissolve would have been a transition between two pictures; a bar reads as
 a render pass finishing, which is the world this page is already in.
 
+He stands free — no card, no frame. A panel around him made the character an
+exhibit; without one he is simply in the room the section is in. What holds him
+is a warm bloom that brightens as the career runs, and the hero's own
+`right_side_ledge` in the far corner.
+
+**The rail is green, and the rest of the page is not.** `#57C74B` is the Claude
+Code level's floor — the thing you have just walked off to get here — so the
+timeline is drawn in the colour of the ground behind it, and vermilion stays
+what it has always been on this page: the one *type* accent. Structure in one,
+writing in the other, and no third hue invented for the job.
+
 The rail beside him is not evenly divided, because the CV is not. Three short
 stops, then five years of Airtel carrying five stints inside it — so the Airtel
 segment runs long, its rule is thicker, and it opens into five rather than
@@ -89,7 +101,7 @@ closing into one line. The shape of the rail is the shape of the career.
 | | |
 | --- | --- |
 | Everything | Satoshi — Light for the roman, Black Italic for the words that carry the claim |
-| Accent | One: vermilion `#E0542A`, sampled from the portrait itself — 7% of that photograph is this colour |
+| Accent | One: vermilion `#E0542A`, sampled from the portrait itself — 7% of that photograph is this colour. Experience's rail is the exception, and deliberately structural: `#57C74B`, the Claude Code level's floor |
 | Ink | `#F4F1EC`, the portrait's cream, stepped down through four alphas for hierarchy |
 
 Each project below the hero carries its own `--sx-key`, sampled from its cover
@@ -101,6 +113,7 @@ the same way the page's accent was sampled from the portrait.
 | --- | --- |
 | Length of the hero's arrival, and the hold after it | `HERO_VH` / `HERO_HOLD_VH` in the inline script in `prototype/index.html` |
 | How long each Experience stop stays on the stage | `.sx-xp-stop`'s `padding-bottom` in `sections.css` — the gap between two stop tops IS the time a company holds |
+| The gaps around Experience | `.sx-seam-exp` (down off the level) and `.sx-seam-out` (up to the hand-off line) |
 | Which sheet, how many frames and how fast, per company | `REELS` in `sections.js` |
 | How long each headline sentence holds, and how long the change takes | `SWAP_HOLD` / `SWAP_MS` in `sections.js` |
 | When the objects crossfade inside the glide | `FACE_MIX_IN` / `FACE_MIX_OUT` in `sections.js` |

@@ -1246,6 +1246,13 @@
         entertainment products the whole way.</p>
       </header>
 
+      <!-- The hero's right_side_ledge, in its own orientation this time. Things
+           That Move mirrors it to the left corner; here it sits right, where
+           the hero puts it, so the two reads as the same object appearing twice
+           rather than as two ornaments. -->
+      <img class="sx-xp-ledge" src="../public/img/right_side_ledge.svg" alt=""
+           width="163" height="335" decoding="async" aria-hidden="true">
+
       <div class="sx-xp-layout">
 
         <!-- ---- the stage ----
@@ -1266,18 +1273,6 @@
         <aside class="sx-xp-stage" id="sx-xp-stage" aria-hidden="true">
           <div class="sx-xp-card">
 
-            <!-- Stop counter on the left, years on the right. It said "Now"
-                 at first, which put the word NOW beside "2018 — 21" and made
-                 the card argue with itself. A counter is what the reader
-                 actually wants here anyway: which of these am I on, and how
-                 many are left. The live dot is held back for the one stop
-                 that genuinely is now. -->
-            <p class="sx-xp-head">
-              <span class="sx-xp-n" id="sx-xp-n">01 / 04</span>
-              <span class="sx-sp"></span>
-              <span class="sx-xp-yr" id="sx-xp-yr">2016 — 17</span>
-            </p>
-
             <div class="sx-xp-frame">
               <!-- The light he stands in. Warms as the career does. -->
               <span class="sx-xp-glow" aria-hidden="true"></span>
@@ -1291,15 +1286,13 @@
                      is a render pass finishing rather than a puff of sparkles. -->
                 <span class="sx-xp-sweep" aria-hidden="true"></span>
               </div>
-
-              <span class="sx-xp-floor" aria-hidden="true"></span>
             </div>
 
-            <!-- The company, and only the company. The shape verb was here too
-                 until it moved into the rail; with both on screen at once the
-                 card and the stop beside it were saying the same two lines a
-                 few centimetres apart. A label for a picture is the card's
-                 whole job. -->
+            <!-- Years, then the company. Under him rather than in a strip above,
+                 so the block reads downward as one thing: this person, then
+                 when, then where. The live dot rides the year, and only on the
+                 stop that has not ended. -->
+            <p class="sx-xp-yr" id="sx-xp-yr">2016 — 17</p>
             <p class="sx-xp-co" id="sx-xp-co">MediaAgility</p>
 
             <!-- Four pips. Which stop you are on, and how many there are — the
@@ -1394,16 +1387,16 @@
   <div class="sx-seam-out" aria-hidden="true"></div>
 
   <!-- ---------- 5 · HANDOFF ----------
-       The last thing the page shows sits down at the monitor you are
-       currently inside. The block is already receding before the film takes
-       over, so there is no cut to notice. -->
+       One line, and then the film. The reserved slab that used to sit here —
+       a 21:9 plate waiting on art of the desk — is gone: it was a placeholder
+       standing in a whole screen of its own, and the line reads better arriving
+       straight off the end of the career than after a box of hatching.
+
+       The line is still on the recede, so it is already moving away before the
+       pull-out takes over and there is no cut to notice. -->
   <section id="sx-hand">
     <div class="sx-wrap">
       <div class="sx-hand-stage">
-        <div class="sx-slab" style="aspect-ratio:21/9"
-             data-empty="The desk you have been looking at, from inside the monitor&#10;the section recedes · the pull-out composites underneath">
-          <span class="sx-sheen"></span>
-        </div>
         <p class="sx-hand-line">And that's where you came in.</p>
       </div>
     </div>
