@@ -497,11 +497,11 @@
 }
 
 /* --- the mascot ---
-   Two sheets in one window. The box clips to a single cell; the sheet behind
-   it steps. 600% wide means the image is six cells across, so 20% of
-   background-position lands each column; the row divisor differs because the
-   sheets are different depths, which is the whole reason data-pose carries the
-   background-size as well as the file.
+   Two sheets, one window, a layer each. The box clips to a single cell; the
+   sheet behind it steps. 600% wide means the image is six cells across, so 20%
+   of background-position lands each column; the row divisor differs because
+   the sheets are different depths, which is why each layer carries its own
+   background-size rather than the pose swapping one.
 
    Both files are generated, not delivered, and the second reason is more
    interesting than the first. The delivered sheets are rendered by an image
@@ -557,27 +557,56 @@
   padding: 0;
   border: 0;
   border-radius: 12px;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  /* Frame 0 — standing. The resting state with no script and with motion off. */
-  background-position: 0% 0%;
+  background: transparent;
   opacity: .94;
   cursor: pointer;
-  /* Only the transform transitions. The sprite owns background-position and a
+  /* Only the transform transitions. A sheet owns background-position and a
      transition on it would slide the sheet across the window between frames. */
   transition: transform .35s var(--sx-ease), opacity .35s var(--sx-ease);
 }
-.sx-mv-mascot[data-pose="vibe"] {
+
+/* --- the two sheets ---
+   One layer each, and the pose decides only which one is VISIBLE.
+
+   This used to be one element whose background-image the pose swapped. That is
+   what put an empty plinth on screen: a CSS background is a resource of its
+   own, unrelated to any Image() the script may have warmed, so flipping to the
+   walk pose sent the browser back for the 470KB sheet AT THE MOMENT OF THE
+   HOVER — and the character painted nothing until the fetch and the decode both
+   landed. With a warm HTTP cache that is invisible; ten minutes later, or on a
+   phone, it is a second of nothing. Which is exactly "sometimes".
+
+   Declared on layers instead, the file is fetched once when the section is
+   approached and the hover costs an opacity flip. will-change keeps each layer
+   on the compositor so the flip never waits on a raster either. */
+.sx-mv-sheet {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  /* Frame 0 — standing. The resting state with no script and with motion off. */
+  background-position: 0% 0%;
+  opacity: 0;
+  will-change: opacity;
+  pointer-events: none;
+}
+.sx-mv-sheet[data-sheet="vibe"] {
   background-image: url("../../public/img/mascot_music_vibe.webp");
   background-size: 600% 200%;
 }
-/* The walk sheet's URL also lives as a custom property, because the preloader
-   has to know it before the pose has switched to it. One place to change. */
+/* The walk sheet's URL lives as a custom property, because the warmer has to
+   know it before the layer is wearing it. One place to change.
+
+   It is declared only under [data-warm], which the script sets as the section
+   comes up the screen. That keeps the deferred fetch the sheet was always
+   given — it is the heavier of the two and nobody has hovered yet — while
+   still moving that fetch off the hover and onto the approach. */
 .sx-mv-mascot { --sx-mv-walk: url("../../public/img/mascot_moonwalk_dab2.webp"); }
-.sx-mv-mascot[data-pose="walk"] {
+.sx-mv-mascot[data-warm] .sx-mv-sheet[data-sheet="walk"] {
   background-image: var(--sx-mv-walk);
   background-size: 600% 400%;
 }
+.sx-mv-mascot[data-pose="vibe"] .sx-mv-sheet[data-sheet="vibe"],
+.sx-mv-mascot[data-pose="walk"] .sx-mv-sheet[data-sheet="walk"] { opacity: 1; }
 /* --- the stage ---
    The plinth the character stands on. Sits behind the mascot and is sized off
    it, so the two cannot drift apart: the SVG's own top face ends 105 of its

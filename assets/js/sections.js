@@ -1936,6 +1936,13 @@
       walk: { cols: 6, rows: 4, frames: 24, cycle: 2100 },
     };
     const mascot = document.getElementById('sx-mv-mascot');
+    /* One layer per sheet. The sprite animates whichever layer the pose has
+       made visible; the pose itself never touches a background-image, which is
+       what used to send the browser back to the network mid-hover. */
+    const sheets = mascot ? {
+      vibe: mascot.querySelector('.sx-mv-sheet[data-sheet="vibe"]'),
+      walk: mascot.querySelector('.sx-mv-sheet[data-sheet="walk"]'),
+    } : {};
     let sprite = null, posing = false;
 
     /* A pose's keyframes: one held cell per frame. Held and never
@@ -1956,11 +1963,12 @@
     };
 
     const playPose = name => {
-      if (!mascot || !mascot.animate) return null;
+      const layer = sheets[name];
+      if (!layer || !layer.animate) return null;
       if (sprite) sprite.cancel();
       const pose = POSES[name];
       mascot.dataset.pose = name;
-      sprite = mascot.animate(poseKeys(pose),
+      sprite = layer.animate(poseKeys(pose),
         { duration: pose.cycle, iterations: Infinity });
       return sprite;
     };
@@ -2198,28 +2206,38 @@
       applySpeed();
 
       /* --- warming the walk sheet ---
-         This is where the character used to vanish.
+         This is where the character used to vanish, and the previous fix
+         warmed the wrong thing.
 
-         The old preloader was `img.decode().catch(() => {})`, and the catch is
-         the bug. Chrome rejects decode() intermittently — an interrupted or
-         collected decode, nothing to do with the bytes being bad — and a
-         swallowed rejection RESOLVED THE WAIT EARLY. dance() then switched
-         data-pose to `walk`, which switched background-image to a 470KB sheet
-         the browser had not finished fetching, and the mascot painted nothing
-         at all until it landed. An empty plinth for a second or two, on some
-         hovers and not others, exactly as reported.
+         It preloaded the sheet into an `Image()` and waited for that, which is
+         a perfectly good way to know the BYTES have arrived — and then the pose
+         switched `background-image`, and a CSS background is a resource of its
+         own. The browser went back out for the file at the moment of the hover,
+         and the character painted nothing until it landed. Two requests for the
+         same sheet, the second one on the interaction path. With the file still
+         fresh in the HTTP cache that is invisible; once it has gone stale, or
+         on a slow link, it is a second of empty plinth. Exactly "sometimes".
 
-         Three things fix it, and the third is the one that makes it impossible
-         rather than unlikely:
+         So the pose no longer asks for a file at all — the stylesheet gives
+         each sheet its own layer and the pose only flips which is visible. What
+         is left here is the warm-up that puts the walk layer on screen (at zero
+         opacity) BEFORE anybody hovers, and the readiness gate that keeps the
+         pose from switching to a layer that is not painted yet:
 
-           1. resolve on load OR decode, so a rejected decode is not mistaken
-              for a finished one;
-           2. do not cache a failure — the next hover gets to try again;
-           3. never switch pose unless the sheet is genuinely ready. Vibing is
-              a pose the character HAS. If the sheet is not there, it keeps
-              vibing, which is a worse moonwalk and a much better mascot than
-              an empty plinth. */
-      let warm = null, ready = false, wants = false, inflight = false;
+           1. `data-warm` is what hands the layer its background-image, so the
+              fetch happens on approach rather than on contact;
+           2. the Image() beside it is the SIGNAL — same URL, so it costs
+              nothing extra — and it is RETAINED, because an unreferenced image
+              can have its decode collected and then the layer has to decode
+              again at the worst possible moment;
+           3. readiness is re-tested from that image every time rather than
+              cached in a boolean that can outlive the thing it describes;
+           4. a rejected decode() is still never mistaken for an answer, and a
+              failure is never cached — the next hover gets to try again;
+           5. and if the sheet is genuinely not there, the character keeps
+              vibing. Vibing is a pose it HAS. A worse moonwalk is a much better
+              mascot than an empty plinth. */
+      let warmImg = null, warming = null, wants = false, inflight = false;
 
       const walkURL = () => {
         const raw = getComputedStyle(mascot).getPropertyValue('--sx-mv-walk')
@@ -2234,49 +2252,63 @@
         catch (_) { return raw; }
       };
 
-      const preload = () => {
-        if (warm) return warm;
-        warm = new Promise(resolve => {
+      /* The one true test, asked fresh each time. */
+      const sheetReady = () => !!(warmImg && warmImg.complete && warmImg.naturalWidth);
+
+      const warm = () => {
+        if (warming) return warming;
+        /* This is the line that starts the layer's own fetch. */
+        mascot.dataset.warm = '1';
+        warming = new Promise(resolve => {
           const img = new Image();
           img.decoding = 'async';
-          img.onload = () => resolve(true);
-          img.onerror = () => resolve(false);
+          const done = () => resolve(img.complete && img.naturalWidth > 0);
+          img.onload = done;
+          img.onerror = done;
           img.src = walkURL();
+          warmImg = img;                 /* retained for the life of the page */
           /* Raced against load, never trusted alone, and its rejection is
              ignored rather than treated as an answer — load will answer. */
-          img.decode().then(() => resolve(true), () => {});
+          img.decode().then(done, () => {});
         }).then(ok => {
-          ready = ok;
-          if (!ok) warm = null;
+          if (!ok) {                     /* let the next hover try again */
+            warming = null;
+            warmImg = null;
+            delete mascot.dataset.warm;
+          }
           return ok;
         });
-        return warm;
+        return warming;
       };
 
-      /* Warmed on approach rather than on contact. The old code started the
-         fetch on the first pointerenter of a 120px target, so the first hover
-         was always the one that had to wait for it; the section coming into
-         view is seconds of warning earlier, and hovering the stand — a target
-         several times the size — is the backstop. */
+      /* Warmed on approach rather than on contact. The section coming into
+         view is seconds of warning; hovering the stand — a target several times
+         the size of the character — is the backstop. */
       if ('IntersectionObserver' in window && stand) {
         const warmer = new IntersectionObserver(es => {
           if (!es.some(e => e.isIntersecting)) return;
           warmer.disconnect();
-          preload();
+          warm();
         }, { rootMargin: '40% 0px' });
         warmer.observe(stand);
       } else {
-        preload();
+        warm();
       }
-      if (stand) stand.addEventListener('pointerenter', preload, { once: true });
+      if (stand) stand.addEventListener('pointerenter', warm, { once: true });
 
       const dance = async () => {
-        if (posing || inflight) return;
+        /* Recorded BEFORE any early return. Bailing out first meant that
+           re-entering the character while a warm-up was still in flight left
+           `wants` false, the in-flight call then found nothing was wanted, and
+           the mascot sat there vibing under a pointer that was asking it to
+           dance until you moved away and came back. */
         wants = true;
-        if (!ready) {
+        if (posing || inflight) return;
+
+        if (!sheetReady()) {
           inflight = true;
-          const ok = await preload();
-          inflight = false;
+          let ok = false;
+          try { ok = await warm(); } finally { inflight = false; }
           if (!ok) return;             /* keep vibing rather than go blank */
         }
         /* The pointer may well have left while that was in flight. */

@@ -77,7 +77,8 @@ moonwalk is a cycle and it runs while you are looking at it.
 
 **To try the walk-only cycle again**, change two things: `POSES.walk` in
 `assets/js/sections.js` to `{ cols: 8, rows: 3, frames: 24, cycle: 1500 }`, and
-`--sx-mv-walk` plus the `[data-pose="walk"]` `background-size` in the CSS to
+`--sx-mv-walk` plus the `background-size` on
+`.sx-mv-mascot[data-warm] .sx-mv-sheet[data-sheet="walk"]` in the CSS to
 `MASCOT_MOONWALK_ONLY.webp` / `800% 300%`. Both `.webp` files are built and
 normalised to the same scale, so nothing needs regenerating either way.
 
@@ -187,9 +188,18 @@ node tools/normalize-sprite.mjs public/img \
 ### Weight
 
 176KB, 323KB and 470KB as WebP against 1.5MB, 1.6MB and 2.1MB as PNG. The PNG
-masters stay in the repo as the tool's input and are never requested. The walk
-sheet is not fetched with the page — the first hover decodes it before
-switching, so a cold first hover never blinks the character out.
+masters stay in the repo as the tool's input and are never requested.
+
+The walk sheet is still not fetched with the page. It is fetched when the
+section is APPROACHED, not when the character is hovered, and that distinction
+is the whole of a bug that outlived one fix. Each sheet now owns a layer of its
+own and the pose only flips which layer is visible; hovering costs an opacity
+change and never asks for a file. Under reduced motion, and on the phone
+breakpoint where the stand is hidden, the walk sheet is never fetched at all.
+
+**So do not put a `background-image` behind a pose again.** A CSS background is
+a resource of its own — warming an `Image()` with the same URL does not warm it,
+which is exactly how the character kept vanishing after the first fix went in.
 
 ## The fourteen tiles
 

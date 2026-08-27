@@ -945,11 +945,12 @@
         <p class="sx-lede">Ten years of in-product motion, idents and film. Portrait and
         landscape on one strip, the way they actually arrive.</p>
       </header>
-      <!-- Two sheets, one window. The box clips to a single cell and the sheet
-           behind it steps; data-pose says which sheet. Vibing is the resting
-           state, the moonwalk is a one-shot it returns from. Frame 0 of the
-           vibe is a standing pose, so with no script the character is simply
-           standing there. -->
+      <!-- Two sheets, one window, a layer each. The box clips to a single cell
+           and the sheet behind it steps; data-pose says which LAYER is visible,
+           never which file to go and fetch. Vibing is the resting state, the
+           moonwalk is a one-shot it returns from. Frame 0 of the vibe is a
+           standing pose, so with no script the character is simply standing
+           there. -->
       <!-- One group: the light, the plinth it falls on, and the character
            standing on it. Grouped so "attached to the right edge" is one
            number on the group rather than three that have to agree. -->
@@ -957,8 +958,17 @@
         <span class="sx-mv-bloom" aria-hidden="true"></span>
         <span class="sx-mv-glow" aria-hidden="true"></span>
         <span class="sx-mv-stage" aria-hidden="true"></span>
+        <!-- One layer per sheet, both permanently declared, because the pose
+             must never be the thing that asks for a file. Swapping
+             background-image on hover sent the browser back to the network for
+             the 470KB walk sheet at the exact moment it was needed, and the
+             character painted nothing until it landed. The pose now only
+             decides which of these two is visible. -->
         <button class="sx-mv-mascot" id="sx-mv-mascot" type="button"
-                data-pose="vibe" aria-label="Make the mascot dance"></button>
+                data-pose="vibe" aria-label="Make the mascot dance">
+          <span class="sx-mv-sheet" data-sheet="vibe" aria-hidden="true"></span>
+          <span class="sx-mv-sheet" data-sheet="walk" aria-hidden="true"></span>
+        </button>
         <!-- What it is vibing TO. Empty in the markup: every note is spawned,
              flown and thrown away by script, because the whole point is that
              there is never a fixed number of them in a fixed place. A
