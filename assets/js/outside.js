@@ -68,17 +68,43 @@
      for the same reason the mascot on the plinth stands 40% down the stage
      rather than at its 47% edge.
 
-     Printed by tools/make-blocks.mjs. If a delivered block's box differs, run
-     that tool's manifest line again rather than editing nw/nh by hand.
+     Measured off the delivered art by tools/prep-blocks.mjs, which is also
+     what named the faces. Re-run it after any re-export rather than editing
+     nw/nh or the anchors by hand — the origin is genuinely not (0.5, 1) on
+     these blocks, and eyeballing it puts every block off the ground.
      ====================================================================== */
   const BLOCKS = {
-    master: { src: 'master_block.svg', nw: 420, nh: 394.99, origin: { x: .5, y: 1 }, ridge: { x: .5, y: .465 } },
-    amb_1:  { src: 'block_1.svg',      nw: 300, nh: 292.99, origin: { x: .5, y: 1 } },
-    amb_2:  { src: 'block_2.svg',      nw: 220, nh: 214.33, origin: { x: .5, y: 1 } },
-    amb_3:  { src: 'block_3.svg',      nw: 150, nh: 145.50, origin: { x: .5, y: 1 } },
-    amb_4:  { src: 'block_4.svg',      nw: 260, nh: 181.66, origin: { x: .5, y: 1 } }
+    master: { src: 'master_block.svg', nw: 715, nh: 509, origin: { x: .444, y: .998 }, ridge: { x: .473, y: .608 } },
+    amb_1:  { src: 'block_1.svg',      nw: 278, nh: 207, origin: { x: .201, y: 1    }, ridge: { x: .350, y: .569 } },
+    amb_2:  { src: 'block_2.svg',      nw: 395, nh: 281, origin: { x: .443, y: .998 }, ridge: { x: .472, y: .608 } },
+    amb_3:  { src: 'block_3.svg',      nw: 324, nh: 233, origin: { x: .315, y: .998 }, ridge: { x: .405, y: .591 } },
+    amb_4:  { src: 'block_4.svg',      nw:  55, nh:  59, origin: { x: .443, y: 1    }, ridge: { x: .472, y: .403 } }
   };
   const IMG = '../public/img/';
+
+  /* ==========================================================================
+     2b · MASCOT MANIFEST
+     --------------------------------------------------------------------------
+     Measured off the files by tools/measure-mascots.mjs, not assumed. The three
+     are delivered on canvases with 4% to 12% vertical padding and the figures
+     are not centred in it — the footprints sit at x 0.44, 0.67 and 0.64 — so a
+     nominal (0.5, 0.96) anchor floats them off the block and shunts them
+     sideways.
+
+     `contentH` is the ink's own height, and the section scales on THAT rather
+     than on the canvas, so a seated figure on a couch and a standing one read
+     at the same size on the same plinth. It is the reasoning the sprite sheets
+     next door already use: a common figure height, never a common box.
+     ====================================================================== */
+  const MASCOTS = {
+    'iplay.png':  { w: 776, h: 631, contentH: 554, ax: 0.4407, ay: 0.9128 },
+    'iShoot.png': { w: 701, h: 728, contentH: 698, ax: 0.6683, ay: 0.9712 },
+    'iMeme.png':  { w: 716, h: 783, contentH: 698, ax: 0.6425, ay: 0.9298 },
+    'mascot_say_hi.png': { w: 373, h: 539, contentH: 508, ax: 0.5831, ay: 0.9814 }
+  };
+
+  /* The figure's ink height as a share of the block it stands on. */
+  const MASCOT_H = 0.62;
 
   /* ==========================================================================
      3 · DEPTH TIERS
@@ -107,9 +133,12 @@
      4 · THE WORLD
      ====================================================================== */
   const STATIONS = [
+    /* Filenames exactly as delivered. Two of the three are camel-cased and
+       Pages serves off a case-sensitive filesystem, so 'ishoot.png' is a 404
+       there while resolving fine on a Mac. */
     { id: 'play',  t: 0,    master: 'master', mascot: 'iplay.png'  },
-    { id: 'click', t: 1450, master: 'master', mascot: 'ishoot.png' },
-    { id: 'meme',  t: 2900, master: 'master', mascot: 'imeme.png'  }
+    { id: 'click', t: 1450, master: 'master', mascot: 'iShoot.png' },
+    { id: 'meme',  t: 2900, master: 'master', mascot: 'iMeme.png'  }
   ];
 
   /* Hand-placed, not scattered. A seed that reproduces a balanced composition
@@ -129,7 +158,7 @@
     { t:  -980, ox:  720, oy:  180, variant: 'amb_2', tier: 'mid', flip: 1 },
     { t:  -860, ox: -680, oy: -200, variant: 'amb_3', tier: 'bg'  },
     { t:  -700, ox:  520, oy:  360, variant: 'amb_1', tier: 'mid' },
-    { t:  -520, ox: -340, oy:  -60, variant: 'amb_4', tier: 'bg',  flip: 1 },
+    { t:  -520, ox: -520, oy: -300, variant: 'amb_4', tier: 'bg',  flip: 1 },
 
     /* station 1 — I play */
     { t:  -300, ox:  180, oy: -320, variant: 'amb_3', tier: 'bg'  },
@@ -151,12 +180,12 @@
     { t:  1370, ox:  600, oy: -240, variant: 'amb_3', tier: 'mid', flip: 1 },
     { t:  1500, ox:  870, oy:   90, variant: 'amb_2', tier: 'mid' },
     { t:  1600, ox:  400, oy:  290, variant: 'amb_1', tier: 'mid', flip: 1 },
-    { t:  1700, ox: -330, oy:  330, variant: 'amb_3', tier: 'bg'  },
+    { t:  1700, ox: -180, oy:  330, variant: 'amb_3', tier: 'bg'  },
     { t:  1790, ox:  980, oy: -140, variant: 'amb_4', tier: 'bg'  },
     { t:  1880, ox:  620, oy:  450, variant: 'amb_2', tier: 'fg',  flip: 1 },
 
     /* the gap */
-    { t:  2150, ox: -480, oy: -120, variant: 'amb_3', tier: 'bg'  },
+    { t:  2150, ox: -700, oy: -120, variant: 'amb_3', tier: 'bg'  },
     { t:  2400, ox:  520, oy:  240, variant: 'amb_4', tier: 'bg',  flip: 1 },
     { t:  2640, ox:  760, oy: -200, variant: 'amb_2', tier: 'mid' },
 
@@ -304,10 +333,7 @@
     img.alt = '';
     img.decoding = 'async';
     img.src = IMG + spec.file;
-    img.addEventListener('load', () => {
-      if (img.naturalWidth) n.aspect = img.naturalHeight / img.naturalWidth;
-      request();
-    });
+    img.addEventListener('load', request);
     img.addEventListener('error', () => {
       n.el.dataset.missing = '1';
       console.warn('[outside-work] missing mascot art: ' + spec.file);
@@ -341,6 +367,19 @@
                 file: st.mascot, station: st.id, delay: .12, win: 520, master: m });
   });
 
+  /* §11's closing beat: the one block the dissolve leaves standing is not
+     empty — it carries the waving figure, and that is the last thing on the
+     page. Marked `last` like the block it stands on, so neither the trailing
+     fade nor the exit dissolve takes it away. */
+  const LAST = AMBIENT.find(a => a.last);
+  if (LAST) {
+    addShadow({ t: LAST.t, ox: LAST.ox, oy: LAST.oy, tier: 'stage',
+                master: BLOCKS[LAST.variant], delay: .12, last: 1 });
+    addMascot({ t: LAST.t, ox: LAST.ox, oy: LAST.oy, tier: 'stage', kind: 'mascot',
+                file: 'mascot_say_hi.png', master: BLOCKS[LAST.variant],
+                delay: .12, win: 520, last: 1 });
+  }
+
   /* The copy, the title and the exit are already in the document — they are
      real text in source order and nothing may exist only inside the traversal.
      JS only drives their drift and their fade. They are positioned by CSS so
@@ -360,8 +399,14 @@
   /* Where a station's block sits relative to the middle of the frame. Beside
      the copy on a desktop; BELOW it on a phone, which is the whole of the
      spec's "copy moves above the master block rather than beside it" — at
-     390px the two were simply landing on top of one another. */
-  let stOx = 280, stOy = 40;
+     390px the two were simply landing on top of one another.
+
+     The spec's +40 was written before the blocks had dimensions. Delivered,
+     the master is 715x509 and the figure standing on it reaches 526px above
+     the block's own ground point — 58% of a 900px window — so an origin at
+     the middle of the frame hangs the group's head off the top of it and
+     across the nav. These numbers centre that 526 instead. */
+  let stOx = 280, stOy = 240;
 
   /* The phone is not the desktop world shrunk. It is the same world at 0.62
      with the fg tier gone — punctuation that covers the copy on a 390px screen
@@ -375,7 +420,7 @@
     dropFg     = phone;
     thinAmbient = phone;
     stOx = phone ? 0   : 280;
-    stOy = phone ? 380 : 40;
+    stOy = phone ? 420 : 240;
   }
   measure();
 
@@ -406,6 +451,19 @@
      the way back up like everything else. The one block the spec leaves
      standing at the end is exempt. */
   const DISSOLVE_FROM = 3400, DISSOLVE_TO = 4300;
+
+  /* Entrance counts up as the camera arrives and never counts back down, so a
+     block placed for one station was still sitting there two stations later —
+     one of station one's slabs was covering 39% of station two's copy, which
+     is exactly what spec §6 forbids and is not fixable by nudging its
+     coordinates, because the offence only exists at the far station.
+
+     So the band is symmetric: a block fades out once it is well behind the
+     camera, over the same kind of window it faded in on. Still a pure function
+     of camera distance, so it reverses on the way back up like everything
+     else, and it keeps the ambient field from silting up in front of the
+     copy. Gone by 1200 behind — well before the next stop, which is 1450 on. */
+  const TRAIL_KEEP = 700, TRAIL_FADE = 500;
 
   const FACE_DELAY = { top: 0, left: .05, right: .10 };
   const FACE_FROM  = { top: [0, -40], left: [-26, 0], right: [26, 0] };
@@ -500,7 +558,9 @@
       }
       if (n.culled) { n.culled = false; delete n.el.dataset.culled; }
 
-      const e = entrance(n, camT) * (n.last ? 1 : dissolve);
+      const behind = camT - n.t * spacing;
+      const trail = n.last ? 1 : 1 - clamp01((behind - TRAIL_KEEP) / TRAIL_FADE);
+      const e = entrance(n, camT) * trail * (n.last ? 1 : dissolve);
       let sc = tier.scale * worldScale;
 
       const b = BLOCKS[n.variant];
@@ -512,6 +572,7 @@
         const m = n.master;
         const bw = m.nw * TIER.stage.scale * worldScale;
         const bh = m.nh * TIER.stage.scale * worldScale;
+        if (!m.ridge) continue;                    // nothing to stand on
         const dM = (n.t * spacing - camT) *
                    (n.kind === 'mascot' ? MASCOT_PARALLAX : TIER.stage.parallax);
         x = cx + dM * ISO.AX * worldScale + nox * worldScale
@@ -534,15 +595,18 @@
           continue;
         }
 
-        /* Anchored on the soles at (0.5, 0.96), not the centre — the whole
-           point of the ridge maths above is to put a named point of the
-           artwork onto a named point of the world. The aspect comes from the
-           file the moment it loads; 1.32 is only what holds until then. */
-        const mw = bw * .55;                         // a share of the block, not a magic number
-        const mh = mw * (n.aspect || 1.32);
+        /* Anchored on the measured footprint, so a named point of the artwork
+           lands on a named point of the world — which is the whole purpose of
+           the ridge maths above. Scaled on the ink's height, not the canvas's,
+           so the padding around each figure cannot change how big it looks. */
+        const M = MASCOTS[n.file];
+        const k  = M ? (bh * MASCOT_H) / M.contentH : (bh * MASCOT_H) / 600;
+        const mw = (M ? M.w : 240) * k;
+        const mh = (M ? M.h : 320) * k;
         n.el.style.width = mw + 'px';
         n.el.style.transform =
-          `translate3d(${(x - mw * .5).toFixed(1)}px,${(y - mh * .96).toFixed(1)}px,0)` +
+          `translate3d(${(x - (M ? M.ax : .5) * mw).toFixed(1)}px,` +
+          `${(y - (M ? M.ay : .96) * mh).toFixed(1)}px,0)` +
           ` translateY(${((1 - e) * 18).toFixed(1)}px)`;
         n.el.style.opacity = e.toFixed(3);
         continue;
