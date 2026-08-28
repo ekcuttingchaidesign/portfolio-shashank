@@ -1240,10 +1240,19 @@
     <div class="sx-wrap">
       <header class="sx-sec-head" data-reveal>
         <p class="sx-mono">Experience · 2016 → now</p>
-        <h2 class="sx-serif">How I got here</h2>
+        <!-- Two lines, two weights, and the break is structural rather than a
+             <br>: the lines say different kinds of thing, so each one gets an
+             element and the weight is a property of the line rather than a
+             flourish inside it. Medium states the lack, Bold answers it.
+
+             Nothing punctuates the break — no dash, no colon — because the jump
+             from Medium to Bold already is the punctuation. -->
+        <h2 class="sx-serif sx-xp-title">
+          <span class="sx-xp-t1">No design degree</span>
+          <span class="sx-xp-t2">10 years anyway</span>
+        </h2>
         <p class="sx-lede" style="margin-top:1rem">Ten years, four places, one line through them:
-        execution, then ownership, then a nought-to-one, then a practice of my own — and
-        entertainment products the whole way.</p>
+        execution, then ownership, then a nought-to-one, then a practice of my own.</p>
       </header>
 
       <!-- The hero's right_side_ledge, in its own orientation this time. Things

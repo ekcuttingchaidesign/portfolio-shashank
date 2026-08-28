@@ -56,8 +56,9 @@ just dived into.
    inverts the page's habit: everything else assembles out of stillness and
    stops, this arrives already running and slows down as you reach it.
 6. **`#sx-archive`** — Built with AI.
-7. **`#sx-exp`** — How I got here. Four stops down one rail, with a sticky
-   stage beside it where the character changes company as you scroll.
+7. **`#sx-exp`** — *No design degree / 10 years anyway.* Four stops down one
+   rail, with a sticky stage beside it where the character changes company as
+   you scroll.
 8. **`#sx-hand`**, **`#s-exit`**, **`#s-connect`** — the handoff, the dive back
    out, and *Say hello.* The handoff is one line, 250px under Experience, and
    the pull-out starts straight after it.
