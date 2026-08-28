@@ -20,6 +20,10 @@
      stays readable — the two never share a selector (everything below is `sx-`). -->
 <link rel="stylesheet" href="../assets/css/sections.css">
 
+<!-- Outside Work. Its own file for the same reason sections.css is: the two
+     never share a selector, so neither can surprise the other. -->
+<link rel="stylesheet" href="../assets/css/outside.css">
+
 <!-- With no script the Experience stage would be an empty box: its two cels are
      handed their sheets by JS, on purpose, so that four sprite sheets are not
      all fetched at page load. This puts the first character on the stage,
@@ -1431,10 +1435,91 @@
 
   <section id="s-exit" class="scrub"></section>
 
-  <section id="s-connect">
-    <span class="tag">03 / Let's connect</span>
-    <h2>Say hello.</h2>
-    <p class="note">Fades up during the table rotation, not after it.</p>
+  <!-- ==========================================================================
+       OUTSIDE WORK — "Ledge World".
+
+       A sticky stage; a camera travelling one isometric axis past four stops.
+       Everything that moves is in assets/js/outside.js and every word is here,
+       in source order, so the section reads with the traversal switched off.
+
+       This replaces the #s-connect stub. "Say hello." has not been dropped —
+       it has moved into the exit stop below, where the spec puts it, with the
+       plaque above it. Two of them back to back was the alternative.
+       ========================================================================== -->
+  <section class="lw" id="outside-work" aria-labelledby="lw-h">
+    <a class="lw-skip" href="#say-hello">Skip to the end of this section</a>
+
+    <div class="lw-stage">
+      <div class="lw-ground"></div>
+      <div class="lw-glow" aria-hidden="true"></div>
+      <!-- Blocks, mascots and their shadows are injected here. They carry no
+           meaning the copy does not already carry, so the whole layer is
+           hidden from assistive tech rather than labelled item by item. -->
+      <div class="lw-world" aria-hidden="true"></div>
+
+      <div class="lw-title">
+        <h2 id="lw-h"><span class="lw-serif">My life beyond</span><span class="lw-title-tail">9 to 5</span></h2>
+      </div>
+
+      <div class="lw-copy" data-station="play">
+        <h3>I play</h3>
+        <p>Controllers, keyboards, and a decade of lobbies. Most of what I know
+           about feedback loops I learned from games that told me instantly when
+           I was wrong.</p>
+        <a class="lw-cta" href="#" data-lw-todo="destination">View trophies <span class="lw-arrow" aria-hidden="true">&rarr;</span></a>
+      </div>
+
+      <div class="lw-copy" data-station="click">
+        <h3>I click</h3>
+        <p>A camera is a reason to walk slower. Street corners, strangers who
+           said yes, and the light at the end of an ordinary Tuesday.</p>
+        <a class="lw-cta" href="#" data-lw-todo="destination">See the roll <span class="lw-arrow" aria-hidden="true">&rarr;</span></a>
+      </div>
+
+      <div class="lw-copy" data-station="meme">
+        <h3>I meme</h3>
+        <p>The shortest format there is. A good one lands in under a second,
+           which is roughly the budget every interface gets too.</p>
+        <a class="lw-cta" href="#" data-lw-todo="destination">Read the archive <span class="lw-arrow" aria-hidden="true">&rarr;</span></a>
+      </div>
+
+      <div class="lw-exit" id="say-hello">
+        <p class="lw-plaque">
+          Trophy unlocked &mdash; Scrolled to the end.<br>
+          <span class="lw-rare">Rare.</span> 0.2% of visitors.
+        </p>
+        <h2>Say hello.</h2>
+      </div>
+    </div>
+
+    <!-- The section with the stage taken away. Not a summary of it: the same
+         words in the same order, one still per stop. Shown under reduced
+         motion, and one flag away from being the phone layout if the scaled
+         world ever proves too much for a low-end device. -->
+    <div class="lw-stack">
+      <div class="lw-stack-item">
+        <h3>I play</h3>
+        <p>Controllers, keyboards, and a decade of lobbies. Most of what I know
+           about feedback loops I learned from games that told me instantly when
+           I was wrong.</p>
+        <a class="lw-cta" href="#" data-lw-todo="destination">View trophies <span class="lw-arrow" aria-hidden="true">&rarr;</span></a>
+        <img class="lw-stack-art" src="../public/img/iplay.png" alt="" loading="lazy" decoding="async">
+      </div>
+      <div class="lw-stack-item">
+        <h3>I click</h3>
+        <p>A camera is a reason to walk slower. Street corners, strangers who
+           said yes, and the light at the end of an ordinary Tuesday.</p>
+        <a class="lw-cta" href="#" data-lw-todo="destination">See the roll <span class="lw-arrow" aria-hidden="true">&rarr;</span></a>
+        <img class="lw-stack-art" src="../public/img/ishoot.png" alt="" loading="lazy" decoding="async">
+      </div>
+      <div class="lw-stack-item">
+        <h3>I meme</h3>
+        <p>The shortest format there is. A good one lands in under a second,
+           which is roughly the budget every interface gets too.</p>
+        <a class="lw-cta" href="#" data-lw-todo="destination">Read the archive <span class="lw-arrow" aria-hidden="true">&rarr;</span></a>
+        <img class="lw-stack-art" src="../public/img/imeme.png" alt="" loading="lazy" decoding="async">
+      </div>
+    </div>
   </section>
 
 </div>
@@ -1650,7 +1735,6 @@
   const hud    = document.getElementById('hud');
   const sEnter = document.getElementById('s-enter');
   const sExit  = document.getElementById('s-exit');
-  const connect= document.getElementById('s-connect');
   const hero   = document.getElementById('hero');
   const stage  = document.getElementById('stage');
   const screenEl = document.getElementById('screen');
@@ -2017,7 +2101,12 @@
     if (pVideo > SWAP_STOP_AT) stopSwap(); else startSwap();
 
     const rot = pExit <= ROTATION_START ? 0 : (pExit - ROTATION_START) / (1 - ROTATION_START);
-    connect.style.opacity = reduced ? 1 : Math.min(rot * 1.6, 1).toFixed(3);
+
+    /* Outside Work rises over the last of this film rather than waiting for it
+       to finish. All this engine does is hand over where the film IS — the
+       world owns what it does with that, including its own scroll overlap, so
+       the two stay as separate as the hero and the sections below it. */
+    if (window.SX && typeof window.SX.ledge === 'function') window.SX.ledge(pExit);
 
     hud.textContent =
       `enter ${pEnter.toFixed(2)}  film ${pVideo.toFixed(2)}  hero ${pHero.toFixed(2)}  t=${scrubEnter.time.toFixed(2)}s\n` +
@@ -2160,5 +2249,6 @@
      critical path, and the version is pinned by the file itself. -->
 <script src="../assets/vendor/motion.js" defer></script>
 <script src="../assets/js/sections.js" defer></script>
+<script src="../assets/js/outside.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,336 @@
+/* ============================================================================
+   Outside Work — "Ledge World".
+
+   A sticky stage with a camera travelling one fixed isometric axis past four
+   stops. Namespaced `lw-`, and kept out of sections.css for the same reason
+   that file was kept out of the landing page: the two never share a selector,
+   so neither can surprise the other.
+
+   Only `transform` and `opacity` are written per frame. Tier `filter` values
+   are set once from the markup and never touched again — see the two-element
+   split below, which is the whole reason depth and entrance can both use
+   opacity without fighting.
+   ========================================================================== */
+
+.lw {
+  /* Amber marks the personal register and is used exactly twice — the title
+     and the closing line. Declared here rather than in the global token block
+     so it cannot be reached from anywhere else on the page. */
+  --lw-amber: #D08544;
+
+  /* 720vh: the spec's 620 plus the run the title stop needs. The camera's key
+     frames are fractions of this, so changing it re-times everything at once
+     and nothing else has to agree with it. */
+  position: relative;
+  height: 720vh;
+  background: transparent;
+  /* The film behind is fixed at z-index 0 and the track sits at 1. The world
+     therefore rises OVER the last of the pull-out rather than after it, which
+     is what lets the two overlap at all. */
+  z-index: 1;
+}
+
+.lw-stage {
+  position: sticky; top: 0;
+  height: 100vh;
+  /* The glow is 5580px across. Without a clip here it is not the seam that
+     bites, it is horizontal overflow: measured at a 390px viewport the page
+     laid out at 1560 and scrolled sideways. A clipped edge is a visual
+     problem; a sideways-scrolling phone is a broken one. */
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Everything solid clips to the stage box; the light does not. */
+.lw-world {
+  position: absolute; inset: 0;
+  overflow: hidden;
+}
+
+/* The ground the world sits on. Not black: the film's last frame is, and the
+   spec's exit calls for #04060C, so the stage arrives already on the colour it
+   will end on and only the light changes across the traversal. */
+.lw-ground {
+  position: absolute; inset: 0;
+  background: #04060C;
+}
+
+/* --- THE GLOW --------------------------------------------------------------
+   The Figma is a 1002x531 ellipse, #FF8C6C at 40%, under a 1000px layer blur.
+   Written as a radial gradient, which is a reading of that spec rather than an
+   approximation of it, and follows the rule the mascot's bloom already set:
+   a blur is only worth its own layer when what is underneath has structure to
+   lose. A flat ellipse has none, and a 1000px filter would hand the compositor
+   paint bounds running some 2000px past the element on every side.
+
+   Derived, not eyeballed. Convolving that ellipse with the matching Gaussian
+   (sigma ~896, calibrated against the 600px-blur bloom already measured in
+   docs/pending-art.md, which peaks at 5.1%) adds variances: the result comes
+   out sigma_x 930 / sigma_y 906 — near enough circular that the source
+   ellipse's 1.89 aspect survives only as a 3% stretch — and peaks at
+
+       0.40 * (pi * 501 * 265.5) / (2 * pi * 896^2) = 3.3% alpha
+
+   dead centre. The stops below are exp(-4.5 f^2) down a 3-sigma extent. It is
+   a wide, weak wash. That is what a 1000px blur IS, and drawing it as anything
+   punchier would be drawing a different thing.
+
+   The colour travels #FF8C6C -> #FFFFFF across the traversal; JS writes the
+   channels into --lw-glow-rgb and the stops only carry alpha. */
+.lw-glow {
+  position: absolute;
+  left: 50%; top: 46%;
+  width: 5580px; height: 5434px;      /* 2 x the 3-sigma extent */
+  margin-left: -2790px; margin-top: -2717px;
+  pointer-events: none;
+  background: radial-gradient(closest-side ellipse,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0331) 0%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0317) 10%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0277) 20%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0221) 30%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0161) 40%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0108) 50%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0066) 60%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0036) 70%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0019) 80%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0009) 90%,
+    rgba(var(--lw-glow-rgb, 255,140,108), 0)     100%);
+}
+
+/* --- NODES -----------------------------------------------------------------
+   Two nested elements, each owning exactly one thing. The outer carries
+   position and the entrance; the inner carries the depth tier and is written
+   once at build time. Collapse them and a block flickers as it enters, because
+   depth and entrance would be writing the same property on the same frame. */
+.lw-node {
+  position: absolute; left: 0; top: 0;
+  will-change: transform;              /* here only — not on the stage, not on the tone */
+  transform-origin: 50% 100%;
+}
+.lw-node > .lw-tone { display: block; }
+.lw-node svg { display: block; overflow: visible; }
+
+/* Brightness rather than opacity for the far and near tiers. Pure opacity on
+   overlapping blocks lets the ground show through the overlap and gives away
+   that they are flat cutouts; brightness keeps them opaque. `mid` keeps a
+   little opacity because it sits over the glow and should take some of it. */
+.lw-tone[data-tier="bg"]    { filter: brightness(.42) saturate(.55); opacity: .45; }
+.lw-tone[data-tier="mid"]   { filter: brightness(.78) saturate(.85); opacity: .75; }
+.lw-tone[data-tier="stage"] { filter: none; opacity: 1; }
+.lw-tone[data-tier="fg"]    { filter: brightness(.22) saturate(.6); opacity: 1; }
+
+/* Culled nodes skip paint entirely. Cheaper than opacity:0 once there are a
+   hundred inline SVGs on the stage, and the spec's real risk is paint. */
+.lw-node[data-culled] { visibility: hidden; }
+
+/* --- MASCOT ----------------------------------------------------------------
+   Feet on the block's front ridge, never its centre. The figure's own anchor
+   is (0.5, 0.96) — the soles, not the middle — so the transform can put a
+   point on the artwork onto a point in the world. */
+.lw-mascot img,
+.lw-mascot svg { display: block; width: 100%; height: auto; }
+
+/* The contact shadow is drawn here, not baked into the render: the block
+   palette will move at least once more and a baked shadow would fight it. A
+   rhombus on the ground plane, matching the top face's angle. */
+.lw-shadow {
+  position: absolute; left: 0; top: 0;
+  background: #000; opacity: .30;
+  filter: blur(8px);
+  transform-origin: 50% 50%;
+}
+
+/* --- COPY ------------------------------------------------------------------
+   Left column, stage tier, but at 0.30x parallax — the travel axis carries
+   things down and to the left, so anything on the left leaves frame first. At
+   full rate the headline would exit while the reader is still on the second
+   line of subtext. */
+.lw-copy {
+  position: absolute;
+  left: clamp(1.25rem, 5vw, 5rem);
+  top: 50%;
+  width: min(38ch, 42vw);
+  color: var(--sx-ink, #F4F1EC);
+  z-index: 3;
+}
+.lw-copy h3,
+.lw-stack h3 {
+  margin: 0 0 .5rem;
+  font-family: var(--sx-sans);
+  font-weight: 300;
+  font-size: clamp(2.4rem, 6vw, 4.6rem);
+  line-height: .96;
+  letter-spacing: -.02em;
+}
+.lw-copy p,
+.lw-stack p {
+  margin: 0 0 1.5rem;
+  font-family: var(--sx-sans);
+  font-size: var(--sx-t-lede, 1.1rem);
+  line-height: 1.55;
+  color: var(--sx-ink-2, rgba(244,241,236,.7));
+  max-width: 34ch;
+}
+
+/* A real link with a real focus ring. It is reachable by tab in reading order
+   whatever the camera is doing, which is the point of keeping the copy in the
+   document rather than inside the traversal. */
+.lw-cta {
+  display: inline-flex; align-items: center; gap: .5em;
+  padding: .62em 1.25em;
+  border: 1px solid var(--sx-ink-4, rgba(244,241,236,.12));
+  border-radius: 999px;
+  font-family: var(--sx-sans);
+  font-size: var(--sx-t-body, 1rem);
+  font-weight: 500;
+  color: var(--sx-ink, #F4F1EC);
+  text-decoration: none;
+  background: rgba(244,241,236,.04);
+  transition: background .25s var(--sx-ease, ease), border-color .25s var(--sx-ease, ease),
+              transform .25s var(--sx-ease, ease);
+}
+.lw-cta:hover { background: rgba(244,241,236,.09); border-color: rgba(244,241,236,.3); transform: translateY(-2px); }
+.lw-cta:focus-visible { outline: 2px solid var(--sx-key, #E0542A); outline-offset: 3px; }
+.lw-cta .lw-arrow { transition: transform .25s var(--sx-ease, ease); }
+.lw-cta:hover .lw-arrow { transform: translateX(3px); }
+
+/* --- TITLE CARD ------------------------------------------------------------
+   The one place on the site that is allowed a serif. A different voice for the
+   personal register, used once — it stops being a choice the moment it appears
+   anywhere else, so the face is declared HERE and nowhere in the token block.
+   Amber brackets the section: this title and the closing line, twice, never in
+   between. */
+.lw-title {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: min(1180px, 88vw);
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 3;
+}
+.lw-title h2 {
+  margin: 0;
+  text-wrap: balance;
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(2.8rem, 8vw, 7rem);
+  line-height: .96;
+  letter-spacing: -.01em;
+  color: var(--lw-amber, #D08544);
+}
+.lw-serif { display: block; }
+.lw-title .lw-title-tail {
+  display: block;
+  font-family: var(--sx-sans);
+  font-weight: 300;
+  font-size: clamp(2.6rem, 7.6vw, 6.6rem);
+  color: var(--sx-ink, #F4F1EC);
+}
+
+/* A mascot whose file has not landed yet leaves a labelled gap rather than a
+   broken image icon — visible enough to notice in review, quiet enough not to
+   be mistaken for artwork. */
+.lw-node[data-missing] .lw-tone::after {
+  content: "art pending";
+  display: block;
+  width: 100%; aspect-ratio: 3 / 4;
+  border: 1px dashed rgba(244,241,236,.28);
+  border-radius: 8px;
+  font-family: var(--sx-mono); font-size: .62rem; letter-spacing: .14em;
+  text-transform: uppercase; color: rgba(244,241,236,.34);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: .8rem;
+}
+.lw-node[data-missing] img { display: none; }
+.lw-stack-art { border-radius: 8px; }
+
+/* --- EXIT ------------------------------------------------------------------
+   The world has thinned to nothing by here and the plaque is the last thing on
+   the page. `Rare` is amber's second and final appearance. */
+.lw-exit {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(46ch, 84vw);
+  text-align: center;
+  z-index: 3;
+}
+.lw-plaque {
+  margin: 0 0 2.4rem;
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono, .72rem);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  line-height: 2;
+  color: var(--sx-ink-3, rgba(244,241,236,.54));
+}
+.lw-plaque .lw-rare { color: var(--lw-amber, #D08544); }
+.lw-exit h2 {
+  margin: 0;
+  font-family: var(--sx-sans);
+  font-weight: 300;
+  font-size: var(--sx-t-head, 3.4rem);
+  letter-spacing: -.02em;
+  color: var(--sx-ink, #F4F1EC);
+}
+
+/* The skip link. Present for everyone, visible only when tabbed to. */
+.lw-skip {
+  position: fixed; left: 1rem; top: 1rem;
+  z-index: 60;
+  padding: .6em 1em;
+  opacity: 0; pointer-events: none;
+  clip-path: inset(50%);
+  background: var(--sx-raise, #1A1A18);
+  color: var(--sx-ink, #F4F1EC);
+  font-family: var(--sx-sans); font-size: .9rem;
+  border-radius: 6px; text-decoration: none;
+}
+.lw-skip:focus-visible,
+.lw-skip:focus {
+  opacity: 1; pointer-events: auto; clip-path: none;
+  outline: 2px solid var(--sx-key, #E0542A);
+}
+
+/* --- THE FALLBACK STACK ----------------------------------------------------
+   Reduced motion drops the stage entirely and reads the section as three
+   blocks in document order. It is not a degraded version — every word is here,
+   in the same order, and the art is one still per station. The same stack is
+   one flag away from being the phone layout if the scaled world ever proves
+   too much for a low-end device. */
+.lw-stack { display: none; }
+.lw-stack .lw-stack-item {
+  padding: clamp(3rem, 8vw, 6rem) clamp(1.25rem, 5vw, 5rem);
+  border-top: 1px solid var(--sx-ink-4, rgba(244,241,236,.12));
+}
+.lw-stack .lw-stack-art { width: min(420px, 70vw); height: auto; margin-top: 2rem; }
+
+/* --- PHONE -----------------------------------------------------------------
+   Copy moves ABOVE the block rather than beside it — at this width a two
+   column split gives the headline about twelve characters and it wraps to
+   four lines. The world scales to .62, the fg tier goes entirely (it is
+   punctuation, and punctuation that covers the copy on a phone is just
+   an obstruction), and station spacing tightens so the gaps stay under half
+   a viewport. Those three are set in JS, from one breakpoint constant that
+   this media query agrees with. */
+@media (max-width: 720px) {
+  .lw-copy {
+    left: 50%;
+    top: 14%;
+    width: min(92vw, 46ch);
+    transform: translateX(-50%);
+    text-align: center;
+  }
+  .lw-copy p,
+.lw-stack p { max-width: none; }
+  .lw-title h2 { font-size: clamp(2.6rem, 13vw, 4rem); }
+  .lw-title .lw-title-tail { font-size: clamp(2.2rem, 11vw, 3.4rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No sticky stage, no traversal, no camera. The section becomes its own
+     height and the stack does the reading. */
+  .lw { height: auto; }
+  .lw-stage { display: none; }
+  .lw-stack { display: block; }
+}

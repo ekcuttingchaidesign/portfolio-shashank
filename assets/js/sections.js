@@ -3297,7 +3297,8 @@
         ['sx-cc',      'work'],
         ['sx-exp',     'exp'],
         ['sx-hand',    'outside'],
-        ['s-exit',     'outside']
+        ['s-exit',     'outside'],
+        ['outside-work', 'outside']
       ].map(([id, key]) => ({ el: document.getElementById(id), key }))
        .filter(z => z.el);
 
