@@ -1215,7 +1215,8 @@
    Two stacked lines carrying two weights. .sx-serif is Light everywhere else on
    the page, which is right for a heading that only has to be a heading; this one
    makes an argument in two beats, so the beats are weighted rather than merely
-   broken.
+   broken. Regular against Bold: the first line is stated flat, and the whole
+   step is spent on the line that answers it.
 
    `text-wrap: balance` comes off with them. Balance exists to choose the break
    in a line the browser is wrapping — here the break is already decided, and
@@ -1229,7 +1230,7 @@
   text-wrap: initial;
 }
 .sx-xp-title span { display: block; }
-.sx-xp-t1 { font-weight: 500; }
+.sx-xp-t1 { font-weight: 400; }
 .sx-xp-t2 { font-weight: 700; }
 
 /* --- the ledge ---
@@ -1937,7 +1938,85 @@
   letter-spacing: -.015em;
   margin: .45rem 0 0;
   color: var(--sx-ink);
+  /* Shrunk to the word so the aside's target is the NAME and not the line it
+     sits on. As a full-width block, "Airtel" would have armed a hover across
+     600px of empty column, which is how a deliberate aside turns into a bubble
+     that keeps going off while you are only reading past it. */
+  width: max-content;
+  max-width: 100%;
 }
+/* --- the aside ---
+   The hero's mascot bubble, brought to the rail. Same pill, same blur, same
+   border, same .28s — it should read as the page's one way of saying a quiet
+   second thing, not as a tooltip someone added to this section.
+
+   Two things are turned around, and both follow from where it opens. The hero's
+   bubble opens sideways off a character standing in an empty corner; a company
+   name here is display-sized type in a column with no room beside it, so this
+   one opens DOWNWARD. The squared corner therefore moves from bottom-left to
+   top-left — it is the corner that points back at the thing that said it, so it
+   has to be on the side the bubble came from — and the entrance rises from
+   above rather than below for the same reason.
+
+   Positioned by DOING NOTHING. `position: absolute` with top and left left at
+   auto puts a box at its static position: exactly where it would have sat in
+   flow, which is the start of the line under the name. So it is out of flow —
+   the role and the copy below never move for it — while still being aligned to
+   the name and the column without a single measured offset. Names are between
+   six and twelve characters here and the layout has to hold at every one of
+   them; nothing about this cares how wide the name is.
+
+   Not aria-hidden, which is the one place it deliberately parts company with
+   the hero. Those lines rotate and there are five of them, so hiding them costs
+   a reader nothing; these four are the only place their sentence is said. It is
+   a real paragraph between the name and the role — invisible at rest, in the
+   accessibility tree throughout. */
+.sx-xp-say {
+  position: absolute;
+  margin: .45rem 0 0;
+  z-index: 2;
+  width: max-content;
+  /* In rem, not ch, and that is the correction rather than the first instinct.
+     The hero measures its bubble in ch because its own type is the same size;
+     this face is deliberately tiny — clamp bottoms out near 10px — so a ch here
+     is about 5px and 24ch came out a 137px column that broke "Four hours
+     commuting with design thoughts" over three cramped lines. A rem is fixed to
+     the page rather than to the bubble's own smallness: 13rem puts the three
+     short asides on one line each and the long one on two, which is the shape
+     an aside should have. */
+  max-width: min(13rem, 100%);
+  padding: .48rem .68rem;
+  border-radius: 2px 12px 12px 12px;
+  background: rgba(18,18,17,.88);
+  border: 1px solid rgba(244,241,236,.13);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  font-family: var(--sx-ui);
+  font-size: clamp(.58rem, .7vw, .71rem);
+  line-height: 1.35;
+  letter-spacing: .03em;
+  color: var(--sx-ink-2);
+  opacity: 0;
+  transform: translateY(-6px) scale(.94);
+  transform-origin: 0 0;
+  pointer-events: none;
+  transition: opacity .28s var(--sx-ease), transform .28s var(--sx-ease);
+}
+
+/* Gated on a real pointer, the way the rest of the page gates its hovers. On a
+   touch screen `:hover` sticks after a tap, so an aside opened by a stray tap
+   would sit over the role line until something else was tapped — and there is
+   no second tap to close it, because the bubble does not take pointer events.
+   Better to not offer it than to leave it stuck. It stays in the accessibility
+   tree either way, which is where a touch reader gets it. */
+@media (hover: hover) {
+  .sx-xp-stop h3 { cursor: help; }
+  .sx-xp-stop h3:hover + .sx-xp-say {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .sx-xp-role {
   font-size: var(--sx-t-body);
   color: var(--sx-key);
@@ -2114,6 +2193,9 @@
 @media (prefers-reduced-motion: reduce) {
   .sx-xp-yr::before { animation: none; }
   .sx-xp-cel, .sx-xp-stop, .sx-xp-pips li, .sx-xp-glow { transition: none; }
+  /* The aside still opens — it is content, not performance — it just arrives
+     rather than rising into place. */
+  .sx-xp-say { transition: none; transform: none; }
   .sx-xp-ledge { animation: none; }
   .sx-xp-stop[data-active="0"] { opacity: 1; }
   .sx-xp-rail::after { transition: none; }
