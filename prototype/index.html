@@ -1243,10 +1243,10 @@
         <!-- Two lines, two weights, and the break is structural rather than a
              <br>: the lines say different kinds of thing, so each one gets an
              element and the weight is a property of the line rather than a
-             flourish inside it. Medium states the lack, Bold answers it.
+             flourish inside it. Regular states the lack, Bold answers it.
 
              Nothing punctuates the break — no dash, no colon — because the jump
-             from Medium to Bold already is the punctuation. -->
+             from Regular to Bold already is the punctuation. -->
         <h2 class="sx-serif sx-xp-title">
           <span class="sx-xp-t1">No design degree</span>
           <span class="sx-xp-t2">10 years anyway</span>
@@ -1327,7 +1327,20 @@
           <li class="sx-xp-stop" data-stop="0" data-co="MediaAgility"
               data-yr="2016 — 17" data-reveal>
             <p class="sx-xp-when"><span>2016 — 17</span><i>the way in</i></p>
+            <!-- Each stop carries one aside, revealed by hovering the company
+                 name — the hero's mascot bubble, reused on the one element in a
+                 stop that IS the stop's identity. It opens downward here rather
+                 than sideways because there is no room beside a display-sized
+                 proper noun in this column, so the squared corner moves to the
+                 top-left to keep pointing back at the thing that said it.
+
+                 Real text, not aria-hidden. The hero's lines are rotating
+                 flavour and it hides them; these four are the only place their
+                 sentence is said, so out of flow and invisible at rest is the
+                 right treatment, but out of the accessibility tree is not — a
+                 reader gets it as an aside between the name and the role. -->
             <h3>MediaAgility</h3>
+            <p class="sx-xp-say">Keen. Clueless. Both at once.</p>
             <p class="sx-xp-role">Designer</p>
             <p class="sx-xp-copy">The first job that paid for design, a year after teaching
             myself the tools and walking out of engineering at TCS. Banners and creatives —
@@ -1338,6 +1351,7 @@
               data-yr="2017 — 18" data-reveal>
             <p class="sx-xp-when"><span>2017 — 18</span><i>execution</i></p>
             <h3>Appinventiv</h3>
+            <p class="sx-xp-say">Four hours commuting with design thoughts</p>
             <p class="sx-xp-role">UI designer · agency</p>
             <p class="sx-xp-copy">Ecommerce, healthcare, B2B — many clients and a great many
             screens in a single year. Agencies teach you speed because they never give you
@@ -1348,6 +1362,7 @@
               data-yr="2018 — 21" data-reveal>
             <p class="sx-xp-when"><span>2018 — 21</span><i>ownership</i></p>
             <h3>Gamezop</h3>
+            <p class="sx-xp-say">First designer. Only designer.</p>
             <p class="sx-xp-role">First designer → design lead</p>
             <p class="sx-xp-copy">Employee-designer number one, and Skillclash built from
             nothing. The jump is not the title — it is going from executing a brief to owning
@@ -1361,6 +1376,7 @@
               data-yr="2021 — now" data-current data-long data-reveal>
             <p class="sx-xp-when"><span>2021 — now</span><i>lead</i></p>
             <h3>Airtel</h3>
+            <p class="sx-xp-say">Learned to think, then move</p>
             <p class="sx-xp-role">Senior → Lead Product Designer</p>
             <p class="sx-xp-copy">Five years and five different jobs inside one company —
             two core products, a nought-to-one, and a practice I ran on my own.</p>
