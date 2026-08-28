@@ -1211,6 +1211,27 @@
   will-change: transform;
 }
 
+/* --- the heading ---
+   Two stacked lines carrying two weights. .sx-serif is Light everywhere else on
+   the page, which is right for a heading that only has to be a heading; this one
+   makes an argument in two beats, so the beats are weighted rather than merely
+   broken.
+
+   `text-wrap: balance` comes off with them. Balance exists to choose the break
+   in a line the browser is wrapping — here the break is already decided, and
+   leaving it on lets the browser re-wrap lines we wrote as lines.
+
+   Light's 1.02 leading is set for one line. Two of them at that value put the
+   descender of "design degree" into the "10" underneath, so this opens up
+   slightly — enough to clear, not enough to stop reading as one block. */
+.sx-xp-title {
+  line-height: 1.06;
+  text-wrap: initial;
+}
+.sx-xp-title span { display: block; }
+.sx-xp-t1 { font-weight: 500; }
+.sx-xp-t2 { font-weight: 700; }
+
 /* --- the ledge ---
    The hero's own right_side_ledge, in the hero's own orientation. Things That
    Move mirrors this asset into the left corner; here it stays right, where the
@@ -1233,11 +1254,45 @@
   top: 46%;
   width: var(--w);
   height: auto;
-  transform: translateY(-46%);
-  /* .8 put a bright green wedge the size of a headline against a near-black
-     page and it pulled the eye off the writing. This is the corner of the room,
-     not a thing to read. */
-  opacity: .55;
+  /* Three layers of motion on one element, kept apart by WHICH PROPERTY each
+     one writes — the same split the ledge downstairs in Things That Move uses:
+
+       transform   the scroll's Z-flight, composed from the vars below
+       translate   } the idle float, so an ambient loop and a scrub can share
+       rotate      } one element without either clobbering the other
+
+     The perspective is per-element rather than inherited. Nothing else in this
+     section travels in Z, and putting a perspective on the layout would drag the
+     sticky stage and the rail into a 3D context neither asked for — and a
+     transformed ancestor is exactly what breaks position: sticky. */
+
+  /* Pinned to the LEFT edge, and this is the line that lets the ledge be opaque
+     and fly at the same time. The rail's copy runs down the right of the page
+     and stops about 100px short of this shape. Growing about the centre — the
+     default — spends half the growth leftward, and measured across the pass that
+     put up to 98px of a paragraph line underneath an opaque green slab. With the
+     origin on the left edge, every pixel depth adds extends RIGHT, off the glass,
+     which is the direction this shape is already bleeding. The near end of the
+     flight therefore reads as MORE bleed rather than as a wider object, and the
+     copy's lane is protected by construction rather than by a tuned number.
+
+     It also puts the vanishing point of the perspective() on that same edge —
+     `perspective()` in a transform list takes its origin from transform-origin —
+     so the Z flight and the growth agree about where the camera is. */
+  transform-origin: 0 50%;
+  transform:
+    perspective(1100px)
+    translate3d(var(--sx-xpl-x, 0px),
+                calc(-46% + var(--sx-xpl-y, 0px)),
+                var(--sx-xpl-z, 0px))
+    rotate(var(--sx-xpl-r, 0deg));
+  /* Full strength. It was .55 to keep a bright green wedge from pulling the eye
+     off the writing, and what does that job now is depth rather than dilution:
+     the shape is mostly off the glass, it recedes and returns as you pass it,
+     and a solid object at the edge of the frame reads as the corner of the room
+     far better than a faded one does. */
+  opacity: 1;
+  will-change: transform;
   z-index: 0;
   pointer-events: none;
   /* 17s, against the mascot's 1.9 and the ledge downstairs on 13 — three
@@ -2042,6 +2097,13 @@
      holding a stop for four fifths of a tall screen is just empty scrolling. */
   .sx-xp-stop { padding-bottom: clamp(3rem, 22vh, 9rem); }
   .sx-xp-copy, .sx-xp-stints > li { max-width: none; }
+  /* And the ledge goes with them, which is the direct consequence of the line
+     above. Releasing the copy's measure runs it to the gutter, so the corner
+     the ledge is bleeding out of stops being empty — at full strength it would
+     be an opaque slab over the end of a line rather than a shape in the corner
+     of the room. Things That Move drops its ledge at its own breakpoint for the
+     same reason. A decoration with no lane is not a decoration. */
+  .sx-xp-ledge { display: none; }
 }
 
 /* --- Reduced motion --------------------------------------------------------

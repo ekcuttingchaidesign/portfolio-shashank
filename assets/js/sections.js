@@ -610,6 +610,97 @@
     }
   }
 
+  /* ------------------------------------------------------------------------
+     The Experience ledge, on the page's own depth.
+     ------------------------------------------------------------------------
+     The same pass the ledge in Things That Move makes, mirrored to the other
+     corner because this one is anchored to the right edge rather than the left.
+     Two sections now put the hero's right_side_ledge at the frame edge and fly
+     it in Z as you go by, which is what makes it read as one object turning up
+     twice rather than as two green ornaments.
+
+     WHAT IS DIFFERENT HERE, and it is the whole reason this is not a copy of the
+     block downstairs: this section is 2664px tall against a 900px window, and
+     the ledge is one 207px shape pinned a fixed distance down it. Driven off the
+     SECTION's progress the way the other one is, the flight would run start to
+     finish across 3564px of scroll while the shape is only on screen for 1107 of
+     them — 31% of the pass, and the 31% centred on the middle, which is exactly
+     where a signed driver is doing nothing. Every number would measure correct
+     on the element and you would see about a sixth of each one. That is the same
+     trap the other ledge fell into, arrived at from the opposite direction: there
+     the budget was spent on axes the clipping hid, here it would be spent on
+     scroll the shape is not on screen for.
+
+     So the driver is the LEDGE's own passage through the window rather than the
+     section's: -1 as it comes up past the bottom edge, 0 crossing the middle, +1
+     as it leaves past the top. Same signed shape, same symmetry about the centre,
+     but now the full budget is spent entirely while you can see the thing.
+
+     It writes CUSTOM PROPERTIES rather than a transform, because the stylesheet
+     is already composing the base -46% and the 17s idle float onto this element.
+     Handing it a transform would erase both.
+
+     No opacity term, unlike downstairs. That one fades at the ends of its pass to
+     keep a half-strength wedge from reading as a stray shape; this ledge is at
+     full strength on purpose, and depth is what keeps it in its place instead.
+
+     Raw off the rect with no smoothing: a decoration that lags the scrollbar
+     reads as the page tearing, and the idle float already supplies the looseness.
+     ---------------------------------------------------------------------- */
+  const xpLedge = xp && xp.querySelector('.sx-xp-ledge');
+  if (xpLedge && M && M.scroll && !reduced) {
+    /* X is one-sided here, which is the other half of the fix the stylesheet's
+       transform-origin starts. The ledge downstairs swings both ways across its
+       corner because it has an empty margin to swing into; this one has the rail's
+       copy beside it, so the far end of its travel is its OWN RESTING POSITION and
+       everything else is tucked further into the corner. It never occupies a pixel
+       the static design did not already give it.
+
+       That makes the pass: enters deep in the corner and small, arrives at its
+       resting spot at full size as the section goes. TUCK is what you see moving,
+       DEPTH is what you feel. */
+    const TUCK  = 70;     /* px further into the corner at the far end */
+    const DRIFT = 0.12;   /* of the viewport, each way, against the page */
+    const DEPTH = 300;    /* px toward a camera 1100 out: 0.79x to 1.38x */
+    const TIP   = 7;      /* degrees, each way */
+
+    /* Where the ledge sits down the section, measured as LAYOUT rather than read
+       as geometry every frame. offsetTop is a layout position and is immune to
+       the transform this driver writes — which is the property that lets the
+       flight be driven from the shape's own position without feeding back into
+       itself. A rect read here would move because the driver moved it, and the
+       ledge would chase its own tail.
+
+       Re-measured off the section's own box rather than off window resize. This
+       section's height moves for reasons the window never hears about — Satoshi
+       landing and reflowing four stops of copy is the one that matters, and it
+       happens after this line runs — and every one of them slides the ledge down
+       the section. A ResizeObserver hears all of them, and fires once on
+       observe(), so it is also the first measurement rather than an extra one.
+
+       `live` is the same read doing a second job: offsetParent goes null exactly
+       when the stylesheet hides the ledge at 720px, so the phone stops paying for
+       a flight it cannot see, and picks it back up if the window grows. */
+    let anchor = 0, live = false;
+    const measure = () => { live = !!xpLedge.offsetParent; anchor = xpLedge.offsetTop; };
+    if ('ResizeObserver' in window) new ResizeObserver(measure).observe(xp);
+    else { measure(); addEventListener('resize', measure, { passive: true }); }
+
+    /* Motion's own progress is unused: what this wants from M.scroll is the
+       per-frame hook and the fact that it only runs while the section is
+       anywhere near the window. The section's rect is the cheap read that turns
+       that into the ledge's position, since the two move together. */
+    M.scroll(() => {
+      if (!live) return;
+      const vh = innerHeight || 800;
+      const s = 1 - 2 * clamp01((xp.getBoundingClientRect().top + anchor) / vh);
+      xpLedge.style.setProperty('--sx-xpl-x', ((1 - s) * 0.5 * TUCK).toFixed(1) + 'px');
+      xpLedge.style.setProperty('--sx-xpl-y', (-s * vh * DRIFT).toFixed(1) + 'px');
+      xpLedge.style.setProperty('--sx-xpl-z', (s * DEPTH).toFixed(1) + 'px');
+      xpLedge.style.setProperty('--sx-xpl-r', (-s * TIP).toFixed(2) + 'deg');
+    }, { target: xp, offset: ['start end', 'end start'] });
+  }
+
   /* ========================================================================
      5 · THE HANDOFF
      ========================================================================
