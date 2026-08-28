@@ -1230,7 +1230,17 @@
   text-wrap: initial;
 }
 .sx-xp-title span { display: block; }
-.sx-xp-t1 { font-weight: 400; }
+.sx-xp-t1 {
+  font-weight: 400;
+  /* 16px off the shared head size, so the setup is quieter than the line that
+     answers it and the two are no longer competing at the same scale.
+
+     The max() is a floor, and it earns its place at the small end. --sx-t-head
+     bottoms out at 2rem on a phone, where a flat -16px would leave 16px under a
+     32px second line — half the size, which is no longer a pair of lines but a
+     caption above a heading. 1.6rem holds the relationship the desktop sets. */
+  font-size: max(1.6rem, calc(var(--sx-t-head) - 16px));
+}
 .sx-xp-t2 { font-weight: 700; }
 
 /* --- the ledge ---
@@ -1941,7 +1951,10 @@
   /* Shrunk to the word so the aside's target is the NAME and not the line it
      sits on. As a full-width block, "Airtel" would have armed a hover across
      600px of empty column, which is how a deliberate aside turns into a bubble
-     that keeps going off while you are only reading past it. */
+     that keeps going off while you are only reading past it.
+
+     It also makes the underline below exactly as wide as the name, which is the
+     other half of why this is here. */
   width: max-content;
   max-width: 100%;
 }
@@ -2009,8 +2022,43 @@
    no second tap to close it, because the bubble does not take pointer events.
    Better to not offer it than to leave it stuck. It stays in the accessibility
    tree either way, which is where a touch reader gets it. */
+/* --- saying that the aside is there ---
+   The first pass shipped the bubble with no resting state at all: the only cue
+   was `cursor: help`, which you cannot see until you are already on the word.
+   Measured, the target was the name — 339 x 64 inside a 686 x 476 stop, about
+   7% of it — and an invisible 7% is not a target, it is a secret. That is the
+   whole failure; the hover itself was working the entire time.
+
+   So the name carries a dotted rule at rest. Dotted rather than solid because a
+   solid rule under a display name reads as a design element — the section
+   already draws rules in this green — while dots are the one underline the web
+   has always used to mean "there is more here if you ask". Muted at rest so it
+   sits under the name rather than beside it in the hierarchy, and it takes the
+   rail's green on hover, which is the same colour the stop's own dot lights.
+
+   All of it lives inside (hover: hover), the cue included. A dotted underline on
+   a touch screen would be a promise the page cannot keep there — the aside is
+   never revealed without a pointer — and a cue for something unavailable is
+   worse than no cue. A touch reader still gets the sentence either way: it is
+   real text in the accessibility tree, not a hover-only string. */
 @media (hover: hover) {
-  .sx-xp-stop h3 { cursor: help; }
+  .sx-xp-stop h3 {
+    cursor: help;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    /* 2px at 60px type. 1px disappears into the descenders at this size and
+       from a normal viewing distance simply is not there. */
+    text-decoration-thickness: 2px;
+    text-underline-offset: .16em;
+    /* Not --sx-ink-4. That token is 12% and is scoped to hairlines and rules —
+       which is the right instinct for a rule and the wrong one here, because at
+       12% the dots are gone at 1x and the cue is invisible again, which was the
+       whole bug. This is the weight of a thing you are meant to notice without
+       reading it. */
+    text-decoration-color: rgba(244,241,236,.32);
+    transition: text-decoration-color .3s var(--sx-ease);
+  }
+  .sx-xp-stop h3:hover { text-decoration-color: var(--sx-xp-line); }
   .sx-xp-stop h3:hover + .sx-xp-say {
     opacity: 1;
     transform: none;
