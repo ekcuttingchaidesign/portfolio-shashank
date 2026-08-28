@@ -97,15 +97,18 @@
      next door already use: a common figure height, never a common box.
      ====================================================================== */
   const MASCOTS = {
-    'iplay.png':  { w: 776, h: 631, contentH: 554, ax: 0.4407, ay: 0.9128 },
-    'iShoot.png': { w: 701, h: 728, contentH: 698, ax: 0.6683, ay: 0.9712 },
-    'iMeme.png':  { w: 716, h: 783, contentH: 698, ax: 0.6425, ay: 0.9298 },
-    'mascot_say_hi.png': { w: 373, h: 539, contentH: 508, ax: 0.5831, ay: 0.9814 }
+    /* `h` is the figure's ink height as a share of the block it stands on,
+       measured off each design frame. NOT one shared number: the sprite sheets
+       next door normalise to a common figure height because they are the same
+       character walking, but here a seated figure on a couch is short BECAUSE
+       it is sitting down. Forcing 0.53 on all three shrank both standing
+       figures to two thirds of the size the design draws them. */
+    'iplay.png':  { w: 776, h: 631, contentH: 554, ax: 0.4407, ay: 0.9128, h3: 0.53 },
+    'iShoot.png': { w: 701, h: 728, contentH: 698, ax: 0.6683, ay: 0.9712, h3: 0.90 },
+    'iMeme.png':  { w: 716, h: 783, contentH: 698, ax: 0.6425, ay: 0.9298, h3: 0.90 }
   };
 
-  /* The figure's ink height as a share of the block it stands on. Measured off
-     the design: the couch is 260 tall against a 509 block. */
-  const MASCOT_H = 0.53;
+  const MASCOT_H = 0.62;                 // only for a file with no entry above
 
   /* ==========================================================================
      3 · DEPTH TIERS
@@ -161,12 +164,22 @@
        those screens are not in hand yet. Retune with ?edit=1. */
 
     /* approach to the title */
-    { t: -1350, ox:  430, oy: -190, variant: 'amb_3', tier: 'bg'    },
-    { t: -1180, ox: -640, oy:  300, variant: 'amb_4', tier: 'bg'    },
-    { t:  -980, ox:  820, oy:  230, variant: 'amb_2', tier: 'mid',  flip: 1 },
-    { t:  -860, ox: -820, oy: -250, variant: 'amb_3', tier: 'bg'    },
-    { t:  -700, ox:  620, oy:  450, variant: 'amb_1', tier: 'stage' },
-    { t:  -520, ox: -640, oy: -360, variant: 'amb_4', tier: 'bg',   flip: 1 },
+    { t: -1350, ox:  430, oy: -300, variant: 'amb_3', tier: 'bg'    },
+    { t: -1180, ox: -700, oy:  310, variant: 'amb_4', tier: 'bg'    },
+    { t: -1010, ox: -760, oy: -280, variant: 'amb_2', tier: 'bg',   flip: 1 },
+    { t:  -700, ox: -300, oy:  470, variant: 'amb_4', tier: 'bg'    },
+    { t:  -560, ox:  760, oy:  520, variant: 'amb_1', tier: 'stage' },
+    { t:  -420, ox: -640, oy: -360, variant: 'amb_4', tier: 'bg',   flip: 1 },
+
+    /* The title card's own block. Spec §1 says "type only, no master block",
+       but the frame puts a large slab out to the right, and the frame wins.
+       `k` scales it to the 560 the design draws — no variant comes in that
+       size, and stretching a tier to reach it would have moved its parallax
+       too. No mascot: the design has none here. */
+    { t:  -900, ox:  474, oy:  315, variant: 'master', tier: 'stage', k: .78 },
+    { t:  -900, ox:  641, oy:  -75, variant: 'amb_3',  tier: 'bg'  },
+    { t:  -900, ox:  904, oy:  180, variant: 'amb_4',  tier: 'stage' },
+    { t:  -900, ox:  836, oy:  480, variant: 'amb_2',  tier: 'bg',  flip: 1 },
 
     /* station 1 — I play, off the design frame */
     { t:  -300, ox:  180, oy: -380, variant: 'amb_3', tier: 'bg'    },
@@ -369,7 +382,19 @@
 
   /* Build the world. Ambient first so the masters paint over them at equal
      tier, and the fg tier last of all. */
-  AMBIENT.forEach((a, i) => addBlock(Object.assign({ kind: 'block', win: 1400, ai: i }, a)));
+  /* The quiet blocks have always been there; the loud ones arrive.
+
+     Spec §8 gives the whole ambient field a wide 1400 window so it fades up
+     from far off rather than popping in — right for the dark bg and mid slabs,
+     wrong for the bright stage-tier ones. At 1400 a stage block is 90% opaque
+     while still 820 units out, and since the design frames were each composed
+     on their own, one of station one's bright slabs was arriving at full
+     strength on top of the title card's block and reading as a single broken
+     stepped solid. The two share a path down the axis and no coordinate fixes
+     that; the loud ones simply have to arrive nearer their own stop. */
+  const AMB_WIN = { bg: 1400, mid: 1400, stage: 620, fg: 620 };
+  AMBIENT.forEach((a, i) => addBlock(
+    Object.assign({ kind: 'block', win: AMB_WIN[a.tier] || 1400, ai: i }, a)));
 
   STATIONS.forEach(st => {
     const m = BLOCKS[st.master];
@@ -380,19 +405,10 @@
                 file: st.mascot, station: st.id, delay: .12, win: 520, master: m });
   });
 
-  /* §11's closing beat: the one block the dissolve leaves standing is not
-     empty — it carries the waving figure, and that is the last thing on the
-     page. Marked `last` like the block it stands on, so neither the trailing
-     fade nor the exit dissolve takes it away. */
-  const LAST = AMBIENT.find(a => a.last);
-  if (LAST) {
-    addShadow({ t: LAST.t, ox: LAST.ox, oy: LAST.oy, tier: 'stage',
-                master: BLOCKS[LAST.variant], delay: .12, last: 1 });
-    addMascot({ t: LAST.t, ox: LAST.ox, oy: LAST.oy, tier: 'stage', kind: 'mascot',
-                file: 'mascot_say_hi.png', master: BLOCKS[LAST.variant],
-                delay: .12, win: 520, last: 1 });
-  }
-
+  /* §11 has a figure riding the closing block. It is NOT drawn here:
+     mascot_say_hi.png belongs to the Say hello section, which is its own
+     build, and borrowing it would pre-empt that design. The block drifts in
+     bare and the plaque carries the beat until Say hello absorbs this stop. */
   /* The copy, the title and the exit are already in the document — they are
      real text in source order and nothing may exist only inside the traversal.
      JS only drives their drift and their fade. They are positioned by CSS so
@@ -444,7 +460,10 @@
     dropFg     = phone;
     thinAmbient = phone;
     stOx = phone ? 0   : 385;
-    stOy = phone ? 340 : 385;
+    /* Phone stacks copy over block, so the block has to clear the TALLEST
+       copy — I click runs three lines plus a pill, where I play is two lines
+       and no pill. Set for the tall one; the short one just gets more air. */
+    stOy = phone ? 480 : 385;
   }
   measure();
 
@@ -458,8 +477,8 @@
      wrong moment.
      ====================================================================== */
   function entrance(node, camT) {
-    const win = node.win || 520;
-    const raw = 1 - clamp(((node.t * spacing - camT) - 160) / win, 0, 1);
+    const win = (node.win || 520) * spacing;
+    const raw = 1 - clamp(((node.t * spacing - camT) - 160 * spacing) / win, 0, 1);
     const k   = clamp((raw - node.delay) / (1 - node.delay), 0, 1);
     return 1 - Math.pow(1 - k, 3);          // easeOutCubic
   }
@@ -554,9 +573,17 @@
       if (r !== reveal) setReveal(r);
     }
 
-    const camT = camAt(p);
+    /* Every distance below lives in the SAME space as the node positions,
+       which are t * spacing. camAt returns raw key-frame t, so it has to be
+       scaled too — without this the camera on a phone stops 550 units short of
+       the stations it is aiming at, and two of them dwell on screen at once,
+       copy and mascots overlapping. Every threshold in this function scales
+       with it for the same reason. On desktop spacing is 1 and none of it
+       does anything. */
+    const camT = camAt(p) * spacing;
     const cx = vw * .5, cy = vh * .5;
-    const dissolve = 1 - clamp01((camT - DISSOLVE_FROM) / (DISSOLVE_TO - DISSOLVE_FROM));
+    const dissolve = 1 - clamp01((camT - DISSOLVE_FROM * spacing) /
+                                 ((DISSOLVE_TO - DISSOLVE_FROM) * spacing));
 
     for (let i = 0; i < nodes.length; i++) {
       const n = nodes[i];
@@ -583,9 +610,9 @@
       if (n.culled) { n.culled = false; delete n.el.dataset.culled; }
 
       const behind = camT - n.t * spacing;
-      const trail = n.last ? 1 : 1 - clamp01((behind - TRAIL_KEEP) / TRAIL_FADE);
+      const trail = n.last ? 1 : 1 - clamp01((behind - TRAIL_KEEP * spacing) / (TRAIL_FADE * spacing));
       const e = entrance(n, camT) * trail * (n.last ? 1 : dissolve);
-      let sc = tier.scale * worldScale;
+      let sc = tier.scale * worldScale * (n.k || 1);
 
       const b = BLOCKS[n.variant];
 
@@ -624,7 +651,7 @@
            the ridge maths above. Scaled on the ink's height, not the canvas's,
            so the padding around each figure cannot change how big it looks. */
         const M = MASCOTS[n.file];
-        const k  = M ? (bh * MASCOT_H) / M.contentH : (bh * MASCOT_H) / 600;
+        const k  = M ? (bh * M.h3) / M.contentH : (bh * MASCOT_H) / 600;
         const mw = (M ? M.w : 240) * k;
         const mh = (M ? M.h : 320) * k;
         n.el.style.width = mw + 'px';
@@ -669,29 +696,29 @@
     for (const c of copyEls) {
       const d = (c.t * spacing - camT);
       const dist = Math.abs(d);
-      const op = 1 - clamp((dist - 380) / 420, 0, 1);
+      const op = 1 - clamp((dist - 380 * spacing) / (420 * spacing), 0, 1);
       c.el.style.opacity = op.toFixed(3);
       c.el.style.visibility = op < .005 ? 'hidden' : '';
       const dd = d * COPY_PARALLAX;
       c.el.style.transform =
         `translate3d(${(dd * ISO.AX * worldScale).toFixed(1)}px,${(dd * ISO.AY * worldScale).toFixed(1)}px,0)` +
-        (vw <= 720 ? ' translate(-50%,-50%)' : ' translateY(-50%)');
+        (vw <= 720 ? ' translateX(-50%)' : '');
     }
 
     /* The title travels at full rate — unlike the station copy, its exit is
        the section's opening move and it should leave properly. */
     if (titleEl) {
-      const d = (-900 - camT);
-      const op = 1 - clamp((Math.abs(d) - 420) / 460, 0, 1);
+      const d = (-900 * spacing - camT);
+      const op = 1 - clamp((Math.abs(d) - 420 * spacing) / (460 * spacing), 0, 1);
       titleEl.style.opacity = op.toFixed(3);
       titleEl.style.visibility = op < .005 ? 'hidden' : '';
       titleEl.style.transform =
-        `translate(-50%,-50%) translate3d(${(d * ISO.AX).toFixed(1)}px,${(d * ISO.AY).toFixed(1)}px,0)`;
+        `translateY(-50%) translate3d(${(d * ISO.AX * worldScale).toFixed(1)}px,${(d * ISO.AY * worldScale).toFixed(1)}px,0)`;
     }
 
     if (exitEl) {
-      const d = (4300 - camT);
-      const op = 1 - clamp((Math.abs(d) - 300) / 380, 0, 1);
+      const d = (4300 * spacing - camT);
+      const op = 1 - clamp((Math.abs(d) - 300 * spacing) / (380 * spacing), 0, 1);
       exitEl.style.opacity = op.toFixed(3);
       exitEl.style.visibility = op < .005 ? 'hidden' : '';
       exitEl.style.transform =

@@ -87,7 +87,8 @@ they appear.
 
 ## Built to the design frame
 
-The I play screen is the reference, and it is authored **1:1 at 1920×1080** —
+All four frames are now in hand and built to. They are authored **1:1 at
+1920×1080** —
 the master block's 715px natural width is 715px on that canvas, 37% of the
 frame. So the world scales off `REF_W = 1920`, not off 1. Held at 1.0 the same
 block ate 50% of a 1440 window: a different composition wearing the same
@@ -129,16 +130,74 @@ uniformly darkened field, so `mid` came up to `brightness(.92)` and `bg` went
 further back to `.34`. The contrast between them now reads as depth rather than
 as a slightly duller green.
 
-## The CTAs are gone
+## The CTAs, and what the frames actually show
 
-The design shows none under `I play`. §7.4 flagged this exact inconsistency —
-"either add one, or drop both others" — and dropping all three is the half the
-design supports. It is also the only one of the four screens actually in hand,
-so this is the honest reading rather than a preference.
+`I play` has none. `I click` has **View Gallery**, `I meme` has **View Memes**.
+So the design is inconsistent across three parallel items, exactly as §7.4
+predicted it would look — and it is what ships, because the frames are the
+brief. Flagging it once more and leaving it drawn.
 
-**If the iShoot or iMeme screens do show a CTA, this is wrong and easy to
-reverse** — the `.lw-cta` rule is still in the stylesheet, unused, for exactly
-that.
+The arrow is drawn as an SVG rather than set as `→`: the design's is long and
+thin, and the glyph in Satoshi is a short stubby mark that reads as something
+else entirely.
+
+## Copy is anchored by its top
+
+The three blocks are 215, 310 and 370 tall. Centring them put the short one
+40px below where the design has it and the tall one 40px above; every frame
+starts its headline at about 410 of 1080 and lets the block run down from
+there. Line endings are explicit `<br>`s, not a measure — `I click` is three
+separate sentences, and a width would fold them somewhere else at every window
+size.
+
+## The figures are not one size
+
+Ink height as a share of the block they stand on, measured per frame:
+
+| | | |
+| --- | --- | --- |
+| `iplay` | seated on a couch | 0.53 |
+| `iShoot` | standing | 0.90 |
+| `iMeme` | standing | 0.90 |
+
+An earlier pass normalised all three to a common ink height, reasoning from the
+sprite sheets next door. That was wrong here: those sheets are the same
+character walking, so a common height is what keeps him from resizing between
+poses. These are three different poses of which one is **sitting down**, and it
+is short because it is sitting down. Normalising shrank both standing figures
+to two thirds of the size the design draws them.
+
+## The title card
+
+Left aligned at 250 of 1920, not centred. `My life beyond` is the **real
+italic** — `ital@1` is now on the font link; left to synthesise it the browser
+shears the roman, which is a slanted serif rather than this face's own cursive
+*a*, *y* and *f*. It carries a warm gradient painted through the text rather
+than the flat amber the spec reserved, with the amber kept as the fallback so a
+browser without `background-clip: text` gets a headline rather than a gap.
+
+`9` and `5` are upright and heavy, `to` italic at about half their size.
+Instrument Serif ships one weight, so the 700 is the browser's synthesis — it
+reads as the design's weight at 150px and would not at a text size, and this is
+the only place on the site that asks for it.
+
+**Spec §1 says "type only, no master block" and the frame disagrees**, putting
+a large slab out to the right. The frame wins. `k: .78` scales it to the 560 it
+is drawn at, since no variant comes in that size and stretching a tier to reach
+it would have moved that block's parallax too.
+
+## Loud blocks arrive; quiet ones have always been there
+
+§8 gives the whole ambient field a wide 1400 entrance window so it fades up
+from far off rather than popping in. Right for the dark `bg` and `mid` slabs,
+wrong for the bright `stage` ones: at 1400 a stage block is 90% opaque while
+still 820 units out, and since each frame was composed on its own, one of
+station one's bright slabs was arriving at full strength on top of the title
+card's block and reading as a single broken stepped solid.
+
+The two share a path down the travel axis, so no coordinate fixes it — the loud
+ones simply arrive nearer their own stop. `stage` and `fg` get 620, `bg` and
+`mid` keep 1400.
 
 ## The overlap with the pull-out
 
@@ -177,12 +236,18 @@ Gaussian — σ ≈ 896, calibrated against the 600px-blur bloom in
 σx 930 / σy 906, so the source ellipse's 1.89 aspect survives only as a 3%
 stretch. Peak alpha:
 
+**Re-derived once against the design.** Figma's layer-blur value is twice the
+Gaussian σ, so 1000 is σ 500 — not the ~896 a first pass took second-hand from
+the 600px bloom in `pending-art.md`. That put the peak at 3.3% and the glow was
+all but invisible; the title frame reads about `rgb(27,16,12)` at its warmest,
+which is the 10.6% below.
+
 ```
-0.40 × (π × 501 × 265.5) / (2π × 896²) = 3.3%
+0.40 × (π × 501 × 265.5) / (2π × 500²) = 10.6%
 ```
 
-The stops are `exp(−4.5 f²)` down a 3σ extent. It is a wide, weak wash, which
-is what a 1000px blur is.
+The stops are `exp(−4.5 f²)` down a 3σ extent, and it sits upper-left where all
+four frames put it. Still a wide, soft wash; just not an invisible one.
 
 Its colour travels `#FF8C6C → #FFFFFF` across the traversal, written into
 `--lw-glow-rgb`; the stops carry alpha only.
@@ -239,26 +304,23 @@ file), `youtube.svg`.
 
 All seven belong to the **Say hello** section, which is a later build.
 
-`mascot_say_hi.png` is currently in use here, riding the closing block, because
-that is precisely what §11 describes and nothing else in the delivery could
-have been it. **That is the one thing in this section standing on someone
-else's ground** — when Say hello is built properly it should absorb or replace
-this whole exit stop. Stripping it back to an empty stage is a one-line change.
-
-The four social marks and `last_ledge.svg` are untouched. `last_ledge.svg` is
+**None of them is used here.** `mascot_say_hi.png` was briefly riding the
+closing block — §11 asks for a figure there — and has been taken back out now
+that its home is known. The block drifts in bare and the plaque carries the
+beat until Say hello absorbs this stop. `last_ledge.svg` is
 worth a look before it is used: like `left_ledge.svg` before it, its artwork
 overflows its declared `viewBox` — 443 wide inside a 398 box — so it will need
 the same crop fix `conical_green.svg` had.
 
 ## Still open
 
-- **The other three design screens.** The Figma MCP quota is spent, so only the
-  I play frame is in hand. `I click` and `I meme` carry copy I wrote and an
-  ambient composition that follows I play's tier mix but not its coordinates;
-  the title card's type is unverified against its own frame. All of it is a
-  screenshot away from being exact.
-- Station two is headed **`I click`** per spec §1, while the Figma screen and
-  the asset are both named *iShoot*.
+- **CTA destinations.** Both pills are `href="#"` and carry
+  `data-lw-todo="destination"`. Grep for that.
+- Station two is headed **`I click`**, from spec §1 and confirmed by its own
+  frame, while the asset is named *iShoot*. Only the filename disagrees now.
+- Ambient composition at stations two and three follows station one's tier mix
+  and their own frames' broad placement, but is not a coordinate-level trace of
+  either. `?edit=1` retunes it.
 - `dwell` vs linear travel between keys (§10) is still the open design
   question the spec flags, and is much easier to judge with real artwork in.
 

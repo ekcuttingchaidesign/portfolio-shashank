@@ -63,37 +63,43 @@
    lose. A flat ellipse has none, and a 1000px filter would hand the compositor
    paint bounds running some 2000px past the element on every side.
 
-   Derived, not eyeballed. Convolving that ellipse with the matching Gaussian
-   (sigma ~896, calibrated against the 600px-blur bloom already measured in
-   docs/pending-art.md, which peaks at 5.1%) adds variances: the result comes
-   out sigma_x 930 / sigma_y 906 — near enough circular that the source
-   ellipse's 1.89 aspect survives only as a 3% stretch — and peaks at
+   Derived, not eyeballed, and re-derived once against the design. Figma's
+   layer-blur value is twice the Gaussian sigma, so 1000 is sigma 500 — NOT the
+   ~896 a first pass took from the 600px bloom already measured in
+   docs/pending-art.md. That second-hand calibration put the peak at 3.3% and
+   the glow was all but invisible; the title frame reads about rgb(27,16,12) at
+   its warmest, which is the 10.6% below.
 
-       0.40 * (pi * 501 * 265.5) / (2 * pi * 896^2) = 3.3% alpha
+   Convolving the ellipse with that Gaussian adds variances, giving sigma_x 559
+   / sigma_y 517 — the source ellipse's 1.89 aspect survives only as an 8%
+   stretch — and a centre of
 
-   dead centre. The stops below are exp(-4.5 f^2) down a 3-sigma extent. It is
-   a wide, weak wash. That is what a 1000px blur IS, and drawing it as anything
-   punchier would be drawing a different thing.
+       0.40 * (pi * 501 * 265.5) / (2 * pi * 500^2) = 10.6% alpha
+
+   The stops below are exp(-4.5 f^2) down a 3-sigma extent. Still a wide, soft
+   wash; just not an invisible one.
 
    The colour travels #FF8C6C -> #FFFFFF across the traversal; JS writes the
    channels into --lw-glow-rgb and the stops only carry alpha. */
 .lw-glow {
   position: absolute;
-  left: 50%; top: 46%;
-  width: 5580px; height: 5434px;      /* 2 x the 3-sigma extent */
-  margin-left: -2790px; margin-top: -2717px;
+  /* Upper left, where the design puts it in all four frames — warm on the
+     title card, white by the time the stations arrive. */
+  left: 17%; top: 24%;
+  width: 3360px; height: 3110px;      /* 2 x the 3-sigma extent */
+  margin-left: -1680px; margin-top: -1555px;
   pointer-events: none;
   background: radial-gradient(closest-side ellipse,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0331) 0%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0317) 10%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0277) 20%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0221) 30%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0161) 40%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0108) 50%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0066) 60%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0036) 70%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0019) 80%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0009) 90%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .1064) 0%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .1017) 10%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0889) 20%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0710) 30%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0518) 40%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0345) 50%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0211) 60%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0117) 70%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0060) 80%,
+    rgba(var(--lw-glow-rgb, 255,140,108), .0028) 90%,
     rgba(var(--lw-glow-rgb, 255,140,108), 0)     100%);
 }
 
@@ -149,14 +155,18 @@
   position: absolute;
   /* 165 of 1920 in the design. */
   left: clamp(1.25rem, 8.6vw, 8.6vw);
-  top: 50%;
+  /* Anchored by its TOP, not centred. The three blocks are 215, 310 and 370
+     tall — centring them put the short one 40px below where the design has it
+     and the tall one 40px above. Every frame starts its headline at about 410
+     of 1080 and lets the block run down from there. */
+  top: 38%;
   /* Wide enough never to be what breaks the line — the paragraph's own em
      measure does that — and no wider, because the box is what the ambient
      field is kept clear of. At 720 it reached 370px past the longest line and
      the composition was being held away from space nothing occupies.
      `ch` here would resolve against the container's inherited 16px and
      throttle an 88px headline to about 190px of room. */
-  width: min(32vw, 480px);
+  width: min(34vw, 520px);
   color: var(--sx-ink, #F4F1EC);
   z-index: 3;
 }
@@ -184,10 +194,12 @@
   font-size: clamp(1rem, 1.46vw, 1.9rem);
   line-height: 1.85;
   color: rgba(244,241,236,.88);
-  /* In em, so the measure holds at every size: the design breaks after "only"
-     at 343px on a 28px face, which is 12.4 of them. A ch or px measure would
-     re-break the line at a different window width. */
-  max-width: 12.4em;
+  /* No measure. Each line ends where the design ends it, with a <br>, because
+     these are three separate sentences on I click and a deliberate two-line
+     break on the others — a width would put the fold somewhere else at every
+     window size. The container is the only limit, and it is wider than the
+     longest line. */
+  max-width: none;
 }
 .lw-stack p { margin-bottom: 1.5rem; max-width: 34em; }
 
@@ -195,13 +207,14 @@
    whatever the camera is doing, which is the point of keeping the copy in the
    document rather than inside the traversal. */
 .lw-cta {
-  display: inline-flex; align-items: center; gap: .5em;
-  padding: .62em 1.25em;
-  border: 1px solid var(--sx-ink-4, rgba(244,241,236,.12));
+  display: inline-flex; align-items: center; gap: 1.3em;
+  margin-top: 2.4rem;
+  padding: .95em 1.9em;
+  border: 1px solid rgba(244,241,236,.16);
   border-radius: 999px;
   font-family: var(--sx-sans);
-  font-size: var(--sx-t-body, 1rem);
-  font-weight: 500;
+  font-size: clamp(.9rem, 1.1vw, 1.32rem);
+  font-weight: 400;
   color: var(--sx-ink, #F4F1EC);
   text-decoration: none;
   background: rgba(244,241,236,.04);
@@ -210,7 +223,12 @@
 }
 .lw-cta:hover { background: rgba(244,241,236,.09); border-color: rgba(244,241,236,.3); transform: translateY(-2px); }
 .lw-cta:focus-visible { outline: 2px solid var(--sx-key, #E0542A); outline-offset: 3px; }
-.lw-cta .lw-arrow { transition: transform .25s var(--sx-ease, ease); }
+.lw-cta .lw-arrow {
+  width: 1.9em; height: .64em; overflow: visible;
+  fill: none; stroke: currentColor; stroke-width: 1.1;
+  stroke-linecap: round; stroke-linejoin: round;
+  transition: transform .25s var(--sx-ease, ease);
+}
 .lw-cta:hover .lw-arrow { transform: translateX(3px); }
 
 /* --- TITLE CARD ------------------------------------------------------------
@@ -221,47 +239,57 @@
    between. */
 .lw-title {
   position: absolute;
-  left: 50%; top: 50%;
-  width: min(1180px, 88vw);
-  transform: translate(-50%, -50%);
-  text-align: center;
+  /* Left aligned at 250 of 1920, not centred — the earlier build had it in the
+     middle of the frame, which is a different composition. */
+  /* Top-anchored like the station copy, and for the same reason. */
+  left: 13vw; top: 36%;
+  width: min(56vw, 900px);
+  text-align: left;
   z-index: 3;
 }
 .lw-title h2 {
   margin: 0;
-  text-wrap: balance;
   font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
   font-weight: 400;
-  font-size: clamp(2.8rem, 8vw, 7rem);
-  line-height: .96;
-  letter-spacing: -.01em;
-  color: var(--lw-amber, #D08544);
-}
-.lw-serif { display: block; }
-.lw-title .lw-title-tail {
-  display: block;
-  font-family: var(--sx-sans);
-  font-weight: 300;
-  font-size: clamp(2.6rem, 7.6vw, 6.6rem);
-  color: var(--sx-ink, #F4F1EC);
+  letter-spacing: 0;
 }
 
-/* A mascot whose file has not landed yet leaves a labelled gap rather than a
-   broken image icon — visible enough to notice in review, quiet enough not to
-   be mistaken for artwork. */
-.lw-node[data-missing] .lw-tone::after {
-  content: "art pending";
+/* The one serif on the site, and the italic is the real one — ital@1 is now
+   requested on the font link. Left to synthesise it, the browser shears the
+   roman, which is a slanted serif rather than this face's own cursive a, y
+   and f. */
+.lw-serif {
   display: block;
-  width: 100%; aspect-ratio: 3 / 4;
-  border: 1px dashed rgba(244,241,236,.28);
-  border-radius: 8px;
-  font-family: var(--sx-mono); font-size: .62rem; letter-spacing: .14em;
-  text-transform: uppercase; color: rgba(244,241,236,.34);
-  display: flex; align-items: flex-end; justify-content: center;
-  padding-bottom: .8rem;
+  font-style: italic;
+  font-size: clamp(2rem, 3.6vw, 4.6rem);
+  line-height: 1.08;
+  /* A warm gradient rather than the flat amber the spec reserved — the design
+     runs it from a saturated peach into an almost-white at the end of the
+     line. Painted through the text, so the fallback below matters: a browser
+     without background-clip gets the amber, not an invisible headline. */
+  color: var(--lw-amber, #D08544);
+  background: linear-gradient(96deg, #E2865A 0%, #F0A47C 42%, #F8DDCB 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-.lw-node[data-missing] img { display: none; }
-.lw-stack-art { border-radius: 8px; }
+@supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+  .lw-serif { background: none; -webkit-text-fill-color: currentColor; }
+}
+
+.lw-title .lw-title-tail {
+  display: block;
+  font-size: clamp(3.4rem, 7.8vw, 9.4rem);
+  line-height: 1.02;
+  color: var(--sx-ink, #F4F1EC);
+}
+/* Numerals upright, heavy, and the joining word italic — the design sets 9 and
+   5 as figures and "to" as an aside between them at about half their size.
+   Instrument Serif ships one weight, so 700 here is the browser's synthesis.
+   At 150px that reads as the design's weight; at a text size it would not, and
+   this is the only place on the site that asks for it. */
+.lw-title .lw-num { font-style: normal; font-weight: 700; }
+.lw-title .lw-to  { font-style: italic; font-size: .52em; padding: 0 .12em; }
 
 /* --- EXIT ------------------------------------------------------------------
    The world has thinned to nothing by here and the plaque is the last thing on
@@ -335,7 +363,7 @@
 @media (max-width: 720px) {
   .lw-copy {
     left: 50%;
-    top: 17%;
+    top: 13%;
     width: min(92vw, 46ch);
     transform: translateX(-50%);
     text-align: center;
