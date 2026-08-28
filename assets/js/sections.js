@@ -354,6 +354,7 @@
     const card   = xp.querySelector('.sx-xp-card');
     const elCo   = document.getElementById('sx-xp-co');
     const elYr   = document.getElementById('sx-xp-yr');
+    const elSay  = document.getElementById('sx-xp-say');
     const pips   = [...document.querySelectorAll('#sx-xp-pips li')];
     const rail   = xp.querySelector('.sx-xp-rail');
 
@@ -549,6 +550,12 @@
         : card.removeAttribute('data-current');
       if (elCo)    elCo.textContent    = s.getAttribute('data-co') || '';
       if (elYr)    elYr.textContent    = s.getAttribute('data-yr') || '';
+      /* His line, swapped with him. Written every time the stop changes rather
+         than on hover, so the bubble is already correct when it opens — the
+         hero fills its bubble on pointerenter because its lines are a rotating
+         list with no state behind them; this one has state, and the state is
+         which stop you are on. */
+      if (elSay)   elSay.textContent   = s.getAttribute('data-say') || '';
       pips.forEach((p, n) => n <= i ? p.setAttribute('data-on', '')
                                     : p.removeAttribute('data-on'));
       /* The room warms as the career does. */

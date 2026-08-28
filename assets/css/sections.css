@@ -1230,7 +1230,17 @@
   text-wrap: initial;
 }
 .sx-xp-title span { display: block; }
-.sx-xp-t1 { font-weight: 400; }
+.sx-xp-t1 {
+  font-weight: 400;
+  /* 16px off the shared head size, so the setup is quieter than the line that
+     answers it and the two are no longer competing at the same scale.
+
+     The max() is a floor, and it earns its place at the small end. --sx-t-head
+     bottoms out at 2rem on a phone, where a flat -16px would leave 16px under a
+     32px second line — half the size, which is no longer a pair of lines but a
+     caption above a heading. 1.6rem holds the relationship the desktop sets. */
+  font-size: max(1.6rem, calc(var(--sx-t-head) - 16px));
+}
 .sx-xp-t2 { font-weight: 700; }
 
 /* --- the ledge ---
@@ -1938,55 +1948,52 @@
   letter-spacing: -.015em;
   margin: .45rem 0 0;
   color: var(--sx-ink);
-  /* Shrunk to the word so the aside's target is the NAME and not the line it
-     sits on. As a full-width block, "Airtel" would have armed a hover across
-     600px of empty column, which is how a deliberate aside turns into a bubble
-     that keeps going off while you are only reading past it. */
-  width: max-content;
-  max-width: 100%;
 }
-/* --- the aside ---
-   The hero's mascot bubble, brought to the rail. Same pill, same blur, same
-   border, same .28s — it should read as the page's one way of saying a quiet
-   second thing, not as a tooltip someone added to this section.
+/* --- what he says ---
+   The hero's mascot bubble, and now in the hero's own arrangement: a character
+   you hover, who answers with one line beside his head. The first pass hung
+   this off the company name in the rail, which was the wrong object — the
+   character IS the timeline here, and he is the thing on this page that already
+   has a precedent for speaking.
 
-   Two things are turned around, and both follow from where it opens. The hero's
-   bubble opens sideways off a character standing in an empty corner; a company
-   name here is display-sized type in a column with no room beside it, so this
-   one opens DOWNWARD. The squared corner therefore moves from bottom-left to
-   top-left — it is the corner that points back at the thing that said it, so it
-   has to be on the side the bubble came from — and the entrance rises from
-   above rather than below for the same reason.
+   ONE bubble, not four. There is one of him on the stage at a time, so script
+   swaps the line as the stop changes, exactly as the year and the company under
+   him are swapped. The four sentences live on the stops as data-say, next to
+   the data-co and data-yr they belong beside.
 
-   Positioned by DOING NOTHING. `position: absolute` with top and left left at
-   auto puts a box at its static position: exactly where it would have sat in
-   flow, which is the start of the line under the name. So it is out of flow —
-   the role and the copy below never move for it — while still being aligned to
-   the name and the column without a single measured offset. Names are between
-   six and twelve characters here and the layout has to hold at every one of
-   them; nothing about this cares how wide the name is.
+   Placed like the hero's: up by his head and opening RIGHT, with the squared
+   corner bottom-left pointing back at him, rising from below as it arrives.
+   Nothing about that had to be re-derived — it is the same shape of thing next
+   to the same shape of character.
 
-   Not aria-hidden, which is the one place it deliberately parts company with
-   the hero. Those lines rotate and there are five of them, so hiding them costs
-   a reader nothing; these four are the only place their sentence is said. It is
-   a real paragraph between the name and the role — invisible at rest, in the
-   accessibility tree throughout. */
+   The offsets are a share of the CARD, not of the character, because the render
+   is a transparent PNG and its subject has no box anyone can address. He sits
+   roughly across the middle 30–63% of the square, so 63% starts the bubble off
+   his shoulder, and 12% puts it level with his head rather than his feet. */
 .sx-xp-say {
   position: absolute;
-  margin: .45rem 0 0;
+  top: 12%;
+  left: 63%;
   z-index: 2;
   width: max-content;
-  /* In rem, not ch, and that is the correction rather than the first instinct.
-     The hero measures its bubble in ch because its own type is the same size;
-     this face is deliberately tiny — clamp bottoms out near 10px — so a ch here
-     is about 5px and 24ch came out a 137px column that broke "Four hours
-     commuting with design thoughts" over three cramped lines. A rem is fixed to
-     the page rather than to the bubble's own smallness: 13rem puts the three
-     short asides on one line each and the long one on two, which is the shape
-     an aside should have. */
-  max-width: min(13rem, 100%);
+  /* Two caps, and the percentage is the one that matters.
+
+     13rem is the comfortable measure — in rem rather than the hero's ch because
+     this face is deliberately tiny, the clamp bottoming out near 10px, so a ch
+     here is about 5px and a ch-based measure came out a 137px column that broke
+     the longest of the four over three cramped lines.
+
+     37% is the safety, and it is exactly the room left between this bubble's own
+     left edge at 63% and the right edge of the card — percentages here resolve
+     against the card, which is the containing block. So the bubble physically
+     cannot cross into the rail beside it, at any width, without a single
+     measured gap or breakpoint. It needs to be structural rather than tuned:
+     swept from 1728 down, the clearance to the rail fell 66px, 41px, 13px and
+     then to MINUS 15px at 1120 — an opaque bubble sitting on the copy. A number
+     that degrades quietly as the window narrows is not a number to trust. */
+  max-width: min(13rem, 37%);
   padding: .48rem .68rem;
-  border-radius: 2px 12px 12px 12px;
+  border-radius: 12px 12px 12px 2px;
   background: rgba(18,18,17,.88);
   border: 1px solid rgba(244,241,236,.13);
   -webkit-backdrop-filter: blur(8px);
@@ -1997,21 +2004,26 @@
   letter-spacing: .03em;
   color: var(--sx-ink-2);
   opacity: 0;
-  transform: translateY(-6px) scale(.94);
-  transform-origin: 0 0;
+  transform: translateY(6px) scale(.94);
+  transform-origin: 0 100%;
   pointer-events: none;
   transition: opacity .28s var(--sx-ease), transform .28s var(--sx-ease);
 }
 
-/* Gated on a real pointer, the way the rest of the page gates its hovers. On a
-   touch screen `:hover` sticks after a tap, so an aside opened by a stray tap
-   would sit over the role line until something else was tapped — and there is
-   no second tap to close it, because the bubble does not take pointer events.
-   Better to not offer it than to leave it stuck. It stays in the accessibility
-   tree either way, which is where a touch reader gets it. */
+/* The lift is the affordance, and it is the lesson from the last pass rather
+   than a flourish. That one shipped a bubble with no resting cue at all and it
+   simply could not be found. The hero's mascot answers a hover by rising a
+   little before it says anything; the same move here means the character reads
+   as a thing that responds, which is the only hint a hover can honestly give.
+
+   On the REEL rather than the frame: the frame is the clip box, and moving it
+   would drag the crop the re-render's bar depends on. */
+.sx-xp-reel { transition: transform .45s var(--sx-ease); }
+
 @media (hover: hover) {
-  .sx-xp-stop h3 { cursor: help; }
-  .sx-xp-stop h3:hover + .sx-xp-say {
+  .sx-xp-frame { cursor: help; }
+  .sx-xp-frame:hover .sx-xp-reel { transform: translateY(-7px); }
+  .sx-xp-frame:hover ~ .sx-xp-say {
     opacity: 1;
     transform: none;
   }
@@ -2163,6 +2175,17 @@
   .sx-xp-co { grid-area: co; margin: 0; font-size: 1.02rem; line-height: 1.2; text-align: left; }
   .sx-xp-pips { grid-area: pips; margin: .28rem 0 .1rem; }
 
+  /* And no bubble from here down. This is where the card stops being a stage
+     and becomes a 56-76px bar pinned to the bottom of the window: "beside his
+     head" addresses nothing at that size, the offsets are shares of a card that
+     is now the wrong shape entirely, and the rail scrolls OVER the bar — so the
+     character cannot be hovered here even if the bubble were placed well.
+
+     720 was where this first went, which was simply the wrong breakpoint: the
+     bar arrives at 1080. Between the two the bubble was being offered on a
+     figure the rail was sitting on top of. */
+  .sx-xp-say { display: none; }
+
   /* The bar sits over the end of the rail, so the rail has to end above it. */
   .sx-xp-rail { padding-bottom: 5.5rem; }
   /* Anchoring and keyboard focus clear the nav pill at the top. */
@@ -2194,8 +2217,10 @@
   .sx-xp-yr::before { animation: none; }
   .sx-xp-cel, .sx-xp-stop, .sx-xp-pips li, .sx-xp-glow { transition: none; }
   /* The aside still opens — it is content, not performance — it just arrives
-     rather than rising into place. */
+     rather than rising into place, and he does not lift to introduce it. */
   .sx-xp-say { transition: none; transform: none; }
+  .sx-xp-reel { transition: none; }
+  .sx-xp-frame:hover .sx-xp-reel { transform: none; }
   .sx-xp-ledge { animation: none; }
   .sx-xp-stop[data-active="0"] { opacity: 1; }
   .sx-xp-rail::after { transition: none; }

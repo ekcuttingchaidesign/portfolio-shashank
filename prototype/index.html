@@ -1302,6 +1302,17 @@
               </div>
             </div>
 
+            <!-- What he says, and it belongs to the character rather than to any
+                 one stop: there is one of him on the stage at a time, so there is
+                 one bubble, and script swaps its line as the stop changes — the
+                 same thing the year and the company under him already do.
+
+                 A SIBLING of the frame, not a child. The frame clips, because
+                 the re-render's bar has to end somewhere, and a bubble inside it
+                 would be cut off by the very box that makes the swap work. Out
+                 here it sits on the card, which clips nothing. -->
+            <span class="sx-xp-say" id="sx-xp-say"></span>
+
             <!-- Years, then the company. Under him rather than in a strip above,
                  so the block reads downward as one thing: this person, then
                  when, then where. The live dot rides the year, and only on the
@@ -1324,45 +1335,30 @@
              needs. -->
         <ol class="sx-xp-rail">
 
-          <li class="sx-xp-stop" data-stop="0" data-co="MediaAgility"
+          <li class="sx-xp-stop" data-stop="0" data-co="MediaAgility" data-say="Keen. Clueless. Both at once."
               data-yr="2016 — 17" data-reveal>
             <p class="sx-xp-when"><span>2016 — 17</span><i>the way in</i></p>
-            <!-- Each stop carries one aside, revealed by hovering the company
-                 name — the hero's mascot bubble, reused on the one element in a
-                 stop that IS the stop's identity. It opens downward here rather
-                 than sideways because there is no room beside a display-sized
-                 proper noun in this column, so the squared corner moves to the
-                 top-left to keep pointing back at the thing that said it.
-
-                 Real text, not aria-hidden. The hero's lines are rotating
-                 flavour and it hides them; these four are the only place their
-                 sentence is said, so out of flow and invisible at rest is the
-                 right treatment, but out of the accessibility tree is not — a
-                 reader gets it as an aside between the name and the role. -->
             <h3>MediaAgility</h3>
-            <p class="sx-xp-say">Keen. Clueless. Both at once.</p>
             <p class="sx-xp-role">Designer</p>
             <p class="sx-xp-copy">The first job that paid for design, a year after teaching
             myself the tools and walking out of engineering at TCS. Banners and creatives —
             small work, and the whole point was that the pivot had landed.</p>
           </li>
 
-          <li class="sx-xp-stop" data-stop="1" data-co="Appinventiv"
+          <li class="sx-xp-stop" data-stop="1" data-co="Appinventiv" data-say="Four hours commuting with design thoughts"
               data-yr="2017 — 18" data-reveal>
             <p class="sx-xp-when"><span>2017 — 18</span><i>execution</i></p>
             <h3>Appinventiv</h3>
-            <p class="sx-xp-say">Four hours commuting with design thoughts</p>
             <p class="sx-xp-role">UI designer · agency</p>
             <p class="sx-xp-copy">Ecommerce, healthcare, B2B — many clients and a great many
             screens in a single year. Agencies teach you speed because they never give you
             time, and this is where the hands got quick.</p>
           </li>
 
-          <li class="sx-xp-stop" data-stop="2" data-co="Gamezop"
+          <li class="sx-xp-stop" data-stop="2" data-co="Gamezop" data-say="First designer. Only designer."
               data-yr="2018 — 21" data-reveal>
             <p class="sx-xp-when"><span>2018 — 21</span><i>ownership</i></p>
             <h3>Gamezop</h3>
-            <p class="sx-xp-say">First designer. Only designer.</p>
             <p class="sx-xp-role">First designer → design lead</p>
             <p class="sx-xp-copy">Employee-designer number one, and Skillclash built from
             nothing. The jump is not the title — it is going from executing a brief to owning
@@ -1372,11 +1368,10 @@
           <!-- Airtel is half the timeline and the rail says so: the segment
                runs long, its rule is thicker, and it opens into five stints
                rather than closing into one line of summary. -->
-          <li class="sx-xp-stop" data-stop="3" data-co="Airtel"
+          <li class="sx-xp-stop" data-stop="3" data-co="Airtel" data-say="Learned to think, then move"
               data-yr="2021 — now" data-current data-long data-reveal>
             <p class="sx-xp-when"><span>2021 — now</span><i>lead</i></p>
             <h3>Airtel</h3>
-            <p class="sx-xp-say">Learned to think, then move</p>
             <p class="sx-xp-role">Senior → Lead Product Designer</p>
             <p class="sx-xp-copy">Five years and five different jobs inside one company —
             two core products, a nought-to-one, and a practice I ran on my own.</p>
