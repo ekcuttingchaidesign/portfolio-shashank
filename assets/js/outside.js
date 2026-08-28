@@ -103,8 +103,9 @@
     'mascot_say_hi.png': { w: 373, h: 539, contentH: 508, ax: 0.5831, ay: 0.9814 }
   };
 
-  /* The figure's ink height as a share of the block it stands on. */
-  const MASCOT_H = 0.62;
+  /* The figure's ink height as a share of the block it stands on. Measured off
+     the design: the couch is 260 tall against a 509 block. */
+  const MASCOT_H = 0.53;
 
   /* ==========================================================================
      3 · DEPTH TIERS
@@ -152,64 +153,76 @@
 
      Retune with ?edit=1 — drag, then press E to print this array back out. */
   const AMBIENT = [
-    /* approach to the title */
-    { t: -1350, ox:  380, oy: -140, variant: 'amb_3', tier: 'bg'  },
-    { t: -1180, ox: -520, oy:  240, variant: 'amb_4', tier: 'bg'  },
-    { t:  -980, ox:  720, oy:  180, variant: 'amb_2', tier: 'mid', flip: 1 },
-    { t:  -860, ox: -680, oy: -200, variant: 'amb_3', tier: 'bg'  },
-    { t:  -700, ox:  520, oy:  360, variant: 'amb_1', tier: 'mid' },
-    { t:  -520, ox: -520, oy: -300, variant: 'amb_4', tier: 'bg',  flip: 1 },
+    /* Offsets are in the design's own 1920x1080 units, measured off the frame
+       and scaled with the rest of the world. Station one is read straight off
+       the I play screen; two and three keep its composition and its tier mix —
+       a bright slab low and left, a dark one tucked beside the block, bright
+       punctuation out to the right — but not its exact coordinates, because
+       those screens are not in hand yet. Retune with ?edit=1. */
 
-    /* station 1 — I play */
-    { t:  -300, ox:  180, oy: -320, variant: 'amb_3', tier: 'bg'  },
-    { t:  -180, ox:  560, oy: -230, variant: 'amb_2', tier: 'mid' },
-    { t:   -60, ox:  820, oy:  110, variant: 'amb_3', tier: 'mid', flip: 1 },
-    { t:    60, ox: 1010, oy:  -70, variant: 'amb_4', tier: 'bg',  flip: 1 },
-    { t:   150, ox:  430, oy:  270, variant: 'amb_1', tier: 'mid' },
-    { t:   240, ox: -360, oy:  350, variant: 'amb_4', tier: 'bg'  },
-    { t:   330, ox:  660, oy:  430, variant: 'amb_2', tier: 'fg'  },
-    { t:   430, ox: -140, oy:  470, variant: 'amb_3', tier: 'fg',  flip: 1 },
+    /* approach to the title */
+    { t: -1350, ox:  430, oy: -190, variant: 'amb_3', tier: 'bg'    },
+    { t: -1180, ox: -640, oy:  300, variant: 'amb_4', tier: 'bg'    },
+    { t:  -980, ox:  820, oy:  230, variant: 'amb_2', tier: 'mid',  flip: 1 },
+    { t:  -860, ox: -820, oy: -250, variant: 'amb_3', tier: 'bg'    },
+    { t:  -700, ox:  620, oy:  450, variant: 'amb_1', tier: 'stage' },
+    { t:  -520, ox: -640, oy: -360, variant: 'amb_4', tier: 'bg',   flip: 1 },
+
+    /* station 1 — I play, off the design frame */
+    { t:  -300, ox:  180, oy: -380, variant: 'amb_3', tier: 'bg'    },
+    { t:   -80, ox: -200, oy:  515, variant: 'amb_2', tier: 'stage' },
+    { t:   -40, ox:  -69, oy:  142, variant: 'amb_3', tier: 'bg'    },
+    { t:    40, ox:  862, oy: -110, variant: 'amb_3', tier: 'stage' },
+    { t:    80, ox:  846, oy:  290, variant: 'amb_3', tier: 'bg',   flip: 1 },
+    { t:   120, ox:  805, oy:  470, variant: 'amb_2', tier: 'stage' },
+    { t:   160, ox:  235, oy:  540, variant: 'amb_4', tier: 'bg'    },
+    { t:   320, ox: -420, oy:  260, variant: 'amb_4', tier: 'bg'    },
+    { t:   420, ox:  980, oy:  620, variant: 'amb_2', tier: 'fg'    },
 
     /* the gap */
-    { t:   700, ox:  460, oy: -180, variant: 'amb_3', tier: 'bg'  },
-    { t:   950, ox: -420, oy:  200, variant: 'amb_4', tier: 'bg',  flip: 1 },
-    { t:  1180, ox:  700, oy:  300, variant: 'amb_2', tier: 'mid' },
+    { t:   700, ox:  520, oy: -240, variant: 'amb_3', tier: 'bg'    },
+    { t:   950, ox: -520, oy:  300, variant: 'amb_4', tier: 'bg',   flip: 1 },
+    { t:  1180, ox:  840, oy:  380, variant: 'amb_2', tier: 'mid'   },
 
     /* station 2 — I click */
-    { t:  1280, ox:  200, oy: -300, variant: 'amb_4', tier: 'bg'  },
-    { t:  1370, ox:  600, oy: -240, variant: 'amb_3', tier: 'mid', flip: 1 },
-    { t:  1500, ox:  870, oy:   90, variant: 'amb_2', tier: 'mid' },
-    { t:  1600, ox:  400, oy:  290, variant: 'amb_1', tier: 'mid', flip: 1 },
-    { t:  1700, ox: -180, oy:  330, variant: 'amb_3', tier: 'bg'  },
-    { t:  1790, ox:  980, oy: -140, variant: 'amb_4', tier: 'bg'  },
-    { t:  1880, ox:  620, oy:  450, variant: 'amb_2', tier: 'fg',  flip: 1 },
+    { t:  1300, ox:  200, oy: -380, variant: 'amb_4', tier: 'bg'    },
+    { t:  1370, ox: -240, oy:  520, variant: 'amb_2', tier: 'stage' },
+    { t:  1410, ox:  -90, oy:  150, variant: 'amb_3', tier: 'bg',   flip: 1 },
+    { t:  1490, ox:  880, oy: -130, variant: 'amb_3', tier: 'stage' },
+    { t:  1530, ox:  860, oy:  300, variant: 'amb_3', tier: 'bg'    },
+    { t:  1570, ox:  790, oy:  480, variant: 'amb_1', tier: 'stage', flip: 1 },
+    { t:  1620, ox:  250, oy:  560, variant: 'amb_4', tier: 'bg'    },
+    { t:  1790, ox: -440, oy:  270, variant: 'amb_4', tier: 'bg'    },
+    { t:  1880, ox:  940, oy:  640, variant: 'amb_2', tier: 'fg',   flip: 1 },
 
     /* the gap */
-    { t:  2150, ox: -700, oy: -120, variant: 'amb_3', tier: 'bg'  },
-    { t:  2400, ox:  520, oy:  240, variant: 'amb_4', tier: 'bg',  flip: 1 },
-    { t:  2640, ox:  760, oy: -200, variant: 'amb_2', tier: 'mid' },
+    { t:  2150, ox: -760, oy: -300, variant: 'amb_3', tier: 'bg'    },
+    { t:  2400, ox:  600, oy:  320, variant: 'amb_4', tier: 'bg',   flip: 1 },
+    { t:  2640, ox:  860, oy: -260, variant: 'amb_2', tier: 'mid'   },
 
     /* station 3 — I meme */
-    { t:  2740, ox:  240, oy: -330, variant: 'amb_3', tier: 'bg',  flip: 1 },
-    { t:  2830, ox:  580, oy: -210, variant: 'amb_2', tier: 'mid' },
-    { t:  2960, ox:  900, oy:  120, variant: 'amb_3', tier: 'mid' },
-    { t:  3060, ox:  420, oy:  300, variant: 'amb_1', tier: 'mid', flip: 1 },
-    { t:  3150, ox: -350, oy:  360, variant: 'amb_4', tier: 'bg'  },
-    { t:  3260, ox:  680, oy:  440, variant: 'amb_2', tier: 'fg'  },
+    { t:  2760, ox:  230, oy: -390, variant: 'amb_3', tier: 'bg',   flip: 1 },
+    { t:  2830, ox: -210, oy:  505, variant: 'amb_2', tier: 'stage' },
+    { t:  2870, ox:  -80, oy:  135, variant: 'amb_3', tier: 'bg'    },
+    { t:  2950, ox:  870, oy: -120, variant: 'amb_3', tier: 'stage', flip: 1 },
+    { t:  2990, ox:  850, oy:  310, variant: 'amb_3', tier: 'bg'    },
+    { t:  3030, ox:  800, oy:  490, variant: 'amb_2', tier: 'stage' },
+    { t:  3080, ox:  240, oy:  550, variant: 'amb_4', tier: 'bg'    },
+    { t:  3260, ox:  960, oy:  630, variant: 'amb_2', tier: 'fg'    },
 
     /* the thinning — density and tier both drop away, so the world dissolves
        rather than stopping. Nothing at all past 4100. */
-    { t:  3520, ox:  480, oy: -160, variant: 'amb_3', tier: 'mid' },
-    { t:  3700, ox: -400, oy:  220, variant: 'amb_4', tier: 'bg'  },
-    { t:  3880, ox:  640, oy:  280, variant: 'amb_3', tier: 'bg'  },
-    { t:  4060, ox:  300, oy: -120, variant: 'amb_4', tier: 'bg'  },
+    { t:  3520, ox:  560, oy: -200, variant: 'amb_3', tier: 'mid'   },
+    { t:  3700, ox: -500, oy:  280, variant: 'amb_4', tier: 'bg'    },
+    { t:  3880, ox:  780, oy:  340, variant: 'amb_3', tier: 'bg'    },
+    { t:  4060, ox:  360, oy: -150, variant: 'amb_4', tier: 'bg'    },
 
     /* The last block on the page. Full tier where everything around it has
        faded to bg, so it reads as the one thing left rather than as the
-       nearest of many. The spec has a mascot riding it; that figure has not
-       been chosen yet, so it drifts in empty for now. */
-    { t:  4300, ox:  520, oy:  150, variant: 'amb_3', tier: 'stage', last: 1 }
+       nearest of many. It carries the waving figure. */
+    { t:  4300, ox:  700, oy:  200, variant: 'amb_3', tier: 'stage', last: 1 }
   ];
+
 
   /* ==========================================================================
      5 · CAMERA
@@ -396,17 +409,23 @@
   let vw = innerWidth, vh = innerHeight;
   let worldScale = 1, spacing = 1, dropFg = false, thinAmbient = false;
 
+  /* The design frames are authored at 1920x1080 and the blocks are drawn 1:1
+     into them — the master's 715px natural width IS 715px on that canvas, 37%
+     of the frame. So the world scales off 1920, not off 1. Held at 1.0 the
+     same block ate 50% of a 1440 window, which is a different composition
+     wearing the same numbers. */
+  const REF_W = 1920;
+
   /* Where a station's block sits relative to the middle of the frame. Beside
      the copy on a desktop; BELOW it on a phone, which is the whole of the
      spec's "copy moves above the master block rather than beside it" — at
      390px the two were simply landing on top of one another.
 
-     The spec's +40 was written before the blocks had dimensions. Delivered,
-     the master is 715x509 and the figure standing on it reaches 526px above
-     the block's own ground point — 58% of a 900px window — so an origin at
-     the middle of the frame hangs the group's head off the top of it and
-     across the nav. These numbers centre that 526 instead. */
-  let stOx = 280, stOy = 240;
+     Read off the design frame rather than off the spec: the master block's
+     front-bottom vertex sits at (1345, 925) on a 1920x1080 canvas whose centre
+     is (960, 540). Both numbers are therefore in design units and get scaled
+     with the rest of the world. The spec's +280/+40 predates the artwork. */
+  let stOx = 385, stOy = 385;
 
   /* The phone is not the desktop world shrunk. It is the same world at 0.62
      with the fg tier gone — punctuation that covers the copy on a 390px screen
@@ -415,12 +434,17 @@
   function measure() {
     vw = innerWidth; vh = innerHeight;
     const phone = vw <= 720;
-    worldScale = phone ? 0.62 : 1;
+    /* Floors and a ceiling so a narrow laptop does not get a toy world and a
+       5K display does not get a wall. The phone runs the world hotter than the
+       pure ratio would — at 390 that is 0.20, which is unreadable — but cooler
+       than the desktop, which is what the spec's 0.62 was reaching for. */
+    worldScale = phone ? clamp(vw / REF_W * 1.9, .30, .50)
+                       : clamp(vw / REF_W,       .55, 1.15);
     spacing    = phone ? 900 / 1450 : 1;
     dropFg     = phone;
     thinAmbient = phone;
-    stOx = phone ? 0   : 280;
-    stOy = phone ? 420 : 240;
+    stOx = phone ? 0   : 385;
+    stOy = phone ? 340 : 385;
   }
   measure();
 
@@ -651,7 +675,7 @@
       const dd = d * COPY_PARALLAX;
       c.el.style.transform =
         `translate3d(${(dd * ISO.AX * worldScale).toFixed(1)}px,${(dd * ISO.AY * worldScale).toFixed(1)}px,0)` +
-        (vw <= 720 ? ' translateX(-50%)' : '');
+        (vw <= 720 ? ' translate(-50%,-50%)' : ' translateY(-50%)');
     }
 
     /* The title travels at full rate — unlike the station copy, its exit is

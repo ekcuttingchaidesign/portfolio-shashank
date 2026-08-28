@@ -85,14 +85,60 @@ and Pages serves off a case-sensitive filesystem, so `ishoot.png` resolves on a
 Mac and 404s in production. They are spelled exactly as delivered everywhere
 they appear.
 
-## Station placement is derived from the art, not from the spec
+## Built to the design frame
 
-§7.1 gives `ox: +280, oy: +40`. The `+40` was written before the blocks had
-dimensions. Delivered, the master is 715×509 and the figure on it reaches
-**526px above the block's own ground point** — 58% of a 900px window — so an
-origin at the middle of the frame hangs the group's head off the top of the
-screen and across the nav. `stOy` is 240 on desktop and 420 on the phone, which
-centres that 526 instead. `ox: +280` is the spec's and is unchanged.
+The I play screen is the reference, and it is authored **1:1 at 1920×1080** —
+the master block's 715px natural width is 715px on that canvas, 37% of the
+frame. So the world scales off `REF_W = 1920`, not off 1. Held at 1.0 the same
+block ate 50% of a 1440 window: a different composition wearing the same
+numbers.
+
+```
+worldScale = clamp(vw / 1920, .55, 1.15)        desktop
+             clamp(vw / 1920 * 1.9, .30, .50)   phone
+```
+
+Everything positional is now in **design units** and scales with it — the
+`AMBIENT` offsets, and the station offset, which is read straight off the
+frame: the master block's front-bottom vertex sits at `(1345, 925)` against a
+centre of `(960, 540)`, so `stOx +385, stOy +385`. §7.1's `+280/+40` predates
+the artwork.
+
+Type is sized from the design's **ink**, not from a guess at its point size:
+
+| | design | build |
+| --- | --- | --- |
+| `I play` ink width | 202px | 209px |
+| subtext line 1 | 343px | 348px |
+| copy left margin | 165px | 165px |
+
+That put the headline at ~88px — **Bold, not the display Light the rest of the
+page opens with** — and the subtext at 28px on 1.85 leading. Both were sitting
+about a third under, held down by `rem` ceilings in their clamps; worth
+checking any clamp on this page for the same fault, since the middle term only
+wins when the ceiling is above it.
+
+The paragraph's measure is in `em` (12.4 of them), so the line breaks after
+"only" at every window width rather than only at 1920. The copy *container* is
+sized to its content too — at 720px it reached 370px past the longest line, and
+since that box is what the ambient field is kept clear of, the composition was
+being held away from space nothing occupies.
+
+The design also carries several ambient blocks at **full palette**, not a
+uniformly darkened field, so `mid` came up to `brightness(.92)` and `bg` went
+further back to `.34`. The contrast between them now reads as depth rather than
+as a slightly duller green.
+
+## The CTAs are gone
+
+The design shows none under `I play`. §7.4 flagged this exact inconsistency —
+"either add one, or drop both others" — and dropping all three is the half the
+design supports. It is also the only one of the four screens actually in hand,
+so this is the honest reading rather than a preference.
+
+**If the iShoot or iMeme screens do show a CTA, this is wrong and easy to
+reverse** — the `.lw-cta` rule is still in the stylesheet, unused, for exactly
+that.
 
 ## The overlap with the pull-out
 
@@ -191,19 +237,28 @@ The upload also carried `mascot_say_hi.png`, `last_ledge.svg`, and four social
 marks — `dribbble.svg`, `instagram.svg`, `lnkedin.svg` (spelled that way in the
 file), `youtube.svg`.
 
-`mascot_say_hi.png` **is** now in: it is the figure riding the closing block,
-which is what §11 asks for and what nothing else in the delivery could have
-been. The other five are not, because the spec's §11 ends at "Say hello." and
-inventing a contact row under it would be designing rather than building. They
-are sitting in `public/img/` ready. `last_ledge.svg` is worth a look before it
-is used: like `left_ledge.svg` before it, its artwork overflows its declared
-`viewBox` — 443 wide inside a 398 box — so it will need the same crop fix
-`conical_green.svg` had.
+All seven belong to the **Say hello** section, which is a later build.
+
+`mascot_say_hi.png` is currently in use here, riding the closing block, because
+that is precisely what §11 describes and nothing else in the delivery could
+have been it. **That is the one thing in this section standing on someone
+else's ground** — when Say hello is built properly it should absorb or replace
+this whole exit stop. Stripping it back to an empty stage is a one-line change.
+
+The four social marks and `last_ledge.svg` are untouched. `last_ledge.svg` is
+worth a look before it is used: like `left_ledge.svg` before it, its artwork
+overflows its declared `viewBox` — 443 wide inside a 398 box — so it will need
+the same crop fix `conical_green.svg` had.
 
 ## Still open
 
-- Subtext, CTA labels, CTA destinations.
-- Whether the four social marks belong under "Say hello.", and in what form.
+- **The other three design screens.** The Figma MCP quota is spent, so only the
+  I play frame is in hand. `I click` and `I meme` carry copy I wrote and an
+  ambient composition that follows I play's tier mix but not its coordinates;
+  the title card's type is unverified against its own frame. All of it is a
+  screenshot away from being exact.
+- Station two is headed **`I click`** per spec §1, while the Figma screen and
+  the asset are both named *iShoot*.
 - `dwell` vs linear travel between keys (§10) is still the open design
   question the spec flags, and is much easier to judge with real artwork in.
 

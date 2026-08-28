@@ -114,8 +114,8 @@
    overlapping blocks lets the ground show through the overlap and gives away
    that they are flat cutouts; brightness keeps them opaque. `mid` keeps a
    little opacity because it sits over the glow and should take some of it. */
-.lw-tone[data-tier="bg"]    { filter: brightness(.42) saturate(.55); opacity: .45; }
-.lw-tone[data-tier="mid"]   { filter: brightness(.78) saturate(.85); opacity: .75; }
+.lw-tone[data-tier="bg"]    { filter: brightness(.34) saturate(.5);  opacity: .55; }
+.lw-tone[data-tier="mid"]   { filter: brightness(.92) saturate(.95); opacity: .92; }
 .lw-tone[data-tier="stage"] { filter: none; opacity: 1; }
 .lw-tone[data-tier="fg"]    { filter: brightness(.22) saturate(.6); opacity: 1; }
 
@@ -147,30 +147,49 @@
    line of subtext. */
 .lw-copy {
   position: absolute;
-  left: clamp(1.25rem, 5vw, 5rem);
+  /* 165 of 1920 in the design. */
+  left: clamp(1.25rem, 8.6vw, 8.6vw);
   top: 50%;
-  width: min(38ch, 42vw);
+  /* Wide enough never to be what breaks the line — the paragraph's own em
+     measure does that — and no wider, because the box is what the ambient
+     field is kept clear of. At 720 it reached 370px past the longest line and
+     the composition was being held away from space nothing occupies.
+     `ch` here would resolve against the container's inherited 16px and
+     throttle an 88px headline to about 190px of room. */
+  width: min(32vw, 480px);
   color: var(--sx-ink, #F4F1EC);
   z-index: 3;
 }
 .lw-copy h3,
 .lw-stack h3 {
-  margin: 0 0 .5rem;
+  margin: 0 0 1.4rem;
   font-family: var(--sx-sans);
-  font-weight: 300;
-  font-size: clamp(2.4rem, 6vw, 4.6rem);
-  line-height: .96;
+  /* Bold, not the display Light the rest of the page opens with. These three
+     headlines are labels on a scene rather than a title over a page, and the
+     design sets them heavy. */
+  font-weight: 700;
+  /* Sized from the design's ink, not from a guess at its point size: "I play"
+     measures 202px across on the 1920 frame, which puts the face at ~88px.
+     The old 3.5rem ceiling was capping it at 56 and holding the whole column
+     a third under. */
+  font-size: clamp(2.2rem, 4.6vw, 5.5rem);
+  line-height: 1;
   letter-spacing: -.02em;
+  color: #FFFFFF;
 }
 .lw-copy p,
 .lw-stack p {
-  margin: 0 0 1.5rem;
+  margin: 0;
   font-family: var(--sx-sans);
-  font-size: var(--sx-t-lede, 1.1rem);
-  line-height: 1.55;
-  color: var(--sx-ink-2, rgba(244,241,236,.7));
-  max-width: 34ch;
+  font-size: clamp(1rem, 1.46vw, 1.9rem);
+  line-height: 1.85;
+  color: rgba(244,241,236,.88);
+  /* In em, so the measure holds at every size: the design breaks after "only"
+     at 343px on a 28px face, which is 12.4 of them. A ch or px measure would
+     re-break the line at a different window width. */
+  max-width: 12.4em;
 }
+.lw-stack p { margin-bottom: 1.5rem; max-width: 34em; }
 
 /* A real link with a real focus ring. It is reachable by tab in reading order
    whatever the camera is doing, which is the point of keeping the copy in the
@@ -316,13 +335,12 @@
 @media (max-width: 720px) {
   .lw-copy {
     left: 50%;
-    top: 14%;
+    top: 17%;
     width: min(92vw, 46ch);
     transform: translateX(-50%);
     text-align: center;
   }
-  .lw-copy p,
-.lw-stack p { max-width: none; }
+  .lw-copy p { max-width: none; }
   .lw-title h2 { font-size: clamp(2.6rem, 13vw, 4rem); }
   .lw-title .lw-title-tail { font-size: clamp(2.2rem, 11vw, 3.4rem); }
 }
