@@ -103,7 +103,11 @@
        character walking, but here a seated figure on a couch is short BECAUSE
        it is sitting down. Forcing 0.53 on all three shrank both standing
        figures to two thirds of the size the design draws them. */
-    'iplay.png':  { w: 776, h: 631, contentH: 554, ax: 0.4407, ay: 0.9128, h3: 0.53 },
+    /* 0.70, up from the 0.53 the frame measures. Read against the standing
+       figures it was sitting too small — a couch is wider than a person, so
+       matching its ink height to the frame gives it less presence on the block
+       than the other two have on theirs. */
+    'iplay.png':  { w: 776, h: 631, contentH: 554, ax: 0.4407, ay: 0.9128, h3: 0.70 },
     'iShoot.png': { w: 701, h: 728, contentH: 698, ax: 0.6683, ay: 0.9712, h3: 0.90 },
     'iMeme.png':  { w: 716, h: 783, contentH: 698, ax: 0.6425, ay: 0.9298, h3: 0.90 }
   };
@@ -527,21 +531,10 @@
     reveal = r;
     stage.style.opacity = r >= .999 ? '' : r.toFixed(3);
 
-    /* Through the overlap the stage's top edge is still descending the screen,
-       and the glow is clipped along it — measured at 3.5 to 9 luma against the
-       black the film ends on, which reads as a panel sliding up over the video
-       rather than the video becoming the page. So the edge is dissolved rather
-       than cut, over a band that shrinks as the world arrives.
-
-       The two cancel exactly, and not by luck: the scroll overlap is 40% of
-       the film's travel and the reveal ramp spans pExit 0.60 to 1.00, which is
-       the same 40%. The band is therefore 0 at precisely the moment the edge
-       reaches the top of the window and stops being an edge. Cleared at full
-       strength so the traversal proper carries no mask layer. */
-    const band = Math.round((1 - r) * 180);
-    const mask = r >= .999 ? '' : `linear-gradient(to bottom, transparent 0, #000 ${band}px)`;
-    stage.style.maskImage = mask;
-    stage.style.webkitMaskImage = mask;
+    /* A pinned stage still covering the window at opacity 0 would swallow
+       pointer events above the section, so it is taken out of the page
+       entirely until it has something to show. */
+    stage.style.visibility = r <= .001 ? 'hidden' : '';
     /* Published as well as applied. The number is the section's state — worth
        being able to read off the element in devtools and to hang a CSS rule on
        later — and keeping one function as the only writer is what stops the
@@ -705,15 +698,27 @@
         (vw <= 720 ? ' translateX(-50%)' : '');
     }
 
-    /* The title travels at full rate — unlike the station copy, its exit is
-       the section's opening move and it should leave properly. */
+    /* The title is NOT on the travel axis, and that is the point.
+
+       §9 puts it at full parallax, which made it one more thing sliding down
+       and left with the blocks — the desk finished turning and the type was
+       already leaving on the same vector as the scenery. It is a separate
+       entity: the desk rotates, the type arrives from the left, and the world
+       is revealed behind it. Two things happening at once, not one thing
+       moving.
+
+       So entry is driven by the FILM (reveal), not by the camera, and it is a
+       straight horizontal move. Only the exit is the camera's, once it has
+       pushed past the title stop toward I play. */
     if (titleEl) {
-      const d = (-900 * spacing - camT);
-      const op = 1 - clamp((Math.abs(d) - 420 * spacing) / (460 * spacing), 0, 1);
+      const past = camT - (-900 * spacing);
+      const out  = 1 - clamp((past - 260 * spacing) / (520 * spacing), 0, 1);
+      const op   = reveal * out;
       titleEl.style.opacity = op.toFixed(3);
       titleEl.style.visibility = op < .005 ? 'hidden' : '';
+      const slide = -260 * (1 - reveal) - 110 * (1 - out);
       titleEl.style.transform =
-        `translateY(-50%) translate3d(${(d * ISO.AX * worldScale).toFixed(1)}px,${(d * ISO.AY * worldScale).toFixed(1)}px,0)`;
+        `translateY(-50%) translate3d(${slide.toFixed(1)}px,0,0)`;
     }
 
     if (exitEl) {

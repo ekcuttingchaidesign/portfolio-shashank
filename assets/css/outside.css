@@ -31,12 +31,25 @@
 }
 
 .lw-stage {
-  position: sticky; top: 0;
-  height: 100vh;
-  /* The glow is 5580px across. Without a clip here it is not the seam that
-     bites, it is horizontal overflow: measured at a 390px viewport the page
-     laid out at 1560 and scrolled sideways. A clipped edge is a visual
-     problem; a sideways-scrolling phone is a broken one. */
+  /* Pinned to the WINDOW, not stuck to the section.
+
+     Sticky meant the stage was clipped by the section's own top edge, and that
+     edge is still descending the screen through the whole reveal — measured,
+     it does not reach y=0 until pExit 1.05, a full frame after the film ends.
+     So the world arrived through a horizontal line travelling upward: a sheet
+     sliding in from the bottom, which is the opposite of the desk turning to
+     reveal what was behind it.
+
+     Widening the scroll overlap would also uncover the frame, but it buys that
+     by spending the camera: at 83% the edge clears in time and a fifth of the
+     ledge timeline is gone before the film even stops, so the title stop would
+     be leaving as the desk settles. Pinning costs nothing — through the
+     overlap the section has barely begun to scroll, so a fixed stage and a
+     stuck one differ only in that this one fills the frame.
+
+     Still clipped: the glow is 3360px across and without `overflow` here a
+     390px viewport lays out at 1560 and scrolls sideways. */
+  position: fixed; inset: 0;
   overflow: hidden;
   isolation: isolate;
 }
@@ -261,7 +274,8 @@
 .lw-serif {
   display: block;
   font-style: italic;
-  font-size: clamp(2rem, 3.6vw, 4.6rem);
+  /* 80px on the 1920 frame. */
+  font-size: clamp(2rem, 4.17vw, 5rem);
   line-height: 1.08;
   /* A warm gradient rather than the flat amber the spec reserved — the design
      runs it from a saturated peach into an almost-white at the end of the
@@ -277,19 +291,23 @@
   .lw-serif { background: none; -webkit-text-fill-color: currentColor; }
 }
 
+/* NOT the serif — Satoshi Black at 160px on the 1920 frame. The two halves of
+   this title are deliberately two different voices, and only the top one is
+   the serif. That also retires a synthetic bold: Instrument Serif ships one
+   weight, so the heavy numerals had been the browser thickening a roman.
+   Satoshi Black is a real cut, and its italic is too, which is what "to" is
+   set in. */
 .lw-title .lw-title-tail {
   display: block;
-  font-size: clamp(3.4rem, 7.8vw, 9.4rem);
+  font-family: var(--sx-sans);
+  font-weight: 900;
+  font-size: clamp(3rem, 8.33vw, 10rem);
   line-height: 1.02;
+  letter-spacing: -.02em;
   color: var(--sx-ink, #F4F1EC);
 }
-/* Numerals upright, heavy, and the joining word italic — the design sets 9 and
-   5 as figures and "to" as an aside between them at about half their size.
-   Instrument Serif ships one weight, so 700 here is the browser's synthesis.
-   At 150px that reads as the design's weight; at a text size it would not, and
-   this is the only place on the site that asks for it. */
-.lw-title .lw-num { font-style: normal; font-weight: 700; }
-.lw-title .lw-to  { font-style: italic; font-size: .52em; padding: 0 .12em; }
+.lw-title .lw-num { font-style: normal; }
+.lw-title .lw-to  { font-style: italic; font-size: .5em; padding: 0 .1em; }
 
 /* --- EXIT ------------------------------------------------------------------
    The world has thinned to nothing by here and the plaque is the last thing on

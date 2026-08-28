@@ -156,7 +156,7 @@ Ink height as a share of the block they stand on, measured per frame:
 
 | | | |
 | --- | --- | --- |
-| `iplay` | seated on a couch | 0.53 |
+| `iplay` | seated on a couch | 0.70 |
 | `iShoot` | standing | 0.90 |
 | `iMeme` | standing | 0.90 |
 
@@ -166,6 +166,11 @@ character walking, so a common height is what keeps him from resizing between
 poses. These are three different poses of which one is **sitting down**, and it
 is short because it is sitting down. Normalising shrank both standing figures
 to two thirds of the size the design draws them.
+
+`iplay` is then carried past its measured 0.53 to **0.70** on purpose. A couch
+is wider than a person, so matching its ink height to the frame left it with
+less presence on its block than the other two have on theirs; it read as the
+small one of the three.
 
 ## The title card
 
@@ -201,27 +206,57 @@ ones simply arrive nearer their own stop. `stage` and `fg` get 620, `bg` and
 
 ## The overlap with the pull-out
 
-Two independent knobs, because they answer two different questions.
+The world does not slide in. The desk turns, and what was behind it is there.
 
-**Scroll.** `#outside-work` is pulled up over the tail of `#s-exit` by 40% of
-that section's travel, so the two share that stretch and the camera has already
-left its first key by the time the desk stops turning. The world reads the
+**The stage is pinned to the window** (`position: fixed`), not stuck to its
+section. Sticky meant the stage was clipped by the section's own top edge, and
+that edge is still descending the screen through the entire reveal — measured,
+it does not reach `y=0` until `pExit 1.05`, a full frame after the film ends.
+So the world arrived through a horizontal line travelling upward: a sheet
+coming up from the bottom, which is the opposite of the intended read.
+
+Widening the scroll overlap also uncovers the frame, but pays for it with the
+camera — at 83% the edge clears in time and a fifth of the ledge timeline is
+gone before the film stops, so the title stop would be leaving as the desk
+settles. Pinning costs nothing: through the overlap the section has barely
+begun to scroll, so a fixed stage and a stuck one differ only in that this one
+fills the frame.
+
+A pinned stage covering the window at opacity 0 would swallow pointer events
+for the whole page above it, so it is `visibility: hidden` until it has
+something to show. Verified across the full 23,800px document: no leak at any
+scroll position above the section.
+
+Two knobs drive the arrival, and they answer different questions.
+
+**Scroll.** The section is pulled up over the tail of `#s-exit` by 40% of that
+section's travel, so the two share that stretch of scroll. The world reads the
 film's height itself; the landing engine is never asked to know about it.
 
 **Reveal.** The landing engine hands over the film's own scrub position —
 `window.SX.ledge(pExit)`, the same shape as the `SX.hero` and `SX.dust` hooks
 beside it. The ramp runs `pExit 0.60 → 1.00`, which puts the world at **25%
-revealed when the film is 70% scrubbed**, which was the brief. Measured at
-1440×900: `pExit 0.700 → reveal 26.1%`.
+revealed when the film is 70% scrubbed**. Measured at 1440×900:
+`pExit 0.700 → reveal 26.1%`.
 
-The two spans are deliberately the same 40% of travel, and one thing depends on
-it: through the overlap the stage's top edge is still descending the screen and
-the glow is clipped along it, which measured 3.5–9.0 luma against the black the
-film ends on — a panel sliding up over the video, which is the one thing the
-ground under this page is black to avoid. A mask band shrinking with the reveal
-dissolves that edge, and reaches zero exactly when the edge reaches the top of
-the window and stops being an edge. Retune one span and the other has to move
-with it.
+## The title is a separate entity
+
+§9 puts the title card at full parallax, and that was wrong for what this
+moment is. On the axis it became one more thing sliding down and left with the
+blocks — the desk finished turning and the type was already leaving on the same
+vector as the scenery.
+
+Two things happen at once instead. The desk rotates; the type arrives **from
+the left**, horizontally, on no axis at all; the world is revealed behind it.
+So the title's entry is driven by the **film** (`reveal`), not by the camera,
+and only its exit belongs to the camera, once that has pushed past the title
+stop toward `I play`.
+
+Its type is the one place two voices meet: `My life beyond` is **Instrument
+Serif italic at 80px**, and `9 to 5` is **Satoshi Black at 160px** with its
+`to` in the real Black Italic. That also retired a synthetic bold — Instrument
+Serif ships one weight, so an earlier pass had the browser thickening a roman
+to get heavy numerals. Both cuts here are real.
 
 ## The glow is a gradient, not a blur
 
