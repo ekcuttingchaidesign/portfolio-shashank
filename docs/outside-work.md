@@ -299,6 +299,19 @@ in unison, with amplitude falling by tier — a far object moving as far as a
 near one *is* a near one. Translation only: rotating an isometric block turns
 its faces off the ground plane.
 
+**The first pass of this was invisible**, and the test that passed it was the
+problem: it asked "did the transform string change", which is true of sub-pixel
+motion. Measured properly the blocks were travelling one to three pixels a
+second through a 13-second cycle. The periods are 4.6s and 6.1s now, with 7 to
+16px of travel, and the check measures real on-screen displacement — 14 to 32px
+over five seconds.
+
+Running the loop every frame also put `style.width` on the frame path, which is
+not a compositor property. It is cached and written only on change. Layout is
+still one pass per frame — reading the section's rect after the previous
+frame's writes forces that, and at 24ms per 3s it is not worth restructuring
+the loop to avoid.
+
 The block a mascot stands on does not move. A figure bobbing on its own plinth
 reads as a mistake rather than as weightlessness.
 

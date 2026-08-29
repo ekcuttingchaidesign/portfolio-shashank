@@ -120,11 +120,14 @@
      depth opacity and entrance opacity can never overwrite one another.
      ====================================================================== */
   const TIER = {
-    bg:    { parallax: 0.35, scale: 0.55, float: 2.5 },
-    mid:   { parallax: 0.70, scale: 0.80, float: 4.0 },
-    near:  { parallax: 0.85, scale: 0.92, float: 5.0 },
-    stage: { parallax: 1.00, scale: 1.00, float: 0   },
-    fg:    { parallax: 1.60, scale: 1.25, float: 6.5 }
+    bg:    { parallax: 0.35, scale: 0.55, float:  7 },
+    mid:   { parallax: 0.70, scale: 0.80, float: 11 },
+    near:  { parallax: 0.85, scale: 0.92, float: 14 },
+    /* The title's slab is stage tier and has nothing standing on it, so it
+       drifts too; the station masters are held still by their own flag
+       below, not by their tier. */
+    stage: { parallax: 1.00, scale: 1.00, float:  9 },
+    fg:    { parallax: 1.60, scale: 1.25, float: 16 }
   };
 
   /* Copy drifts at 0.30x. The axis carries things down and to the left, so the
@@ -143,7 +146,13 @@
      a near one is a near object. Translation only — rotating an isometric
      block turns its faces off the ground plane, which is the same reason the
      mirrored blocks below had to go. */
-  const FLOAT_A = 0.00047, FLOAT_B = 0.00061;
+  /* Periods of about 4.6s and 6.1s. The first pass ran these at 13s and 10s
+     with 2-5px of travel, which works out to one to three pixels a second —
+     genuinely animating, and far too slow and too small for anyone to see it.
+     A hover has to be perceptible within a glance or it is just a static
+     block. Vertical dominates; the horizontal component is a quarter of it,
+     there to stop the motion reading as a lift rather than a drift. */
+  const FLOAT_A = 0.001366, FLOAT_B = 0.00103, FLOAT_X = 0.28;
 
   /* ==========================================================================
      4 · THE WORLD
@@ -713,9 +722,12 @@
              one to the projection's ratio. Side = W/sqrt(2) so the horizontal
              diagonal comes out at W. */
           const w = bw * .34, side = w / Math.SQRT2;
-          n.shadow.style.width  = side + 'px';
-          n.shadow.style.height = side + 'px';
-          n.shadow.style.transform = `rotate(45deg) scaleY(${ISO_RATIO.toFixed(4)})`;
+          if (n.lastW !== side) {
+            n.shadow.style.width  = side + 'px';
+            n.shadow.style.height = side + 'px';
+            n.shadow.style.transform = `rotate(45deg) scaleY(${ISO_RATIO.toFixed(4)})`;
+            n.lastW = side;
+          }
           n.el.style.transform =
             `translate3d(${(x - side / 2).toFixed(1)}px,${(y - side / 2).toFixed(1)}px,0)`;
           n.el.style.opacity = (e * .30).toFixed(3);
@@ -730,7 +742,7 @@
         const k  = M ? (bh * M.h3) / M.contentH : (bh * MASCOT_H) / 600;
         const mw = (M ? M.w : 240) * k;
         const mh = (M ? M.h : 320) * k;
-        n.el.style.width = mw + 'px';
+        if (n.lastW !== mw) { n.el.style.width = mw + 'px'; n.lastW = mw; }
         n.el.style.transform =
           `translate3d(${(x - (M ? M.ax : .5) * mw).toFixed(1)}px,` +
           `${(y - (M ? M.ay : .96) * mh).toFixed(1)}px,0)` +
@@ -750,11 +762,20 @@
          place on a beat, and a phase from its own index so the field does not
          pulse together. The block a mascot stands on does not move: a figure
          bobbing on its own plinth reads as a mistake, not as weightlessness. */
-      const fa = still ? 0 : (tier.float || 0) * worldScale;
-      const fx = fa ? Math.cos(now * FLOAT_B + n.phase * 1.7) * fa * .55 : 0;
+      /* Anything a mascot stands on is pinned. `assemble` marks exactly the
+         station masters, so the flag is the same one that decides which block
+         folds itself together — there is only ever one kind of block with a
+         figure on it. */
+      const fa = (still || n.assemble) ? 0 : (tier.float || 0) * worldScale;
+      const fx = fa ? Math.cos(now * FLOAT_B + n.phase * 1.7) * fa * FLOAT_X : 0;
       const fy = fa ? Math.sin(now * FLOAT_A + n.phase) * fa : 0;
 
-      n.el.style.width = w + 'px';
+      /* Width is not a compositor property — writing it invalidates layout for
+         the node. That was survivable while the loop only ran on scroll; with
+         the drift running it every frame it put layout on the critical path
+         (measured: 65 layouts in 3s, about one per frame). It only ever
+         changes on resize, so it is written only when it actually changes. */
+      if (n.lastW !== w) { n.el.style.width = w + 'px'; n.lastW = w; }
       n.el.style.transform =
         `translate3d(${(px + fx).toFixed(1)}px,${(py + fy).toFixed(1)}px,0)` +
         (n.assembles ? '' : ` translateY(${((1 - e) * 26).toFixed(1)}px)`);
