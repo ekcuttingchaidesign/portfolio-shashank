@@ -292,7 +292,7 @@ this file started. §4.1 pushes brightness precisely so overlapping blocks stay
 opaque, and that is still true; the field is composed to keep overlaps rare
 rather than to hide them behind a filter.
 
-## Everything but the master block floats
+## Everything floats, master blocks included
 
 Two unequal periods per node and a phase from its own index, so nothing pulses
 in unison, with amplitude falling by tier — a far object moving as far as a
@@ -302,9 +302,9 @@ its faces off the ground plane.
 **The first pass of this was invisible**, and the test that passed it was the
 problem: it asked "did the transform string change", which is true of sub-pixel
 motion. Measured properly the blocks were travelling one to three pixels a
-second through a 13-second cycle. The periods are 4.6s and 6.1s now, with 7 to
-16px of travel, and the check measures real on-screen displacement — 14 to 32px
-over five seconds.
+second through a 13-second cycle. The periods are 3.8s and 5.1s now, with 14 to
+30px of amplitude, and the check measures real on-screen displacement — 28 to
+60px of travel over five seconds.
 
 Running the loop every frame also put `style.width` on the frame path, which is
 not a compositor property. It is cached and written only on change. Layout is
@@ -312,8 +312,18 @@ still one pass per frame — reading the section's rect after the previous
 frame's writes forces that, and at 24ms per 3s it is not worth restructuring
 the loop to avoid.
 
-The block a mascot stands on does not move. A figure bobbing on its own plinth
-reads as a mistake rather than as weightlessness.
+The master blocks drift too. The catch is that a block, the figure standing on
+it and that figure's contact shadow are three nodes drawing one object, so they
+have to move by **exactly** the same offset — anything less and the figure
+walks off its own plinth over a few cycles. They share one phase and go through
+one `floatOf()`, and the check measures the mascot-to-block gap over five
+seconds: the block travels 32px while the gap varies by 0.1px, which is the
+`toFixed(1)` rounding and nothing else.
+
+*That check was initially wrong too*, and passed a failure: it picked "the
+widest painting node" as the master and got the title card's slab, which floats
+on its own phase. A mascot's master is its immediately preceding sibling — the
+trio is built shadow, block, mascot.
 
 This is the only thing here that moves without the scroll moving, so it is the
 only reason the loop cannot park. It runs while the section is on screen and

@@ -120,14 +120,14 @@
      depth opacity and entrance opacity can never overwrite one another.
      ====================================================================== */
   const TIER = {
-    bg:    { parallax: 0.35, scale: 0.55, float:  7 },
-    mid:   { parallax: 0.70, scale: 0.80, float: 11 },
-    near:  { parallax: 0.85, scale: 0.92, float: 14 },
-    /* The title's slab is stage tier and has nothing standing on it, so it
-       drifts too; the station masters are held still by their own flag
-       below, not by their tier. */
-    stage: { parallax: 1.00, scale: 1.00, float:  9 },
-    fg:    { parallax: 1.60, scale: 1.25, float: 16 }
+    bg:    { parallax: 0.35, scale: 0.55, float: 14 },
+    mid:   { parallax: 0.70, scale: 0.80, float: 20 },
+    near:  { parallax: 0.85, scale: 0.92, float: 26 },
+    /* Stage drifts too now, master blocks included — the figure and its
+       shadow ride along on the same phase, so nothing comes unstuck. A little
+       under the others because it carries the subject. */
+    stage: { parallax: 1.00, scale: 1.00, float: 16 },
+    fg:    { parallax: 1.60, scale: 1.25, float: 30 }
   };
 
   /* Copy drifts at 0.30x. The axis carries things down and to the left, so the
@@ -152,7 +152,23 @@
      A hover has to be perceptible within a glance or it is just a static
      block. Vertical dominates; the horizontal component is a quarter of it,
      there to stop the motion reading as a lift rather than a drift. */
-  const FLOAT_A = 0.001366, FLOAT_B = 0.00103, FLOAT_X = 0.28;
+  const FLOAT_A = 0.001653, FLOAT_B = 0.001232, FLOAT_X = 0.28;
+
+  /* The drift, as a function of a node's phase and its tier's amplitude.
+
+     It is a function rather than three lines inline because the master block,
+     the figure standing on it and that figure's contact shadow have to move by
+     EXACTLY the same offset — share a phase and they compute the same number
+     here, and the figure stays glued to its plinth. Anything less exact and
+     the mascot slowly walks off the block over a few cycles. */
+  function floatOf(n, now) {
+    const a = (TIER[n.tier].float || 0) * worldScale;
+    if (!a || still) return FLOAT_NONE;
+    FLOAT_OUT.x = Math.cos(now * FLOAT_B + n.phase * 1.7) * a * FLOAT_X;
+    FLOAT_OUT.y = Math.sin(now * FLOAT_A + n.phase) * a;
+    return FLOAT_OUT;
+  }
+  const FLOAT_NONE = { x: 0, y: 0 }, FLOAT_OUT = { x: 0, y: 0 };
 
   /* ==========================================================================
      4 · THE WORLD
@@ -416,13 +432,17 @@
   AMBIENT.forEach((a, i) => addBlock(
     Object.assign({ kind: 'block', win: AMB_WIN[a.tier] || 1400, ai: i }, a)));
 
-  STATIONS.forEach(st => {
+  STATIONS.forEach((st, i) => {
     const m = BLOCKS[st.master];
-    addShadow({ t: st.t, ox: 280, oy: 40, tier: 'stage', station: st.id, delay: .12, master: m });
+    /* One phase for the block, the figure on it and its shadow. They are three
+       nodes drawing one object, and the drift has to be identical across all
+       three or the figure walks off its own plinth. */
+    const ph = i * 2.399;
+    addShadow({ t: st.t, ox: 280, oy: 40, tier: 'stage', station: st.id, delay: .12, master: m, phase: ph });
     addBlock({ t: st.t, ox: 280, oy: 40, tier: 'stage', variant: st.master,
-               station: st.id, assemble: true, win: 520, delay: 0 });
+               station: st.id, assemble: true, win: 520, delay: 0, phase: ph });
     addMascot({ t: st.t, ox: 280, oy: 40, tier: 'stage', kind: 'mascot',
-                file: st.mascot, station: st.id, delay: .12, win: 520, master: m });
+                file: st.mascot, station: st.id, delay: .12, win: 520, master: m, phase: ph });
   });
 
   /* §11 has a figure riding the closing block. It is NOT drawn here:
@@ -711,10 +731,13 @@
         if (!m.ridge) continue;                    // nothing to stand on
         const dM = (n.t * spacing - camT) *
                    (n.kind === 'mascot' ? MASCOT_PARALLAX : TIER.stage.parallax);
+        /* Same phase as the block, so the same offset: the figure rides its
+           plinth rather than hovering independently over it. */
+        const fl = floatOf(n, now);
         x = cx + dM * ISO.AX * worldScale + nox * worldScale
-              + (m.ridge.x - m.origin.x) * bw;
+              + (m.ridge.x - m.origin.x) * bw + fl.x;
         y = cy + dM * ISO.AY * worldScale + noy * worldScale
-              + (m.ridge.y - m.origin.y) * bh;
+              + (m.ridge.y - m.origin.y) * bh + fl.y;
 
         if (n.kind === 'shadow') {
           /* A rhombus matching the ground plane, built from a square: rotate
@@ -762,13 +785,8 @@
          place on a beat, and a phase from its own index so the field does not
          pulse together. The block a mascot stands on does not move: a figure
          bobbing on its own plinth reads as a mistake, not as weightlessness. */
-      /* Anything a mascot stands on is pinned. `assemble` marks exactly the
-         station masters, so the flag is the same one that decides which block
-         folds itself together — there is only ever one kind of block with a
-         figure on it. */
-      const fa = (still || n.assemble) ? 0 : (tier.float || 0) * worldScale;
-      const fx = fa ? Math.cos(now * FLOAT_B + n.phase * 1.7) * fa * FLOAT_X : 0;
-      const fy = fa ? Math.sin(now * FLOAT_A + n.phase) * fa : 0;
+      const fl = floatOf(n, now);
+      const fx = fl.x, fy = fl.y;
 
       /* Width is not a compositor property — writing it invalidates layout for
          the node. That was survivable while the loop only ran on scroll; with
