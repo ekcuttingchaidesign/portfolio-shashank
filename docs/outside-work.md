@@ -156,7 +156,7 @@ Ink height as a share of the block they stand on, measured per frame:
 
 | | | |
 | --- | --- | --- |
-| `iplay` | seated on a couch | 0.70 |
+| `iplay` | seated on a couch | 0.82 |
 | `iShoot` | standing | 0.90 |
 | `iMeme` | standing | 0.90 |
 
@@ -167,7 +167,7 @@ poses. These are three different poses of which one is **sitting down**, and it
 is short because it is sitting down. Normalising shrank both standing figures
 to two thirds of the size the design draws them.
 
-`iplay` is then carried past its measured 0.53 to **0.70** on purpose. A couch
+`iplay` is then carried past its measured 0.53 to **0.82** on purpose. A couch
 is wider than a person, so matching its ink height to the frame left it with
 less presence on its block than the other two have on theirs; it read as the
 small one of the three.
@@ -248,15 +248,73 @@ vector as the scenery.
 
 Two things happen at once instead. The desk rotates; the type arrives **from
 the left**, horizontally, on no axis at all; the world is revealed behind it.
-So the title's entry is driven by the **film** (`reveal`), not by the camera,
-and only its exit belongs to the camera, once that has pushed past the title
-stop toward `I play`.
+The entry is driven by the **film** (`reveal`), not the camera, and held back
+by `TITLE_DELAY` — driven straight off the reveal the type raced the rotation
+instead of landing into the space it opens. Only the exit belongs to the
+camera, once that has pushed past the title stop toward `I play`.
 
-Its type is the one place two voices meet: `My life beyond` is **Instrument
-Serif italic at 80px**, and `9 to 5` is **Satoshi Black at 160px** with its
-`to` in the real Black Italic. That also retired a synthetic bold — Instrument
-Serif ships one weight, so an earlier pass had the browser thickening a roman
-to get heavy numerals. Both cuts here are real.
+### It rides a real spring
+
+The entrance is scrubbed, so a time-based Motion animation cannot drive it —
+that would not play backwards when you scroll up. What Motion *can* give is the
+curve. `Motion.spring({ stiffness: 190, damping: 17 })` is sampled once across
+its own settling time (820ms) into a 160-entry lookup, and the scrub then rides
+real spring physics instead of a cubic. It overshoots to ~1.08 and settles,
+which is what makes the words arrive with weight rather than just sliding.
+
+The line is split into six word tokens at runtime — three serif, then `9`,
+`to`, `5` — and each lands on a stagger, carrying `x`, `rotate`, `scale`,
+`opacity` and a blur that clears ahead of the movement so a word is legible
+while it is still settling. The filter is dropped entirely once sharp; left on,
+it keeps the token rasterising through its own layer for the rest of the
+section. Falls back to a back-ease of comparable overshoot if the library did
+not load.
+
+*One trap:* the words have to be `inline-block` to be transformable, and
+`background-clip: text` on the parent does **not** reach an inline-block
+child's glyphs. The serif line inherited a transparent fill with nothing
+painting through it and vanished completely. The gradient now lives on each
+word, with JS sizing it to the line width and offsetting it by the word's own
+left edge, so three paints still read as one sweep.
+
+## Depth is a ladder, and only the master block is at full
+
+| tier | opacity | role |
+| --- | --- | --- |
+| `stage` | 100% | the block a mascot stands on, and the title's own slab |
+| `near` | 68% | the bright field immediately around it |
+| `mid` | 36% | behind that |
+| `bg` | 15% | far field |
+| `fg` | 100%, near-black | punctuation crossing the bottom of frame |
+
+Opacity carries most of it now and brightness only trims — the reverse of how
+this file started. §4.1 pushes brightness precisely so overlapping blocks stay
+opaque, and that is still true; the field is composed to keep overlaps rare
+rather than to hide them behind a filter.
+
+## Everything but the master block floats
+
+Two unequal periods per node and a phase from its own index, so nothing pulses
+in unison, with amplitude falling by tier — a far object moving as far as a
+near one *is* a near one. Translation only: rotating an isometric block turns
+its faces off the ground plane.
+
+The block a mascot stands on does not move. A figure bobbing on its own plinth
+reads as a mistake rather than as weightlessness.
+
+This is the only thing here that moves without the scroll moving, so it is the
+only reason the loop cannot park. It runs while the section is on screen and
+stops the moment it is not. **`?still=1` freezes it** — which is what lets the
+reversibility check compare transforms at a scroll position rather than at an
+instant, and what to reach for when judging a composition.
+
+## No mirrored blocks
+
+`flip` is gone. Mirroring an isometric block with `scaleX(-1)` mirrors the
+projection with it: the faces end up lit for the opposite axis and the block
+visibly stops travelling along the same line as everything else. §5 offers it
+"for variety" and it is not variety, it is a block facing the wrong way.
+Variety comes from the four variants and the tiers.
 
 ## The glow is a gradient, not a blur
 
@@ -346,6 +404,12 @@ beat until Say hello absorbs this stop. `last_ledge.svg` is
 worth a look before it is used: like `left_ledge.svg` before it, its artwork
 overflows its declared `viewBox` — 443 wide inside a 398 box — so it will need
 the same crop fix `conical_green.svg` had.
+
+## Reduced motion has its own heading
+
+The only `h2` lives inside the stage, and the stage is `display: none` under
+reduced motion — so the stack, which *is* the whole section there, was reading
+with no heading at all. It carries its own now.
 
 ## Still open
 

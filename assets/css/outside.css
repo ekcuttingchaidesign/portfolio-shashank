@@ -1,8 +1,8 @@
 /* ============================================================================
    Outside Work — "Ledge World".
 
-   A sticky stage with a camera travelling one fixed isometric axis past four
-   stops. Namespaced `lw-`, and kept out of sections.css for the same reason
+   A stage pinned to the window, with a camera travelling one fixed isometric
+   axis past four stops. Namespaced `lw-`, and kept out of sections.css for the same reason
    that file was kept out of the landing page: the two never share a selector,
    so neither can surprise the other.
 
@@ -129,14 +129,17 @@
 .lw-node > .lw-tone { display: block; }
 .lw-node svg { display: block; overflow: visible; }
 
-/* Brightness rather than opacity for the far and near tiers. Pure opacity on
-   overlapping blocks lets the ground show through the overlap and gives away
-   that they are flat cutouts; brightness keeps them opaque. `mid` keeps a
-   little opacity because it sits over the glow and should take some of it. */
-.lw-tone[data-tier="bg"]    { filter: brightness(.34) saturate(.5);  opacity: .55; }
-.lw-tone[data-tier="mid"]   { filter: brightness(.92) saturate(.95); opacity: .92; }
+/* A ladder, with only the block a mascot stands on at full strength. Anything
+   the eye could mistake for the subject is stepped back: near behind it, mid
+   behind that, bg further still. Opacity carries most of it and brightness
+   only trims — the reverse of how this file started. The spec pushes
+   brightness so overlapping blocks stay opaque, and that is still true, so the
+   field is composed to keep overlaps rare rather than to hide them. */
+.lw-tone[data-tier="bg"]    { filter: brightness(.70) saturate(.55); opacity: .15; }
+.lw-tone[data-tier="mid"]   { filter: brightness(.85) saturate(.85); opacity: .36; }
+.lw-tone[data-tier="near"]  { filter: brightness(.95) saturate(.95); opacity: .68; }
 .lw-tone[data-tier="stage"] { filter: none; opacity: 1; }
-.lw-tone[data-tier="fg"]    { filter: brightness(.22) saturate(.6); opacity: 1; }
+.lw-tone[data-tier="fg"]    { filter: brightness(.22) saturate(.6);  opacity: 1; }
 
 /* Culled nodes skip paint entirely. Cheaper than opacity:0 once there are a
    hundred inline SVGs on the stage, and the spec's real risk is paint. */
@@ -254,8 +257,9 @@
   position: absolute;
   /* Left aligned at 250 of 1920, not centred — the earlier build had it in the
      middle of the frame, which is a different composition. */
-  /* Top-anchored like the station copy, and for the same reason. */
-  left: 13vw; top: 36%;
+  /* Top-anchored like the station copy, and for the same reason. Lowered from
+     36% so the two lines read as centred in the frame rather than high in it. */
+  left: 13vw; top: 42%;
   width: min(56vw, 900px);
   text-align: left;
   z-index: 3;
@@ -265,6 +269,21 @@
   font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
   font-weight: 400;
   letter-spacing: 0;
+}
+
+/* Each word is its own token so they can arrive on a stagger. inline-block
+   because a transform does nothing to an inline box; the origin is the left
+   edge so the small rotation swings in from that side rather than pivoting
+   about the word's middle. Italic overhangs its box, so a little padding keeps
+   the blur from being clipped on the way in. */
+.lw-title .lw-w,
+.lw-title .lw-num,
+.lw-title .lw-to {
+  display: inline-block;
+  transform-origin: 0% 60%;
+  padding: 0 .04em;
+  margin: 0 -.04em;
+  will-change: transform, opacity, filter;
 }
 
 /* The one serif on the site, and the italic is the real one — ital@1 is now
@@ -282,13 +301,25 @@
      line. Painted through the text, so the fallback below matters: a browser
      without background-clip gets the amber, not an invisible headline. */
   color: var(--lw-amber, #D08544);
-  background: linear-gradient(96deg, #E2865A 0%, #F0A47C 42%, #F8DDCB 100%);
+}
+
+/* The gradient lives on each WORD, not on the line.
+
+   It has to: the words are inline-block so they can be transformed, and
+   `background-clip: text` on the parent does not reach an inline-block child's
+   glyphs — the line inherited a transparent fill with nothing painting through
+   it and disappeared entirely. Each word therefore carries the gradient
+   itself, and JS sizes it to the line's width and offsets it by the word's own
+   position, so three separate paints still read as one continuous sweep. */
+.lw-serif .lw-w {
+  background-image: linear-gradient(96deg, #E2865A 0%, #F0A47C 42%, #F8DDCB 100%);
+  background-repeat: no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 @supports not ((background-clip: text) or (-webkit-background-clip: text)) {
-  .lw-serif { background: none; -webkit-text-fill-color: currentColor; }
+  .lw-serif .lw-w { background-image: none; -webkit-text-fill-color: currentColor; }
 }
 
 /* NOT the serif — Satoshi Black at 160px on the 1920 frame. The two halves of
@@ -299,6 +330,9 @@
    set in. */
 .lw-title .lw-title-tail {
   display: block;
+  /* The two lines are two voices; set touching they read as one stacked
+     lockup. In em of the 160px face, so the gap scales with it. */
+  margin-top: .13em;
   font-family: var(--sx-sans);
   font-weight: 900;
   font-size: clamp(3rem, 8.33vw, 10rem);
@@ -364,6 +398,17 @@
    one flag away from being the phone layout if the scaled world ever proves
    too much for a low-end device. */
 .lw-stack { display: none; }
+/* The stack is the entire section under reduced motion, so it carries the
+   heading itself — the only other h2 is inside the stage, which is not
+   rendered there. */
+.lw-stack-title {
+  margin: 0;
+  padding: clamp(3rem, 8vw, 6rem) clamp(1.25rem, 5vw, 5rem) 0;
+  font-family: "Instrument Serif", Georgia, serif;
+  font-style: italic; font-weight: 400;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  color: var(--lw-amber, #D08544);
+}
 .lw-stack .lw-stack-item {
   padding: clamp(3rem, 8vw, 6rem) clamp(1.25rem, 5vw, 5rem);
   border-top: 1px solid var(--sx-ink-4, rgba(244,241,236,.12));

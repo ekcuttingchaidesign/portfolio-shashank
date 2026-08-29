@@ -34,19 +34,17 @@
   /* ==========================================================================
      1 · THE AXIS
      --------------------------------------------------------------------------
-     UNVERIFIED, and the one number here that must not be guessed at for long.
-     Spec section 2: if the travel axis does not match the angle baked into the
-     artwork, blocks slide ACROSS the ground plane instead of moving THROUGH
-     it — the failure that is subtle enough to reach production.
+     MEASURED, not assumed. Spec section 2: if the travel axis does not match
+     the angle baked into the artwork, blocks slide ACROSS the ground plane
+     instead of moving THROUGH it — the failure subtle enough to reach
+     production.
 
-     The delivered blocks have not landed, so there is nothing to measure yet
-     and this is set to the projection the rest of the site already uses: the
-     hero's depth vector (+120, -70), whose edge ratio is 70/120 = 0.5833.
-     public/img/*.svg are stand-ins drawn on that same axis by
-     tools/make-blocks.mjs, so the world is self-consistent today.
+     The delivered master block's top face reads 230.70 / 395.95 = 0.5826:
+     true isometric, 0.1% off, the same projection the hero's own depth vector
+     (+120, -70) already uses. Re-measure after any re-export:
 
-     When the real art arrives:
          node tools/measure-iso.mjs public/img/master_block.svg
+
      and paste the pair it prints here. It is the only line that changes.
 
        ratio ~0.583  ->  { AX: 0.8637, AY: -0.5039 }   true isometric
@@ -102,12 +100,12 @@
        next door normalise to a common figure height because they are the same
        character walking, but here a seated figure on a couch is short BECAUSE
        it is sitting down. Forcing 0.53 on all three shrank both standing
-       figures to two thirds of the size the design draws them. */
-    /* 0.70, up from the 0.53 the frame measures. Read against the standing
-       figures it was sitting too small — a couch is wider than a person, so
-       matching its ink height to the frame gives it less presence on the block
-       than the other two have on theirs. */
-    'iplay.png':  { w: 776, h: 631, contentH: 554, ax: 0.4407, ay: 0.9128, h3: 0.70 },
+       figures to two thirds of the size the design draws them.
+
+       iplay is then carried past its measured 0.53 on purpose: a couch is
+       wider than a person, so matching its ink height left it with less
+       presence on its block than the standing figures have on theirs. */
+    'iplay.png':  { w: 776, h: 631, contentH: 554, ax: 0.4407, ay: 0.9128, h3: 0.82 },
     'iShoot.png': { w: 701, h: 728, contentH: 698, ax: 0.6683, ay: 0.9712, h3: 0.90 },
     'iMeme.png':  { w: 716, h: 783, contentH: 698, ax: 0.6425, ay: 0.9298, h3: 0.90 }
   };
@@ -122,10 +120,11 @@
      depth opacity and entrance opacity can never overwrite one another.
      ====================================================================== */
   const TIER = {
-    bg:    { parallax: 0.35, scale: 0.55 },
-    mid:   { parallax: 0.70, scale: 0.80 },
-    stage: { parallax: 1.00, scale: 1.00 },
-    fg:    { parallax: 1.60, scale: 1.25 }
+    bg:    { parallax: 0.35, scale: 0.55, float: 2.5 },
+    mid:   { parallax: 0.70, scale: 0.80, float: 4.0 },
+    near:  { parallax: 0.85, scale: 0.92, float: 5.0 },
+    stage: { parallax: 1.00, scale: 1.00, float: 0   },
+    fg:    { parallax: 1.60, scale: 1.25, float: 6.5 }
   };
 
   /* Copy drifts at 0.30x. The axis carries things down and to the left, so the
@@ -136,6 +135,15 @@
      composited onto it. Below ~0.5px it does nothing, past ~1.15x it detaches. */
   const COPY_PARALLAX   = 0.30;
   const MASCOT_PARALLAX = 1.06;
+
+  /* Everything except the block a mascot is standing on drifts, so the field
+     reads as hovering rather than as sitting on an invisible floor. Two
+     unequal periods per node and a per-node phase, so nothing pulses in
+     unison; amplitude falls with depth because a far object moving as far as
+     a near one is a near object. Translation only — rotating an isometric
+     block turns its faces off the ground plane, which is the same reason the
+     mirrored blocks below had to go. */
+  const FLOAT_A = 0.00047, FLOAT_B = 0.00061;
 
   /* ==========================================================================
      4 · THE WORLD
@@ -160,85 +168,83 @@
 
      Retune with ?edit=1 — drag, then press E to print this array back out. */
   const AMBIENT = [
-    /* Offsets are in the design's own 1920x1080 units, measured off the frame
-       and scaled with the rest of the world. Station one is read straight off
-       the I play screen; two and three keep its composition and its tier mix —
-       a bright slab low and left, a dark one tucked beside the block, bright
-       punctuation out to the right — but not its exact coordinates, because
-       those screens are not in hand yet. Retune with ?edit=1. */
+    /* Offsets are in the design's own 1920x1080 units and scale with the
+       world. Station one is read off the I play frame; two and three keep its
+       tier mix and their own frames' broad placement.
+
+       NO `flip`. Mirroring an isometric block with scaleX(-1) mirrors the
+       projection with it: the faces end up lit for the opposite axis and the
+       block visibly stops travelling along the same line as everything else.
+       Spec §5 offers it "for variety" and it is not variety, it is a block
+       facing the wrong way. Variety comes from the four variants and the
+       tiers. */
 
     /* approach to the title */
-    { t: -1350, ox:  430, oy: -300, variant: 'amb_3', tier: 'bg'    },
-    { t: -1180, ox: -700, oy:  310, variant: 'amb_4', tier: 'bg'    },
-    { t: -1010, ox: -760, oy: -280, variant: 'amb_2', tier: 'bg',   flip: 1 },
-    { t:  -700, ox: -300, oy:  470, variant: 'amb_4', tier: 'bg'    },
-    { t:  -560, ox:  760, oy:  520, variant: 'amb_1', tier: 'stage' },
-    { t:  -420, ox: -640, oy: -360, variant: 'amb_4', tier: 'bg',   flip: 1 },
+    { t: -1350, ox:  430, oy: -300, variant: 'amb_3', tier: 'bg'   },
+    { t: -1180, ox: -700, oy:  310, variant: 'amb_4', tier: 'bg'   },
+    { t: -1010, ox: -760, oy: -280, variant: 'amb_2', tier: 'bg'   },
+    { t:  -700, ox: -300, oy:  470, variant: 'amb_4', tier: 'bg'   },
+    { t:  -560, ox:  760, oy:  520, variant: 'amb_1', tier: 'near' },
+    { t:  -420, ox: -640, oy: -360, variant: 'amb_4', tier: 'bg'   },
 
-    /* The title card's own block. Spec §1 says "type only, no master block",
-       but the frame puts a large slab out to the right, and the frame wins.
-       `k` scales it to the 560 the design draws — no variant comes in that
-       size, and stretching a tier to reach it would have moved its parallax
-       too. No mascot: the design has none here. */
+    /* the title card's own block — the focal object of that frame, so it
+       keeps the full palette the way a station's master does */
     { t:  -900, ox:  474, oy:  315, variant: 'master', tier: 'stage', k: .78 },
-    { t:  -900, ox:  641, oy:  -75, variant: 'amb_3',  tier: 'bg'  },
-    { t:  -900, ox:  904, oy:  180, variant: 'amb_4',  tier: 'stage' },
-    { t:  -900, ox:  836, oy:  480, variant: 'amb_2',  tier: 'bg',  flip: 1 },
+    { t:  -900, ox:  641, oy:  -75, variant: 'amb_3',  tier: 'bg'   },
+    { t:  -900, ox:  904, oy:  180, variant: 'amb_4',  tier: 'near' },
+    { t:  -900, ox:  836, oy:  480, variant: 'amb_2',  tier: 'bg'   },
 
     /* station 1 — I play, off the design frame */
-    { t:  -300, ox:  180, oy: -380, variant: 'amb_3', tier: 'bg'    },
-    { t:   -80, ox: -200, oy:  515, variant: 'amb_2', tier: 'stage' },
-    { t:   -40, ox:  -69, oy:  142, variant: 'amb_3', tier: 'bg'    },
-    { t:    40, ox:  862, oy: -110, variant: 'amb_3', tier: 'stage' },
-    { t:    80, ox:  846, oy:  290, variant: 'amb_3', tier: 'bg',   flip: 1 },
-    { t:   120, ox:  805, oy:  470, variant: 'amb_2', tier: 'stage' },
-    { t:   160, ox:  235, oy:  540, variant: 'amb_4', tier: 'bg'    },
-    { t:   320, ox: -420, oy:  260, variant: 'amb_4', tier: 'bg'    },
-    { t:   420, ox:  980, oy:  620, variant: 'amb_2', tier: 'fg'    },
+    { t:  -300, ox:  180, oy: -380, variant: 'amb_3', tier: 'bg'   },
+    { t:   -80, ox: -200, oy:  515, variant: 'amb_2', tier: 'near' },
+    { t:   -40, ox:  -69, oy:  142, variant: 'amb_3', tier: 'bg'   },
+    { t:    40, ox:  862, oy: -110, variant: 'amb_3', tier: 'near' },
+    { t:    80, ox:  846, oy:  290, variant: 'amb_3', tier: 'bg'   },
+    { t:   120, ox:  805, oy:  470, variant: 'amb_2', tier: 'near' },
+    { t:   160, ox:  235, oy:  540, variant: 'amb_4', tier: 'bg'   },
+    { t:   320, ox: -420, oy:  260, variant: 'amb_4', tier: 'bg'   },
+    { t:   420, ox:  980, oy:  620, variant: 'amb_2', tier: 'fg'   },
 
     /* the gap */
-    { t:   700, ox:  520, oy: -240, variant: 'amb_3', tier: 'bg'    },
-    { t:   950, ox: -520, oy:  300, variant: 'amb_4', tier: 'bg',   flip: 1 },
-    { t:  1180, ox:  840, oy:  380, variant: 'amb_2', tier: 'mid'   },
+    { t:   700, ox:  520, oy: -240, variant: 'amb_3', tier: 'bg'   },
+    { t:   950, ox: -520, oy:  300, variant: 'amb_4', tier: 'bg'   },
+    { t:  1180, ox:  840, oy:  380, variant: 'amb_2', tier: 'mid'  },
 
     /* station 2 — I click */
-    { t:  1300, ox:  200, oy: -380, variant: 'amb_4', tier: 'bg'    },
-    { t:  1370, ox: -240, oy:  520, variant: 'amb_2', tier: 'stage' },
-    { t:  1410, ox:  -90, oy:  150, variant: 'amb_3', tier: 'bg',   flip: 1 },
-    { t:  1490, ox:  880, oy: -130, variant: 'amb_3', tier: 'stage' },
-    { t:  1530, ox:  860, oy:  300, variant: 'amb_3', tier: 'bg'    },
-    { t:  1570, ox:  790, oy:  480, variant: 'amb_1', tier: 'stage', flip: 1 },
-    { t:  1620, ox:  250, oy:  560, variant: 'amb_4', tier: 'bg'    },
-    { t:  1790, ox: -440, oy:  270, variant: 'amb_4', tier: 'bg'    },
-    { t:  1880, ox:  940, oy:  640, variant: 'amb_2', tier: 'fg',   flip: 1 },
+    { t:  1300, ox:  200, oy: -380, variant: 'amb_4', tier: 'bg'   },
+    { t:  1370, ox: -240, oy:  520, variant: 'amb_2', tier: 'near' },
+    { t:  1410, ox:  -90, oy:  150, variant: 'amb_3', tier: 'bg'   },
+    { t:  1490, ox:  880, oy: -130, variant: 'amb_3', tier: 'near' },
+    { t:  1530, ox:  860, oy:  300, variant: 'amb_3', tier: 'bg'   },
+    { t:  1570, ox:  790, oy:  480, variant: 'amb_1', tier: 'near' },
+    { t:  1620, ox:  250, oy:  560, variant: 'amb_4', tier: 'bg'   },
+    { t:  1790, ox: -440, oy:  270, variant: 'amb_4', tier: 'bg'   },
+    { t:  1880, ox:  940, oy:  640, variant: 'amb_2', tier: 'fg'   },
 
     /* the gap */
-    { t:  2150, ox: -760, oy: -300, variant: 'amb_3', tier: 'bg'    },
-    { t:  2400, ox:  600, oy:  320, variant: 'amb_4', tier: 'bg',   flip: 1 },
-    { t:  2640, ox:  860, oy: -260, variant: 'amb_2', tier: 'mid'   },
+    { t:  2150, ox: -760, oy: -300, variant: 'amb_3', tier: 'bg'   },
+    { t:  2400, ox:  600, oy:  320, variant: 'amb_4', tier: 'bg'   },
+    { t:  2640, ox:  860, oy: -260, variant: 'amb_2', tier: 'mid'  },
 
-    /* station 3 — I meme */
-    { t:  2760, ox:  230, oy: -390, variant: 'amb_3', tier: 'bg',   flip: 1 },
-    { t:  2830, ox: -210, oy:  505, variant: 'amb_2', tier: 'stage' },
-    { t:  2870, ox:  -80, oy:  135, variant: 'amb_3', tier: 'bg'    },
-    { t:  2950, ox:  870, oy: -120, variant: 'amb_3', tier: 'stage', flip: 1 },
-    { t:  2990, ox:  850, oy:  310, variant: 'amb_3', tier: 'bg'    },
-    { t:  3030, ox:  800, oy:  490, variant: 'amb_2', tier: 'stage' },
-    { t:  3080, ox:  240, oy:  550, variant: 'amb_4', tier: 'bg'    },
-    { t:  3260, ox:  960, oy:  630, variant: 'amb_2', tier: 'fg'    },
+    /* station 3 — I meme. Thinner than the other two: this is the last stop
+       before the world dissolves, and the field arriving at its densest right
+       before it empties reads as clutter rather than as a crescendo. */
+    { t:  2830, ox: -210, oy:  505, variant: 'amb_2', tier: 'near' },
+    { t:  2870, ox:  -80, oy:  135, variant: 'amb_3', tier: 'bg'   },
+    { t:  2950, ox:  870, oy: -120, variant: 'amb_3', tier: 'near' },
+    { t:  3030, ox:  800, oy:  490, variant: 'amb_2', tier: 'near' },
+    { t:  3080, ox:  240, oy:  550, variant: 'amb_4', tier: 'bg'   },
 
     /* the thinning — density and tier both drop away, so the world dissolves
-       rather than stopping. Nothing at all past 4100. */
-    { t:  3520, ox:  560, oy: -200, variant: 'amb_3', tier: 'mid'   },
-    { t:  3700, ox: -500, oy:  280, variant: 'amb_4', tier: 'bg'    },
-    { t:  3880, ox:  780, oy:  340, variant: 'amb_3', tier: 'bg'    },
-    { t:  4060, ox:  360, oy: -150, variant: 'amb_4', tier: 'bg'    },
-
-    /* The last block on the page. Full tier where everything around it has
-       faded to bg, so it reads as the one thing left rather than as the
-       nearest of many. It carries the waving figure. */
-    { t:  4300, ox:  700, oy:  200, variant: 'amb_3', tier: 'stage', last: 1 }
+       rather than stopping. Nothing at all past 4100, and nothing standing at
+       the end: the closing block that used to drift in past "Say hello." is
+       gone, so the last thing on the page is the line itself. */
+    { t:  3520, ox:  560, oy: -200, variant: 'amb_3', tier: 'mid'  },
+    { t:  3700, ox: -500, oy:  280, variant: 'amb_4', tier: 'bg'   },
+    { t:  3880, ox:  780, oy:  340, variant: 'amb_3', tier: 'bg'   },
+    { t:  4060, ox:  360, oy: -150, variant: 'amb_4', tier: 'bg'   }
   ];
+
 
 
   /* ==========================================================================
@@ -325,7 +331,8 @@
     tone.dataset.tier = spec.tier;
     el.appendChild(tone);
     world.appendChild(el);
-    const n = Object.assign({ el, tone, kind: 'block', ox: 0, oy: 0, delay: 0, flip: 0 }, spec);
+    const n = Object.assign({ el, tone, kind: 'block', ox: 0, oy: 0, delay: 0,
+                             phase: nodes.length * 1.618 }, spec);
     nodes.push(n);
     return n;
   }
@@ -396,7 +403,7 @@
      strength on top of the title card's block and reading as a single broken
      stepped solid. The two share a path down the axis and no coordinate fixes
      that; the loud ones simply have to arrive nearer their own stop. */
-  const AMB_WIN = { bg: 1400, mid: 1400, stage: 620, fg: 620 };
+  const AMB_WIN = { bg: 1400, mid: 1400, near: 620, stage: 620, fg: 620 };
   AMBIENT.forEach((a, i) => addBlock(
     Object.assign({ kind: 'block', win: AMB_WIN[a.tier] || 1400, ai: i }, a)));
 
@@ -417,7 +424,70 @@
      real text in source order and nothing may exist only inside the traversal.
      JS only drives their drift and their fade. They are positioned by CSS so
      the gutter stays responsive; the transform carries the parallax alone. */
+  /* ==========================================================================
+     THE TITLE'S SPRING
+     --------------------------------------------------------------------------
+     The entrance is scrubbed — it has to be, or scrolling up would not play it
+     backwards — so a time-based Motion animation cannot drive it directly.
+     What Motion CAN give is the curve: `spring()` is sampled once across its
+     own settling time and baked into a lookup, and the scrub then rides real
+     spring physics instead of a cubic. Overshoots to ~1.08 and settles, which
+     is what makes the words arrive with weight rather than just sliding.
+
+     Falls back to a back-ease with a comparable overshoot if the library did
+     not load, for the same reason everything else here does: the page never
+     depends on it. */
+  const SPRING = (() => {
+    const N = 160, lut = new Float32Array(N + 1);
+    const M = window.Motion;
+    if (M && typeof M.spring === 'function') {
+      try {
+        const gen = M.spring({ keyframes: [0, 1], stiffness: 190, damping: 17, mass: 1 });
+        let settle = 0;
+        for (let t = 0; t <= 4000; t += 10) { if (gen.next(t).done) { settle = t; break; } }
+        if (!settle) settle = 900;
+        const g2 = M.spring({ keyframes: [0, 1], stiffness: 190, damping: 17, mass: 1 });
+        for (let i = 0; i <= N; i++) lut[i] = g2.next((i / N) * settle).value;
+        return k => lut[Math.round(clamp01(k) * N)];
+      } catch (e) { /* fall through */ }
+    }
+    const c1 = 1.70158, c3 = c1 + 1;
+    return k => { const x = clamp01(k); return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+  })();
+
   const titleEl = sec.querySelector('.lw-title');
+
+  /* Words, not lines. Each one is its own token so they can arrive on a
+     stagger — the flourish is in six things landing in sequence, not in one
+     block of type sliding. Split from JS so the markup stays plain text. */
+  const titleTokens = (() => {
+    if (!titleEl) return [];
+    const serif = titleEl.querySelector('.lw-serif');
+    if (serif && !serif.querySelector('.lw-w')) {
+      serif.innerHTML = serif.textContent.trim().split(/\s+/)
+        .map(w => `<span class="lw-w">${w}</span>`).join(' ');
+    }
+    return [...titleEl.querySelectorAll('.lw-w, .lw-num, .lw-to')];
+  })();
+
+  /* Stitch the per-word gradients back into one sweep: each word gets the
+     line's full width as its background-size and is offset by its own left
+     edge, so the ramp continues across the gaps instead of restarting at every
+     word. Re-run on resize and once the webfont has actually landed, since
+     both change where the words sit. */
+  function paintTitleGradient() {
+    if (!titleEl) return;
+    const serif = titleEl.querySelector('.lw-serif');
+    if (!serif) return;
+    const lineW = serif.offsetWidth;
+    if (!lineW) return;
+    serif.querySelectorAll('.lw-w').forEach(el => {
+      el.style.backgroundSize = lineW + 'px 100%';
+      el.style.backgroundPosition = (-el.offsetLeft) + 'px 0';
+    });
+  }
+  paintTitleGradient();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(paintTitleGradient);
   const exitEl  = sec.querySelector('.lw-exit');
   const copyEls = [...sec.querySelectorAll('.lw-copy')].map(el => ({
     el, t: STATIONS.find(s => s.id === el.dataset.station)?.t ?? 0
@@ -520,6 +590,18 @@
      ====================================================================== */
   let rafId = 0, running = false, reveal = 0, ledgeSeen = false;
 
+  /* The float is the only thing here that moves without the scroll moving, so
+     it is the only reason the loop cannot park. It runs while the section is
+     on screen and stops the moment it is not — an idle page still costs
+     nothing. `data-lw-still` freezes it, which is what lets the reversibility
+     check compare transforms at a scroll position rather than at an instant. */
+  let onScreen = false;
+  /* A query param, not an attribute: outside.js is deferred, so it reads this
+     before DOMContentLoaded and anything setting an attribute on that event
+     would be too late to be seen. ?still=1 also gives a way to look at a
+     composition without it drifting under you. */
+  const still = new URLSearchParams(location.search).get('still') === '1';
+
   /* One write, for the whole stage. Ground, glow, world and copy come up
      together — a world whose blocks are already solid over a film that is
      still playing does not read as rising out of it.
@@ -548,6 +630,7 @@
 
   function render() {
     running = false;
+    const now = performance.now();
 
     /* Layout is read exactly once, here. Nothing in the loop below touches it. */
     const rect   = sec.getBoundingClientRect();
@@ -663,10 +746,17 @@
       const px = x - (b ? b.origin.x : .5) * w;
       const py = y - (b ? b.origin.y : 1) * h;
 
+      /* The drift. Two unequal periods so a node never returns to the same
+         place on a beat, and a phase from its own index so the field does not
+         pulse together. The block a mascot stands on does not move: a figure
+         bobbing on its own plinth reads as a mistake, not as weightlessness. */
+      const fa = still ? 0 : (tier.float || 0) * worldScale;
+      const fx = fa ? Math.cos(now * FLOAT_B + n.phase * 1.7) * fa * .55 : 0;
+      const fy = fa ? Math.sin(now * FLOAT_A + n.phase) * fa : 0;
+
       n.el.style.width = w + 'px';
       n.el.style.transform =
-        `translate3d(${px.toFixed(1)}px,${py.toFixed(1)}px,0)` +
-        (n.flip ? ' scaleX(-1)' : '') +
+        `translate3d(${(px + fx).toFixed(1)}px,${(py + fy).toFixed(1)}px,0)` +
         (n.assembles ? '' : ` translateY(${((1 - e) * 26).toFixed(1)}px)`);
       n.el.style.opacity = e.toFixed(3);
 
@@ -713,12 +803,36 @@
     if (titleEl) {
       const past = camT - (-900 * spacing);
       const out  = 1 - clamp((past - 260 * spacing) / (520 * spacing), 0, 1);
-      const op   = reveal * out;
-      titleEl.style.opacity = op.toFixed(3);
-      titleEl.style.visibility = op < .005 ? 'hidden' : '';
-      const slide = -260 * (1 - reveal) - 110 * (1 - out);
+
+      /* Held back until the film is well into its turn. Driven straight off
+         `reveal` the type was already arriving as the desk began to move; it
+         should land INTO the space the rotation opens, not race it. */
+      const tIn = clamp01((reveal - TITLE_DELAY) / (1 - TITLE_DELAY));
+
+      titleEl.style.opacity = out.toFixed(3);
+      titleEl.style.visibility = (out * tIn) < .005 ? 'hidden' : '';
       titleEl.style.transform =
-        `translateY(-50%) translate3d(${slide.toFixed(1)}px,0,0)`;
+        `translateY(-50%) translate3d(${(-90 * (1 - out)).toFixed(1)}px,0,0)`;
+
+      const n = titleTokens.length;
+      const span = 1 - TITLE_STAGGER * (n - 1);
+      for (let i = 0; i < n; i++) {
+        const el = titleTokens[i];
+        const k  = clamp01((tIn - i * TITLE_STAGGER) / span);
+        const e  = SPRING(k);
+        /* Opacity and blur clear ahead of the movement, so a word is legible
+           while it is still settling rather than arriving already still. */
+        const o  = clamp01(k * 2.4);
+        const bl = (1 - clamp01(k * 1.7)) * 14;
+        el.style.opacity = o.toFixed(3);
+        el.style.transform =
+          `translate3d(${(-190 * (1 - e)).toFixed(1)}px,0,0)` +
+          ` rotate(${(-7 * (1 - e)).toFixed(2)}deg)` +
+          ` scale(${(0.84 + 0.16 * e).toFixed(4)})`;
+        /* Dropped entirely once sharp — a filter left on the element keeps it
+           rasterising through its own layer for the rest of the section. */
+        el.style.filter = bl > .05 ? `blur(${bl.toFixed(2)}px)` : '';
+      }
     }
 
     if (exitEl) {
@@ -729,6 +843,8 @@
       exitEl.style.transform =
         `translate(-50%,-50%) translate3d(${(d * .5 * ISO.AX).toFixed(1)}px,${(d * .5 * ISO.AY).toFixed(1)}px,0)`;
     }
+
+    if (onScreen && !still) request();
 
     /* The glow travels #FF8C6C -> #FFFFFF across the traversal: warm where the
        section is personal, white by the time it is empty. */
@@ -757,6 +873,10 @@
      ====================================================================== */
   const REVEAL_START = 0.60, REVEAL_END = 1.00;
 
+  /* How much of the reveal passes before the title starts arriving, and how
+     far apart its six words land. */
+  const TITLE_DELAY = 0.42, TITLE_STAGGER = 0.085;
+
   function applyOverlap() {
     const ex = document.getElementById('s-exit');
     if (!ex) return;
@@ -781,6 +901,11 @@
      never be the thing that asks for a file, for the same reason the Experience
      cels are handed their sheet before the wipe that reveals them.
      ====================================================================== */
+  new IntersectionObserver(es => {
+    onScreen = es.some(e => e.isIntersecting);
+    if (onScreen) request();
+  }, { rootMargin: '10% 0px' }).observe(sec);
+
   const warm = new IntersectionObserver(es => {
     if (!es.some(e => e.isIntersecting)) return;
     warm.disconnect();
@@ -793,7 +918,7 @@
      13 · LOOP
      ====================================================================== */
   addEventListener('scroll', request, { passive: true });
-  addEventListener('resize', () => { measure(); applyOverlap(); request(); });
+  addEventListener('resize', () => { measure(); applyOverlap(); paintTitleGradient(); request(); });
   request();
 
   /* ==========================================================================
@@ -831,7 +956,7 @@
       const rows = nodes.filter(n => n.kind === 'block' && !n.assemble).map(n =>
         `    { t: ${String(n.t).padStart(5)}, ox: ${String(n.ox).padStart(4)}, ` +
         `oy: ${String(n.oy).padStart(4)}, variant: '${n.variant}', tier: '${n.tier}'` +
-        (n.flip ? ', flip: 1' : '') + ' },');
+        ' },');
       console.log('  const AMBIENT = [\n' + rows.join('\n') + '\n  ];');
     });
     console.info('[outside-work] edit mode — drag blocks, press E to print the array');
