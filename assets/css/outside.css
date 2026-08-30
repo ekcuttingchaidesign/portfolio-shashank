@@ -84,7 +84,8 @@
    lose. A flat ellipse has none, and a 1000px filter would hand the compositor
    paint bounds running some 2000px past the element on every side.
 
-   Tightened by hand to sigma 390 from the 500 below, with the peak
+   Tightened by hand to sigma 312 from the 500 below — Figma blur 624, down
+   from the frame's 1000 across three passes — with the peak
    HELD at 10.64% rather than recomputed — see the same note on .lw-bloom for
    why a tighter blur is not allowed to re-brighten this.
 
@@ -124,9 +125,9 @@
      Contact — see the note there. The default is the value for everywhere
      else, so with no script the section looks exactly as it did. */
   left: var(--lw-glow-x, 17%); top: var(--lw-glow-y, 24%);
-  /* 2 x the 3-sigma extent, at sigma 390. */
-  width: 2780px; height: 2472px;
-  margin-left: -1390px; margin-top: -1236px;
+  /* 2 x the 3-sigma extent, at sigma 312. */
+  width: 2400px; height: 2034px;
+  margin-left: -1200px; margin-top: -1017px;
   pointer-events: none;
   background: radial-gradient(closest-side ellipse,
     rgba(var(--lw-glow-rgb, 255,140,108), calc(.1064 * var(--lw-glow-k, 1))) 0%,
@@ -676,8 +677,8 @@
      that, .1049 -> .0550, which is a note on the render rather than anything
      in the frame. Current blur here, in Figma's units, is 704.
 
-   Tightened by hand from there: sigma 400 -> 352, a 12% cut, which pulls the
-   extent in from 1306px to 1175. The PEAK IS HELD at .1049 rather than being
+   Tightened by hand from there across two passes: sigma 400 -> 282, so Figma
+   blur 800 -> 563, which pulls the extent in from 1306px to 989. The PEAK IS HELD at .1049 rather than being
    recomputed. Physics says a tighter blur concentrates the same ink and should
    raise the peak about 25%, and that is the honest number — but the note asked
    for tighter, not brighter, and this wash had already been too hot twice.
@@ -710,7 +711,7 @@
      Radii in vw for both
      axes so the blob keeps its shape instead of stretching with the window. */
   background-image:
-    radial-gradient(61.20vw 56.81vw at 19.79% 107.87%,
+    radial-gradient(51.52vw 46.23vw at 19.79% 107.87%,
       rgba(78,81,255,.0550) 0%,
       rgba(78,81,255,.0526) 10%,
       rgba(78,81,255,.0459) 20%,
