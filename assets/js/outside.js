@@ -107,7 +107,29 @@
        presence on its block than the standing figures have on theirs. */
     'iplay.png':  { w: 776, h: 631, contentH: 554, ax: 0.4407, ay: 0.9128, h3: 0.82 },
     'iShoot.png': { w: 701, h: 728, contentH: 698, ax: 0.6683, ay: 0.9712, h3: 0.90 },
-    'iMeme.png':  { w: 716, h: 783, contentH: 698, ax: 0.6425, ay: 0.9298, h3: 0.90 }
+
+    /* iMeme is the one entry measure-mascots.mjs cannot be trusted on, and it
+       is worth saying why rather than leaving the numbers looking hand-waved.
+
+       Its re-export is TWO figures — one dabbing behind, one stepping in front
+       — on a 954x939 canvas. The tool takes the footprint from the bottom 8%
+       of the content box, which is the right rule for one standing figure and
+       the wrong one for two: at 8% the band only reaches the front figure's
+       shoe and reports ax 0.688. Anchoring there puts one sneaker on the
+       ridge and hangs the entire pair off the left of the block, which is the
+       "not centred" this was re-exported to fix.
+
+       Measured down the bands, both figures' shoes are in by 25% and the
+       contact patch stops moving: x[199..715], centre 0.479. That is the pair
+       standing on the plinth, so that is the anchor.
+
+       contentH is the SOLID ink (alpha > 200), 758px, not the 825 the alpha>12
+       box reports. The difference is the soft drop shadow baked into the art,
+       which spreads up and to the right; feeding that to the normaliser scales
+       the figures against 9% of empty haze and lands them a head shorter than
+       the two beside them. ay is the lowest solid pixel for the same reason —
+       0.9308 counts shadow below the shoe as figure and floats the pair. */
+    'iMeme.png':  { w: 954, h: 939, contentH: 758, ax: 0.4790, ay: 0.9042, h3: 0.90 }
   };
 
   const MASCOT_H = 0.62;                 // only for a file with no entry above

@@ -4273,7 +4273,8 @@
 
 .sx-nav[data-active="work"]    .sx-nav-i[data-sec="work"],
 .sx-nav[data-active="exp"]     .sx-nav-i[data-sec="exp"],
-.sx-nav[data-active="outside"] .sx-nav-i[data-sec="outside"] {
+.sx-nav[data-active="outside"] .sx-nav-i[data-sec="outside"],
+.sx-nav[data-active="contact"] .sx-nav-i[data-sec="contact"] {
   font-weight: 700;
   color: #fff;
 }
@@ -4299,16 +4300,23 @@
 }
 
 /* --- the marker ------------------------------------------------------------
-   15 x 20 at the Figma's scale, so .75em x 1em here, sitting a hair above the
+   20 x 20 at the Figma's scale, so 1em x 1em here, sitting a hair above the
    pill's bottom edge exactly as drawn. It travels to the active label on the
    same measured path the capsule uses.
+
+   It was 15 x 20 (.75em) while the pill had three stops. Contact makes four,
+   the glyph grew a fourth 5px column to say so, and this box has to grow with
+   it — left at .75em the SVGs would scale to fit and every column would come
+   out 3.75px wide, which is a differently-proportioned mark rather than a
+   wider one. placeMark() in sections.js centres on offsetWidth, so it picks
+   the new width up on its own.
    -------------------------------------------------------------------------- */
 .sx-nav-mark {
   position: absolute;
   z-index: 1;
   left: 0;
   bottom: .05em;                /* 1px of 20 */
-  width: .75em; height: 1em;
+  width: 1em; height: 1em;
   pointer-events: none;
   opacity: var(--mo, 0);
   transform: translateX(var(--mx, 0px));
@@ -4326,9 +4334,47 @@
 
 .sx-nav[data-active="work"]    .sx-nav-mark svg[data-for="work"],
 .sx-nav[data-active="exp"]     .sx-nav-mark svg[data-for="exp"],
-.sx-nav[data-active="outside"] .sx-nav-mark svg[data-for="outside"] { opacity: 1; }
+.sx-nav[data-active="outside"] .sx-nav-mark svg[data-for="outside"],
+.sx-nav[data-active="contact"] .sx-nav-mark svg[data-for="contact"] { opacity: 1; }
 /* Nothing to mark at the top of the page — that state belongs to the portrait. */
 .sx-nav[data-active="hero"] .sx-nav-mark { --mo: 0; }
+
+/* --- the pill on a narrow screen -------------------------------------------
+   Four stops do not fit where three did. At the clamp's floor the labels stop
+   shrinking (.66rem below about 800px) while the viewport keeps going, so the
+   pill is a fixed 455px by the time the screen is 390 — over the edge on both
+   sides. Measured, not guessed: WORK EXPERIENCE OUTSIDE WORK CONTACT plus the
+   portrait, three 2.85em gaps and the padding.
+
+   Two steps rather than one, so nothing is given up before it has to be.
+
+   First the spacing goes. 57px of gap and .12em of tracking are the Figma's,
+   and they are generous on purpose at the size the frame is drawn — at 10.5px
+   type on a phone that generosity is just width. This is the whole fix down to
+   about 430px.
+
+   The --sx-nav-pad drop is part of the same change, not an extra: the hover
+   capsule reaches that far past each label, and at a 1.6em gap a 1.15em pad
+   would have neighbouring capsules overlapping each other. .7em keeps the
+   capsule inside the gap it sits in.
+   -------------------------------------------------------------------------- */
+@media (max-width: 560px) {
+  .sx-nav {
+    gap: 1.6em;
+    --sx-nav-pad: .7em;
+  }
+  .sx-nav-i { letter-spacing: .08em; }
+}
+
+/* Then, and only then, the portrait. It is the one thing in the pill that is a
+   convenience rather than a destination — the way back to the top, which a
+   phone already has its own gestures for — so it is what goes last and what
+   costs least. Everything above it is a section you would otherwise have no
+   way to reach. 336px at a 390px screen, which leaves a real margin instead of
+   a hairline. */
+@media (max-width: 430px) {
+  .sx-nav-home { display: none; }
+}
 
 /* --- the mascot -------------------------------------------------------------
    Perched on the top-right corner and bleeding off the right edge, as drawn.
@@ -5236,4 +5282,127 @@
   .sx-mascot, .sx-ushape, .sx-side-block {
     animation: none; translate: none; rotate: none;
   }
+}
+
+/* ============================================================================
+   CONTACT
+   ----------------------------------------------------------------------------
+   The last section on the page and the fourth stop on the pill.
+
+   Deliberately the quietest thing here. Everything above it is scroll-driven —
+   a scrubbed film, a sprite stage, an isometric camera on rails — and the end
+   of a page that has been moving for that long should be the place it stops.
+   So: no sticky, no scrub, no parallax, nothing observing the scroll. It is a
+   block of type on black that arrives and holds still.
+
+   Centred rather than left-aligned like the case studies. Those are a body of
+   work being read down a column; this is a closing card, and it is the one
+   place where having nothing to the left or right of it is the point.
+   ========================================================================== */
+.sx-contact {
+  position: relative;
+  z-index: 1;
+  background: var(--sx-wall, #000);
+  padding: clamp(6rem, 16vh, 12rem) clamp(1.25rem, 5vw, 5rem) clamp(5rem, 12vh, 9rem);
+  /* The Ledge World dissolves to nothing at its end, so there is no seam to
+     cover — but the eye still wants to be told the page has changed register.
+     A hairline does that without announcing itself. */
+  border-top: 1px solid var(--sx-ink-4, rgba(244,241,236,.12));
+}
+.sx-contact-in {
+  max-width: 42rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.sx-contact-eyebrow {
+  margin: 0 0 clamp(1.4rem, 3vw, 2.2rem);
+  font-family: var(--sx-ui, var(--sx-sans));
+  font-size: clamp(.66rem, .84vw, .83rem);
+  font-weight: 400;
+  letter-spacing: .12em;              /* the nav pill's own tracking */
+  text-transform: uppercase;
+  color: var(--sx-key, #E0542A);
+}
+
+/* The one heading on the page that is allowed to be plain. Outside Work's
+   title card owns the serif and the amber; repeating either here would spend
+   a voice that works BECAUSE it is used once. */
+.sx-contact h2 {
+  margin: 0;
+  font-family: var(--sx-display, var(--sx-sans));
+  font-weight: 300;
+  font-size: clamp(2.4rem, 6.4vw, 5rem);
+  line-height: 1.06;
+  letter-spacing: -.02em;
+  color: var(--sx-ink, #F4F1EC);
+}
+
+.sx-contact-lede {
+  margin: clamp(1.4rem, 3vw, 2rem) auto 0;
+  max-width: 30ch;
+  font-family: var(--sx-sans);
+  font-size: clamp(1rem, 1.25vw, 1.22rem);
+  line-height: 1.75;
+  color: var(--sx-ink-2, rgba(244,241,236,.70));
+}
+
+/* The address, set as the largest interactive thing in the section. The rule
+   under it is drawn with a gradient rather than a border so it can wipe in
+   from the left on hover — a border can only fade, and a fade reads as a
+   hover state where a wipe reads as a line being drawn. */
+.sx-contact-mail {
+  display: inline-block;
+  margin-top: clamp(2.4rem, 5vw, 3.6rem);
+  padding-bottom: .18em;
+  font-family: var(--sx-sans);
+  font-size: clamp(1.05rem, 1.9vw, 1.75rem);
+  color: var(--sx-ink, #F4F1EC);
+  text-decoration: none;
+  background-image: linear-gradient(var(--sx-key, #E0542A), var(--sx-key, #E0542A));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 1px;
+  transition: color .3s var(--sx-ease, ease), background-size .35s var(--sx-ease, ease);
+}
+.sx-contact-mail:hover { color: var(--sx-key, #E0542A); }
+.sx-contact-mail:focus-visible { outline: 2px solid var(--sx-key, #E0542A); outline-offset: 4px; }
+
+.sx-contact-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(1.2rem, 3vw, 2.6rem);
+  margin: clamp(3rem, 6vw, 4.4rem) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.sx-contact-social a {
+  display: inline-flex;
+  align-items: center;
+  gap: .6em;
+  font-family: var(--sx-sans);
+  font-size: clamp(.85rem, 1vw, 1rem);
+  color: var(--sx-ink-2, rgba(244,241,236,.70));
+  text-decoration: none;
+  transition: color .28s var(--sx-ease, ease);
+}
+.sx-contact-social a:hover { color: var(--sx-ink, #F4F1EC); }
+.sx-contact-social a:focus-visible { outline: 2px solid var(--sx-key, #E0542A); outline-offset: 4px; }
+/* All four marks are exported fill="white" — drawn for a dark ground, which is
+   the only ground this site has. So they are used as delivered and dimmed with
+   opacity rather than recoloured: .70 is --sx-ink-2, the same value the label
+   beside each one carries, so the glyph and its word are equally quiet and
+   come up to full together. */
+.sx-contact-social img {
+  width: 1.5em; height: 1.5em;
+  opacity: .70;
+  transition: opacity .28s var(--sx-ease, ease);
+}
+.sx-contact-social a:hover img { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-contact-mail,
+  .sx-contact-social a,
+  .sx-contact-social img { transition: none; }
 }

@@ -20,6 +20,12 @@ const TYPES = {
   '.js': 'text/javascript; charset=utf-8', '.json': 'application/json',
   '.mp4': 'video/mp4', '.webm': 'video/webm', '.jpeg': 'image/jpeg',
   '.jpg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml',
+  // The sprite sheets have shipped as .webp since the Experience section
+  // landed, and the galleries are entirely .webp. Without this they fall to
+  // the octet-stream default below, which Pages does not do — so an image
+  // could work in production and be a broken icon locally, which is the exact
+  // class of local-only failure this file exists to stop.
+  '.webp': 'image/webp', '.gif': 'image/gif', '.avif': 'image/avif',
   '.woff2': 'font/woff2', '.ico': 'image/x-icon',
 };
 

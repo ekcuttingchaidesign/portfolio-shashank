@@ -1462,20 +1462,68 @@
       </div>
 
       <div class="lw-copy" data-station="play">
-        <h3>I play</h3>
+        <h3>I play <span class="lw-emoji" aria-hidden="true">&#127918;</span></h3>
         <p>FIFA, mostly. It&rsquo;s the only<br>place United still win.</p>
+        <!-- The shelf is one render, plinth included — the dark ledge under the
+             cases is painted into the file, not a box drawn in CSS. So it is
+             sized to the file's own 671x466 and left alone; anything laid over
+             it would be a second plinth on top of the first. -->
+        <img class="lw-shelf" src="../public/img/game_collection.png"
+             alt="A stack of PS5 cases on a shelf: FC26, Uncharted 4, Marvel&rsquo;s Spider-Man, It Takes Two, Red Dead Redemption II and God of War."
+             width="671" height="466" loading="lazy" decoding="async">
       </div>
 
       <div class="lw-copy" data-station="click">
-        <h3>I click</h3>
+        <h3>I click <span class="lw-emoji" aria-hidden="true">&#128247;</span></h3>
         <p>Forty thousand frames.<br>Sixty I&rsquo;d show anyone.<br>That ratio has not improved.</p>
-        <a class="lw-cta" href="#" data-lw-todo="destination">View Gallery <svg class="lw-arrow" viewBox="0 0 30 10" aria-hidden="true"><path d="M0 5h27M23 1l4 4-4 4"/></svg></a>
+        <!-- The reel replaces the "View Gallery" pill that used to sit here.
+             That pill had never had a destination — it carried a
+             data-lw-todo="destination" the whole time — and the frames now
+             draw the photographs themselves, which is a better door than a
+             button that says there is one.
+
+             Every card is a real <a> to the full-size file rather than a
+             <button>, so with scripting off the row still reads and every
+             photograph is still reachable: the link opens the image the way
+             any link to an image does. gallery.js intercepts the click only
+             once it is there to handle it, and the polaroid frame is baked
+             into the art — see tools/prep-gallery.py — so nothing here draws
+             one. -->
+        <div class="lw-reel" data-gallery="photography">
+          <ul class="lw-reel-track">
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_01.webp"><img src="../public/img/photography/photography_01_thumb.webp" alt="A thatched round hut alone in a green clearing, wooded hillside rising behind it." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_02.webp"><img src="../public/img/photography/photography_02_thumb.webp" alt="A seller walking a wet street behind an enormous bunch of red and blue balloons." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_03.webp"><img src="../public/img/photography/photography_03_thumb.webp" alt="The wheel and flank of a maroon car at night, city lights thrown out of focus behind it." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_04.webp"><img src="../public/img/photography/photography_04_thumb.webp" alt="A man standing in a dark field inside a painted circle of red light." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_05.webp"><img src="../public/img/photography/photography_05_thumb.webp" alt="Black and white: a moustachioed shopkeeper seated among rows of hanging embroidered juttis." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_06.webp"><img src="../public/img/photography/photography_06_thumb.webp" alt="An empty orange park bench under wet trees as someone walks out of frame." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_07.webp"><img src="../public/img/photography/photography_07_thumb.webp" alt="Clay water pots lined along the step of a veranda between carved pillars." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_08.webp"><img src="../public/img/photography/photography_08_thumb.webp" alt="Two camel riders crossing pale dunes under a wide pink and blue sky." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_09.webp"><img src="../public/img/photography/photography_09_thumb.webp" alt="Two people facing each other in silhouette against a sunset running orange to deep blue." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_10.webp"><img src="../public/img/photography/photography_10_thumb.webp" alt="A domed chhatri pavilion on a carved fort wall against a clouded blue sky." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_11.webp"><img src="../public/img/photography/photography_11_thumb.webp" alt="Black and white: a woman carrying stacked brass pots on her head past carved arches." width="400" height="593" loading="lazy" decoding="async"></a></li>
+          </ul>
+        </div>
       </div>
 
       <div class="lw-copy" data-station="meme">
-        <h3>I meme</h3>
+        <h3>I meme <span class="lw-emoji" aria-hidden="true">&#128526;</span></h3>
         <p>The only thing I&rsquo;ve ever shipped<br>with zero feedback rounds.</p>
-        <a class="lw-cta" href="#" data-lw-todo="destination">View Memes <svg class="lw-arrow" viewBox="0 0 30 10" aria-hidden="true"><path d="M0 5h27M23 1l4 4-4 4"/></svg></a>
+        <!-- Same reel, same reasoning as I click above. The alt text on a meme
+             carries the joke rather than describing the picture, because on
+             these the words ARE the picture — a caption that said "a crying
+             woman" would be a description of a meme with the meme removed. -->
+        <div class="lw-reel" data-gallery="memes">
+          <ul class="lw-reel-track">
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_01.webp"><img src="../public/img/memes/meme_01_thumb.webp" alt="Meme: over a photo of a woman in tears, &ldquo;Looks at other&rsquo;s portfolio, developes major depression&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_02.webp"><img src="../public/img/memes/meme_02_thumb.webp" alt="Meme: a weeping figure tells Jesus &ldquo;Stop giving me your toughest battles&rdquo;; the reply is &ldquo;Branding team se approval hi to lena hai&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_03.webp"><img src="../public/img/memes/meme_03_thumb.webp" alt="Meme: a &lsquo;Types of Headaches&rsquo; chart — migraine, hypertension, stress — with a whole head shaded red, captioned &ldquo;Branding team trying to design&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_04.webp"><img src="../public/img/memes/meme_04_thumb.webp" alt="Meme: &ldquo;Me looking at my design on dev&rsquo;s build&rdquo;, over the Godfather still &ldquo;Look how they massacred my boy&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_05.webp"><img src="../public/img/memes/meme_05_thumb.webp" alt="Meme: the lone figure at the party comic — &ldquo;They don&rsquo;t know I name all my Figma layers&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_06.webp"><img src="../public/img/memes/meme_06_thumb.webp" alt="Meme: woman yelling at a cat — &ldquo;You copied this design from XYZ big company&rdquo;, answered with &ldquo;Jacob&rsquo;s Law&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_07.webp"><img src="../public/img/memes/meme_07_thumb.webp" alt="Meme: &ldquo;Making fun of friends with US Clients like&rdquo; — laughing kids beside a downcast girl labelled &ldquo;Iski Diwali pe chutti nhi hai&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+          </ul>
+        </div>
       </div>
 
       <div class="lw-exit" id="say-hello">
@@ -1494,25 +1542,122 @@
     <div class="lw-stack">
       <h2 class="lw-stack-title">My life beyond 9 to 5</h2>
       <div class="lw-stack-item">
-        <h3>I play</h3>
+        <h3>I play <span class="lw-emoji" aria-hidden="true">&#127918;</span></h3>
         <p>FIFA, mostly. It&rsquo;s the only<br>place United still win.</p>
+        <img class="lw-shelf" src="../public/img/game_collection.png"
+             alt="A stack of PS5 cases on a shelf: FC26, Uncharted 4, Marvel&rsquo;s Spider-Man, It Takes Two, Red Dead Redemption II and God of War."
+             width="671" height="466" loading="lazy" decoding="async">
         <img class="lw-stack-art" src="../public/img/iplay.png" alt="" loading="lazy" decoding="async">
       </div>
+      <!-- The two dead "View Gallery" / "View Memes" pills that used to sit in
+           these items are gone with the ones upstairs. In their place is a
+           mirror: gallery.js clones the matching reel's cards in here as a
+           static, unmoving grid.
+
+           It has to be a clone rather than a second hand-written list because
+           the stage above is display:none under reduced motion, taking its
+           reels with it — and because eighteen photographs written out twice
+           is eighteen chances for the two copies to drift apart. Nothing
+           auto-plays in here; a reader who has asked for reduced motion is
+           asking for exactly that. With scripting off it stays empty and the
+           still below carries the item, which is what it did before. -->
       <div class="lw-stack-item">
-        <h3>I click</h3>
+        <h3>I click <span class="lw-emoji" aria-hidden="true">&#128247;</span></h3>
         <p>Forty thousand frames.<br>Sixty I&rsquo;d show anyone.<br>That ratio has not improved.</p>
-        <a class="lw-cta" href="#" data-lw-todo="destination">View Gallery <svg class="lw-arrow" viewBox="0 0 30 10" aria-hidden="true"><path d="M0 5h27M23 1l4 4-4 4"/></svg></a>
+        <div class="lw-stack-gallery" data-gallery-mirror="photography"></div>
         <img class="lw-stack-art" src="../public/img/iShoot.png" alt="" loading="lazy" decoding="async">
       </div>
       <div class="lw-stack-item">
-        <h3>I meme</h3>
+        <h3>I meme <span class="lw-emoji" aria-hidden="true">&#128526;</span></h3>
         <p>The only thing I&rsquo;ve ever shipped<br>with zero feedback rounds.</p>
-        <a class="lw-cta" href="#" data-lw-todo="destination">View Memes <svg class="lw-arrow" viewBox="0 0 30 10" aria-hidden="true"><path d="M0 5h27M23 1l4 4-4 4"/></svg></a>
+        <div class="lw-stack-gallery" data-gallery-mirror="memes"></div>
         <img class="lw-stack-art" src="../public/img/iMeme.png" alt="" loading="lazy" decoding="async">
       </div>
     </div>
   </section>
 
+  <!-- ==========================================================================
+       CONTACT.
+
+       The fourth stop on the pill, and the first section on the page that is
+       not a scrub: no sticky stage, no camera, no scroll-driven anything. It
+       is the end of the page and it should behave like one — you arrive, and
+       it stops moving.
+
+       It does not repeat the "Say hello." that closes Outside Work. That line
+       is the beat; this is the card it hands you. The four marks came into the
+       repo with the Outside Work art and had been sitting unused in
+       public/img/ ever since — this is the section they were exported for.
+       ========================================================================== -->
+  <section class="sx-contact" id="sx-contact" aria-labelledby="sx-contact-h">
+    <div class="sx-contact-in">
+      <p class="sx-contact-eyebrow">Contact</p>
+      <h2 id="sx-contact-h">Let&rsquo;s build<br>something good.</h2>
+      <p class="sx-contact-lede">
+        Open to product and motion work, and to a conversation that
+        is not yet a brief.
+      </p>
+
+      <!-- The address is the link's own text rather than a "Email me" label.
+           On a contact card the address IS the information — you want to be
+           able to read it, copy it, or type it into something that is not a
+           browser, and a mailto: that hides what it points at gives you none
+           of those. -->
+      <a class="sx-contact-mail" href="mailto:ekcuttingchaidesign@gmail.com">ekcuttingchaidesign@gmail.com</a>
+
+      <!-- TODO(shashank): the four href="#" below need real profile URLs.
+           They are marked with data-sx-todo the same way the two "View
+           Gallery" pills upstairs were, so they are greppable — and they are
+           deliberately NOT guessed from the email's brand name, because a
+           social link that 404s is worse than one that is obviously pending.
+           The mark files themselves are final. -->
+      <ul class="sx-contact-social">
+        <li><a href="#" data-sx-todo="handle"><img src="../public/img/lnkedin.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>LinkedIn</span></a></li>
+        <li><a href="#" data-sx-todo="handle"><img src="../public/img/dribbble.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Dribbble</span></a></li>
+        <li><a href="#" data-sx-todo="handle"><img src="../public/img/instagram.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Instagram</span></a></li>
+        <li><a href="#" data-sx-todo="handle"><img src="../public/img/youtube.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>YouTube</span></a></li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============================================================================
+     THE GALLERY OVERLAY.
+
+     One overlay serves both reels — there is only ever one open — and it lives
+     out here at body level for exactly the reason the nav does: it is
+     position:fixed, and an ancestor carrying a transform, a filter or a
+     perspective turns a fixed descendant back into an absolute one. Inside the
+     Ledge World's stage it would have scrolled away with the world.
+
+     Empty and `hidden` until something opens it. The <img> gets its src at open
+     time, so none of the eighteen full-size files is fetched by a visitor who
+     never opens one.
+     ============================================================================ -->
+<div class="lw-lb" id="lw-lb" role="dialog" aria-modal="true" aria-label="Gallery" hidden>
+  <!-- The scrim is the blur. It is its own element rather than a backdrop-filter
+       on the dialog because the dialog also holds the buttons, and a filter on
+       the parent would blur those along with the page behind. -->
+  <div class="lw-lb-scrim" data-lb-close></div>
+
+  <figure class="lw-lb-frame">
+    <img class="lw-lb-img" alt="">
+  </figure>
+
+  <button class="lw-lb-nav" data-lb-prev type="button" aria-label="Previous image">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+  </button>
+  <button class="lw-lb-nav" data-lb-next type="button" aria-label="Next image">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+  </button>
+
+  <button class="lw-lb-close" data-lb-close type="button">Close</button>
+
+  <!-- Which of how many, for a screen reader. The design has no visible
+       counter and this does not add one; it is the spoken equivalent of being
+       able to see the strip you came from. -->
+  <p class="lw-lb-live" aria-live="polite"></p>
 </div>
 
 <!-- The nav floats, so it lives out here at body level rather than inside the
@@ -1560,29 +1705,52 @@
   <a class="sx-nav-i" href="#sx-exp" data-sec="exp" data-label="Experience">Experience</a>
   <!-- The pull-out: the out-of-the-screen film, where the desk rotates. -->
   <a class="sx-nav-i" href="#s-exit" data-sec="outside" data-label="Outside work">Outside work</a>
+  <a class="sx-nav-i" href="#sx-contact" data-sec="contact" data-label="Contact">Contact</a>
 
-  <!-- The marker. Three columns, 5px each: a white pip sits over the column for
-       the section you are in and the orange staircase leans toward it, so the
-       glyph reads as how far along you are rather than as three unrelated
-       shapes. The pip stepping 0 -> 5 -> 10 is the Figma's own. -->
+  <!-- The marker. A white pip sits over the column for the section you are in
+       and the orange staircase falls away from it, so the glyph reads as how
+       far along you are rather than as unrelated shapes. The pip stepping in
+       5s is the Figma's own.
+
+       FOUR columns now, not three — Contact is a stop on the pill, and a
+       three-column glyph under a four-item row would be telling you the page
+       has three sections while you are standing in the fourth. The box grows
+       15 -> 20 with it, and .sx-nav-mark's width goes .75em -> 1em to match.
+
+       With the fourth column the heights are stated as one rule instead of
+       three hand-drawn sets: 14 under the pip, then 8, 6, 4 stepping away from
+       it in either direction. The old three-column set was very nearly this
+       already — the exception was Experience's left column at 6 where the
+       distance rule wants 8, which read as a lean toward the start of the row
+       and does not survive having a fourth column to lean across. -->
   <span class="sx-nav-mark" aria-hidden="true">
-    <svg viewBox="0 0 15 20" data-for="work" fill="none">
+    <svg viewBox="0 0 20 20" data-for="work" fill="none">
       <rect x="0" y="0" width="5" height="5" class="sx-mark-pip"/>
-      <rect x="0" y="6" width="5" height="14"/>
-      <rect x="5" y="12" width="5" height="8"/>
-      <rect x="10" y="16" width="5" height="4"/>
+      <rect x="0"  y="6"  width="5" height="14"/>
+      <rect x="5"  y="12" width="5" height="8"/>
+      <rect x="10" y="14" width="5" height="6"/>
+      <rect x="15" y="16" width="5" height="4"/>
     </svg>
-    <svg viewBox="0 0 15 20" data-for="exp" fill="none">
+    <svg viewBox="0 0 20 20" data-for="exp" fill="none">
       <rect x="5" y="0" width="5" height="5" class="sx-mark-pip"/>
-      <rect x="0" y="14" width="5" height="6"/>
-      <rect x="5" y="6" width="5" height="14"/>
+      <rect x="0"  y="12" width="5" height="8"/>
+      <rect x="5"  y="6"  width="5" height="14"/>
       <rect x="10" y="12" width="5" height="8"/>
+      <rect x="15" y="14" width="5" height="6"/>
     </svg>
-    <svg viewBox="0 0 15 20" data-for="outside" fill="none">
+    <svg viewBox="0 0 20 20" data-for="outside" fill="none">
       <rect x="10" y="0" width="5" height="5" class="sx-mark-pip"/>
-      <rect x="0" y="16" width="5" height="4"/>
-      <rect x="5" y="12" width="5" height="8"/>
-      <rect x="10" y="6" width="5" height="14"/>
+      <rect x="0"  y="14" width="5" height="6"/>
+      <rect x="5"  y="12" width="5" height="8"/>
+      <rect x="10" y="6"  width="5" height="14"/>
+      <rect x="15" y="12" width="5" height="8"/>
+    </svg>
+    <svg viewBox="0 0 20 20" data-for="contact" fill="none">
+      <rect x="15" y="0" width="5" height="5" class="sx-mark-pip"/>
+      <rect x="0"  y="16" width="5" height="4"/>
+      <rect x="5"  y="14" width="5" height="6"/>
+      <rect x="10" y="12" width="5" height="8"/>
+      <rect x="15" y="6"  width="5" height="14"/>
     </svg>
   </span>
 
@@ -2241,5 +2409,8 @@
 <script src="../assets/vendor/motion.js" defer></script>
 <script src="../assets/js/sections.js" defer></script>
 <script src="../assets/js/outside.js" defer></script>
+<!-- The two reels and the overlay they open. Independent of outside.js, which
+     owns the stage they sit in but knows nothing about them. -->
+<script src="../assets/js/gallery.js" defer></script>
 </body>
 </html>

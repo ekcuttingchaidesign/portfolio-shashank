@@ -219,33 +219,36 @@
 }
 .lw-stack p { margin-bottom: 1.5rem; max-width: 34em; }
 
-/* A real link with a real focus ring. It is reachable by tab in reading order
-   whatever the camera is doing, which is the point of keeping the copy in the
-   document rather than inside the traversal. */
-.lw-cta {
-  display: inline-flex; align-items: center; gap: 1.3em;
-  margin-top: 2.4rem;
-  padding: .95em 1.9em;
-  border: 1px solid rgba(244,241,236,.16);
-  border-radius: 999px;
-  font-family: var(--sx-sans);
-  font-size: clamp(.9rem, 1.1vw, 1.32rem);
+/* The .lw-cta pill — "View Gallery" and "View Memes" — is gone, and its rules
+   with it. The reels replaced both, and a stylesheet that still dresses a
+   component nothing renders is a trap for whoever reads it next: it looks like
+   a thing the page has. Recover it from git if the pattern is ever wanted
+   again. .lw-arrow went the same way; it had no other user. */
+
+/* --- THE EMOJI -------------------------------------------------------------
+   One per station headline, as the frames draw them.
+
+   Its own font stack rather than the inherited one: Satoshi has no emoji
+   coverage, so the glyph falls through to whatever the platform picks anyway —
+   naming the three colour-emoji faces just makes that fall-through the same
+   deliberate one everywhere instead of the first thing that happens to match.
+
+   Set at .78em because the emoji fonts draw a glyph on a full em square while
+   "I play" only fills its cap height, so a 1em emoji stands visibly taller than
+   the letters beside it. .78 lands it on the cap line, which is where the frame
+   has it. Tracking is zeroed — the headline's -.02em is set for letterforms,
+   and pulling a pictograph that tight nudges it into the word.
+
+   aria-hidden on the span, so the heading is announced as "I play" and not "I
+   play video game". The emoji is decoration on a label that already reads. */
+.lw-copy h3 .lw-emoji,
+.lw-stack h3 .lw-emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: .78em;
   font-weight: 400;
-  color: var(--sx-ink, #F4F1EC);
-  text-decoration: none;
-  background: rgba(244,241,236,.04);
-  transition: background .25s var(--sx-ease, ease), border-color .25s var(--sx-ease, ease),
-              transform .25s var(--sx-ease, ease);
+  line-height: 1;
+  letter-spacing: 0;
 }
-.lw-cta:hover { background: rgba(244,241,236,.09); border-color: rgba(244,241,236,.3); transform: translateY(-2px); }
-.lw-cta:focus-visible { outline: 2px solid var(--sx-key, #E0542A); outline-offset: 3px; }
-.lw-cta .lw-arrow {
-  width: 1.9em; height: .64em; overflow: visible;
-  fill: none; stroke: currentColor; stroke-width: 1.1;
-  stroke-linecap: round; stroke-linejoin: round;
-  transition: transform .25s var(--sx-ease, ease);
-}
-.lw-cta:hover .lw-arrow { transform: translateX(3px); }
 
 /* --- TITLE CARD ------------------------------------------------------------
    The one place on the site that is allowed a serif. A different voice for the
@@ -415,6 +418,276 @@
 }
 .lw-stack .lw-stack-art { width: min(420px, 70vw); height: auto; margin-top: 2rem; }
 
+/* --- THE SHELF -------------------------------------------------------------
+   I play's stack of PS5 cases. The render carries its own dark plinth, so this
+   only has to place it and get out of the way — no frame, no background, no
+   shadow. A shadow here would be a second one cast by a ledge that is already
+   painted into the file.
+
+   Width is capped at the file's own 671 rather than stretched to the column:
+   the cases are photographed art at 1:1 and pushing them past 100% is the one
+   thing that would make them look like a screenshot of themselves. */
+.lw-shelf {
+  display: block;
+  width: min(100%, 671px);
+  height: auto;
+  margin-top: 2.4rem;
+}
+.lw-stack .lw-shelf { margin-top: 2rem; }
+
+/* --- THE REELS -------------------------------------------------------------
+   I click and I meme. A row of polaroids that slides left forever.
+
+   The frame is baked into the artwork — white border, photo up top, the wide
+   margin along the bottom — so nothing here draws one. See tools/prep-gallery.py.
+
+   The loop is the ordinary two-copies trick and it is worth being precise
+   about why it never seams: gallery.js appends one aria-hidden clone of the
+   list, so the track holds the set twice, and the animation slides it exactly
+   one copy's width. At -50% the second copy is standing precisely where the
+   first one started, so resetting to 0 is invisible. It follows that the
+   translate MUST be a percentage of the track and the clone MUST be exact —
+   a px distance, or a clone that differs by one gap, and the row jumps once
+   per lap.
+
+   --lw-reel-dur is written by the script from the track's measured width, so
+   the eleven photographs and the seven memes travel at the same speed rather
+   than taking the same time. */
+.lw-reel {
+  margin-top: 2.4rem;
+
+  /* WIDER than the column it sits in, and deliberately. .lw-copy is capped at
+     520px because that is the measure the paragraphs want and the width the
+     ambient field is kept clear of — but the design frame runs the polaroid
+     row from 148 to 825 of 1920, which is 677px and four cards. Inheriting the
+     text measure gave three and a half.
+
+     max() rather than a flat width so the phone is not a second rule: there
+     the copy is 92vw and the reel simply fills it, because 43vw of a 390px
+     screen is 168px and would show one card in the middle of a centred column.
+       desktop -> max(520, 676) = 676, four cards
+       phone   -> max(359, 168) = 359, the full column */
+  width: max(100%, min(43vw, 676px));
+
+  /* The strip is clipped, and the clip is softened. The design is a still, so
+     it has nothing to say about what a card should look like at the moment it
+     is half in frame — but a hard cut through a white polaroid border reads as
+     a rendering fault rather than as an edge. 5% is about 34px: enough to turn
+     the slice into an edge, narrow enough that the leading card still reads as
+     flush with the headline above it, which is the alignment the frame draws. */
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+.lw-reel-track {
+  display: flex;
+  gap: clamp(.5rem, 1.15vw, 1.375rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: max-content;
+  will-change: transform;
+}
+/* Only animate once the clone is in. Without this the single, un-cloned list
+   would slide half its own width away and leave the column empty in the
+   window between first paint and the script running. */
+.lw-reel[data-playing] .lw-reel-track {
+  animation: lw-reel-run var(--lw-reel-dur, 40s) linear infinite;
+}
+@keyframes lw-reel-run {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+/* The brief asks for hover, and focus-within comes with it: a reader tabbing
+   through eleven photographs is doing the same thing as a reader holding a
+   pointer over one, and a strip that keeps moving under the focus ring drags
+   the focused card out from under it. */
+.lw-reel:hover .lw-reel-track,
+.lw-reel:focus-within .lw-reel-track { animation-play-state: paused; }
+
+.lw-reel-track > li { flex: 0 0 auto; margin: 0; }
+
+.lw-reel-i {
+  display: block;
+  width: clamp(74px, 7.9vw, 152px);
+  border-radius: 2px;
+  /* The cards are light on a black field and would otherwise float with no
+     contact. Kept soft and low — these are 150px tall, and a shadow with a
+     hard edge at this size reads as a border. */
+  box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .55);
+  transition: transform .3s var(--sx-ease, ease), box-shadow .3s var(--sx-ease, ease);
+}
+.lw-reel-i img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: inherit;
+}
+.lw-reel-i:hover,
+.lw-reel-i:focus-visible {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 .9rem 2rem rgba(0, 0, 0, .68);
+}
+.lw-reel-i:focus-visible { outline: 2px solid var(--sx-key, #E0542A); outline-offset: 4px; }
+
+/* The mirror in the reduced-motion stack. Same cards, no track, no animation:
+   it wraps rather than scrolls, because a strip that has to be scrolled is a
+   motion requirement of a different kind. */
+.lw-stack-gallery { margin-top: 2rem; }
+.lw-stack-gallery:empty { display: none; }
+.lw-stack-gallery ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(.5rem, 1.5vw, 1rem);
+  width: auto;
+  margin: 0; padding: 0;
+  list-style: none;
+  animation: none;
+}
+.lw-stack-gallery .lw-reel-i { width: clamp(88px, 15vw, 132px); }
+
+/* --- THE GALLERY OVERLAY ---------------------------------------------------
+   One dialog, both reels. Above the nav pill (80) because it is modal and the
+   pill must not be clickable through it. */
+.lw-lb {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lw-lb[hidden] { display: none; }
+
+/* The blur. Its own layer under everything else in the dialog, so the buttons
+   and the photograph sit ON the blur rather than in it.
+
+   The fallback matters more than usual here: with no backdrop-filter this is
+   the only thing separating a photograph from the photographs behind it, so
+   the flat colour is nearly opaque and the filtered version can afford to be
+   much lighter. */
+.lw-lb-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 6, 6, .92);
+  cursor: zoom-out;
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lw-lb-scrim {
+    background: rgba(6, 6, 6, .62);
+    -webkit-backdrop-filter: blur(22px) saturate(.9) brightness(.55);
+            backdrop-filter: blur(22px) saturate(.9) brightness(.55);
+  }
+}
+
+.lw-lb-frame {
+  position: relative;
+  margin: 0;
+  /* Height-led, not width-led. These are 1080x1600 portrait cards, so on any
+     ordinary window it is the viewport's HEIGHT that runs out first — sizing
+     off width would push the bottom of the polaroid off the screen. */
+  max-height: 86vh;
+  max-width: min(92vw, 620px);
+  display: flex;
+}
+.lw-lb-img {
+  display: block;
+  max-height: 86vh;
+  max-width: 100%;
+  width: auto; height: auto;
+  object-fit: contain;
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, .6);
+}
+
+/* --- the controls ---------------------------------------------------------
+   Circular chevrons flanking the card and a Close pill in the corner, as
+   drawn. All three are fixed to the VIEWPORT rather than to the frame: the
+   frame's width changes with every image's aspect, and buttons that shuffle
+   sideways as you page through are buttons you have to re-find each time. */
+.lw-lb-nav,
+.lw-lb-close {
+  position: absolute;
+  border: 0;
+  cursor: pointer;
+  color: #fff;
+  background: rgba(120, 120, 120, .52);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  transition: background .25s var(--sx-ease, ease), transform .25s var(--sx-ease, ease);
+}
+.lw-lb-nav {
+  top: 50%;
+  width: clamp(44px, 4.8vw, 92px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  transform: translateY(-50%);
+}
+.lw-lb-nav svg {
+  width: 42%; height: 42%;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* Flanking the CARD, not pinned to the screen edges — the frame puts them just
+   outside the polaroid, and on a 2560 display an edge-anchored chevron ends up
+   most of a metre from the thing it pages.
+
+   Measuring off the centre is safe here in a way it would not be in a general
+   lightbox: every card in both galleries is the same 1080x1600, so the frame is
+   the same width on every image and the buttons do not move as you page. 440 is
+   the frame's own half-width (310) plus the button and a little air.
+
+   max() keeps them on screen when the window is narrower than that reach —
+   below about 1000px the term goes negative and they fall back to the edge
+   inset, which is the same behaviour they had before. */
+.lw-lb-nav[data-lb-prev] { left:  max(.75rem, calc(50% - 440px)); }
+.lw-lb-nav[data-lb-next] { right: max(.75rem, calc(50% - 440px)); }
+.lw-lb-nav:hover { background: rgba(150, 150, 150, .72); }
+.lw-lb-nav[data-lb-prev]:hover { transform: translateY(-50%) translateX(-3px); }
+.lw-lb-nav[data-lb-next]:hover { transform: translateY(-50%) translateX(3px); }
+
+.lw-lb-close {
+  top: clamp(1rem, 3.4vh, 2.3rem);
+  right: clamp(1rem, 3vw, 3.2rem);
+  padding: .85em 1.6em;
+  border-radius: 999px;
+  background: rgba(40, 40, 40, .78);
+  font-family: var(--sx-sans);
+  font-size: clamp(.85rem, 1.05vw, 1.1rem);
+  line-height: 1;
+  letter-spacing: .01em;
+}
+.lw-lb-close:hover { background: rgba(64, 64, 64, .88); transform: translateY(-1px); }
+
+.lw-lb-nav:focus-visible,
+.lw-lb-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* Spoken, never seen — the visible design has no counter and this does not add
+   one. Not display:none, which would take it out of the accessibility tree and
+   silence the live region along with it. */
+.lw-lb-live {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* One image at a time, and only one dialog, so the page behind must not
+   scroll under it. Set by the script while the overlay is open. */
+html.lw-lb-open, body.lw-lb-open { overflow: hidden; }
+
+/* And the strips stop while it is open. They are behind a 22px blur where
+   nobody can read them, and a paused animation is one fewer layer the
+   compositor has to keep repainting under a backdrop-filter — which is the
+   most expensive thing on the page at that moment. */
+html.lw-lb-open .lw-reel-track { animation-play-state: paused; }
+
 /* --- PHONE -----------------------------------------------------------------
    Copy moves ABOVE the block rather than beside it — at this width a two
    column split gives the headline about twelve characters and it wraps to
@@ -442,4 +715,17 @@
   .lw { height: auto; }
   .lw-stage { display: none; }
   .lw-stack { display: block; }
+
+  /* The reels are inside the stage and go with it, so this is belt and
+     braces rather than the working rule — but a reel is the one thing here
+     that moves on its own clock instead of on the scroll's, and it must not
+     be one stylesheet edit away from running for a reader who asked for
+     stillness. The overlay's own transitions go too; paging through it stays
+     available, it simply arrives rather than slides. */
+  .lw-reel[data-playing] .lw-reel-track { animation: none; }
+  .lw-reel-i,
+  .lw-lb-nav,
+  .lw-lb-close { transition: none; }
+  .lw-reel-i:hover,
+  .lw-reel-i:focus-visible { transform: none; }
 }

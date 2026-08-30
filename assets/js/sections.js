@@ -3298,7 +3298,15 @@
         ['sx-exp',     'exp'],
         ['sx-hand',    'outside'],
         ['s-exit',     'outside'],
-        ['outside-work', 'outside']
+        ['outside-work', 'outside'],
+        /* Contact is its own stop and its own zone. It is the only one in this
+           list that is a plain block rather than a scrub, which changes
+           nothing here — the rule is "the last zone whose top has passed the
+           middle of the screen", and a static section has a top like any
+           other. It has to stay LAST: Outside Work is several viewports of
+           sticky stage, and a zone declared after it that sits above it in the
+           document would win the whole traversal. */
+        ['sx-contact', 'contact']
       ].map(([id, key]) => ({ el: document.getElementById(id), key }))
        .filter(z => z.el);
 
