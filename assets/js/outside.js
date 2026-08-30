@@ -405,8 +405,36 @@
         console.warn('[outside-work] master block has no #top/#left/#right — falling back to a whole-block rise');
       }
       request();
-    }).catch(err => console.warn('[outside-work]', err.message));
+    }).catch(warnBlockFailed);
     return n;
+  }
+
+  /* A block that never arrives has one overwhelmingly likely cause, and the
+     browser's own message for it — "Failed to fetch" — does not mention it.
+
+     Opening prototype/index.html straight off disk puts the page on file://,
+     where fetch() is refused and <img> is not. The blocks are fetched (the SVG
+     has to be inlined so #top/#left/#right can assemble as separate faces);
+     the mascots are plain <img>. So the section does not fail evenly: every
+     block silently disappears and all three figures keep loading, leaving them
+     standing in mid-air over nothing. It looks like missing artwork, and the
+     artwork is fine.
+
+     Once per page, not once per block — there are 50-odd of them and 50-odd
+     copies of this is worse than none. */
+  let fileProtocolWarned = false;
+  function warnBlockFailed(err) {
+    if (location.protocol === 'file:') {
+      if (fileProtocolWarned) return;
+      fileProtocolWarned = true;
+      console.warn(
+        '[outside-work] No blocks: this page is on file://, where fetch() is ' +
+        'blocked. The mascots load anyway (<img> is allowed), which is why they ' +
+        'are floating. Serve the repo over HTTP instead — `node serve.js`, then ' +
+        'http://localhost:8000/prototype/. See "Running it locally" in README.md.');
+      return;
+    }
+    console.warn('[outside-work]', err.message);
   }
 
   /* Mascots. The art may not be here yet; a missing file marks the node rather

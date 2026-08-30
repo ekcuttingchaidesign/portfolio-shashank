@@ -173,9 +173,13 @@
   left: clamp(1.25rem, 8.6vw, 8.6vw);
   /* Anchored by its TOP, not centred. The three blocks are 215, 310 and 370
      tall — centring them put the short one 40px below where the design has it
-     and the tall one 40px above. Every frame starts its headline at about 410
-     of 1080 and lets the block run down from there. */
-  top: 38%;
+     and the tall one 40px above. Every frame starts its headline at the same
+     height and lets the block run down from there.
+
+     28%, not 38%: the frames put the headline's cap line at ~305 of 1080, and
+     the whole column — headline, subtext, shelf or reel — hangs off this one
+     number, so raising it lifts all three stations together. */
+  top: 28%;
   /* Wide enough never to be what breaks the line — the paragraph's own em
      measure does that — and no wider, because the box is what the ambient
      field is kept clear of. At 720 it reached 370px past the longest line and
@@ -193,12 +197,13 @@
   /* Bold, not the display Light the rest of the page opens with. These three
      headlines are labels on a scene rather than a title over a page, and the
      design sets them heavy. */
-  font-weight: 700;
-  /* Sized from the design's ink, not from a guess at its point size: "I play"
-     measures 202px across on the 1920 frame, which puts the face at ~88px.
-     The old 3.5rem ceiling was capping it at 56 and holding the whole column
-     a third under. */
-  font-size: clamp(2.2rem, 4.6vw, 5.5rem);
+  /* Black, the heaviest cut Satoshi ships and the one the frames set these in.
+     Bold read a step light beside the blocks. */
+  font-weight: 900;
+  /* 56px on the 1920 frame, and capped there: the world scales with the
+     viewport but the type does not grow past the size the design sets. The vw
+     term is what carries it DOWN on narrow windows — 2.917vw is 56/1920. */
+  font-size: clamp(2rem, 2.917vw, 3.5rem);
   line-height: 1;
   letter-spacing: -.02em;
   color: #FFFFFF;
@@ -207,9 +212,14 @@
 .lw-stack p {
   margin: 0;
   font-family: var(--sx-sans);
-  font-size: clamp(1rem, 1.46vw, 1.9rem);
-  line-height: 1.85;
-  color: rgba(244,241,236,.88);
+  /* 20px on the 1920 frame, capped there, scaling down the same way the
+     headline does — 1.042vw is 20/1920. */
+  font-weight: 400;
+  font-size: clamp(.9375rem, 1.042vw, 1.25rem);
+  /* 32px between lines in the frames. 1.85 was set when this ran at 30px and
+     is visibly loose at 20. */
+  line-height: 1.6;
+  color: #CDCDCD;
   /* No measure. Each line ends where the design ends it, with a <br>, because
      these are three separate sentences on I click and a deliberate two-line
      break on the others — a width would put the fold somewhere else at every
@@ -454,7 +464,10 @@
    the eleven photographs and the seven memes travel at the same speed rather
    than taking the same time. */
 .lw-reel {
-  margin-top: 2.4rem;
+  /* 2.4rem of air, minus the track's own top padding below — the padding is
+     headroom for the hover lift, not spacing, so it must not push the strip
+     down the column. */
+  margin-top: calc(2.4rem - 14px);
 
   /* WIDER than the column it sits in, and deliberately. .lw-copy is capped at
      520px because that is the measure the paragraphs want and the width the
@@ -483,7 +496,18 @@
   display: flex;
   gap: clamp(.5rem, 1.15vw, 1.375rem);
   margin: 0;
-  padding: 0;
+  /* VERTICAL padding only, and it is load-bearing twice over.
+
+     The reel clips (it has to — that is the marquee's window), and the strip
+     was exactly as tall as a card, so a hovered card's lift and its shadow
+     were both being cut off at the top edge. This is the room they need:
+     14px above covers translateY(-4px) plus the 1.03 scale plus the focus
+     ring, 24px below covers the shadow.
+
+     Horizontal padding would be a bug, not a choice: the loop slides the
+     track by -50% of its OWN border box, so any left/right padding puts the
+     clone half a padding out of register and the row jumps once per lap. */
+  padding: 14px 0 24px;
   list-style: none;
   width: max-content;
   will-change: transform;

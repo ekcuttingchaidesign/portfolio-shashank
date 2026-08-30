@@ -145,7 +145,67 @@
     }
 
     warm(reel, track);
+    wheelable(reel, track);
     reel.dataset.playing = '';
+  }
+
+  /* ==========================================================================
+     3c · THE WHEEL
+     --------------------------------------------------------------------------
+     Hover already stops the strip. Stopping it is only half of what a reader
+     wants at that moment — the other half is being able to move it, and the
+     obvious gesture for a horizontal row is the wheel or a two-finger swipe.
+
+     It scrubs the ANIMATION rather than adding a transform of its own, and
+     that is the whole trick. A second translate on a wrapper would have to be
+     kept inside the slack the marquee has already spent: the track is two
+     copies wide and the animation walks the full copy, so any extra offset
+     can drag the strip's own end into frame. The animation's currentTime has
+     no such problem — the loop is infinite and linear, so every time is a
+     legal position, and wrapping the time into one period is invisible for
+     the same reason the -50% reset is. Handing it back to CSS on pointer-out
+     resumes from wherever the reader left it.
+
+     currentTime is in ms and the strip travels at SPEED px/s, so a wheel
+     delta in px converts straight across.
+
+     preventDefault is deliberate and it is the cost: while the pointer is on
+     the strip the page does not scroll, which on a scroll-driven section
+     means the camera holds too. The strip is a few hundred px of a full
+     viewport and moving off it returns the page immediately — a row that
+     ignored the wheel while visibly inviting it would be the worse trade. */
+  const WHEEL_GAIN = 1;
+
+  /* deltaMode 1 is lines and 2 is pages; Firefox reports lines for a mouse
+     wheel. Normalised to px so the gain means one thing everywhere. */
+  function wheelPx(ev, host) {
+    const d = Math.abs(ev.deltaX) > Math.abs(ev.deltaY) ? ev.deltaX : ev.deltaY;
+    if (ev.deltaMode === 1) return d * 16;
+    if (ev.deltaMode === 2) return d * (host.clientHeight || 400);
+    return d;
+  }
+
+  function wheelable(reel, track) {
+    if (reduced || typeof track.getAnimations !== 'function') return;
+
+    reel.addEventListener('wheel', ev => {
+      /* Read on every event rather than cached: the ResizeObserver above
+         rewrites --lw-reel-dur at every window width, which replaces the
+         timing this is scrubbing against. */
+      const a = track.getAnimations().find(x => x.animationName === 'lw-reel-run');
+      if (!a) return;
+
+      const dur = Number(a.effect && a.effect.getTiming().duration);
+      if (!dur || !isFinite(dur)) return;
+
+      const px = wheelPx(ev, reel);
+      if (!px) return;
+
+      const now  = Number(a.currentTime) || 0;
+      const next = now + px * WHEEL_GAIN / SPEED * 1000;
+      a.currentTime = ((next % dur) + dur) % dur;   // one period, both ways
+      ev.preventDefault();
+    }, { passive: false });
   }
 
   /* ==========================================================================
