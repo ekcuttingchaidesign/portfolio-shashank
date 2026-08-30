@@ -18,11 +18,19 @@
      so it cannot be reached from anywhere else on the page. */
   --lw-amber: #D08544;
 
-  /* 720vh: the spec's 620 plus the run the title stop needs. The camera's key
-     frames are fractions of this, so changing it re-times everything at once
-     and nothing else has to agree with it. */
+  /* 780vh, and the number is derived rather than chosen. The three-station cut
+     spent about 62vh travelling between stops and 74vh dwelling on one; those
+     two are the section's rhythm, and the fourth stop had to be added AT that
+     rhythm rather than by squeezing four stops into the old 720. 43 approach +
+     56 on the title + four stops at 62+74 + 100vh of hold at the end is 680vh
+     of travel, which is a 780vh section.
+
+     The camera's key frames are fractions of this, so changing it re-times
+     everything at once. Two things do have to agree with it: KEYS in
+     outside.js, and .lw-zone below, which is a scroll depth written as a
+     percentage of this height. */
   position: relative;
-  height: 720vh;
+  height: 780vh;
   background: transparent;
   /* The film behind is fixed at z-index 0 and the track sits at 1. The world
      therefore rises OVER the last of the pull-out rather than after it, which
@@ -76,6 +84,10 @@
    lose. A flat ellipse has none, and a 1000px filter would hand the compositor
    paint bounds running some 2000px past the element on every side.
 
+   Tightened by hand to sigma 390 from the 500 below, with the peak
+   HELD at 10.64% rather than recomputed — see the same note on .lw-bloom for
+   why a tighter blur is not allowed to re-brighten this.
+
    Derived, not eyeballed, and re-derived once against the design. Figma's
    layer-blur value is twice the Gaussian sigma, so 1000 is sigma 500 — NOT the
    ~896 a first pass took from the 600px bloom already measured in
@@ -96,11 +108,19 @@
    channels into --lw-glow-rgb and the stops only carry alpha. */
 .lw-glow {
   position: absolute;
-  /* Upper left, where the design puts it in all four frames — warm on the
-     title card, white by the time the stations arrive. */
-  left: 17%; top: 24%;
-  width: 3360px; height: 3110px;      /* 2 x the 3-sigma extent */
-  margin-left: -1680px; margin-top: -1555px;
+  /* Upper left through the title card and the three stations — warm at the
+     start, white by the time the stations arrive.
+
+     The CLOSING frame moves it: on that frame the same ellipse sits at
+     (263, 27) with a 1002x487 box, so centred (764, 270) rather than (326, 259), which is what keeps
+     "Let's build something good" sitting in the dark instead of in the middle
+     of the wash. outside.js lerps these two properties across the approach to
+     Contact — see the note there. The default is the value for everywhere
+     else, so with no script the section looks exactly as it did. */
+  left: var(--lw-glow-x, 17%); top: var(--lw-glow-y, 24%);
+  /* 2 x the 3-sigma extent, at sigma 390. */
+  width: 2780px; height: 2472px;
+  margin-left: -1390px; margin-top: -1236px;
   pointer-events: none;
   background: radial-gradient(closest-side ellipse,
     rgba(var(--lw-glow-rgb, 255,140,108), .1064) 0%,
@@ -356,34 +376,390 @@
 .lw-title .lw-num { font-style: normal; }
 .lw-title .lw-to  { font-style: italic; font-size: .5em; padding: 0 .1em; }
 
-/* --- EXIT ------------------------------------------------------------------
-   The world has thinned to nothing by here and the plaque is the last thing on
-   the page. `Rare` is amber's second and final appearance. */
-.lw-exit {
+/* --- THE CLOSING STOP ------------------------------------------------------
+   Contact, and it is a station now rather than a card underneath the section.
+   The centred plaque that used to close the world is gone, and the .lw-exit,
+   .lw-plaque and .lw-rare rules that dressed it went with it. Its "Rare. 0.2%
+   of visitors" survives as the figure's speech bubble, which is the same joke
+   told by somebody rather than engraved on the page.
+
+   It reuses .lw-copy for everything the three stations already settled — the
+   left column, the 0.30x drift, the proximity fade, the z-index over the world
+   — and states only what differs. What differs: the column is wider (the frame
+   runs its rule to 880 of 1920, past the 520 the paragraphs upstairs want), it
+   starts higher, and it carries a whole card rather than a headline and two
+   lines. */
+.lw-copy-end {
+  /* 238 of 1920, not the stations' 165: the frame indents this column, and it
+     is the one stop with nothing on its left to stay clear of. */
+  left: clamp(1.25rem, 12.4vw, 12.4vw);
+  /* 258 of 1080. Higher than the stations' 28% because the card is taller —
+     six elements against three — and the frame keeps its foot off the floor. */
+  top: 23.9%;
+  /* 642 of 1920, which is where the rule ends. The ledge's near vertex is at
+     1578, so a third of the frame separates the two. */
+  width: min(40vw, 642px);
+}
+
+/* Instrument Serif italic, and this is its SECOND and final appearance: the
+   title card opens the section in it, this closes it, and it appears nowhere
+   else on the site. The key orange brackets the same way. */
+/* Every rule below is scoped to its column, and that is not decoration.
+   `.lw-copy p, .lw-stack p` — the station subtext, three sections up — is
+   (0,1,1) and beats a bare (0,1,0) class no matter how far down the file it
+   sits. Unscoped, .lw-sign rendered as 20px Satoshi instead of 28px Instrument
+   Serif and both paragraphs here lost their margins to that rule's `margin:
+   0`. Two classes is (0,2,0) and settles it on specificity rather than on
+   source order, which is the thing that would quietly break the next time
+   these blocks are reordered. */
+.lw-copy-end .lw-sign,
+.lw-stack-end .lw-sign {
+  margin: 0 0 2rem;
+  font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.3rem, 1.667vw, 2rem);        /* 32 on the 1920 frame */
+  line-height: 1;
+  letter-spacing: 0;
+  /* #FF7D24, and NOT --sx-key. The key orange is #E0542A and this is a full
+     step warmer and brighter; reaching for the token because the two are
+     nearly the same would quietly repaint whichever one moved first. The
+     frame asks for this one, so this one is written down. */
+  color: #FF7D24;
+}
+
+.lw-copy-end h2 {
+  margin: 0 0 1.1rem;
+  font-family: var(--sx-sans);
+  /* Bold, not the Black the station headlines take. Those are labels shouted
+     across a scene; this is a sentence, and at 68px Black is a wall. */
+  font-weight: 700;
+  font-size: clamp(2rem, 3.333vw, 4rem);          /* 64 on the 1920 frame */
+  /* 1.25, measured off the frame rather than kept from the 68px cut: the two
+     cap lines are 80px apart there, which is 1.25 of 64 and not the 1.2 that
+     came with the old size. */
+  line-height: 1.25;
+  letter-spacing: -.02em;
+  color: #FFFFFF;
+}
+
+.lw-copy-end .lw-end-lede,
+.lw-stack-end .lw-end-lede {
+  margin: 0 0 3rem;
+  font-family: var(--sx-sans);
+  font-weight: 400;
+  font-size: clamp(1rem, 1.25vw, 1.5rem);         /* 24 — a step up on the
+                                                     stations' 20 */
+  line-height: 1.6;
+  color: #CDCDCD;
+}
+
+/* A real <hr>, not a border on the paragraph above it. What the frame draws is
+   a thematic break — the card turning over from who I am to how to reach me —
+   and that is the element for it. */
+/* White at the column's left edge, gone by its right. A border cannot do that
+   — border-color takes a colour, not an image — so the rule is a 1px box with
+   a gradient background and no border at all. Which is also what it means: the
+   card does not divide into two halves, it fades out of the half above. */
+.lw-copy-end .lw-end-rule {
+  margin: 0 0 3.2rem;
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, #FFFFFF 0%, rgba(255,255,255,0) 100%);
+}
+
+.lw-copy-end .lw-end-mail,
+.lw-stack-end .lw-end-mail {
+  display: inline-block;
+  margin: 0 0 2.6rem;
+  font-family: var(--sx-sans);
+  font-weight: 400;
+  font-size: clamp(1.4rem, 1.875vw, 2.25rem);     /* 36 on the 1920 frame */
+  line-height: 1.2;
+  /* Painted #FFF5C1 -> #FFFFFF through the glyphs, the way the title card's
+     serif is painted. The fallback colour matters and is not decoration: a
+     browser without background-clip:text gets the cream, not an invisible
+     address. */
+  color: #FFF5C1;
+  background-image: linear-gradient(90deg, #FFF5C1 0%, #FFFFFF 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  /* THE reason there were two lines under this address, and it is not obvious:
+     background-clip:text clips the background to the text AND to its
+     decorations, so the <a>'s default underline was being painted with the
+     same cream gradient as the glyphs — a second rule nobody wrote, sitting
+     just above the one below. Turning the decoration off is the fix; setting
+     text-decoration-color would not be, because the clip repaints it. */
+  text-decoration: none;
+  position: relative;
+  /* Hover moves BRIGHTNESS, not opacity, and that is not a style preference:
+     the closing card is revealed by writing opacity on this element every
+     frame of the scrub, and a CSS transition on the same property would sit
+     between the scrub and the screen, easing toward each frame value and
+     arriving late for all of them. Whatever the scrub drives, hover must not
+     touch. brightness reaches the gradient in the glyphs and the orange rule
+     underneath in one go, which opacity never did anyway. */
+  transition: filter .25s var(--sx-ease, ease);
+}
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .lw-copy-end .lw-end-mail,
+  .lw-stack-end .lw-end-mail { color: transparent; }
+}
+/* The underline is drawn rather than set, and it is a flat orange rather than
+   the address's own cream gradient — the one place in this card where the line
+   is not the same colour as the thing it belongs to. It is the only mark that
+   says "this is a link" now that the decoration is off. */
+.lw-copy-end .lw-end-mail::after,
+.lw-stack-end .lw-end-mail::after {
+  content: "";
   position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
-  width: min(46ch, 84vw);
+  left: 0; right: 0; bottom: -.16em;
+  height: 1px;
+  background: #FB6C0B;
+}
+.lw-copy-end .lw-end-mail:hover,
+.lw-stack-end .lw-end-mail:hover { filter: brightness(1.18); }
+.lw-end-mail:focus-visible { outline: 2px solid var(--sx-key, #E0542A); outline-offset: 4px; }
+
+.lw-copy-end .lw-end-social,
+.lw-stack-end .lw-end-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem 2.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lw-copy-end .lw-end-social a,
+.lw-stack-end .lw-end-social a {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  font-family: var(--sx-sans);
+  font-size: clamp(.8rem, .885vw, 1.0625rem);     /* 17 on the frame */
+  color: var(--sx-ink-2, rgba(244,241,236,.72));
+  text-decoration: none;
+  transition: color .25s var(--sx-ease, ease);
+}
+.lw-end-social a:hover { color: var(--sx-ink, #F4F1EC); }
+.lw-end-social a:focus-visible { outline: 2px solid var(--sx-key, #E0542A); outline-offset: 4px; }
+.lw-copy-end .lw-end-social img,
+.lw-stack-end .lw-end-social img {
+  width: 24px; height: 24px;
+  opacity: .72;
+  transition: opacity .25s var(--sx-ease, ease);
+}
+.lw-end-social a:hover img { opacity: 1; }
+
+/* --- THE BUBBLE ------------------------------------------------------------
+   outside.js moves this INTO the figure's node once the stage is live, so
+   everything below is positioned against the mascot's own box — which is why
+   there is not one viewport unit in it. The figure drifts on the travel axis,
+   floats on its own phase and fades on its own entrance; the bubble inherits
+   all three by being inside it, instead of reproducing all three and
+   disagreeing at the third decimal. On a tail pointing at a head, the third
+   decimal is the only place a disagreement shows.
+
+   Until it is moved — no scripting, or a phone — it is the last paragraph in
+   the contact column and reads as one, which is why the un-ridden rule is a
+   plain static block. */
+/* Two selectors, one block, and the pair is the point: this element is styled
+   in BOTH of the places it can live. `.lw-copy-end .lw-bubble` is the (0,2,0)
+   it needs to beat `.lw-copy p` while it is still in the column; the bare
+   `.lw-bubble` is what survives being moved onto the figure, where the column
+   is no longer an ancestor and the scoped selector stops matching. Dropping
+   the bare one — which is what scoping every rule in this section to its
+   column did at first — left the ridden bubble inheriting 16px from nothing in
+   particular. */
+.lw-bubble,
+.lw-copy-end .lw-bubble {
+  margin: 2.6rem 0 0;
+  font-family: var(--sx-sans);
+  font-size: clamp(.9375rem, 1.042vw, 1.25rem);
+  line-height: 1.4;
+  color: var(--sx-ink-2, rgba(244,241,236,.72));
+}
+/* Every number below is the frame's, converted from its absolute page
+   coordinates into offsets from the figure's own box — which is the only frame
+   of reference that survives the world scaling.
+
+     frame                          here
+     left 1477, width 368.59        width 368.59px, right edge at 1845.59
+     pill top 276.13, height 100.73 pill bottom at 376.86
+     figure box right 1856.35       so `right: 10.8px`
+     figure box top 413.15          so `bottom: calc(100% + 36.3px)`
+     text at 1514.77 / 295.59       padding 19.4px 37.8px
+     tail centre 1763.17            82.4px in from the bubble's right edge
+
+   The fill is two Figma layers composited: #2D2D2D under rgba(89,89,89,.3),
+   which resolves to #3A3A3A. The overlay covers the pill and not the tail, so
+   the tail keeps the darker #2D2D2D — a difference of thirteen values that is
+   invisible until the two are side by side, which on a tail joining a panel is
+   exactly where they are. */
+.lw-bubble[data-lw-ridden] {
+  position: absolute;
+  right: 10.8px;
+  bottom: calc(100% + 36.3px);
+  margin: 0;
+  /* border-box, as the frame's own spec says: 368.59 x 100.73 is the OUTSIDE
+     of the 1.14px border, and content-box put it 2.3px taller than the
+     drawing. */
+  box-sizing: border-box;
+  width: 368.59px;
+  height: 100.73px;
+  padding: 19.4px 37.8px;
+  background: #3A3A3A;                 /* #2D2D2D under rgba(89,89,89,.3) */
+  border: 1.14px solid #747474;
+  /* A pill, not a rounded box: the frame's 572px radius is far past half the
+     height, which is the same thing said in Figma's units. */
+  border-radius: 999px;
+  font-size: 22.89px;
+  line-height: 31px;
+  color: #C7C7C7;
+  text-align: left;
+  box-shadow: 0 1rem 2.4rem rgba(0, 0, 0, .45);
+}
+/* The tail. A square rotated 45deg, so its bottom vertex points straight down
+   at the head, with the border on the two sides that end up facing out — the
+   other two are behind the pill and would draw a line across the join.
+   -1px of overlap hides the pill's own border where the tail meets it. */
+.lw-bubble[data-lw-ridden]::after {
+  content: "";
+  position: absolute;
+  right: 69px;
+  bottom: -14px;
+  width: 27px; height: 27px;
+  background: #2D2D2D;
+  border-right: 1.14px solid #747474;
+  border-bottom: 1.14px solid #747474;
+  border-bottom-right-radius: 5px;
+  transform: rotate(45deg);
+}
+
+/* --- THE BLOOM ------------------------------------------------------------
+   ONE ellipse, and the history is worth keeping because the mistake is an easy
+   one to repeat.
+
+   The closing frame carries two blooms: a warm near-white high on the left, and
+   a blue-violet low under the column. The first of those is not a new thing —
+   it is .lw-glow, forty lines up, which is already a 1002-wide ellipse under a
+   1000px blur whose colour travels to white by the end of the traversal. The
+   frame does not add a second white ellipse; it MOVES that one. Building it as
+   an addition put two copies of the same wash over the same headline and lit
+   the hero text to about rgb(52,52,52) against the frame's ~rgb(17,17,17).
+
+   So the white one lives on .lw-glow and its position is driven, and what is
+   left here is the blue, which genuinely has no other source: it is the only
+   cool light anywhere in the section, and it sits UNDER the column rather than
+   over it.
+
+   The alpha is derived rather than taken from the layer. Blurring conserves
+   ink — it spreads a shape, it does not dim it — so the 60% the Figma layer
+   carries is not what reaches the screen:
+
+     Figma's layer blur is twice the Gaussian sigma, so 800 is sigma 400.
+     A uniform ellipse of semi-axes a,b has variance a^2/4 and b^2/4, and
+     convolution adds variances, so the blob is near enough circular that the
+     source ellipse's shape barely survives — which is why this is not drawn as
+     an ellipse.
+     Peak = area / (2*pi*sx*sy) * 0.6 = 0.105, not 0.6.
+
+   Tightened by hand from there: sigma 400 -> 352, a 12% cut, which pulls the
+   extent in from 1306px to 1175. The PEAK IS HELD at .1049 rather than being
+   recomputed. Physics says a tighter blur concentrates the same ink and should
+   raise the peak about 25%, and that is the honest number — but the note asked
+   for tighter, not brighter, and this wash had already been too hot twice.
+   Tightening it and letting it re-brighten would have undone the fix that came
+   before it. If a brighter centre IS wanted, the peak is one number.
+
+   Stops run exp(-(3t)^2/2) of the peak out to three sigma. Reaching zero at
+   the ellipse's own edge instead — which is what a plain closest-side gradient
+   does — is what put a visible rim on the first cut of this.
+
+   Painted as a background on a frame-sized box rather than sized to its own
+   extent: at three sigma the blob is 2600px across, and a div that size is a
+   ~27MB compositor texture for something that is only ever paint. */
+.lw-bloom {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 0;
+  /* 686 x 364, #4E51FF. Figma puts the box at (37, 685) — centre (380, 867) —
+     and it is drawn here at centre (380, 1165) instead — 298px lower, which puts
+     the peak 85px BELOW the bottom of the frame.
+
+     Not a disagreement with the frame, a consequence of what the blur does to
+     it. The drawn blob is a Gaussian of sigma 364, so it is still readable
+     about 550px above its own centre where the frame's ellipse simply stops
+     at its box. Placed on the frame's centre it therefore reads as starting
+     far higher than the frame draws it, and washes the headline. Moved down,
+     what is left in the upper half is the tail rather than the shoulder.
+     Radii in vw for both
+     axes so the blob keeps its shape instead of stretching with the window. */
+  background-image:
+    radial-gradient(61.20vw 56.81vw at 19.79% 107.87%,
+      rgba(78,81,255,.1049) 0%,
+      rgba(78,81,255,.1003) 10%,
+      rgba(78,81,255,.0876) 20%,
+      rgba(78,81,255,.0700) 30%,
+      rgba(78,81,255,.0511) 40%,
+      rgba(78,81,255,.0341) 50%,
+      rgba(78,81,255,.0208) 60%,
+      rgba(78,81,255,.0116) 70%,
+      rgba(78,81,255,.0059) 80%,
+      rgba(78,81,255,.0027) 90%,
+      rgba(78,81,255,0)     100%);
+}
+
+/* --- THE LAST LINE ---------------------------------------------------------
+   FIXED, and it has to be. Absolute against the section was the obvious build
+   and it is wrong: the camera parks at Contact for the last 100vh, and an
+   absolutely-positioned line inside a 780vh section keeps travelling for all
+   of it — measured, it sat 532px under the fold through the whole hold and
+   only arrived on the last pixel of scroll. Everything else in the frame has
+   stopped by then. The one thing still moving is the one thing that reads as
+   broken.
+
+   Fixed rather than moved into the stage, because the stage is display:none on
+   a phone and this line belongs to the page rather than to the world. Here it
+   stays one element: fixed and JS-faded on the desktop stage, static at the
+   foot of the stack on a phone (see the breakpoint at the end of this file).
+
+   Its opacity is written by outside.js off the same proximity band the contact
+   copy uses, so it arrives with the card rather than being visible over the
+   whole traversal. */
+.lw-made {
+  position: fixed;
+  left: 0; right: 0; bottom: 4.5vh;         /* baseline at 1029 of 1080 */
+  opacity: 0;
+  margin: 0;
   text-align: center;
+  font-family: var(--sx-sans);
+  font-size: clamp(.75rem, .729vw, .875rem);      /* 14 on the frame */
+  color: var(--sx-ink-3, rgba(244,241,236,.54));
   z-index: 3;
 }
-.lw-plaque {
-  margin: 0 0 2.4rem;
-  font-family: var(--sx-mono);
-  font-size: var(--sx-t-mono, .72rem);
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  line-height: 2;
-  color: var(--sx-ink-3, rgba(244,241,236,.54));
+.lw-made span[aria-hidden] {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
 }
-.lw-plaque .lw-rare { color: var(--lw-amber, #D08544); }
-.lw-exit h2 {
-  margin: 0;
-  font-family: var(--sx-sans);
-  font-weight: 300;
-  font-size: var(--sx-t-head, 3.4rem);
-  letter-spacing: -.02em;
-  color: var(--sx-ink, #F4F1EC);
+/* The heart is decoration on a sentence that still has to read without it. */
+.lw-sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The nav's fourth zone. Zero-height and invisible; it exists because the spy
+   in sections.js measures a zone by its own rect.top, and Contact's card is
+   inside a position:fixed stage that has no descending top of its own. */
+.lw-zone {
+  position: absolute;
+  left: 0; top: 79%;
+  width: 1px; height: 1px;
+  pointer-events: none;
 }
 
 /* The skip link. Present for everyone, visible only when tabbed to. */
@@ -557,6 +933,28 @@
 /* The mirror in the reduced-motion stack. Same cards, no track, no animation:
    it wraps rather than scrolls, because a strip that has to be scrolled is a
    motion requirement of a different kind. */
+/* --- THE CLOSING STOP, STACKED ---------------------------------------------
+   The fourth item in the reduced-motion / phone stack. It inherits .lw-stack's
+   h3 and p like the three above it and only has to place what the stage's
+   version gets from being a station: the sign, the address, the marks, and the
+   bubble line as plain copy.
+
+   The bubble is a separate element here rather than the same one twice over
+   because outside.js MOVES the stage's copy onto the figure, and this subtree
+   never sees it. Two elements holding one sentence is the cost of the line
+   existing in both layouts; the alternative is JS reaching across to clone it,
+   which is worse for a sentence that is unlikely to change. */
+.lw-stack-end .lw-sign { margin-bottom: 1.2rem; }
+.lw-stack-end .lw-end-mail { margin: .4rem 0 1.8rem; }
+.lw-stack-end .lw-end-social { justify-content: center; }
+.lw-stack-rare {
+  margin: 0 0 1.5rem;
+  font-family: var(--sx-sans);
+  font-size: clamp(.9375rem, 1.042vw, 1.25rem);
+  line-height: 1.5;
+  color: var(--sx-ink-3, rgba(244,241,236,.54));
+}
+
 .lw-stack-gallery { margin-top: 2rem; }
 .lw-stack-gallery:empty { display: none; }
 .lw-stack-gallery ul {
@@ -731,6 +1129,11 @@ html.lw-lb-open .lw-reel-track { animation-play-state: paused; }
   .lw-copy p { max-width: none; }
   .lw-title h2 { font-size: clamp(2.6rem, 13vw, 4rem); }
   .lw-title .lw-title-tail { font-size: clamp(2.2rem, 11vw, 3.4rem); }
+
+  /* The last line stays FIXED here. A phone runs the live stage like a desktop
+     does — the stack below is the reduced-motion layout, not the phone one —
+     so this line is still pinned to the window and still faded in by the
+     camera. It goes static in the reduced-motion block instead. */
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -752,4 +1155,26 @@ html.lw-lb-open .lw-reel-track { animation-play-state: paused; }
   .lw-lb-close { transition: none; }
   .lw-reel-i:hover,
   .lw-reel-i:focus-visible { transform: none; }
+
+  /* The closing stop's links fade on hover like everything else here; a reader
+     who asked for stillness gets the colour, just not the travel to it. */
+  .lw-end-mail,
+  .lw-end-social a,
+  .lw-end-social img { transition: none; }
+  /* The reveal is a scrub, so there is no timeline to shorten — but nothing
+     should be sitting below its own place either, and JS never runs here to
+     put it back. */
+  .lw-sign, .lw-copy-end h2, .lw-end-lede,
+  .lw-end-rule, .lw-end-mail, .lw-end-social { transform: none; opacity: 1; }
+
+  /* THIS is where the last line stops being pinned. The stage is display:none
+     above, outside.js returned before it wrote a single style, and the section
+     is height:auto — so the line is simply the last thing in the document,
+     under the stack. No !important needed: nothing is competing for it. */
+  .lw-made {
+    position: static;
+    opacity: 1;
+    margin: 3rem 0 0;
+    padding-bottom: 1rem;
+  }
 }

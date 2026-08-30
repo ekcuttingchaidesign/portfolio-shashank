@@ -1526,14 +1526,86 @@
         </div>
       </div>
 
-      <div class="lw-exit" id="say-hello">
-        <p class="lw-plaque">
-          Trophy unlocked &mdash; Scrolled to the end.<br>
-          <span class="lw-rare">Rare.</span> 0.2% of visitors.
-        </p>
-        <h2>Say hello.</h2>
+      <!-- The bloom behind the closing card: a warm near-white high on the
+           left, a blue-violet low under the column, both painted onto this one
+           frame-sized layer. Before the copy in source order because that is
+           where it sits in the stack — z-index 0 against the column's 3 — and
+           aria-hidden because it is light and nothing else.
+
+           data-lw-endframe rather than a class the script knows: it marks
+           "this belongs to the Contact frame, fade it with that stop", which
+           is a thing about the element rather than about its styling, and it
+           lets the last line below say the same thing without outside.js
+           holding a list of selectors. -->
+      <div class="lw-bloom" data-lw-endframe aria-hidden="true"></div>
+
+      <!-- The fourth stop. Not a section under the world any more: the same
+           .lw-copy the three stations use, at the same left column, so the
+           camera arrives here the way it arrives anywhere else. `contact` is
+           in STATIONS, and outside.js drives this element's drift and fade
+           off that entry like the other three.
+
+           The bubble is written HERE, in the column, and moved onto the figure
+           by outside.js once the stage is live — see the note there. With
+           scripting off it stays in the column and simply reads as a line of
+           copy, which is what it is. -->
+      <div class="lw-copy lw-copy-end" data-station="contact" id="say-hello">
+        <p class="lw-sign">and that&rsquo;s all folks!</p>
+        <h2 id="sx-contact-h">Let&rsquo;s build<br>something good</h2>
+        <p class="lw-end-lede">Open to product and motion work.</p>
+
+        <hr class="lw-end-rule">
+
+        <!-- The address is the link's own text rather than an "Email me"
+             label. On a contact card the address IS the information — you want
+             to read it, copy it, or type it into something that is not a
+             browser, and a mailto: that hides what it points at gives you none
+             of those. -->
+        <a class="lw-end-mail" href="mailto:ekcuttingchaidesign@gmail.com">ekcuttingchaidesign@gmail.com</a>
+
+        <!-- TODO(shashank): the four href="#" below still need real profile
+             URLs. Marked with data-sx-todo so they stay greppable, and
+             deliberately NOT guessed from the email's brand name — a social
+             link that 404s is worse than one that is obviously pending. The
+             mark files themselves are final. Order follows the frame:
+             LinkedIn, Instagram, Dribbble, YouTube. -->
+        <ul class="lw-end-social">
+          <li><a href="#" data-sx-todo="handle"><img src="../public/img/lnkedin.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Linkedin</span></a></li>
+          <li><a href="#" data-sx-todo="handle"><img src="../public/img/instagram.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Instagram</span></a></li>
+          <li><a href="#" data-sx-todo="handle"><img src="../public/img/dribbble.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Dribbble</span></a></li>
+          <li><a href="#" data-sx-todo="handle"><img src="../public/img/youtube.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Youtube</span></a></li>
+        </ul>
+
+        <p class="lw-bubble">You are rare 0.2% of visitors who scrolled till here</p>
       </div>
+
     </div>
+
+    <!-- The nav's fourth zone, and the target of its Contact link.
+
+         Contact lives inside the pinned stage now, and a fixed element has no
+         top that descends past the middle of the screen — which is the only
+         thing the spy in sections.js measures. So the zone is this: a
+         zero-height marker at the scroll depth where the camera reaches the
+         stop, plus half a viewport, so the pill lights at the moment the card
+         is actually in frame rather than a screen early. It is also what
+         `href="#sx-contact"` scrolls to, and it lands in the hold rather than
+         mid-approach.
+
+         79% of 780vh = 616vh, against the 569vh at which the camera arrives.
+         Both numbers move together if the section height changes; if you
+         re-time KEYS, re-derive this one. -->
+    <div id="sx-contact" class="lw-zone" aria-hidden="true"></div>
+
+    <!-- The page's last line, and deliberately NOT in the stage.
+
+         In the stage it would be pinned to the window for all 780vh and need
+         JS to hold it back until the camera parked; out here it is absolute
+         against the section, so the bottom of the section IS the bottom of the
+         frame at the moment the camera stops, and it simply arrives. One
+         element rather than two: on a phone the stage is display:none, the
+         section is height:auto, and this lands under the stack on its own. -->
+    <p class="lw-made" data-lw-endframe>made with <span aria-hidden="true">&#10084;&#65039;</span><span class="lw-sr">love</span> by Shashank &amp; Claude Code</p>
 
     <!-- The section with the stage taken away. Not a summary of it: the same
          words in the same order, one still per stop. Shown under reduced
@@ -1573,52 +1645,29 @@
         <div class="lw-stack-gallery" data-gallery-mirror="memes"></div>
         <img class="lw-stack-art" src="../public/img/iMeme.png" alt="" loading="lazy" decoding="async">
       </div>
+
+      <!-- Contact, stacked. The stage's fourth stop with the camera taken
+           away, the same way the three above are — same words, same order, the
+           figure as one still. It carries its own copy of the bubble line
+           because outside.js moves the stage's copy onto the mascot and this
+           subtree never sees it. -->
+      <div class="lw-stack-item lw-stack-end">
+        <p class="lw-sign">and that&rsquo;s all folks!</p>
+        <h3>Let&rsquo;s build something good</h3>
+        <p>Open to product and motion work.</p>
+        <a class="lw-end-mail" href="mailto:ekcuttingchaidesign@gmail.com">ekcuttingchaidesign@gmail.com</a>
+        <ul class="lw-end-social">
+          <li><a href="#" data-sx-todo="handle"><img src="../public/img/lnkedin.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Linkedin</span></a></li>
+          <li><a href="#" data-sx-todo="handle"><img src="../public/img/instagram.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Instagram</span></a></li>
+          <li><a href="#" data-sx-todo="handle"><img src="../public/img/dribbble.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Dribbble</span></a></li>
+          <li><a href="#" data-sx-todo="handle"><img src="../public/img/youtube.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Youtube</span></a></li>
+        </ul>
+        <p class="lw-stack-rare">You are rare 0.2% of visitors who scrolled till here</p>
+        <img class="lw-stack-art" src="../public/img/mascot_say_hi.png" alt="" loading="lazy" decoding="async">
+      </div>
     </div>
   </section>
 
-  <!-- ==========================================================================
-       CONTACT.
-
-       The fourth stop on the pill, and the first section on the page that is
-       not a scrub: no sticky stage, no camera, no scroll-driven anything. It
-       is the end of the page and it should behave like one — you arrive, and
-       it stops moving.
-
-       It does not repeat the "Say hello." that closes Outside Work. That line
-       is the beat; this is the card it hands you. The four marks came into the
-       repo with the Outside Work art and had been sitting unused in
-       public/img/ ever since — this is the section they were exported for.
-       ========================================================================== -->
-  <section class="sx-contact" id="sx-contact" aria-labelledby="sx-contact-h">
-    <div class="sx-contact-in">
-      <p class="sx-contact-eyebrow">Contact</p>
-      <h2 id="sx-contact-h">Let&rsquo;s build<br>something good.</h2>
-      <p class="sx-contact-lede">
-        Open to product and motion work, and to a conversation that
-        is not yet a brief.
-      </p>
-
-      <!-- The address is the link's own text rather than a "Email me" label.
-           On a contact card the address IS the information — you want to be
-           able to read it, copy it, or type it into something that is not a
-           browser, and a mailto: that hides what it points at gives you none
-           of those. -->
-      <a class="sx-contact-mail" href="mailto:ekcuttingchaidesign@gmail.com">ekcuttingchaidesign@gmail.com</a>
-
-      <!-- TODO(shashank): the four href="#" below need real profile URLs.
-           They are marked with data-sx-todo the same way the two "View
-           Gallery" pills upstairs were, so they are greppable — and they are
-           deliberately NOT guessed from the email's brand name, because a
-           social link that 404s is worse than one that is obviously pending.
-           The mark files themselves are final. -->
-      <ul class="sx-contact-social">
-        <li><a href="#" data-sx-todo="handle"><img src="../public/img/lnkedin.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>LinkedIn</span></a></li>
-        <li><a href="#" data-sx-todo="handle"><img src="../public/img/dribbble.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Dribbble</span></a></li>
-        <li><a href="#" data-sx-todo="handle"><img src="../public/img/instagram.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Instagram</span></a></li>
-        <li><a href="#" data-sx-todo="handle"><img src="../public/img/youtube.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>YouTube</span></a></li>
-      </ul>
-    </div>
-  </section>
 
 </div>
 

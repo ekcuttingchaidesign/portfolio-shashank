@@ -76,7 +76,25 @@
     amb_1:  { src: 'block_1.svg',      nw: 278, nh: 207, origin: { x: .201, y: 1    }, ridge: { x: .350, y: .569 } },
     amb_2:  { src: 'block_2.svg',      nw: 395, nh: 281, origin: { x: .443, y: .998 }, ridge: { x: .472, y: .608 } },
     amb_3:  { src: 'block_3.svg',      nw: 324, nh: 233, origin: { x: .315, y: .998 }, ridge: { x: .405, y: .591 } },
-    amb_4:  { src: 'block_4.svg',      nw:  55, nh:  59, origin: { x: .443, y: 1    }, ridge: { x: .472, y: .403 } }
+    amb_4:  { src: 'block_4.svg',      nw:  55, nh:  59, origin: { x: .443, y: 1    }, ridge: { x: .472, y: .403 } },
+
+    /* The closing stop's plinth, and the one block here that is NOT a block.
+
+       last_ledge is a wide slab that runs off the right of the frame: its top
+       face is a TRIANGLE in the export, not a parallelogram, because the shape
+       continues past the artboard and was clipped there. measure-iso refuses
+       it for exactly that reason ("front/right vertices are degenerate"), and
+       it is not a failure — there is no front-right edge to measure because
+       the frame cuts it off. It is drawn on its own geometry, not the stations'
+       30deg, and nothing rides the travel axis off it, so that is fine.
+
+       origin is the top face's LEFT vertex, (0, 246.5) of the 398x484 box —
+       the only vertex the artboard does not clip, so the only one that means
+       the same thing at every scale. ridge is where the figure's soles go,
+       (179, 264.5), which is inside the top face and forward of its centre,
+       the way the frame stands it. */
+    last_ledge: { src: 'last_ledge.svg', nw: 398, nh: 484,
+                  origin: { x: 0, y: .5093 }, ridge: { x: .4497, y: .5465 } }
   };
   const IMG = '../public/img/';
 
@@ -129,7 +147,23 @@
        the figures against 9% of empty haze and lands them a head shorter than
        the two beside them. ay is the lowest solid pixel for the same reason —
        0.9308 counts shadow below the shoe as figure and floats the pair. */
-    'iMeme.png':  { w: 954, h: 939, contentH: 758, ax: 0.4790, ay: 0.9042, h3: 0.90 }
+    'iMeme.png':  { w: 954, h: 939, contentH: 758, ax: 0.4790, ay: 0.9042, h3: 0.90 },
+
+    /* The closing figure. measure-mascots.mjs wants Playwright, which is not
+       installed here, so this was read straight off the alpha channel with the
+       same rules the tool uses — and checked by re-measuring iShoot, which came
+       back within a percent of its manifest line.
+
+       The contact patch is taken from the 4% band rather than the tool's 8%:
+       measured down the bands it holds at x[78..309] from 2% to 6% and then
+       jumps to 338 at 8%, which is the hood and the pack coming into the box,
+       not the shoes. Anchoring on the 8% number walks the figure right off the
+       ledge's front edge.
+
+       h3 is against a 484-tall ledge rather than a 509-tall master block, so it
+       is not comparable to the three above — it is the ink height the frame
+       draws, as a share of the slab it stands on. */
+    'mascot_say_hi.png': { w: 373, h: 539, contentH: 507, ax: 0.5188, ay: 0.9814, h3: 0.58 }
   };
 
   const MASCOT_H = 0.62;                 // only for a file with no entry above
@@ -201,7 +235,22 @@
        there while resolving fine on a Mac. */
     { id: 'play',  t: 0,    master: 'master', mascot: 'iplay.png'  },
     { id: 'click', t: 1450, master: 'master', mascot: 'iShoot.png' },
-    { id: 'meme',  t: 2900, master: 'master', mascot: 'iMeme.png'  }
+    { id: 'meme',  t: 2900, master: 'master', mascot: 'iMeme.png'  },
+
+    /* Contact, and it is a station now rather than the block of type that used
+       to sit under the section. It reads in continuation of I meme because it
+       IS the next stop on the same rail: same camera, same left column, a
+       figure on a plinth at the right. What changes is that the camera does not
+       leave again — 4350 is where it parks, and the three nodes here are the
+       only ones the dissolve is not allowed to take.
+
+       Its own ox/oy: the ledge is placed by its top-face left vertex and sits
+       further right and lower than a master block does, because the slab runs
+       off the frame rather than standing in the middle of it. assemble is off —
+       last_ledge has no #top/#left/#right to fold together, and asking for them
+       only earns a console warning and the fallback it would have used anyway. */
+    { id: 'contact', t: 4350, master: 'last_ledge', mascot: 'mascot_say_hi.png',
+      ox: 618, oy: 148, pox: -199, poy: 500, assemble: false, last: true }
   ];
 
   /* Hand-placed, not scattered. A seed that reproduces a balanced composition
@@ -302,16 +351,31 @@
      are the dwells.
      ====================================================================== */
   const KEYS = [
-    [0.00, -1600],
-    [0.07,  -900],   // title arrives
-    [0.16,  -900],   // dwell
-    [0.26,     0],   // I play
-    [0.38,     0],
-    [0.50,  1450],   // I click
-    [0.62,  1450],
-    [0.74,  2900],   // I meme
-    [0.86,  2900],
-    [1.00,  4300]    // exit
+    /* Re-timed for the fourth stop, and re-timed by measuring rather than by
+       redistributing: the three-station cut spent about 62vh moving between
+       stops and about 74vh dwelling on one, and those two numbers are the
+       section's rhythm. Holding them and adding a stop is what set the height
+       to 780vh — 43 approach + 56 on the title + four stops at 62+74 + 100 of
+       hold at the end comes to 680vh of travel, which is 780vh of section.
+       Redistributing the old 720 instead would have kept the height and made
+       every stop 25% quicker, which is a different edit wearing this one's
+       description.
+
+       The last pair is not a dwell, it is a STOP. The camera reaches Contact
+       at 0.837 and stays there for the remaining 100vh, because this is the
+       end of the page: there is nothing after it to move toward, and a camera
+       that drifts past its last subject leaves the reader looking at black. */
+    [0.000, -1600],
+    [0.063,  -900],   // title arrives
+    [0.146,  -900],   // dwell
+    [0.237,     0],   // I play
+    [0.346,     0],
+    [0.437,  1450],   // I click
+    [0.546,  1450],
+    [0.637,  2900],   // I meme
+    [0.746,  2900],
+    [0.837,  4350],   // Contact
+    [1.000,  4350]    // and it holds
   ];
 
   const easeInOutQuad = k => (k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2);
@@ -482,23 +546,53 @@
   AMBIENT.forEach((a, i) => addBlock(
     Object.assign({ kind: 'block', win: AMB_WIN[a.tier] || 1400, ai: i }, a)));
 
+  let contactFigure = null;
   STATIONS.forEach((st, i) => {
     const m = BLOCKS[st.master];
     /* One phase for the block, the figure on it and its shadow. They are three
        nodes drawing one object, and the drift has to be identical across all
        three or the figure walks off its own plinth. */
     const ph = i * 2.399;
-    addShadow({ t: st.t, ox: 280, oy: 40, tier: 'stage', station: st.id, delay: .12, master: m, phase: ph });
-    addBlock({ t: st.t, ox: 280, oy: 40, tier: 'stage', variant: st.master,
-               station: st.id, assemble: true, win: 520, delay: 0, phase: ph });
-    addMascot({ t: st.t, ox: 280, oy: 40, tier: 'stage', kind: 'mascot',
-                file: st.mascot, station: st.id, delay: .12, win: 520, master: m, phase: ph });
+    /* Three of the four sit at the same offset; Contact brings its own,
+       because its plinth is a different shape placed by a different vertex. */
+    /* ox/oy here are vestigial for the first three — every station node reads
+       stOx/stOy in the render loop instead — and are left as they were so the
+       three keep passing the same numbers they always have. sox/soy is the
+       opt-out, and only Contact takes it. */
+    const base = { t: st.t, ox: 280, oy: 40, tier: 'stage', station: st.id,
+                   phase: ph, last: !!st.last,
+                   sox: st.ox, soy: st.oy, psox: st.pox, psoy: st.poy };
+    addShadow(Object.assign({ delay: .12, master: m }, base));
+    addBlock(Object.assign({ variant: st.master, assemble: st.assemble !== false,
+                             win: 520, delay: 0 }, base));
+    const fig = addMascot(Object.assign({ kind: 'mascot', file: st.mascot,
+                                          delay: .12, win: 520, master: m }, base));
+    if (st.id === 'contact') contactFigure = fig;
   });
 
-  /* §11 has a figure riding the closing block. It is NOT drawn here:
-     mascot_say_hi.png belongs to the Say hello section, which is its own
-     build, and borrowing it would pre-empt that design. The block drifts in
-     bare and the plaque carries the beat until Say hello absorbs this stop. */
+  /* §11's figure riding the closing block, finally drawn: Say hello has
+     absorbed this stop, so mascot_say_hi.png is no longer pre-empting a design
+     that had not been made yet. It is the fourth station's mascot above.
+
+     The speech bubble rides it. The line is written in the markup, inside the
+     contact column — real text in source order like every other word here, so
+     it survives with scripting off — and once the stage is live it is MOVED
+     into the figure's own node rather than positioned next to it. That is the
+     whole trick: the figure drifts on the travel axis, floats on its own
+     phase, and fades on its own entrance, and a bubble reproducing all three
+     independently would disagree with it by a few pixels every frame. On a
+     tail pointing at a head, a few pixels is the only place it would show.
+
+     Unconditional, and it can be: this file returns at the top under reduced
+     motion, which is the ONLY mode where the stage is display:none and the
+     stack is what renders. A phone keeps the live stage — the stack is the
+     reduced-motion layout, not the phone one — so there is no width at which
+     moving this would file it inside something hidden. */
+  const bubble = sec.querySelector('.lw-bubble');
+  if (bubble && contactFigure) {
+    contactFigure.el.appendChild(bubble);
+    bubble.dataset.lwRidden = '';
+  }
   /* The copy, the title and the exit are already in the document — they are
      real text in source order and nothing may exist only inside the traversal.
      JS only drives their drift and their fade. They are positioned by CSS so
@@ -516,23 +610,49 @@
      Falls back to a back-ease with a comparable overshoot if the library did
      not load, for the same reason everything else here does: the page never
      depends on it. */
-  const SPRING = (() => {
+  /* Bake one spring into a lookup. Sampled across its own settling time, so
+     what the scrub rides is the real curve rather than a cubic that resembles
+     it, and reading it is an array index — the loop below runs this eleven
+     times a frame and cannot afford to integrate anything.
+
+     `fallback` is a plain easing used when the library is absent. Each caller
+     passes the one that matches its spring's character, because a critically
+     damped spring falling back to a back-ease would overshoot on exactly the
+     machines that failed to load the library. */
+  function makeSpring(stiffness, damping, fallback) {
     const N = 160, lut = new Float32Array(N + 1);
     const M = window.Motion;
     if (M && typeof M.spring === 'function') {
       try {
-        const gen = M.spring({ keyframes: [0, 1], stiffness: 190, damping: 17, mass: 1 });
+        const opts = { keyframes: [0, 1], stiffness, damping, mass: 1 };
+        const gen = M.spring(opts);
         let settle = 0;
         for (let t = 0; t <= 4000; t += 10) { if (gen.next(t).done) { settle = t; break; } }
         if (!settle) settle = 900;
-        const g2 = M.spring({ keyframes: [0, 1], stiffness: 190, damping: 17, mass: 1 });
+        const g2 = M.spring(opts);
         for (let i = 0; i <= N; i++) lut[i] = g2.next((i / N) * settle).value;
         return k => lut[Math.round(clamp01(k) * N)];
       } catch (e) { /* fall through */ }
     }
-    const c1 = 1.70158, c3 = c1 + 1;
-    return k => { const x = clamp01(k); return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
-  })();
+    return fallback;
+  }
+
+  const easeOutBack = k => {
+    const c1 = 1.70158, c3 = c1 + 1, x = clamp01(k);
+    return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+  };
+  const easeOutCubic = k => 1 - Math.pow(1 - clamp01(k), 3);
+
+  /* The title's spring. Overshoots to about 1.08 and settles, which is what
+     gives six short words their weight as they land. */
+  const SPRING = makeSpring(190, 17, easeOutBack);
+
+  /* The closing card's spring, and a deliberately different one. damping 20
+     against stiffness 190 would still ring; against stiffness 100 it is
+     2*sqrt(100) = exactly critical, so this settles without ever passing its
+     mark. Six words arriving with a bounce is a flourish; a whole contact card
+     — headline, address, four links — arriving with one is a wobble. */
+  const SPRING_SOFT = makeSpring(100, 20, easeOutCubic);
 
   const titleEl = sec.querySelector('.lw-title');
 
@@ -567,10 +687,62 @@
   }
   paintTitleGradient();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(paintTitleGradient);
-  const exitEl  = sec.querySelector('.lw-exit');
   const copyEls = [...sec.querySelectorAll('.lw-copy')].map(el => ({
     el, t: STATIONS.find(s => s.id === el.dataset.station)?.t ?? 0
   }));
+
+  /* The closing frame: the two bloom ellipses and the page's last line.
+
+     None of them is IN the world — they are pinned to the window, not placed
+     at a coordinate — so none of them drifts, and all of them have to be told
+     when to exist. Left alone they are legible across the whole 780vh
+     traversal, a wash of light and a credit line floating over three stations
+     that have nothing to do with either.
+
+     Found by attribute rather than by class, so a thing can be added to this
+     frame by marking it in the markup instead of by editing a selector list
+     here. Fade only: they carry no position for the camera to move.
+
+     No width guard. A phone runs the stage exactly as a desktop does, and
+     under reduced motion this file returned at line 29 — so the static,
+     fully-opaque version the stack needs is never written over. */
+  const endFrame  = [...sec.querySelectorAll('[data-lw-endframe]')];
+  const CONTACT_T = (STATIONS.find(s => s.id === 'contact') || {}).t || 0;
+
+  /* --- THE CLOSING CARD'S REVEAL -----------------------------------------
+     Six things arriving in two groups: the three that say who is talking, then
+     — after a beat wide enough to read as a separate thought — the three that
+     say how to answer. The gap between .20 and .38 is that beat. Inside a
+     group the delays are close enough that it reads as one movement with a
+     lean, not as three separate arrivals.
+
+     Scrubbed, not played. This is the whole reason it is written by hand
+     instead of with the library's own orchestration: `whileInView`, variants
+     and staggerChildren are time-based and fire once on entry, and this
+     section's rule is that every entrance is a pure function of camera
+     position — which is what lets scrolling UP play the card back apart. An
+     observer plus a timeline works perfectly until someone scrolls back, at
+     which point the card is stuck assembled or replays at the wrong moment.
+
+     Transform and opacity only. Both are compositor properties, so eleven
+     elements moving costs no layout; animating the margin or the height that
+     would produce the same picture costs one per element per frame. */
+  const END_REVEAL = (() => {
+    const col = sec.querySelector('.lw-copy-end');
+    if (!col) return [];
+    return [['.lw-sign', 0], ['h2', .10], ['.lw-end-lede', .20],
+            ['.lw-end-rule', .38], ['.lw-end-mail', .46], ['.lw-end-social', .56]]
+      .map(([sel, delay]) => { const el = col.querySelector(sel); return el && { el, delay }; })
+      .filter(Boolean);
+  })();
+  /* The last delay, so the whole run still finishes exactly as the camera
+     settles rather than a fraction of the band late. */
+  const END_SPAN = 1 - .56;
+  /* Far enough to read as arriving, near enough that nothing crosses the
+     element above it. The rule and the social row travel less because they are
+     wide and thin, and a wide thin thing moving as far as a headline reads as
+     a slide rather than a settle. */
+  const END_RISE = [26, 30, 24, 14, 22, 18];
 
   /* ==========================================================================
      8 · GEOMETRY
@@ -595,6 +767,8 @@
      is (960, 540). Both numbers are therefore in design units and get scaled
      with the rest of the world. The spec's +280/+40 predates the artwork. */
   let stOx = 385, stOy = 385;
+  /* Read in the render loop by the station-offset branch above. */
+  let phone = false;
 
   /* The phone is not the desktop world shrunk. It is the same world at 0.62
      with the fg tier gone — punctuation that covers the copy on a 390px screen
@@ -602,7 +776,7 @@
      under half a viewport. One breakpoint, agreed with outside.css. */
   function measure() {
     vw = innerWidth; vh = innerHeight;
-    const phone = vw <= 720;
+    phone = vw <= 720;
     /* Floors and a ceiling so a narrow laptop does not get a toy world and a
        5K display does not get a wall. The phone runs the world hotter than the
        pure ratio would — at 390 that is 0.20, which is unreadable — but cooler
@@ -749,8 +923,23 @@
          width is not the same picture, it is a wall. */
       if (thinAmbient && n.ai !== undefined && (n.ai % 2)) { n.el.dataset.culled = '1'; continue; }
 
-      const nox = n.station ? stOx : n.ox;
-      const noy = n.station ? stOy : n.oy;
+      /* Station nodes share ONE offset, so the master blocks land in exactly
+         the same place at every stop and the camera's dwell frames are
+         interchangeable. stOx/stOy is that offset, and it is why the ox/oy
+         the STATIONS loop passes for the first three is ignored.
+
+         Contact is the exception and has to be: its plinth is last_ledge,
+         a wide slab anchored by its left vertex rather than a master block
+         anchored near its middle, and it sits off the right of the frame
+         rather than in the centre of it. So a station that brought its own
+         offset keeps it — and brings a phone one too, because stOx/stOy is
+         also where the phone layout moves the block out from under the
+         copy, and a station opting out of one is opting out of both. */
+      let nox, noy;
+      if (!n.station)          { nox = n.ox;   noy = n.oy;  }
+      else if (n.sox == null)  { nox = stOx;   noy = stOy;  }
+      else if (phone)          { nox = n.psox; noy = n.psoy; }
+      else                     { nox = n.sox;  noy = n.soy; }
 
       const d = (n.t * spacing - camT) * tier.parallax;
       let x = cx + d * ISO.AX * worldScale + nox * worldScale;
@@ -877,6 +1066,47 @@
         (vw <= 720 ? ' translateX(-50%)' : '');
     }
 
+    /* Same band as the copy above, and deliberately the same numbers rather
+       than a second set that would have to be kept in step with them. One
+       distance for all of them: they arrive together because they are one
+       frame, not three elements that happen to agree. */
+    if (endFrame.length) {
+      const md = Math.abs(CONTACT_T * spacing - camT);
+      const ef = 1 - clamp((md - 380 * spacing) / (420 * spacing), 0, 1);
+      const eo = ef.toFixed(3);
+      for (const el of endFrame) el.style.opacity = eo;
+
+      /* The glow moves for the closing frame, and it is the same ellipse
+         rather than a second one. Measured off the frames, .lw-glow is centred
+         (326, 259) of 1920x1080 everywhere on the traversal and (764, 95) on
+         Contact — up and toward the middle, which is what leaves the headline
+         in the dark instead of in the middle of the wash.
+
+         Adding a white bloom for the closing frame instead of moving this one
+         is exactly the bug that was here: two copies of one ellipse over one
+         headline. There is only ever one white ellipse in this section.
+
+         Driven off the same factor as the fade above, so the light arrives
+         with the card. It is a 3000px wash — the travel is not readable as
+         motion, only as a different composition once you are there. */
+      sec.style.setProperty('--lw-glow-x', (17 + (39.79 - 17) * ef).toFixed(2) + '%');
+      sec.style.setProperty('--lw-glow-y', (24 + (25.00 - 24) * ef).toFixed(2) + '%');
+
+      /* The card assembles on the same factor. Opacity is pulled ahead of the
+         movement — k * 2.6, so a line is legible while it is still settling
+         rather than arriving already still. The column itself is fading on
+         this same band, so these multiply: what the reader sees is the card
+         coming up as a whole with its parts leaning in. */
+      for (let i = 0; i < END_REVEAL.length; i++) {
+        const it = END_REVEAL[i];
+        const k  = clamp01((ef - it.delay) / END_SPAN);
+        const e  = SPRING_SOFT(k);
+        it.el.style.opacity = clamp01(k * 2.6).toFixed(3);
+        it.el.style.transform =
+          `translate3d(0,${((1 - e) * END_RISE[i]).toFixed(1)}px,0)`;
+      }
+    }
+
     /* The title is NOT on the travel axis, and that is the point.
 
        §9 puts it at full parallax, which made it one more thing sliding down
@@ -924,14 +1154,12 @@
       }
     }
 
-    if (exitEl) {
-      const d = (4300 * spacing - camT);
-      const op = 1 - clamp((Math.abs(d) - 300 * spacing) / (380 * spacing), 0, 1);
-      exitEl.style.opacity = op.toFixed(3);
-      exitEl.style.visibility = op < .005 ? 'hidden' : '';
-      exitEl.style.transform =
-        `translate(-50%,-50%) translate3d(${(d * .5 * ISO.AX).toFixed(1)}px,${(d * .5 * ISO.AY).toFixed(1)}px,0)`;
-    }
+    /* The .lw-exit card had its own driver here — its own band, its own half-
+       rate drift, its own hard-coded 4300. All three are gone with it: Contact
+       is a station, so it is one more entry in the copy loop above and shares
+       that loop's band and drift. The hard-coded 4300 was the last place in
+       this file that knew a camera stop by number rather than by looking it up
+       in STATIONS. */
 
     if (onScreen && !still) request();
 

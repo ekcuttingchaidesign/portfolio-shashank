@@ -5285,124 +5285,15 @@
 }
 
 /* ============================================================================
-   CONTACT
-   ----------------------------------------------------------------------------
-   The last section on the page and the fourth stop on the pill.
+   CONTACT — moved, not deleted.
 
-   Deliberately the quietest thing here. Everything above it is scroll-driven —
-   a scrubbed film, a sprite stage, an isometric camera on rails — and the end
-   of a page that has been moving for that long should be the place it stops.
-   So: no sticky, no scrub, no parallax, nothing observing the scroll. It is a
-   block of type on black that arrives and holds still.
+   The section this dressed is gone. Contact is the fourth stop inside Outside
+   Work now: it arrives on the same camera as I play, I click and I meme rather
+   than as a block of type underneath them, and everything that styles it lives
+   in outside.css beside the three stations it is a peer of.
 
-   Centred rather than left-aligned like the case studies. Those are a body of
-   work being read down a column; this is a closing card, and it is the one
-   place where having nothing to the left or right of it is the point.
+   The rules are not kept here "in case": a stylesheet that still dresses a
+   component nothing renders is a trap for whoever reads it next, because it
+   looks like a thing the page has. Recover them from git if the centred card
+   is ever wanted back — the markup went in the same commit.
    ========================================================================== */
-.sx-contact {
-  position: relative;
-  z-index: 1;
-  background: var(--sx-wall, #000);
-  padding: clamp(6rem, 16vh, 12rem) clamp(1.25rem, 5vw, 5rem) clamp(5rem, 12vh, 9rem);
-  /* The Ledge World dissolves to nothing at its end, so there is no seam to
-     cover — but the eye still wants to be told the page has changed register.
-     A hairline does that without announcing itself. */
-  border-top: 1px solid var(--sx-ink-4, rgba(244,241,236,.12));
-}
-.sx-contact-in {
-  max-width: 42rem;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.sx-contact-eyebrow {
-  margin: 0 0 clamp(1.4rem, 3vw, 2.2rem);
-  font-family: var(--sx-ui, var(--sx-sans));
-  font-size: clamp(.66rem, .84vw, .83rem);
-  font-weight: 400;
-  letter-spacing: .12em;              /* the nav pill's own tracking */
-  text-transform: uppercase;
-  color: var(--sx-key, #E0542A);
-}
-
-/* The one heading on the page that is allowed to be plain. Outside Work's
-   title card owns the serif and the amber; repeating either here would spend
-   a voice that works BECAUSE it is used once. */
-.sx-contact h2 {
-  margin: 0;
-  font-family: var(--sx-display, var(--sx-sans));
-  font-weight: 300;
-  font-size: clamp(2.4rem, 6.4vw, 5rem);
-  line-height: 1.06;
-  letter-spacing: -.02em;
-  color: var(--sx-ink, #F4F1EC);
-}
-
-.sx-contact-lede {
-  margin: clamp(1.4rem, 3vw, 2rem) auto 0;
-  max-width: 30ch;
-  font-family: var(--sx-sans);
-  font-size: clamp(1rem, 1.25vw, 1.22rem);
-  line-height: 1.75;
-  color: var(--sx-ink-2, rgba(244,241,236,.70));
-}
-
-/* The address, set as the largest interactive thing in the section. The rule
-   under it is drawn with a gradient rather than a border so it can wipe in
-   from the left on hover — a border can only fade, and a fade reads as a
-   hover state where a wipe reads as a line being drawn. */
-.sx-contact-mail {
-  display: inline-block;
-  margin-top: clamp(2.4rem, 5vw, 3.6rem);
-  padding-bottom: .18em;
-  font-family: var(--sx-sans);
-  font-size: clamp(1.05rem, 1.9vw, 1.75rem);
-  color: var(--sx-ink, #F4F1EC);
-  text-decoration: none;
-  background-image: linear-gradient(var(--sx-key, #E0542A), var(--sx-key, #E0542A));
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  background-size: 100% 1px;
-  transition: color .3s var(--sx-ease, ease), background-size .35s var(--sx-ease, ease);
-}
-.sx-contact-mail:hover { color: var(--sx-key, #E0542A); }
-.sx-contact-mail:focus-visible { outline: 2px solid var(--sx-key, #E0542A); outline-offset: 4px; }
-
-.sx-contact-social {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: clamp(1.2rem, 3vw, 2.6rem);
-  margin: clamp(3rem, 6vw, 4.4rem) 0 0;
-  padding: 0;
-  list-style: none;
-}
-.sx-contact-social a {
-  display: inline-flex;
-  align-items: center;
-  gap: .6em;
-  font-family: var(--sx-sans);
-  font-size: clamp(.85rem, 1vw, 1rem);
-  color: var(--sx-ink-2, rgba(244,241,236,.70));
-  text-decoration: none;
-  transition: color .28s var(--sx-ease, ease);
-}
-.sx-contact-social a:hover { color: var(--sx-ink, #F4F1EC); }
-.sx-contact-social a:focus-visible { outline: 2px solid var(--sx-key, #E0542A); outline-offset: 4px; }
-/* All four marks are exported fill="white" — drawn for a dark ground, which is
-   the only ground this site has. So they are used as delivered and dimmed with
-   opacity rather than recoloured: .70 is --sx-ink-2, the same value the label
-   beside each one carries, so the glyph and its word are equally quiet and
-   come up to full together. */
-.sx-contact-social img {
-  width: 1.5em; height: 1.5em;
-  opacity: .70;
-  transition: opacity .28s var(--sx-ease, ease);
-}
-.sx-contact-social a:hover img { opacity: 1; }
-
-@media (prefers-reduced-motion: reduce) {
-  .sx-contact-mail,
-  .sx-contact-social a,
-  .sx-contact-social img { transition: none; }
-}
