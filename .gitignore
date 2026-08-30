@@ -17,3 +17,20 @@ __pycache__/
 
 # motion is vendored into assets/vendor/ so the site has no CDN dependency
 node_modules/
+
+# Gallery masters and design frames — build inputs, never served.
+#
+# tools/prep-gallery.py turns assets/photography and assets/memes into the
+# WebP under public/img, and public/img IS committed: the repo already holds
+# every byte the site loads, about 2.8MB of it. These are the 30MB of PNG
+# behind that, at the SAME 1080x1600 the derivative ships at — lossless copies
+# at delivery size, not a higher-resolution archive. Keep them on disk; git
+# keeps every version of a binary forever, so 30MB pushed once is 30MB in the
+# history for good.
+#
+# The design frames these were built to are committed, compressed, in
+# docs/frames — 212KB for the three of them, which is worth having next to
+# docs/outside-work.md since that file argues from them on nearly every page.
+assets/photography/
+assets/memes/
+assets/*.png

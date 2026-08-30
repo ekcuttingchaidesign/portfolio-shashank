@@ -87,6 +87,13 @@ they appear.
 
 ## Built to the design frame
 
+The frames themselves are in `docs/frames/` — `i-play`, `i-click` and the
+lightbox — so every measurement argued from below can be checked against the
+thing it was measured off. WebP rather than the delivered PNG: 212KB for the
+three where the PNGs were 2.6MB, and nothing here turns on a pixel being
+lossless. The gallery masters they were cut from are NOT in the repo; see the
+note in `.gitignore` for where they live and why.
+
 All four frames are now in hand and built to. They are authored **1:1 at
 1920×1080** —
 the master block's 715px natural width is 715px on that canvas, 37% of the
