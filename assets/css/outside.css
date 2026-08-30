@@ -105,7 +105,13 @@
    wash; just not an invisible one.
 
    The colour travels #FF8C6C -> #FFFFFF across the traversal; JS writes the
-   channels into --lw-glow-rgb and the stops only carry alpha. */
+   channels into --lw-glow-rgb and the stops only carry alpha.
+
+   --lw-glow-k scales every stop at once, and exists because this is ONE
+   element serving four frames. The closing frame wants it a fifth dimmer;
+   editing the numbers below to get that would have taken the same fifth off
+   the title card and all three stations, which nobody asked for. JS lerps it
+   to 0.8 on the approach to Contact and it is 1 everywhere else. */
 .lw-glow {
   position: absolute;
   /* Upper left through the title card and the three stations — warm at the
@@ -123,16 +129,16 @@
   margin-left: -1390px; margin-top: -1236px;
   pointer-events: none;
   background: radial-gradient(closest-side ellipse,
-    rgba(var(--lw-glow-rgb, 255,140,108), .1064) 0%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .1017) 10%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0889) 20%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0710) 30%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0518) 40%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0345) 50%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0211) 60%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0117) 70%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0060) 80%,
-    rgba(var(--lw-glow-rgb, 255,140,108), .0028) 90%,
+    rgba(var(--lw-glow-rgb, 255,140,108), calc(.1064 * var(--lw-glow-k, 1))) 0%,
+    rgba(var(--lw-glow-rgb, 255,140,108), calc(.1017 * var(--lw-glow-k, 1))) 10%,
+    rgba(var(--lw-glow-rgb, 255,140,108), calc(.0889 * var(--lw-glow-k, 1))) 20%,
+    rgba(var(--lw-glow-rgb, 255,140,108), calc(.0710 * var(--lw-glow-k, 1))) 30%,
+    rgba(var(--lw-glow-rgb, 255,140,108), calc(.0518 * var(--lw-glow-k, 1))) 40%,
+    rgba(var(--lw-glow-rgb, 255,140,108), calc(.0345 * var(--lw-glow-k, 1))) 50%,
+    rgba(var(--lw-glow-rgb, 255,140,108), calc(.0211 * var(--lw-glow-k, 1))) 60%,
+    rgba(var(--lw-glow-rgb, 255,140,108), calc(.0117 * var(--lw-glow-k, 1))) 70%,
+    rgba(var(--lw-glow-rgb, 255,140,108), calc(.0060 * var(--lw-glow-k, 1))) 80%,
+    rgba(var(--lw-glow-rgb, 255,140,108), calc(.0028 * var(--lw-glow-k, 1))) 90%,
     rgba(var(--lw-glow-rgb, 255,140,108), 0)     100%);
 }
 
@@ -629,7 +635,11 @@
   right: 69px;
   bottom: -14px;
   width: 27px; height: 27px;
-  background: #2D2D2D;
+  /* The SAME fill as the pill. Figma layers a rgba(89,89,89,.3) rectangle over
+     the pill and not over the tail, so the two are #3A3A3A and #2D2D2D there —
+     and on screen that reads as a pointer borrowed from another bubble. It is
+     one shape to anyone looking at it, so it is one colour here. */
+  background: #3A3A3A;
   border-right: 1.14px solid #747474;
   border-bottom: 1.14px solid #747474;
   border-bottom-right-radius: 5px;
@@ -662,7 +672,9 @@
      convolution adds variances, so the blob is near enough circular that the
      source ellipse's shape barely survives — which is why this is not drawn as
      an ellipse.
-     Peak = area / (2*pi*sx*sy) * 0.6 = 0.105, not 0.6.
+     Peak = area / (2*pi*sx*sy) * 0.6 = 0.105, not 0.6 — and then a fifth off
+     that, .1049 -> .0550, which is a note on the render rather than anything
+     in the frame. Current blur here, in Figma's units, is 704.
 
    Tightened by hand from there: sigma 400 -> 352, a 12% cut, which pulls the
    extent in from 1306px to 1175. The PEAK IS HELD at .1049 rather than being
@@ -699,16 +711,16 @@
      axes so the blob keeps its shape instead of stretching with the window. */
   background-image:
     radial-gradient(61.20vw 56.81vw at 19.79% 107.87%,
-      rgba(78,81,255,.1049) 0%,
-      rgba(78,81,255,.1003) 10%,
-      rgba(78,81,255,.0876) 20%,
-      rgba(78,81,255,.0700) 30%,
-      rgba(78,81,255,.0511) 40%,
-      rgba(78,81,255,.0341) 50%,
-      rgba(78,81,255,.0208) 60%,
-      rgba(78,81,255,.0116) 70%,
-      rgba(78,81,255,.0059) 80%,
-      rgba(78,81,255,.0027) 90%,
+      rgba(78,81,255,.0550) 0%,
+      rgba(78,81,255,.0526) 10%,
+      rgba(78,81,255,.0459) 20%,
+      rgba(78,81,255,.0367) 30%,
+      rgba(78,81,255,.0268) 40%,
+      rgba(78,81,255,.0179) 50%,
+      rgba(78,81,255,.0109) 60%,
+      rgba(78,81,255,.0061) 70%,
+      rgba(78,81,255,.0031) 80%,
+      rgba(78,81,255,.0014) 90%,
       rgba(78,81,255,0)     100%);
 }
 

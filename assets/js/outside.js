@@ -250,7 +250,8 @@
        last_ledge has no #top/#left/#right to fold together, and asking for them
        only earns a console warning and the fallback it would have used anyway. */
     { id: 'contact', t: 4350, master: 'last_ledge', mascot: 'mascot_say_hi.png',
-      ox: 618, oy: 148, pox: -199, poy: 500, assemble: false, last: true }
+      ox: 618, oy: 148, pox: -199, poy: 500, assemble: false, last: true,
+      bleed: true }
   ];
 
   /* Hand-placed, not scattered. A seed that reproduces a balanced composition
@@ -560,7 +561,7 @@
        three keep passing the same numbers they always have. sox/soy is the
        opt-out, and only Contact takes it. */
     const base = { t: st.t, ox: 280, oy: 40, tier: 'stage', station: st.id,
-                   phase: ph, last: !!st.last,
+                   phase: ph, last: !!st.last, bleed: !!st.bleed,
                    sox: st.ox, soy: st.oy, psox: st.pox, psoy: st.poy };
     addShadow(Object.assign({ delay: .12, master: m }, base));
     addBlock(Object.assign({ variant: st.master, assemble: st.assemble !== false,
@@ -710,39 +711,67 @@
   const CONTACT_T = (STATIONS.find(s => s.id === 'contact') || {}).t || 0;
 
   /* --- THE CLOSING CARD'S REVEAL -----------------------------------------
-     Six things arriving in two groups: the three that say who is talking, then
-     — after a beat wide enough to read as a separate thought — the three that
-     say how to answer. The gap between .20 and .38 is that beat. Inside a
-     group the delays are close enough that it reads as one movement with a
-     lean, not as three separate arrivals.
+     Seven things arriving in three beats: the three that say who is talking,
+     then — after a gap wide enough to read as a separate thought — the three
+     that say how to answer, and then the credit line. Inside a group the
+     delays are close enough that it reads as one movement with a lean, not as
+     three separate arrivals.
 
-     Scrubbed, not played. This is the whole reason it is written by hand
-     instead of with the library's own orchestration: `whileInView`, variants
-     and staggerChildren are time-based and fire once on entry, and this
-     section's rule is that every entrance is a pure function of camera
-     position — which is what lets scrolling UP play the card back apart. An
-     observer plus a timeline works perfectly until someone scrolls back, at
-     which point the card is stuck assembled or replays at the wrong moment.
+     Driven off the SECTION's progress, not off the camera's distance, and that
+     is the fix for a card that used to land as one lump. The camera covers the
+     reveal's old 420-unit band in 194px of scroll — two notches of a wheel for
+     the whole thing, 85px per element — and then PARKS for 1197px in which
+     nothing happens at all. All the room was on the far side of the arrival.
+     Reading from p spends it: 0.81 to 0.95 is 1028px, about a screen, and each
+     element now gets 329px of its own.
 
-     Transform and opacity only. Both are compositor properties, so eleven
-     elements moving costs no layout; animating the margin or the height that
-     would produce the same picture costs one per element per frame. */
+     Scrubbed, not played, which is why this is written by hand rather than with
+     the library's own orchestration: whileInView, variants and staggerChildren
+     are time-based and fire once on entry, and this section's rule is that
+     every entrance is a pure function of scroll position — which is what lets
+     scrolling UP take the card back apart. An observer plus a timeline works
+     perfectly until someone scrolls back, at which point the card is stuck
+     assembled or replays at the wrong moment.
+
+     Transform, opacity and — on the three text blocks only — blur. The first
+     two are compositor properties and cost no layout. Blur is a repaint and is
+     spent where it earns its keep: it is what makes a line read as focusing
+     into place rather than sliding, and the title card upstairs already sets
+     that idiom for this section. The rule, the marks and the credit line do
+     not get it; a 1px rule cannot be out of focus in a way anyone notices. */
   const END_REVEAL = (() => {
     const col = sec.querySelector('.lw-copy-end');
     if (!col) return [];
-    return [['.lw-sign', 0], ['h2', .10], ['.lw-end-lede', .20],
-            ['.lw-end-rule', .38], ['.lw-end-mail', .46], ['.lw-end-social', .56]]
-      .map(([sel, delay]) => { const el = col.querySelector(sel); return el && { el, delay }; })
-      .filter(Boolean);
+    /*        selector          delay  rise  blur */
+    return [['.lw-sign',          .00,   22,  10],
+            ['h2',                .09,   34,  10],
+            ['.lw-end-lede',      .18,   26,   8],
+            ['.lw-end-rule',      .36,   16,   0],
+            ['.lw-end-mail',      .45,   28,   0],
+            ['.lw-end-social',    .55,   22,   0]]
+      .map(([sel, delay, rise, blur]) => {
+        const el = col.querySelector(sel);
+        return el && { el, delay, rise, blur };
+      })
+      .filter(Boolean)
+      /* The credit line is not in the column — it is fixed to the window — but
+         it is the last beat of the same movement, so it belongs to this list
+         rather than to the bloom's fade, which arrives with the camera. */
+      .concat([['.lw-made', .68, 14, 0]]
+        .map(([sel, delay, rise, blur]) => {
+          const el = sec.querySelector(sel);
+          return el && { el, delay, rise, blur };
+        }).filter(Boolean));
   })();
-  /* The last delay, so the whole run still finishes exactly as the camera
-     settles rather than a fraction of the band late. */
-  const END_SPAN = 1 - .56;
-  /* Far enough to read as arriving, near enough that nothing crosses the
-     element above it. The rule and the social row travel less because they are
-     wide and thin, and a wide thin thing moving as far as a headline reads as
-     a slide rather than a settle. */
-  const END_RISE = [26, 30, 24, 14, 22, 18];
+
+  /* Where the run starts and ends, as fractions of the section's own travel.
+     0.81 is just after the camera's arrival at 0.837 has begun to settle, and
+     0.95 leaves a third of a screen of finished card before the section ends —
+     the last thing the page does should not be the last thing it animates. */
+  const END_FROM = 0.81, END_TO = 0.95;
+  /* Divided out of the delays so the last element still finishes exactly at
+     END_TO rather than a fraction of the run late. */
+  const END_SPAN = 1 - .68;
 
   /* ==========================================================================
      8 · GEOMETRY
@@ -770,6 +799,23 @@
   /* Read in the render loop by the station-offset branch above. */
   let phone = false;
 
+  /* Where the closing ledge sits, and it cannot be a constant.
+
+     last_ledge is drawn bleeding off the right of the frame — its top face is
+     a triangle because the artboard cut it — so a gap on its right is not a
+     placement that is slightly off, it is the shape being wrong. A fixed
+     offset holds up only while the world scales with the window, and it stops
+     doing that at worldScale's 1.15 ceiling: past about 2300px the viewport
+     keeps widening and the ledge does not. Measured, 2560 leaves 112px of
+     background to the right of it and 3840 leaves 752px.
+
+     So the offset is solved for rather than set. BLEED is how far past the
+     right edge the ledge is asked to reach, and 618 is the frame's own number,
+     kept as a floor so nothing moves at or below 1920 where the design was
+     drawn. */
+  const CONTACT_OX = 618, BLEED = 40;
+  let bleedOx = CONTACT_OX;
+
   /* The phone is not the desktop world shrunk. It is the same world at 0.62
      with the fg tier gone — punctuation that covers the copy on a 390px screen
      is just an obstruction — and the stops pulled closer so the gaps stay
@@ -791,6 +837,8 @@
        copy — I click runs three lines plus a pill, where I play is two lines
        and no pill. Set for the tall one; the short one just gets more air. */
     stOy = phone ? 480 : 385;
+    bleedOx = Math.max(CONTACT_OX,
+                       (vw / 2 + BLEED) / worldScale - BLOCKS.last_ledge.nw);
   }
   measure();
 
@@ -939,7 +987,11 @@
       if (!n.station)          { nox = n.ox;   noy = n.oy;  }
       else if (n.sox == null)  { nox = stOx;   noy = stOy;  }
       else if (phone)          { nox = n.psox; noy = n.psoy; }
-      else                     { nox = n.sox;  noy = n.soy; }
+      /* `bleed` says this node's plinth must stay welded to the right edge, so
+         it takes the solved offset rather than the frame's literal one. The
+         figure and its shadow carry the same flag, because they are three
+         nodes drawing one object and two of them moving is worse than none. */
+      else                     { nox = n.bleed ? bleedOx : n.sox; noy = n.soy; }
 
       const d = (n.t * spacing - camT) * tier.parallax;
       let x = cx + d * ISO.AX * worldScale + nox * worldScale;
@@ -1091,19 +1143,38 @@
          motion, only as a different composition once you are there. */
       sec.style.setProperty('--lw-glow-x', (17 + (39.79 - 17) * ef).toFixed(2) + '%');
       sec.style.setProperty('--lw-glow-y', (24 + (25.00 - 24) * ef).toFixed(2) + '%');
+      /* And it dims to .0650 peak on the way in, from the .1064 the other
+         three frames keep — k lands at 0.611. Written as a multiplier rather
+         than by editing the stops because those stops serve the title card and
+         all three stations too — this glow is one element for the whole
+         section, and turning it down at the source would quietly take 20% off
+         four frames to answer a note about one. */
+      sec.style.setProperty('--lw-glow-k', (1 - .389 * ef).toFixed(3));
 
-      /* The card assembles on the same factor. Opacity is pulled ahead of the
-         movement — k * 2.6, so a line is legible while it is still settling
-         rather than arriving already still. The column itself is fading on
-         this same band, so these multiply: what the reader sees is the card
-         coming up as a whole with its parts leaning in. */
-      for (let i = 0; i < END_REVEAL.length; i++) {
-        const it = END_REVEAL[i];
-        const k  = clamp01((ef - it.delay) / END_SPAN);
-        const e  = SPRING_SOFT(k);
-        it.el.style.opacity = clamp01(k * 2.6).toFixed(3);
-        it.el.style.transform =
-          `translate3d(0,${((1 - e) * END_RISE[i]).toFixed(1)}px,0)`;
+    }
+
+    /* The card assembles across the park. Its own progress, not the bloom's:
+       the light arrives with the camera and the words arrive after it.
+
+       Opacity and blur are both pulled AHEAD of the movement — k * 2.4 and
+       k * 1.8 — so a line is legible and sharp while it is still settling,
+       rather than arriving already still. A line that clears focus exactly as
+       it stops moving reads as a slide; one that clears early reads as
+       arriving.
+
+       Written every frame at every scroll position, including far away, which
+       is what makes it reverse: there is no state here, only a function of p. */
+    if (END_REVEAL.length) {
+      const rp = clamp01((p - END_FROM) / (END_TO - END_FROM));
+      for (const it of END_REVEAL) {
+        const k = clamp01((rp - it.delay) / END_SPAN);
+        const e = SPRING_SOFT(k);
+        it.el.style.opacity   = clamp01(k * 2.4).toFixed(3);
+        it.el.style.transform = `translate3d(0,${((1 - e) * it.rise).toFixed(1)}px,0)`;
+        if (it.blur) {
+          const bl = (1 - clamp01(k * 1.8)) * it.blur;
+          it.el.style.filter = bl > .05 ? `blur(${bl.toFixed(2)}px)` : '';
+        }
       }
     }
 
