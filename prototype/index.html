@@ -2409,10 +2409,15 @@
   }
   cta.addEventListener('click', () => diveIn());          /* no grace: a click has no momentum */
 
-  /* ---------- EXPERIMENT: the dive plays itself ------------------------------
-     OFF by default. Preview with ?autodive=1; drop the parameter for the
-     current behaviour. Independent of ?autoscrub, which is the same idea at the
-     other end of the page — so each can be judged on its own.
+  /* ---------- THE DIVE PLAYS ITSELF -----------------------------------------
+     ON by default: reviewed and kept. ?autodive=0 restores the manual scrub,
+     which is both the way to compare the two and the rollback. Independent of
+     ?autoscrub, the same idea at the other end of the page, so either can be
+     turned off without the other.
+
+     Worth knowing what failure looks like, because it is the mild kind: if the
+     trigger misses, nothing happens and the reader scrubs by hand exactly as
+     they did before. There is no state to get stuck in.
 
      One scroll on the landing screen and the dive-in runs itself: the film
      plays, the room flies in, and the reader arrives at "I craft ideas into
@@ -2454,7 +2459,7 @@
     const q = new URLSearchParams(location.search).get('autodive');
     if (q === '1' || q === 'on')  return true;
     if (q === '0' || q === 'off') return false;
-    return false;                    /* default: the shipped manual scrub */
+    return true;                     /* default: ON — reviewed and kept */
   })();
 
   if (AUTO_DIVE && !reduced) {
