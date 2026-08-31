@@ -293,26 +293,41 @@
 
     /* station 1 — I play, off the design frame */
     { t:  -300, ox:  180, oy: -380, variant: 'amb_3', tier: 'bg'   },
-    /* Lifted from oy 515. At 515 this sat locked on top of the title card's
-       own block (the `master` at t -900, four entries up): the two overlapped
-       between 63% and 98% of this one's area for the WHOLE approach from the
-       title to I play, and both are visible for most of it — the title block
-       still trails at 0.6 when the camera is parked here, 900 units past it.
-       That is the AMB_WIN note's problem in its other direction: not a loud
-       block arriving too early, but a loud one leaving too late.
+    /* There was a ninth block here — an amb_2 at (-200, 515) — and it is gone
+       rather than moved, because station one has no room for it. That is worth
+       writing down, because the empty slot otherwise looks like an oversight
+       and the obvious fix is to put it back.
 
-       Sliding it sideways cannot fix it. These two are 0.85 and 1.00 parallax,
-       so across the entire 900-unit approach they drift only 135 units apart —
-       they travel together, and every ox in range keeps them touching. The
-       separation has to come off the other axis, so it does: 515 -> 280 clears
-       the title block completely, with no new contact against any near, stage
-       or fg block anywhere in the camera's range.
+       This is the only stop that has to share its frame with two large opaque
+       things at once. The shelf render (game_collection.png, the cases on their
+       own painted plinth) lives in the copy column and holds roughly a quarter
+       of the frame for the entire dwell — and it is not a sprite with generous
+       margins, its alpha is ink across 99.7% of its width. Meanwhile the title
+       card's own master block (index 6, t -900) is still trailing at 0.6
+       opacity right through the approach, because nothing fades out until 1200
+       units behind. Stations two and three meet neither.
 
-       ox is untouched, so the block holds its place in the left-to-right
-       composition and the station-2/3 motif it belongs to (-240/520, -210/505)
-       is still recognisable — this one just sits further back on the ground
-       plane than its two siblings do. */
-    { t:   -80, ox: -200, oy:  280, variant: 'amb_2', tier: 'near' },
+       Searched rather than guessed: every position on a 10-unit grid, for all
+       four block variants, against every frame where this node is visible, at
+       1280x800, 1440x900, 1600x900 and 2000x1400. The copy column is laid out
+       by CSS and does NOT scale with worldScale, so a placement solved at one
+       size does not hold at another — which is why the first two attempts here
+       both looked clean on one viewport and collided on the rest.
+
+       The result: amb_1, amb_2 and amb_3 overlap something at EVERY position on
+       EVERY viewport — best cases -80.8, -112.4 and -91.8 pixels, all against
+       the shelf. Only amb_4, the small cube, clears at all, and only in a
+       single band at oy -360 with ox past 300 — high on the right, wedged
+       between the headline and the mascot, with about 20px to spare. That is
+       not a placement, it is the one gap left over, and 20px would not survive
+       a viewport that was not sampled.
+
+       So station one runs eight ambient blocks instead of nine, which is still
+       inside the "5-8 near each stop" this list opens with. The lower-left mass
+       the ninth was providing is what the shelf is already doing.
+
+       If it is ever wanted back, the block is not the thing to move: the shelf
+       or the title block's trail is. */
     { t:   -40, ox:  -69, oy:  142, variant: 'amb_3', tier: 'bg'   },
     { t:    40, ox:  862, oy: -110, variant: 'amb_3', tier: 'near' },
     { t:    80, ox:  846, oy:  290, variant: 'amb_3', tier: 'bg'   },
