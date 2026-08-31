@@ -293,7 +293,26 @@
 
     /* station 1 — I play, off the design frame */
     { t:  -300, ox:  180, oy: -380, variant: 'amb_3', tier: 'bg'   },
-    { t:   -80, ox: -200, oy:  515, variant: 'amb_2', tier: 'near' },
+    /* Lifted from oy 515. At 515 this sat locked on top of the title card's
+       own block (the `master` at t -900, four entries up): the two overlapped
+       between 63% and 98% of this one's area for the WHOLE approach from the
+       title to I play, and both are visible for most of it — the title block
+       still trails at 0.6 when the camera is parked here, 900 units past it.
+       That is the AMB_WIN note's problem in its other direction: not a loud
+       block arriving too early, but a loud one leaving too late.
+
+       Sliding it sideways cannot fix it. These two are 0.85 and 1.00 parallax,
+       so across the entire 900-unit approach they drift only 135 units apart —
+       they travel together, and every ox in range keeps them touching. The
+       separation has to come off the other axis, so it does: 515 -> 280 clears
+       the title block completely, with no new contact against any near, stage
+       or fg block anywhere in the camera's range.
+
+       ox is untouched, so the block holds its place in the left-to-right
+       composition and the station-2/3 motif it belongs to (-240/520, -210/505)
+       is still recognisable — this one just sits further back on the ground
+       plane than its two siblings do. */
+    { t:   -80, ox: -200, oy:  280, variant: 'amb_2', tier: 'near' },
     { t:   -40, ox:  -69, oy:  142, variant: 'amb_3', tier: 'bg'   },
     { t:    40, ox:  862, oy: -110, variant: 'amb_3', tier: 'near' },
     { t:    80, ox:  846, oy:  290, variant: 'amb_3', tier: 'bg'   },

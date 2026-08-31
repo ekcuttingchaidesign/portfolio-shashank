@@ -605,6 +605,31 @@
      text at 1514.77 / 295.59       padding 19.4px 37.8px
      tail centre 1763.17            82.4px in from the bubble's right edge
 
+   ...and then the whole pill is drawn at 0.8 of those, because the frame's
+   size reads as shouting on screen. It is a UNIFORM scale, which is the only
+   kind that is safe here: type, box and padding all take the same 0.8, so the
+   ratio of content width to font size is unchanged (12.700 -> 12.675) and the
+   line still breaks in exactly the same place. Scaling the type alone would
+   have re-wrapped it and left a pill sized for a shape that no longer exists.
+
+   Two numbers are NOT the frame's 0.8 and cannot be, because they are measured
+   from the figure rather than from the pill — shrink the pill while holding
+   them and the tail slides off the head it is pointing at:
+
+     `right` 10.8 -> 27.3    keeps the tail's CENTRE 93.3px in from the figure's
+                             right edge, where the frame puts it. The tail is
+                             positioned off the pill's right edge, and at 0.8
+                             that inset shrinks 82.5 -> 66, so the pill sits
+                             16.5px further in to leave the point where it was.
+     `bottom` 36.3 -> 32.4   keeps the tail's TIP 16.7px above the figure's top.
+                             A smaller tail hangs less far below the pill
+                             (19.6px -> 15.7px), so the pill drops by the
+                             difference to leave the point where it was.
+
+   The 1.14px border stays 1.14px. It is a hairline, not part of the type
+   scale, and at 0.8 it would land on 0.91 — a sub-pixel border renders as a
+   lighter grey line rather than a thinner one.
+
    The fill is two Figma layers composited: #2D2D2D under rgba(89,89,89,.3),
    which resolves to #3A3A3A. The overlay covers the pill and not the tail, so
    the tail keeps the darker #2D2D2D — a difference of thirteen values that is
@@ -612,23 +637,23 @@
    exactly where they are. */
 .lw-bubble[data-lw-ridden] {
   position: absolute;
-  right: 10.8px;
-  bottom: calc(100% + 36.3px);
+  right: 27.3px;
+  bottom: calc(100% + 32.4px);
   margin: 0;
   /* border-box, as the frame's own spec says: 368.59 x 100.73 is the OUTSIDE
      of the 1.14px border, and content-box put it 2.3px taller than the
      drawing. */
   box-sizing: border-box;
-  width: 368.59px;
-  height: 100.73px;
-  padding: 19.4px 37.8px;
+  width: 294.87px;
+  height: 80.58px;
+  padding: 15.52px 30.24px;
   background: #3A3A3A;                 /* #2D2D2D under rgba(89,89,89,.3) */
   border: 1.14px solid #747474;
   /* A pill, not a rounded box: the frame's 572px radius is far past half the
      height, which is the same thing said in Figma's units. */
   border-radius: 999px;
-  font-size: 22.89px;
-  line-height: 31px;
+  font-size: 18.31px;
+  line-height: 24.8px;
   color: #C7C7C7;
   text-align: left;
   box-shadow: 0 1rem 2.4rem rgba(0, 0, 0, .45);
@@ -640,9 +665,9 @@
 .lw-bubble[data-lw-ridden]::after {
   content: "";
   position: absolute;
-  right: 69px;
-  bottom: -14px;
-  width: 27px; height: 27px;
+  right: 55.2px;
+  bottom: -11.2px;
+  width: 21.6px; height: 21.6px;
   /* The SAME fill as the pill. Figma layers a rgba(89,89,89,.3) rectangle over
      the pill and not over the tail, so the two are #3A3A3A and #2D2D2D there —
      and on screen that reads as a pointer borrowed from another bubble. It is
@@ -650,7 +675,7 @@
   background: #3A3A3A;
   border-right: 1.14px solid #747474;
   border-bottom: 1.14px solid #747474;
-  border-bottom-right-radius: 5px;
+  border-bottom-right-radius: 4px;
   transform: rotate(45deg);
 }
 
