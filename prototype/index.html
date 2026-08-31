@@ -2333,8 +2333,11 @@
     const from = scrollY, delta = to - from, t0 = performance.now();
     animating = true;
 
-    // Every dive is now click-launched, so none of them are fighting the momentum of
-    // the gesture that started them: they can all stay interruptible on first input.
+    // Interruptible on the FIRST input, which is only safe because nothing that
+    // calls this is fighting the momentum of the gesture that started it: the
+    // button and the nav are click-launched, and the scroll trigger below waits
+    // for the gesture to end before calling. A caller that launched straight off
+    // a live wheel event would be cancelled by that same event's momentum.
     const cancel = () => { animating = false; };
     ['wheel', 'touchstart', 'keydown'].forEach(e =>
       addEventListener(e, cancel, { once: true, passive: true }));
@@ -2375,9 +2378,84 @@
     // the entry region renders the film at a constant rate. CTA_RATE is that rate.
     // Easing here would speed the film up and slow it down mid-dive, fighting the
     // pacing already baked into the render.
-    animateScrollTo(end, (secs / CTA_RATE) * 1000, linear);
+    //
+    // The duration is scaled to the distance actually LEFT, not to the whole
+    // span. `secs` is what the full dive costs from the very top; launched from
+    // partway down, spending all of it on what remains would render the rest of
+    // the film slower than CTA_RATE. At the top the fraction is 1 and this is
+    // the number it always was, so the button's dive is unchanged — it only
+    // matters to a caller that starts mid-film, which the scroll trigger does.
+    const span = travel * shares().heroEnd;
+    const left = span > 0 ? Math.min(1, Math.max(0, (end - scrollY) / span)) : 1;
+    animateScrollTo(end, (secs / CTA_RATE) * 1000 * left, linear);
   }
   cta.addEventListener('click', () => diveIn());
+
+  /* ---------- EXPERIMENT: the dive plays itself ------------------------------
+     OFF by default. Preview with ?autodive=1; drop the parameter for the
+     current behaviour. Independent of ?autoscrub, which is the same idea at the
+     other end of the page — so each can be judged on its own.
+
+     One scroll on the landing screen and the dive-in runs itself: the film
+     plays, the room flies in, and the reader arrives at "I craft ideas into
+     experiences" without grinding through 600-odd vh of scrollbar. The "Let's
+     Dive In" button already does exactly this; all this adds is a second way to
+     call it, for the reader who scrolls instead of reading the button.
+
+     WHY IT WAITS FOR STILLNESS. animateScrollTo cancels on the first wheel,
+     touch or key — which was safe while every dive was click-launched, because
+     a click carries no momentum. A scroll-launched one does: trackpad wheel
+     events keep arriving for most of a second after the fingers lift, and the
+     first of them would cancel the dive instantly. So the trigger waits 140ms
+     of no scroll at all. After that the gesture is genuinely over, and anything
+     arriving next is a real request for the scrollbar back.
+
+     The window is the top of the film only — up to ARM_AT of the film's own
+     progress. Past that the reader has chosen to scrub by hand and is watching
+     it; taking over there would yank the picture out from under them.
+
+     Reduced motion never gets it, for the same reason as the pull-out: those
+     readers are pinned to 100vh with no timeline, and taking the scrollbar off
+     someone who asked for less movement is the opposite of the ask. */
+  const AUTO_DIVE = (() => {
+    const q = new URLSearchParams(location.search).get('autodive');
+    if (q === '1' || q === 'on')  return true;
+    if (q === '0' || q === 'off') return false;
+    return false;                    /* default: the shipped manual scrub */
+  })();
+
+  if (AUTO_DIVE && !reduced) {
+    const SETTLE_MS = 140;
+    /* How far into the film it may still take over. A tenth is about one
+       flick's worth: enough that the reader's first gesture always lands inside
+       it, short enough that anyone deliberately scrubbing is left alone. */
+    const ARM_AT = 0.10;
+    let settleT = 0, lastY = scrollY, fired = false;
+
+    /* Film progress, from the same shares() the scrub loop reads — so this can
+       never disagree with the engine about where the film ends. */
+    const filmP = () => {
+      const S = shares();
+      return S.film > 0 ? progressOf(sEnter) / S.film : 1;
+    };
+
+    addEventListener('scroll', () => {
+      const y = scrollY, down = y > lastY;
+      lastY = y;
+      if (y <= 2) fired = false;              /* back at the top: re-arm */
+      /* `animating` covers the button's dive and any nav jump already running:
+         two things driving one scrollbar is a fight. */
+      if (fired || !down || animating) return;
+      if (sEnter.offsetHeight - innerHeight <= 0) return;   /* unpinned, no timeline */
+      if (y <= 0 || filmP() >= ARM_AT) return;
+      clearTimeout(settleT);
+      settleT = setTimeout(() => {
+        if (fired || animating || filmP() >= ARM_AT) return;
+        fired = true;
+        diveIn();
+      }, SETTLE_MS);
+    }, { passive: true });
+  }
 
   /* ---------- which scroll cue ----------
      The gesture meaning "down the page" is already the same everywhere — the OS
