@@ -10,7 +10,12 @@
      landing page lands here. -->
 <link rel="canonical" href="prototype/">
 <meta http-equiv="refresh" content="0; url=prototype/">
-<script>location.replace("prototype/");</script>
+<!-- Carries the query and hash across. Without this a link like
+     ?autoscrub=1 or #sx-work is silently dropped on the way to the
+     prototype, which makes every parameter the page reads unreachable
+     from the bare Pages URL. The meta refresh above cannot do this, so
+     it stays as the no-JS fallback and lands on the plain path. -->
+<script>location.replace("prototype/" + location.search + location.hash);</script>
 
 <style>
   html { background: #000; color-scheme: dark; }

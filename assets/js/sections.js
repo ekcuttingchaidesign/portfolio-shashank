@@ -3184,6 +3184,93 @@
       filmRaf = requestAnimationFrame(step);
     }
 
+    /* --- EXPERIMENT: the pull-out plays itself ---------------------------
+       OFF by default. Preview it with ?autoscrub=1, and compare against the
+       shipped behaviour by dropping the parameter — same build, both
+       experiences, which is the point of doing it this way rather than on a
+       branch nobody can load on their phone.
+
+       The idea: once "And that's where you came in." has been read and gone,
+       one scroll hands the pull-out over to itself. The film plays, the desk
+       rotates, "My life beyond 9 to 5" arrives, and the reader is not asked to
+       grind 435vh of scrollbar to get there.
+
+       Deliberately NOT new machinery. playFilm() above already does exactly
+       this for the nav's "Outside work" item — the 1.35x rate, the eased
+       approach, the linear run so the section's height stays the timeline, and
+       the bail on real input are all already tuned. All this adds is a second
+       way to call it. If the experiment is dropped, this block goes and
+       playFilm keeps working.
+
+       WHY WAIT FOR STILLNESS, which is the whole trick here. An auto-scroll
+       launched from the scroll gesture that triggered it is fighting that
+       gesture's momentum: on a trackpad the wheel events keep arriving for
+       most of a second after the fingers lift, and playFilm's bail listener
+       would cancel it on the first one. So the trigger waits SETTLE_MS of no
+       scroll at all. By then the gesture is genuinely over, momentum included,
+       and every subsequent wheel or key is a real request for the scrollbar
+       back — which is the only reading under which "bail on any input" is
+       both safe and correct.
+
+       The three accessibility positions this takes, since that is what it is
+       for. (1) prefers-reduced-motion never gets it: those readers are already
+       pinned to 100vh with no timeline, and taking the scrollbar off someone
+       who asked for less movement is the exact opposite of the ask. (2) It is
+       a shortcut, never a gate — the manual scrub still works, and any wheel,
+       key, touch or press during the run hands control straight back mid-film.
+       (3) It fires ONCE per approach, and only downward. Scroll back up above
+       the hand-off and it re-arms; stay below and it stays quiet, so nobody
+       gets grabbed twice or fought while reading their way back. */
+    const AUTO_PULLOUT = (() => {
+      const q = new URLSearchParams(location.search).get('autoscrub');
+      if (q === '1' || q === 'on')  return true;
+      if (q === '0' || q === 'off') return false;
+      return false;                    /* default: the shipped manual scrub */
+    })();
+
+    if (AUTO_PULLOUT && !reduced) {
+      const exitSec = document.getElementById('s-exit');
+      /* Stillness that means "the gesture is over". 140ms is longer than the
+         gap between events inside one trackpad flick and shorter than a
+         reader's pause, which is the whole window it has to fit in. */
+      const SETTLE_MS = 140;
+      /* The band it may fire in, as a fraction of the viewport, measured on
+         #s-exit's own top edge. Below 1.0 so the hand-off line has receded
+         before anything takes over; above 0 so a reader already scrubbing the
+         film by hand is left alone — past 0 the film is under way and this
+         would be snatching it mid-frame. */
+      const BAND = 0.72;
+      let settle = 0, lastY = pageYOffset, fired = false;
+
+      const topOf = () => exitSec.getBoundingClientRect().top;
+      const inBand = () => {
+        const t = topOf();
+        return t > 0 && t < innerHeight * BAND;
+      };
+
+      addEventListener('scroll', () => {
+        const y = pageYOffset, down = y > lastY;
+        lastY = y;
+        /* Re-arm only once the reader is properly back above the hand-off, so
+           a small correction inside the band does not re-trigger. */
+        if (topOf() > innerHeight) fired = false;
+        /* Below the breakpoint the scrub sections unpin and there is no
+           timeline to run; playFilm would just jump, which is not the
+           experiment. */
+        if (fired || !down || exitSec.offsetHeight - innerHeight <= 0) return;
+        /* Already running — the nav's own call to playFilm scrolls through this
+           same band, and two callers driving one scrollbar is a fight. */
+        if (filmRaf) return;
+        if (!inBand()) return;
+        clearTimeout(settle);
+        settle = setTimeout(() => {
+          if (fired || !inBand()) return;
+          fired = true;
+          playFilm(exitSec);
+        }, SETTLE_MS);
+      }, { passive: true });
+    }
+
     /* --- the nav's glide -------------------------------------------------
        One capsule for three items. Measured every time rather than cached: the
        gaps and the padding are clamps, so they change with the viewport, and
