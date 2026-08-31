@@ -55,8 +55,8 @@
      overlap the section has barely begun to scroll, so a fixed stage and a
      stuck one differ only in that this one fills the frame.
 
-     Still clipped: the glow is 3360px across and without `overflow` here a
-     390px viewport lays out at 1560 and scrolls sideways. */
+     Still clipped: the glow is 2124px across and without `overflow` here a
+     390px viewport lays out wider than itself and scrolls sideways. */
   position: fixed; inset: 0;
   overflow: hidden;
   isolation: isolate;
@@ -84,8 +84,8 @@
    lose. A flat ellipse has none, and a 1000px filter would hand the compositor
    paint bounds running some 2000px past the element on every side.
 
-   Tightened by hand to sigma 312 from the 500 below — Figma blur 624, down
-   from the frame's 1000 across three passes — with the peak
+   Tightened by hand to sigma 250 from the 500 below — Figma blur 500, down
+   from the frame's 1000 across four passes — with the peak
    HELD at 10.64% rather than recomputed — see the same note on .lw-bloom for
    why a tighter blur is not allowed to re-brighten this.
 
@@ -125,9 +125,9 @@
      Contact — see the note there. The default is the value for everywhere
      else, so with no script the section looks exactly as it did. */
   left: var(--lw-glow-x, 17%); top: var(--lw-glow-y, 24%);
-  /* 2 x the 3-sigma extent, at sigma 312. */
-  width: 2400px; height: 2034px;
-  margin-left: -1200px; margin-top: -1017px;
+  /* 2 x the 3-sigma extent, at sigma 250 — convolved sigma_x 354 / sigma_y 283. */
+  width: 2124px; height: 1698px;
+  margin-left: -1062px; margin-top: -849px;
   pointer-events: none;
   background: radial-gradient(closest-side ellipse,
     rgba(var(--lw-glow-rgb, 255,140,108), calc(.1064 * var(--lw-glow-k, 1))) 0%,
@@ -675,10 +675,12 @@
      an ellipse.
      Peak = area / (2*pi*sx*sy) * 0.6 = 0.105, not 0.6 — and then a fifth off
      that, .1049 -> .0550, which is a note on the render rather than anything
-     in the frame. Current blur here, in Figma's units, is 704.
+     in the frame. Current blur here, in Figma's units, is 400.
 
-   Tightened by hand from there across two passes: sigma 400 -> 282, so Figma
-   blur 800 -> 563, which pulls the extent in from 1306px to 989. The PEAK IS HELD at .1049 rather than being
+   Tightened by hand from there across three passes: sigma 400 -> 200, so Figma
+   blur 800 -> 400, which pulls the extent in from 1306px to 790 — the radii
+   below are that 3-sigma extent as a fraction of the frame's 1920px width.
+   The PEAK IS HELD at .1049 rather than being
    recomputed. Physics says a tighter blur concentrates the same ink and should
    raise the peak about 25%, and that is the honest number — but the note asked
    for tighter, not brighter, and this wash had already been too hot twice.
@@ -703,15 +705,22 @@
      the peak 85px BELOW the bottom of the frame.
 
      Not a disagreement with the frame, a consequence of what the blur does to
-     it. The drawn blob is a Gaussian of sigma 364, so it is still readable
-     about 550px above its own centre where the frame's ellipse simply stops
-     at its box. Placed on the frame's centre it therefore reads as starting
-     far higher than the frame draws it, and washes the headline. Moved down,
-     what is left in the upper half is the tail rather than the shoulder.
-     Radii in vw for both
-     axes so the blob keeps its shape instead of stretching with the window. */
+     it. The drawn blob is a Gaussian of sigma 220 on the vertical, so it is
+     still readable about 330px above its own centre where the frame's ellipse
+     simply stops at its box. Placed on the frame's centre it therefore reads as
+     starting far higher than the frame draws it, and washes the headline. Moved
+     down, what is left in the upper half is the tail rather than the shoulder.
+
+     That 298px offset is UNCHANGED by the tightening, and it is the one thing
+     to look at first if this now reads as too little rather than too much: the
+     centre sits 85px under the frame and the tail is shorter than it was, so
+     less of the blob clears the bottom edge at all. Raising the 107.87% is the
+     one number if the wash wants to come back up.
+
+     Radii in vw for both axes so the blob keeps its shape instead of
+     stretching with the window. */
   background-image:
-    radial-gradient(51.52vw 46.23vw at 19.79% 107.87%,
+    radial-gradient(41.17vw 34.33vw at 19.79% 107.87%,
       rgba(78,81,255,.0550) 0%,
       rgba(78,81,255,.0526) 10%,
       rgba(78,81,255,.0459) 20%,
