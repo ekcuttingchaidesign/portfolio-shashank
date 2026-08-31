@@ -2329,25 +2329,43 @@
   // drift out of sync with the page.
   let animating = false;
 
-  function animateScrollTo(to, ms, easing) {
+  function animateScrollTo(to, ms, easing, graceMs) {
     const from = scrollY, delta = to - from, t0 = performance.now();
     animating = true;
 
-    // Interruptible on the FIRST input, which is only safe because nothing that
-    // calls this is fighting the momentum of the gesture that started it: the
-    // button and the nav are click-launched, and the scroll trigger below waits
-    // for the gesture to end before calling. A caller that launched straight off
-    // a live wheel event would be cancelled by that same event's momentum.
-    const cancel = () => { animating = false; };
-    ['wheel', 'touchstart', 'keydown'].forEach(e =>
-      addEventListener(e, cancel, { once: true, passive: true }));
+    // Interruptible on the first input — that is the point, and it is what
+    // keeps any of this from being a scroll trap.
+    //
+    // `graceMs` exists because "the first input" is ambiguous for a
+    // scroll-launched caller. A click carries no momentum, so for the button and
+    // the nav the next input is always a new intent and the grace is 0. A
+    // trackpad flick keeps firing wheel events for several hundred ms after the
+    // fingers lift, with irregular gaps — long enough that waiting for
+    // stillness can be satisfied MID-flick, and the next momentum event then
+    // cancels the animation a frame after it started. Measured: that killed
+    // roughly one launch in three.
+    //
+    // So a scroll-launched caller asks for a short grace, during which input is
+    // treated as the tail of the launching gesture rather than as a new
+    // request. It is a quarter of a second, it only ever applies immediately
+    // after launch, and a deliberate second input just after it still stops
+    // everything — so the escape hatch is intact.
+    const grace = graceMs || 0;
+    const cancel = () => {
+      if (performance.now() - t0 < grace) return;
+      animating = false;
+      off();
+    };
+    const evs = ['wheel', 'touchstart', 'keydown'];
+    const off = () => evs.forEach(e => removeEventListener(e, cancel, { passive: true }));
+    evs.forEach(e => addEventListener(e, cancel, { passive: true }));
 
     (function step(now) {
-      if (!animating) return;
+      if (!animating) { off(); return; }
       const k = Math.min((now - t0) / ms, 1);
       scrollTo(0, from + delta * easing(k));
       if (k < 1) requestAnimationFrame(step);
-      else animating = false;
+      else { animating = false; off(); }
     })(performance.now());
   }
   const linear    = t => t;
@@ -2364,7 +2382,7 @@
   // Plays the dive-in and lands you at the top of Work, which is exactly where the
   // entry region ends. Scrolling down gets you there by scrubbing; this is the
   // shortcut behind the "Let's Dive In" button, which is its only caller.
-  function diveIn() {
+  function diveIn(graceMs) {
     prime();
     /* Land where the arrival finishes, not at the end of the section: past that
        point is the hold, and dropping the reader at the far end of it would put
@@ -2387,9 +2405,9 @@
     // matters to a caller that starts mid-film, which the scroll trigger does.
     const span = travel * shares().heroEnd;
     const left = span > 0 ? Math.min(1, Math.max(0, (end - scrollY) / span)) : 1;
-    animateScrollTo(end, (secs / CTA_RATE) * 1000 * left, linear);
+    animateScrollTo(end, (secs / CTA_RATE) * 1000 * left, linear, graceMs);
   }
-  cta.addEventListener('click', () => diveIn());
+  cta.addEventListener('click', () => diveIn());          /* no grace: a click has no momentum */
 
   /* ---------- EXPERIMENT: the dive plays itself ------------------------------
      OFF by default. Preview with ?autodive=1; drop the parameter for the
@@ -2410,9 +2428,24 @@
      of no scroll at all. After that the gesture is genuinely over, and anything
      arriving next is a real request for the scrollbar back.
 
-     The window is the top of the film only — up to ARM_AT of the film's own
-     progress. Past that the reader has chosen to scrub by hand and is watching
-     it; taking over there would yank the picture out from under them.
+     WHAT IT ARMS ON, and the first cut of this got it wrong in a way worth
+     recording. It asked "is the film still near its start?" AFTER the scroll,
+     and allowed a tenth of the film — which sounds generous and is 246px of
+     scrollbar. A mouse notch is 114px, so that passed. A trackpad flick is
+     600-1200px and a PageDown is a whole viewport: every one of them lands
+     PAST the window, so nothing fired and you scrubbed the whole way by hand.
+     The bug was invisible in testing because a synthetic 140px wheel is
+     smaller than any gesture a person actually makes.
+
+     So it arms on where the gesture STARTED, not where it ended. "The reader
+     was on the landing screen and scrolled" is a fact about the beginning of
+     the gesture; how far one flick happens to carry them is not part of it, and
+     making it part of it is what broke. A flick that lands 1200px in still
+     dives — from there, over what is left.
+
+     The second gesture is not armed, because by then the reader is no longer on
+     the landing screen: they are somewhere in the film, scrubbing, and that is
+     a choice to leave alone. Back at the top it re-arms.
 
      Reduced motion never gets it, for the same reason as the pull-out: those
      readers are pinned to 100vh with no timeline, and taking the scrollbar off
@@ -2425,34 +2458,45 @@
   })();
 
   if (AUTO_DIVE && !reduced) {
-    const SETTLE_MS = 140;
-    /* How far into the film it may still take over. A tenth is about one
-       flick's worth: enough that the reader's first gesture always lands inside
-       it, short enough that anyone deliberately scrubbing is left alone. */
-    const ARM_AT = 0.10;
-    let settleT = 0, lastY = scrollY, fired = false;
+    /* Long enough to sit outside the gaps between momentum events, short enough
+       to still read as a response to the gesture. Paired with the grace below:
+       the settle wait catches the common case, the grace covers the flick whose
+       tail straggles past it. */
+    const SETTLE_MS = 200;
+    /* Input inside this window after launch is the launching gesture's tail,
+       not a new request — see animateScrollTo. */
+    const GRACE_MS = 260;
+    /* How near the top a gesture has to BEGIN to count as "on the landing
+       screen". Small on purpose: this is the reader's first move on the page,
+       so it starts at or within a few pixels of zero. It is not a window the
+       gesture has to land inside — that was the bug. */
+    const ARM_FROM = 40;
+    let settleT = 0, lastY = scrollY, armed = false, fired = false;
 
-    /* Film progress, from the same shares() the scrub loop reads — so this can
-       never disagree with the engine about where the film ends. */
-    const filmP = () => {
-      const S = shares();
-      return S.film > 0 ? progressOf(sEnter) / S.film : 1;
-    };
+    /* Already where the dive would put us? Then there is nothing to play.
+       Read off the same shares() the scrub loop uses, so this can never
+       disagree with the engine about where the arrival ends. */
+    const arrived = () => progressOf(sEnter) >= shares().heroEnd - 0.01;
 
     addEventListener('scroll', () => {
-      const y = scrollY, down = y > lastY;
+      const y = scrollY, from = lastY, down = y > from;
       lastY = y;
-      if (y <= 2) fired = false;              /* back at the top: re-arm */
+      if (y <= 2) { fired = false; armed = false; }   /* back at the top: re-arm */
       /* `animating` covers the button's dive and any nav jump already running:
          two things driving one scrollbar is a fight. */
-      if (fired || !down || animating) return;
-      if (sEnter.offsetHeight - innerHeight <= 0) return;   /* unpinned, no timeline */
-      if (y <= 0 || filmP() >= ARM_AT) return;
+      if (fired || animating) return;
+      if (sEnter.offsetHeight - innerHeight <= 0) return;  /* unpinned, no timeline */
+      /* Latched, so the rest of one flick's events — which start well past
+         ARM_FROM — cannot un-arm the gesture that armed it. */
+      if (down && from <= ARM_FROM) armed = true;
+      if (!armed) return;
       clearTimeout(settleT);
       settleT = setTimeout(() => {
-        if (fired || animating || filmP() >= ARM_AT) return;
+        if (fired || animating || !armed) return;
+        armed = false;
+        if (arrived()) return;               /* the flick already got there */
         fired = true;
-        diveIn();
+        diveIn(GRACE_MS);
       }, SETTLE_MS);
     }, { passive: true });
   }

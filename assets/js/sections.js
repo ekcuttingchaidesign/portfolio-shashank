@@ -3174,16 +3174,34 @@
       const glide = !!(how && how.glide);
       const dist  = Math.abs(start - from);
       const v     = travel / filmMs;                  /* px per ms — the film's rate */
-      const approachMs = glide
-        ? Math.min(1400, Math.max(180, 2 * dist / v))
-        : Math.min(900,  Math.max(320, dist * 0.22));
+      /* Where on the film we are ALREADY. A gesture big enough to carry the
+         reader past the section's top lands here with f0 > 0, and the film has
+         to pick up from there: scrolling back to `start` first would rewind the
+         picture, which is worse than not taking over at all. That was the state
+         a normal trackpad flick actually arrived in, so it is not a corner. */
+      const f0 = travel > 0 ? clamp01((from - start) / travel) : 1;
+      const approachMs = f0 > 0
+        ? 0                                   /* already inside — no ground to cover */
+        : glide
+          ? Math.min(1400, Math.max(180, 2 * dist / v))
+          : Math.min(900,  Math.max(320, dist * 0.22));
       const approachEase = glide ? (t => t * t) : easeInOut;
 
       /* Any real input hands the scrollbar straight back. Taking it from
          someone who wants it is the one thing this must not do — so these
          listen for intent (wheel, touch, a key, a press), never for the
-         scroll events this animation is itself producing. */
-      const bail = () => stopFilm();
+         scroll events this animation is itself producing.
+
+         `how.grace` is the one qualification, and it is there because "real
+         input" is ambiguous for a scroll-launched caller. A trackpad flick
+         keeps firing wheel events for several hundred ms after the fingers
+         lift, with gaps long enough that a wait-for-stillness can be satisfied
+         mid-flick; the next momentum event then kills the run a frame after it
+         began. Measured on the dive at the other end of the page, that was
+         about one launch in three. So input inside the grace counts as the tail
+         of the launching gesture. A click has no tail, so the nav passes none. */
+      const grace = (how && how.grace) || 0;
+      const bail = () => { if (performance.now() - t0 < grace) return; stopFilm(); };
       const opts = { passive: true };
       addEventListener('wheel', bail, opts);
       addEventListener('touchstart', bail, opts);
@@ -3201,7 +3219,10 @@
         if (ms < approachMs) {
           scrollTo(0, from + (start - from) * approachEase(ms / approachMs));
         } else {
-          const ft = clamp01((ms - approachMs) / filmMs);
+          /* f0 offsets the start, not the rate: the film always advances at its
+             own v, so resuming half way through takes half as long rather than
+             squeezing the whole clip into the remaining time. */
+          const ft = clamp01(f0 + (ms - approachMs) / filmMs);
           scrollTo(0, start + travel * ft);
           if (ft >= 1) { stopFilm(); return; }
         }
@@ -3261,7 +3282,7 @@
       /* Stillness that means "the gesture is over". 140ms is longer than the
          gap between events inside one trackpad flick and shorter than a
          reader's pause, which is the whole window it has to fit in. */
-      const SETTLE_MS = 140;
+      const SETTLE_MS = 200;
       /* THE WINDOW IS MEASURED ON THE LINE, not on #s-exit.
          --------------------------------------------------------------------
          It was #s-exit's top edge first, and that was wrong: the line and the
@@ -3282,21 +3303,23 @@
          way, and taking over there would be snatching a scrub mid-frame from
          someone who chose to do it by hand. */
       const ARRIVED = 0.80;
-      let settle = 0, lastY = pageYOffset, fired = false;
+      /* Input inside this window after launch is the launching gesture's tail —
+         see the note on `bail` in playFilm. */
+      const GRACE_MS = 260;
+      let settle = 0, lastY = pageYOffset, armed = false, fired = false;
 
       const exitTop = () => exitSec.getBoundingClientRect().top;
       const lineAt  = () => {
         const r = handLine.getBoundingClientRect();
         return (r.top + r.height / 2) / innerHeight;
       };
-      const inWindow = () => lineAt() < ARRIVED && exitTop() > 0;
 
       addEventListener('scroll', () => {
         const y = pageYOffset, down = y > lastY;
         lastY = y;
         /* Re-arm only once the reader is properly back above the line, so a
-           small correction inside the window does not re-trigger. */
-        if (lineAt() > 1.1) fired = false;
+           small correction does not re-trigger. */
+        if (lineAt() > 1.1) { fired = false; armed = false; }
         /* Below the breakpoint the scrub sections unpin and there is no
            timeline to run; playFilm would just jump, which is not the
            experiment. */
@@ -3304,16 +3327,31 @@
         /* Already running — the nav's own call to playFilm scrolls through this
            same stretch, and two callers driving one scrollbar is a fight. */
         if (filmRaf) return;
-        if (!handLine || !inWindow()) return;
+        if (!handLine) return;
+        /* LATCHED, and this is the fix for the bug that made this miss.
+           It used to require the line to be past ARRIVED at the moment the
+           scroll stopped — a position the gesture had to LAND in. That window
+           is about 860px wide, and a trackpad flick is 600-2200px: measured,
+           a 1187px flick sailed straight through it into the film and nothing
+           fired, so the reader scrubbed the rest by hand. Scroll events arrive
+           throughout a flick, so latching on any of them that sees the line
+           read catches the fast gesture and the slow one alike. */
+        if (lineAt() < ARRIVED) armed = true;
+        if (!armed) return;
         clearTimeout(settle);
         settle = setTimeout(() => {
-          if (fired || !inWindow()) return;
+          if (fired || filmRaf || !armed) return;
+          armed = false;
+          /* Nothing left to play. */
+          if (exitTop() <= -(exitSec.offsetHeight - innerHeight)) return;
           fired = true;
           /* glide: accelerate from rest to exactly the film's scroll rate, so
              the line recedes and the film picks up in one continuous move.
              Triggering this early means a longer lead-in, which is precisely
-             why it cannot be the nav's get-there-and-stop approach. */
-          playFilm(exitSec, { glide: true });
+             why it cannot be the nav's get-there-and-stop approach. When the
+             flick already carried us into the film, playFilm skips the approach
+             and resumes from where we are — see f0. */
+          playFilm(exitSec, { glide: true, grace: GRACE_MS });
         }, SETTLE_MS);
       }, { passive: true });
     }
