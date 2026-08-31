@@ -9,13 +9,27 @@
      forwards to it so the bare Pages URL works; replace it once the real
      landing page lands here. -->
 <link rel="canonical" href="prototype/">
-<meta http-equiv="refresh" content="0; url=prototype/">
-<!-- Carries the query and hash across. Without this a link like
-     ?autoscrub=1 or #sx-work is silently dropped on the way to the
-     prototype, which makes every parameter the page reads unreachable
-     from the bare Pages URL. The meta refresh above cannot do this, so
-     it stays as the no-JS fallback and lands on the plain path. -->
+
+<!-- ORDER MATTERS HERE, and it is the whole reason this is three lines rather
+     than one.
+
+     The script carries the query and hash across: without it a link like
+     ?autoscrub=1 or #sx-work is silently dropped on the way to the prototype,
+     which makes every parameter the page reads unreachable from the bare Pages
+     URL. A meta refresh cannot do that — its target is a static string.
+
+     So the script has to WIN, and it only wins if it is parsed first. A
+     `refresh` of 0 is acted on the moment it is parsed, which beat this script
+     to the navigation and landed on the bare path with the parameter gone.
+     Putting the script above the meta fixes the order; giving the meta a 1s
+     delay removes the race entirely rather than relying on winning it.
+
+     The meta therefore does one job only: redirecting a browser with JS turned
+     off, a second later. With JS on it never fires, because the script has
+     already navigated. The body's own link is the third fallback, for anyone
+     the meta does not reach either. -->
 <script>location.replace("prototype/" + location.search + location.hash);</script>
+<meta http-equiv="refresh" content="1; url=prototype/">
 
 <style>
   html { background: #000; color-scheme: dark; }
