@@ -3210,23 +3210,24 @@
       filmRaf = requestAnimationFrame(step);
     }
 
-    /* --- EXPERIMENT: the pull-out plays itself ---------------------------
-       OFF by default. Preview it with ?autoscrub=1, and compare against the
-       shipped behaviour by dropping the parameter — same build, both
-       experiences, which is the point of doing it this way rather than on a
-       branch nobody can load on their phone.
+    /* --- THE PULL-OUT PLAYS ITSELF --------------------------------------
+       ON by default: reviewed and kept. ?autoscrub=0 restores the manual
+       scrub, which is both the way to compare the two and the rollback if this
+       turns out to wear badly over time — worth keeping precisely because a
+       thing that reads well once is not the same as a thing that reads well on
+       every visit.
 
-       The idea: once "And that's where you came in." has been read and gone,
-       one scroll hands the pull-out over to itself. The film plays, the desk
-       rotates, "My life beyond 9 to 5" arrives, and the reader is not asked to
-       grind 435vh of scrollbar to get there.
+       Once "And that's where you came in." has been read and gone, one scroll
+       hands the pull-out over to itself. The film plays, the desk rotates,
+       "My life beyond 9 to 5" arrives, and the reader is not asked to grind
+       435vh of scrollbar to get there.
 
        Deliberately NOT new machinery. playFilm() above already does exactly
        this for the nav's "Outside work" item — the 1.35x rate, the eased
        approach, the linear run so the section's height stays the timeline, and
        the bail on real input are all already tuned. All this adds is a second
-       way to call it. If the experiment is dropped, this block goes and
-       playFilm keeps working.
+       way to call it. If this is ever dropped, this block goes and playFilm
+       keeps working.
 
        WHY WAIT FOR STILLNESS, which is the whole trick here. An auto-scroll
        launched from the scroll gesture that triggered it is fighting that
@@ -3251,7 +3252,7 @@
       const q = new URLSearchParams(location.search).get('autoscrub');
       if (q === '1' || q === 'on')  return true;
       if (q === '0' || q === 'off') return false;
-      return false;                    /* default: the shipped manual scrub */
+      return true;                     /* default: ON — reviewed and kept */
     })();
 
     if (AUTO_PULLOUT && !reduced) {
