@@ -3132,7 +3132,11 @@
       if (filmOff) { filmOff(); filmOff = null; }
     }
 
-    function playFilm(sec) {
+    /* `how.glide` is the scroll-triggered variant — see the experiment below.
+       It changes only the approach leg: the reader is already near the film and
+       standing still, so the leg is timed and eased to ARRIVE at the film's own
+       scroll rate rather than to get there fast and stop. */
+    function playFilm(sec, how) {
       const travel = sec.offsetHeight - innerHeight;
       /* Below the breakpoint the scrub sections unpin to 100vh and there is no
          timeline left to run. Just go there. */
@@ -3148,10 +3152,32 @@
          made the same call at 1.6x — but past about 1.5 the rotation is over
          before you have registered it. */
       const secs  = (vid && isFinite(vid.duration) && vid.duration ? vid.duration : 3.7) / 1.35;
-      const approachMs = Math.min(900, Math.max(320, Math.abs(start - from) * 0.22));
       const filmMs = secs * 1000;
       const t0 = performance.now();
       const easeInOut = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+
+      /* Two ways to cover the ground before the film starts.
+
+         The nav's way (default): get there, quickly, and stop. It is launched
+         from anywhere on the page, so the distance is unbounded and the leg is
+         a capped 320-900ms with an ease-in-out.
+
+         The glide (scroll-triggered): arrive at the film's own rate, so there
+         is no seam between "being taken there" and "the film playing". The
+         reader starts from rest, so the leg is constant ACCELERATION — s = d(t/T)^2
+         — and T = 2d/v is exactly the duration whose final velocity is the
+         film's v. Anything else either lurches in faster than the film and
+         slows down, or eases to a stop and starts again. Both are visible.
+
+         The cap is a safety net for a trigger that fires further out than
+         expected; inside it, the handover is seamless by construction. */
+      const glide = !!(how && how.glide);
+      const dist  = Math.abs(start - from);
+      const v     = travel / filmMs;                  /* px per ms — the film's rate */
+      const approachMs = glide
+        ? Math.min(1400, Math.max(180, 2 * dist / v))
+        : Math.min(900,  Math.max(320, dist * 0.22));
+      const approachEase = glide ? (t => t * t) : easeInOut;
 
       /* Any real input hands the scrollbar straight back. Taking it from
          someone who wants it is the one thing this must not do — so these
@@ -3173,7 +3199,7 @@
       const step = now => {
         const ms = now - t0;
         if (ms < approachMs) {
-          scrollTo(0, from + (start - from) * easeInOut(ms / approachMs));
+          scrollTo(0, from + (start - from) * approachEase(ms / approachMs));
         } else {
           const ft = clamp01((ms - approachMs) / filmMs);
           scrollTo(0, start + travel * ft);
@@ -3230,43 +3256,63 @@
 
     if (AUTO_PULLOUT && !reduced) {
       const exitSec = document.getElementById('s-exit');
+      const handLine = document.querySelector('.sx-hand-line');
       /* Stillness that means "the gesture is over". 140ms is longer than the
          gap between events inside one trackpad flick and shorter than a
          reader's pause, which is the whole window it has to fit in. */
       const SETTLE_MS = 140;
-      /* The band it may fire in, as a fraction of the viewport, measured on
-         #s-exit's own top edge. Below 1.0 so the hand-off line has receded
-         before anything takes over; above 0 so a reader already scrubbing the
-         film by hand is left alone — past 0 the film is under way and this
-         would be snatching it mid-frame. */
-      const BAND = 0.72;
+      /* THE WINDOW IS MEASURED ON THE LINE, not on #s-exit.
+         --------------------------------------------------------------------
+         It was #s-exit's top edge first, and that was wrong: the line and the
+         section are rigidly linked — both sit in normal flow — and the line's
+         centre runs about 0.16vh ahead of #s-exit's top. So a window of
+         "#s-exit top under 0.72vh" only opened once the line had already
+         climbed past 0.56vh, which is well past the moment the line is
+         sitting there asking to be read. Someone who stops exactly where the
+         line looks best got nothing.
+
+         Measuring the line directly says what is actually meant: fire once
+         "And that's where you came in." has arrived far enough up the screen
+         to have been read. 0.80 is a little under the bottom fifth — the line
+         is fully clear of the fold and settled, and no earlier, so a reader
+         who is still catching up to it is not swept past it.
+
+         The far edge stays on #s-exit: past its top the film is already under
+         way, and taking over there would be snatching a scrub mid-frame from
+         someone who chose to do it by hand. */
+      const ARRIVED = 0.80;
       let settle = 0, lastY = pageYOffset, fired = false;
 
-      const topOf = () => exitSec.getBoundingClientRect().top;
-      const inBand = () => {
-        const t = topOf();
-        return t > 0 && t < innerHeight * BAND;
+      const exitTop = () => exitSec.getBoundingClientRect().top;
+      const lineAt  = () => {
+        const r = handLine.getBoundingClientRect();
+        return (r.top + r.height / 2) / innerHeight;
       };
+      const inWindow = () => lineAt() < ARRIVED && exitTop() > 0;
 
       addEventListener('scroll', () => {
         const y = pageYOffset, down = y > lastY;
         lastY = y;
-        /* Re-arm only once the reader is properly back above the hand-off, so
-           a small correction inside the band does not re-trigger. */
-        if (topOf() > innerHeight) fired = false;
+        /* Re-arm only once the reader is properly back above the line, so a
+           small correction inside the window does not re-trigger. */
+        if (lineAt() > 1.1) fired = false;
         /* Below the breakpoint the scrub sections unpin and there is no
            timeline to run; playFilm would just jump, which is not the
            experiment. */
         if (fired || !down || exitSec.offsetHeight - innerHeight <= 0) return;
         /* Already running — the nav's own call to playFilm scrolls through this
-           same band, and two callers driving one scrollbar is a fight. */
+           same stretch, and two callers driving one scrollbar is a fight. */
         if (filmRaf) return;
-        if (!inBand()) return;
+        if (!handLine || !inWindow()) return;
         clearTimeout(settle);
         settle = setTimeout(() => {
-          if (fired || !inBand()) return;
+          if (fired || !inWindow()) return;
           fired = true;
-          playFilm(exitSec);
+          /* glide: accelerate from rest to exactly the film's scroll rate, so
+             the line recedes and the film picks up in one continuous move.
+             Triggering this early means a longer lead-in, which is precisely
+             why it cannot be the nav's get-there-and-stop approach. */
+          playFilm(exitSec, { glide: true });
         }, SETTLE_MS);
       }, { passive: true });
     }
