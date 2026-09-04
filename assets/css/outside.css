@@ -109,10 +109,17 @@
    channels into --lw-glow-rgb and the stops only carry alpha.
 
    --lw-glow-k scales every stop at once, and exists because this is ONE
-   element serving four frames. The closing frame wants it a fifth dimmer;
-   editing the numbers below to get that would have taken the same fifth off
-   the title card and all three stations, which nobody asked for. JS lerps it
-   to 0.8 on the approach to Contact and it is 1 everywhere else. */
+   element serving four frames. The closing frame wants it dimmer; editing the
+   numbers below to get that would have taken the same cut off the title card
+   and all three stations, which nobody asked for. So JS lerps k instead: it is
+   1 everywhere and 0.611 once the camera is on Contact — `1 - .389 * ef` in
+   outside.js, on the same proximity factor the bloom fades on.
+
+   That makes the peak 0.1064 x 0.611 = 0.0650 on the closing frame, which over
+   the #04060C ground composites to #14161C — measured off the render, not
+   derived. (This said "a fifth dimmer" and "lerps it to 0.8" until the cut was
+   deepened to 38.9% and the comment was not; the numbers here are now the
+   code's.) */
 .lw-glow {
   position: absolute;
   /* Upper left through the title card and the three stations — warm at the
