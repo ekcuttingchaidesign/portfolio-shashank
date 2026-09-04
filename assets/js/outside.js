@@ -1297,8 +1297,30 @@
        straight horizontal move. Only the exit is the camera's, once it has
        pushed past the title stop toward I play. */
     if (titleEl) {
+      /* THE TITLE'S EXIT, and it is re-timed because it was colliding with the
+         first station.
+
+         It used to hold for 260 units of camera travel and then fade over 520,
+         finishing at camT -120. The I play copy fades in on distance — full
+         inside 380, gone past 800 — so it is already 24% up at camT -700 and
+         95% at -400, which is the middle of the title's fade. Measured across
+         the transit, both were over 70% visible at once around camT -496, and
+         since the title sits centre-left and so do the station's headline and
+         its shelf, "My life beyond 9 to 5" was printing straight through the
+         PS5 cases.
+
+         Now it starts leaving the moment the camera does and is gone in 260,
+         by camT -640. Worst simultaneous visibility across the whole transit
+         drops from 0.72 to 0.23. It holds at full for the entire dwell either
+         way — during the dwell camT is -900 and past is 0 — so what changed is
+         only the departure, not the title's own moment.
+
+         The station copy's band is deliberately NOT what moved. It is shared by
+         all three stations and I click and I meme have no title to clash with;
+         re-timing it to fix this one seam would have re-timed two that were
+         already right. */
       const past = camT - (-900 * spacing);
-      const out  = 1 - clamp((past - 260 * spacing) / (520 * spacing), 0, 1);
+      const out  = 1 - clamp(past / (260 * spacing), 0, 1);
 
       /* Held back until the film is well into its turn. Driven straight off
          `reveal` the type was already arriving as the desk began to move; it
@@ -1307,8 +1329,14 @@
 
       titleEl.style.opacity = out.toFixed(3);
       titleEl.style.visibility = (out * tIn) < .005 ? 'hidden' : '';
+      /* 340px, up from 90. Timing alone leaves a residual crossing around
+         camT -700 where both are near a quarter opaque, and 90px of drift is
+         not enough to read as leaving — it dissolved roughly in place, on top
+         of the copy. At 260 the type has travelled 200px left by the time it is
+         down to that quarter, so the residual overlap is two things passing
+         rather than two things stacked. */
       titleEl.style.transform =
-        `translateY(-50%) translate3d(${(-90 * (1 - out)).toFixed(1)}px,0,0)`;
+        `translateY(-50%) translate3d(${(-340 * (1 - out)).toFixed(1)}px,0,0)`;
 
       const n = titleTokens.length;
       const span = 1 - TITLE_STAGGER * (n - 1);
