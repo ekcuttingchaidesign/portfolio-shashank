@@ -887,10 +887,12 @@
    exactly as it is. That is not a compromise hidden in a breakpoint: a centred
    block needs symmetric space around it, and under 1200px there is not any.
 
-   OFF by default. Preview with ?contact=centre; drop the parameter for the
-   indented column that ships. Every selector below is gated on an attribute
-   that the head script writes from that parameter, which is why this can sit in
-   the same stylesheet as the layout it replaces without touching it.
+   THIS is the shipped layout now — reviewed and kept. Every selector below is
+   gated on an attribute the head script writes, which it sets unless the URL
+   opts out; ?contact=0 restores the indented column above. Keeping both in one
+   stylesheet is deliberate: the indented column is still the layout under
+   1200px (see below), so it is not dead code that could be deleted, and the
+   parameter makes the two comparable on the live site without a deploy.
 
    The gate is an attribute rather than a media query on its own because a
    media query cannot read a URL. The specificity works out: [attr] .lw-copy-end

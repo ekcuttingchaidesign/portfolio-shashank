@@ -27,17 +27,21 @@
 <!-- The closing card's layout switch, read here in the head rather than with
      the rest of the scripts at the foot of the body.
 
-     ?contact=centre selects the centred alternative in outside.css; no
-     parameter gets the indented column that ships. It is one attribute because
-     CSS cannot read a URL, and it is set BEFORE the stylesheet has anything to
-     lay out — from the foot of the body it would be a layout switch applied
-     after first paint, which is a visible jump on any page that reloads deep
-     enough to have the card on screen. -->
+     The centred card is what ships now — reviewed and kept — so the attribute
+     is set unless the URL opts OUT of it. ?contact=0 (or off / indent /
+     indented / left) restores the indented column, which is both the way to
+     compare the two on the live site and the rollback if the centred one wears
+     badly.
+
+     It is one attribute because CSS cannot read a URL, and it is set BEFORE the
+     stylesheet has anything to lay out — from the foot of the body it would be
+     a layout switch applied after first paint, which is a visible jump on any
+     page that reloads deep enough to have the card on screen. -->
 <script>
   (function () {
     var q = new URLSearchParams(location.search).get('contact');
-    if (q === 'centre' || q === 'center' || q === 'centred' || q === 'centered' || q === '1')
-      document.documentElement.setAttribute('data-sx-contact', 'centre');
+    var off = (q === '0' || q === 'off' || q === 'indent' || q === 'indented' || q === 'left');
+    if (!off) document.documentElement.setAttribute('data-sx-contact', 'centre');
   })();
 </script>
 
