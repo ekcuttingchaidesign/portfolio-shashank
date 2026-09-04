@@ -676,18 +676,10 @@
     const c1 = 1.70158, c3 = c1 + 1, x = clamp01(k);
     return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
   };
-  const easeOutCubic = k => 1 - Math.pow(1 - clamp01(k), 3);
 
   /* The title's spring. Overshoots to about 1.08 and settles, which is what
      gives six short words their weight as they land. */
   const SPRING = makeSpring(190, 17, easeOutBack);
-
-  /* The closing card's spring, and a deliberately different one. damping 20
-     against stiffness 190 would still ring; against stiffness 100 it is
-     2*sqrt(100) = exactly critical, so this settles without ever passing its
-     mark. Six words arriving with a bounce is a flourish; a whole contact card
-     — headline, address, four links — arriving with one is a wobble. */
-  const SPRING_SOFT = makeSpring(100, 20, easeOutCubic);
 
   const titleEl = sec.querySelector('.lw-title');
 
@@ -745,67 +737,159 @@
   const CONTACT_T = (STATIONS.find(s => s.id === 'contact') || {}).t || 0;
 
   /* --- THE CLOSING CARD'S REVEAL -----------------------------------------
-     Seven things arriving in three beats: the three that say who is talking,
-     then — after a gap wide enough to read as a separate thought — the three
-     that say how to answer, and then the credit line. Inside a group the
-     delays are close enough that it reads as one movement with a lean, not as
-     three separate arrivals.
+     PLAYED, not scrubbed — and this is the one place in the section that
+     breaks its own rule, deliberately.
 
-     Driven off the SECTION's progress, not off the camera's distance, and that
-     is the fix for a card that used to land as one lump. The camera covers the
-     reveal's old 420-unit band in 194px of scroll — two notches of a wheel for
-     the whole thing, 85px per element — and then PARKS for 1197px in which
-     nothing happens at all. All the room was on the far side of the arrival.
-     Reading from p spends it: 0.81 to 0.95 is 1028px, about a screen, and each
-     element now gets 329px of its own.
+     Everywhere else here, an entrance is a pure function of scroll position,
+     which is what lets scrolling back take a thing apart again. That is right
+     for the world: the blocks and the mascots are scenery the reader moves
+     through. It is wrong for this card, and the old build showed why. The
+     reveal was spread across 0.81 to 0.95 of the section, about 1028px, so
+     reading the closing line meant grinding a screenful of scrollbar to
+     assemble six pieces of text — and the last 100vh of the page is a HOLD,
+     where the camera has stopped and there is nothing else left to look at.
+     The reader arrives at the end of the page and then has to keep working.
 
-     Scrubbed, not played, which is why this is written by hand rather than with
-     the library's own orchestration: whileInView, variants and staggerChildren
-     are time-based and fire once on entry, and this section's rule is that
-     every entrance is a pure function of scroll position — which is what lets
-     scrolling UP take the card back apart. An observer plus a timeline works
-     perfectly until someone scrolls back, at which point the card is stuck
-     assembled or replays at the wrong moment.
+     So this one plays itself, once, on its own clock. The gate is the camera:
+     past END_PLAY_AT the reader is by definition past I meme (whose dwell ends
+     at 0.746) and Contact is arriving. Whatever the scroll does after that —
+     stop dead, coast, or fling to the bottom of the page in one flick — the
+     card performs at the speed it was choreographed at.
 
-     Transform, opacity and — on the three text blocks only — blur. The first
-     two are compositor properties and cost no layout. Blur is a repaint and is
-     spent where it earns its keep: it is what makes a line read as focusing
-     into place rather than sliding, and the title card upstairs already sets
-     that idiom for this section. The rule, the marks and the credit line do
-     not get it; a 1px rule cannot be out of focus in a way anyone notices. */
+     It still comes apart, just not continuously: back before END_RESET_AT the
+     reader has returned to I meme, the card is long out of frame, and it
+     resets so the arrival plays again next time. The gap between the two
+     numbers is hysteresis — a card that re-triggered every time the scroll
+     jittered across one threshold would be worse than one that never replayed.
+
+     Transform, opacity and — on the text blocks — blur. The first two are
+     compositor properties and cost no layout. Blur is a repaint and is spent
+     where it earns its keep: it is what makes a line read as focusing into
+     place rather than sliding, and the title card upstairs already sets that
+     idiom. The rule and the credit line do not get it; a 1px rule cannot be
+     out of focus in a way anyone notices.
+     ---------------------------------------------------------------------- */
   const END_REVEAL = (() => {
     const col = sec.querySelector('.lw-copy-end');
     if (!col) return [];
-    /*        selector          delay  rise  blur */
-    return [['.lw-sign',          .00,   22,  10],
-            ['h2',                .09,   34,  10],
-            ['.lw-end-lede',      .18,   26,   8],
-            ['.lw-end-rule',      .36,   16,   0],
-            ['.lw-end-mail',      .45,   28,   0],
-            ['.lw-end-social',    .55,   22,   0]]
-      .map(([sel, delay, rise, blur]) => {
-        const el = col.querySelector(sel);
-        return el && { el, delay, rise, blur };
-      })
-      .filter(Boolean)
-      /* The credit line is not in the column — it is fixed to the window — but
-         it is the last beat of the same movement, so it belongs to this list
-         rather than to the bloom's fade, which arrives with the camera. */
-      .concat([['.lw-made', .68, 14, 0]]
-        .map(([sel, delay, rise, blur]) => {
-          const el = sec.querySelector(sel);
-          return el && { el, delay, rise, blur };
-        }).filter(Boolean));
+    /* Four beats with real gaps between them, which is the note this answers:
+       who is talking, what they want, how to reach them, and the marks. Inside
+       a beat the offsets are small enough to read as one movement with a lean;
+       between beats they are wide enough to read as a separate thought.
+
+              selector        delay  rise  blur */
+    const rows = [['.lw-sign',       0.00,   18,   8],
+                  ['h2',             0.14,   36,  10],
+                  ['.lw-end-lede',   0.36,   24,   6],
+                  ['.lw-end-rule',   0.54,    0,   0],
+                  ['.lw-end-mail',   0.68,   22,   0]];
+    const out = rows.map(([sel, delay, rise, blur]) => {
+      const el = col.querySelector(sel);
+      return el && { el, delay, rise, blur };
+    }).filter(Boolean);
+
+    /* The marks arrive one at a time rather than as a block of four. They are
+       the only repeated element on the card, and a stagger is the cheapest way
+       to say "these are four things" instead of "this is a strip". */
+    col.querySelectorAll('.lw-end-social li').forEach((el, i) => {
+      out.push({ el, delay: 0.86 + i * 0.07, rise: 16, blur: 0 });
+    });
+
+    /* The credit line is not in the column — it is fixed to the window — but it
+       is the last beat of the same movement, so it belongs to this list rather
+       than to the bloom's fade, which arrives with the camera. */
+    const made = sec.querySelector('.lw-made');
+    if (made) out.push({ el: made, delay: 1.22, rise: 12, blur: 0 });
+    return out;
   })();
 
-  /* Where the run starts and ends, as fractions of the section's own travel.
-     0.81 is just after the camera's arrival at 0.837 has begun to settle, and
-     0.95 leaves a third of a screen of finished card before the section ends —
-     the last thing the page does should not be the last thing it animates. */
-  const END_FROM = 0.81, END_TO = 0.95;
-  /* Divided out of the delays so the last element still finishes exactly at
-     END_TO rather than a fraction of the run late. */
-  const END_SPAN = 1 - .68;
+  /* Fractions of the section's own travel. 0.81 is just after the camera's
+     arrival at Contact (0.837) has begun; 0.74 is back at the I meme dwell,
+     which is far enough away that the card is out of frame when it resets. */
+  const END_PLAY_AT = 0.81, END_RESET_AT = 0.74;
+
+  /* A rule is better drawn than slid: a 1px line moving 16px upward is a line
+     that twitches, where one growing from its left edge is a line being ruled.
+     Kept out of the table above because it is the one element whose hidden
+     state is not "lower and blurred". */
+  const endRule = END_REVEAL.find(it => it.el.classList.contains('lw-end-rule'));
+  if (endRule) endRule.el.style.transformOrigin = 'left center';
+
+  let endPlayed = false, endRunning = [];
+
+  function endStop() {
+    for (const a of endRunning) { try { a.stop(); } catch (e) {} }
+    endRunning = [];
+  }
+
+  /* The finished card, with no animation. Also the whole implementation for
+     reduced motion and for a page where the library did not load — neither of
+     those may be left looking at an invisible closing card, which is the one
+     failure mode here that would actually cost something. */
+  function endShow() {
+    endStop();
+    for (const it of END_REVEAL) {
+      it.el.style.opacity = '1';
+      it.el.style.transform = '';
+      it.el.style.filter = '';
+    }
+    if (endRule) endRule.el.style.transform = '';
+  }
+
+  function endHide() {
+    endStop();
+    for (const it of END_REVEAL) {
+      it.el.style.opacity = '0';
+      it.el.style.transform = it === endRule
+        ? 'scaleX(0)'
+        : `translate3d(0,${it.rise}px,0)`;
+      it.el.style.filter = it.blur ? `blur(${it.blur}px)` : '';
+    }
+  }
+
+  function endPlay() {
+    const M = window.Motion;
+    if (reduced || !M || !M.animate) { endShow(); return; }
+    endStop();
+    for (const it of END_REVEAL) {
+      const to = { opacity: [0, 1] };
+      if (it === endRule) to.scaleX = [0, 1];
+      else to.y = [it.rise, 0];
+      if (it.blur) to.filter = [`blur(${it.blur}px)`, 'blur(0px)'];
+      /* Spring on the movement, a plain ease on opacity and blur, and the two
+         deliberately out of step: the text is legible and sharp BEFORE it has
+         finished settling. A line that clears focus exactly as it stops moving
+         reads as a slide; one that clears early reads as arriving.
+
+         bounce: 0, which is the whole spring decision and is inherited from the
+         hand-rolled spring this replaced. Six words of a title arriving with a
+         bit of overshoot is a flourish; a headline, a lede, an address and four
+         marks all overshooting together is a wobble. visualDuration says how
+         long it should LOOK like it takes, which is the number worth setting by
+         eye — stiffness and damping are the same statement in units nobody can
+         picture. */
+      /* `delay` is repeated inside every per-property override, and it has to
+         be. A per-property transition REPLACES the whole transition for that
+         property rather than merging into it, so the top-level delay reaches
+         the spring and nothing else — which is not a subtle bug: with it
+         missing, opacity ran with no delay on every element and the card faded
+         up as one lump, the exact failure this rewrite was meant to fix. It
+         looked plausible in code and was obvious the moment the values were
+         read off the page. */
+      const lead = { delay: it.delay, type: 'tween', ease: [0.22, 1, 0.36, 1] };
+      endRunning.push(M.animate(it.el, to, {
+        delay: it.delay,
+        type: 'spring', visualDuration: 0.55, bounce: 0,
+        opacity: Object.assign({ duration: 0.42 }, lead),
+        filter:  Object.assign({ duration: 0.52 }, lead)
+      }));
+    }
+  }
+
+  /* Hidden from the start, so the card cannot be caught assembled by a reader
+     who lands deep in the page — a reload restores the scroll position, and
+     without this the reveal's first frame would be its last. */
+  if (reduced) endShow(); else endHide();
 
   /* ==========================================================================
      8 · GEOMETRY
@@ -1187,29 +1271,12 @@
 
     }
 
-    /* The card assembles across the park. Its own progress, not the bloom's:
-       the light arrives with the camera and the words arrive after it.
-
-       Opacity and blur are both pulled AHEAD of the movement — k * 2.4 and
-       k * 1.8 — so a line is legible and sharp while it is still settling,
-       rather than arriving already still. A line that clears focus exactly as
-       it stops moving reads as a slide; one that clears early reads as
-       arriving.
-
-       Written every frame at every scroll position, including far away, which
-       is what makes it reverse: there is no state here, only a function of p. */
-    if (END_REVEAL.length) {
-      const rp = clamp01((p - END_FROM) / (END_TO - END_FROM));
-      for (const it of END_REVEAL) {
-        const k = clamp01((rp - it.delay) / END_SPAN);
-        const e = SPRING_SOFT(k);
-        it.el.style.opacity   = clamp01(k * 2.4).toFixed(3);
-        it.el.style.transform = `translate3d(0,${((1 - e) * it.rise).toFixed(1)}px,0)`;
-        if (it.blur) {
-          const bl = (1 - clamp01(k * 1.8)) * it.blur;
-          it.el.style.filter = bl > .05 ? `blur(${bl.toFixed(2)}px)` : '';
-        }
-      }
+    /* The card is triggered here and performs on its own clock — see the note
+       on END_REVEAL. All this does is decide whether it has started, and
+       whether the reader has gone far enough back to arm it again. */
+    if (END_REVEAL.length && !reduced) {
+      if (!endPlayed && p >= END_PLAY_AT)      { endPlayed = true;  endPlay(); }
+      else if (endPlayed && p < END_RESET_AT)  { endPlayed = false; endHide(); }
     }
 
     /* The title is NOT on the travel axis, and that is the point.
