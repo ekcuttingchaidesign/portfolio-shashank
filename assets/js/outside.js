@@ -1267,7 +1267,7 @@
          all three stations too — this glow is one element for the whole
          section, and turning it down at the source would quietly take 20% off
          four frames to answer a note about one. */
-      sec.style.setProperty('--lw-glow-k', (1 - .389 * ef).toFixed(3));
+      sec.style.setProperty('--lw-glow-k', (1 + .598 * ef).toFixed(3));
 
     }
 

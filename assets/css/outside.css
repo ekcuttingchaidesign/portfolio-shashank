@@ -109,17 +109,19 @@
    channels into --lw-glow-rgb and the stops only carry alpha.
 
    --lw-glow-k scales every stop at once, and exists because this is ONE
-   element serving four frames. The closing frame wants it dimmer; editing the
-   numbers below to get that would have taken the same cut off the title card
-   and all three stations, which nobody asked for. So JS lerps k instead: it is
-   1 everywhere and 0.611 once the camera is on Contact — `1 - .389 * ef` in
-   outside.js, on the same proximity factor the bloom fades on.
+   element serving four frames. It is why the closing frame can be brighter
+   than the rest WITHOUT the stops below moving: editing those to lift Contact
+   would take the same lift to the title card and all three stations, which is
+   not what was asked for. So JS lerps k instead — `1 + .598 * ef` in
+   outside.js, on the same proximity factor the blue bloom fades on. k is
+   exactly 1 everywhere else, so the title card and the three stations render
+   at the stops as written and are untouched by any of this.
 
-   That makes the peak 0.1064 x 0.611 = 0.0650 on the closing frame, which over
-   the #04060C ground composites to #14161C — measured off the render, not
-   derived. (This said "a fifth dimmer" and "lerps it to 0.8" until the cut was
-   deepened to 38.9% and the comment was not; the numbers here are now the
-   code's.) */
+   It has been both directions. It dimmed Contact to 0.611 for as long as this
+   wash was reading too hot there; it now lifts it to 1.598, which puts the peak
+   at 0.1064 x 1.598 = 0.1700 and composites to #2F3035 over the #04060C ground
+   against the #14161C it used to reach. If Contact wants to move again this is
+   the one number; if the WHOLE traversal wants to move, the stops below are. */
 .lw-glow {
   position: absolute;
   /* Upper left through the title card and the three stations — warm at the
@@ -713,8 +715,16 @@
      source ellipse's shape barely survives — which is why this is not drawn as
      an ellipse.
      Peak = area / (2*pi*sx*sy) * 0.6 = 0.105, not 0.6 — and then a fifth off
-     that, .1049 -> .0550, which is a note on the render rather than anything
+     that, .1049 -> .0550, which was a note on the render rather than anything
      in the frame. Current blur here, in Figma's units, is 300.
+
+     The stops now carry .0880, that .0550 x 1.6. Held deliberately BELOW the
+     0.105 the convolution says, and a long way below it: four tightenings
+     concentrated the same ink into a quarter of the area without ever letting
+     the peak rise, so the physically honest figure at this sigma is 0.35 and
+     would blow the frame out completely. 1.6x is a step toward it, not an
+     arrival at it — this wash has been too hot twice before and the file says
+     so in three places.
 
    Tightened by hand from there across four passes: sigma 400 -> 150, so Figma
    blur 800 -> 300, which pulls the extent in from 1306px to 684 — the radii
@@ -739,41 +749,46 @@
   pointer-events: none;
   opacity: 0;
   z-index: 0;
-  /* 686 x 364, #4E51FF. Figma puts the box at (37, 685) — centre (380, 867) —
-     and it is drawn here at centre (380, 1165) instead — 298px lower, which puts
-     the peak 85px BELOW the bottom of the frame.
+  /* 686 x 364, #4E51FF, and it now sits where Figma puts it: the box at
+     (37, 685) is centre (380, 867), which is 80.28% of 1080 — the value below.
 
-     Not a disagreement with the frame, a consequence of what the blur does to
-     it. The drawn blob is a Gaussian of sigma 175 on the vertical, so it is
-     still readable about 260px above its own centre where the frame's ellipse
-     simply stops at its box. Placed on the frame's centre it therefore reads as
-     starting far higher than the frame draws it, and washes the headline. Moved
-     down, what is left in the upper half is the tail rather than the shoulder.
+     It was drawn 298px lower than that, at 107.87%, and the reason was sound
+     when it was chosen. The blob was a Gaussian of sigma 364 on the vertical
+     then, so it was still readable a thousand pixels above its own centre; on
+     the frame's centre it read as starting far higher than the frame draws it
+     and washed the headline, and moving it down left the tail in the upper half
+     rather than the shoulder.
 
-     That 298px offset is UNCHANGED across every tightening pass, and it is now
-     the first thing to look at if this reads as too little rather than too
-     much. The centre sits 85px under the bottom of the frame while the vertical
-     tail has gone 364 -> 282 -> 220 -> 175, so the offset that was sized to
-     hold back a wide blur is now holding back a narrow one: at 3 sigma this
-     blob reaches 525px above its centre, which clears the frame edge by 440px
-     against the 1007 it cleared when the offset was chosen — the reach has gone
-     1007 -> 761 -> 575 -> 440 while the offset held still. Raising
-     the 107.87% is the one number if the wash wants to come back up.
+     That reason is gone. Four tightening passes took the vertical sigma
+     364 -> 282 -> 220 -> 175 while the offset held still, so the reach above
+     the frame's bottom edge went 1007 -> 761 -> 575 -> 440px and the thing the
+     offset was holding back had shrunk to less than half its size. What was
+     left was a wash almost entirely below the frame: measured off the render,
+     its brightest visible pixel was #060816, two values off the #04060C ground,
+     and it was gone by y = 850.
+
+     So the offset is retired rather than re-tuned, which is the honest end of
+     that sequence — a 298px correction for a blur that no longer exists. Back
+     on the frame's own 867, the body of the blob (within one sigma) runs
+     y 692..1042 and the 3-sigma reach tops out at 341, where the alpha is about
+     1% of peak — far too faint to wash the headline the old offset was
+     protecting. If it ever needs holding back again, this percentage is the
+     number, and it should move with the sigma this time.
 
      Radii in vw for both axes so the blob keeps its shape instead of
      stretching with the window. */
   background-image:
-    radial-gradient(35.60vw 27.41vw at 19.79% 107.87%,
-      rgba(78,81,255,.0550) 0%,
-      rgba(78,81,255,.0526) 10%,
-      rgba(78,81,255,.0459) 20%,
-      rgba(78,81,255,.0367) 30%,
-      rgba(78,81,255,.0268) 40%,
-      rgba(78,81,255,.0179) 50%,
-      rgba(78,81,255,.0109) 60%,
-      rgba(78,81,255,.0061) 70%,
-      rgba(78,81,255,.0031) 80%,
-      rgba(78,81,255,.0014) 90%,
+    radial-gradient(35.60vw 27.41vw at 19.79% 80.28%,
+      rgba(78,81,255,.0880) 0%,
+      rgba(78,81,255,.0842) 10%,
+      rgba(78,81,255,.0734) 20%,
+      rgba(78,81,255,.0587) 30%,
+      rgba(78,81,255,.0429) 40%,
+      rgba(78,81,255,.0286) 50%,
+      rgba(78,81,255,.0174) 60%,
+      rgba(78,81,255,.0098) 70%,
+      rgba(78,81,255,.0050) 80%,
+      rgba(78,81,255,.0022) 90%,
       rgba(78,81,255,0)     100%);
 }
 
