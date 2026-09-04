@@ -127,12 +127,22 @@
   /* Upper left through the title card and the three stations — warm at the
      start, white by the time the stations arrive.
 
-     The CLOSING frame moves it: on that frame the same ellipse sits at
-     (263, 27) with a 1002x487 box, so centred (764, 270) rather than (326, 259), which is what keeps
-     "Let's build something good" sitting in the dark instead of in the middle
-     of the wash. outside.js lerps these two properties across the approach to
-     Contact — see the note there. The default is the value for everywhere
-     else, so with no script the section looks exactly as it did. */
+     The CLOSING frame moves it: there the same ellipse sits at (263, -148) with
+     a 1002x487 box, so centred (764, 95.5) rather than (326, 259) — high and
+     toward the middle, which is what keeps "Let's build something good"
+     sitting in the dark instead of in the middle of the wash. outside.js lerps
+     these two properties across the approach to Contact — see the note there.
+     The default is the value for everywhere else, so with no script the section
+     looks exactly as it did.
+
+     Worth writing down, because "the ellipse is 1002x487" and "the wash is
+     1924x1440" are easy to conflate and the crop is different for each. Of the
+     ELLIPSE, 148 of its 487 sit above the frame's top edge — 30% cropped, 70%
+     inside — and nothing is cropped horizontally (263..1265 of 1920). Of the
+     rendered WASH, which is the ellipse convolved out to sigma_x 321 /
+     sigma_y 234, the 3-sigma extent runs y -607..798, so 43% of the box is
+     above the frame; measured as light rather than as box, 34% of the Gaussian
+     falls off the top and is never seen. */
   left: var(--lw-glow-x, 17%); top: var(--lw-glow-y, 24%);
   /* 2 x the 3-sigma extent, at sigma 200 — convolved sigma_x 321 / sigma_y 240.
 

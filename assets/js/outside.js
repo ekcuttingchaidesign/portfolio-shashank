@@ -1260,7 +1260,12 @@
          with the card. It is a 3000px wash — the travel is not readable as
          motion, only as a different composition once you are there. */
       sec.style.setProperty('--lw-glow-x', (17 + (39.79 - 17) * ef).toFixed(2) + '%');
-      sec.style.setProperty('--lw-glow-y', (24 + (25.00 - 24) * ef).toFixed(2) + '%');
+      /* 8.84%, off the current frame: the ellipse's box is (263, -148) 1002x487,
+         so its centre is (764, 95.5) of 1920x1080 and 148px of the shape is
+         cropped above the frame's top edge. It used to read 25.00% because the
+         box used to be at y 27 — the design moved it up and the lerp had not
+         followed. */
+      sec.style.setProperty('--lw-glow-y', (24 + (8.84 - 24) * ef).toFixed(2) + '%');
       /* And it dims to .0650 peak on the way in, from the .1064 the other
          three frames keep — k lands at 0.611. Written as a multiplier rather
          than by editing the stops because those stops serve the title card and
