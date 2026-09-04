@@ -1592,9 +1592,24 @@
          `href="#sx-contact"` scrolls to, and it lands in the hold rather than
          mid-approach.
 
-         79% of 780vh = 616vh, against the 569vh at which the camera arrives.
-         Both numbers move together if the section height changes; if you
-         re-time KEYS, re-derive this one. -->
+         The depth is now pinned to the CARD, not to the camera, and that is a
+         correction. At 79% the pill lit at p = 0.833 — which was invisibly fine
+         while the card was scrubbed and did not finish assembling until 0.95,
+         so the pill had always switched before there was anything to read. Now
+         the card PLAYS at p = 0.81 and takes about two seconds over it, so a
+         reader can sit watching the whole closing card arrive while the pill
+         still says "Outside work". That is the same stop disagreeing with
+         itself in two places.
+
+         77% puts it back in step: (0.77 x 780vh - 50vh) / (780vh - 100vh) =
+         0.810, which is END_PLAY_AT in outside.js. Stated in vh throughout, so
+         it holds at any viewport height rather than only at the one it was
+         derived on.
+
+         These two numbers are now coupled and there is no way to make the
+         coupling automatic from here — the marker is CSS, the gate is JS. If
+         you re-time KEYS or move END_PLAY_AT, re-derive this percentage with
+         the formula above. -->
     <div id="sx-contact" class="lw-zone" aria-hidden="true"></div>
 
     <!-- The page's last line, and deliberately NOT in the stage.

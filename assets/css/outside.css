@@ -815,7 +815,11 @@
    inside a position:fixed stage that has no descending top of its own. */
 .lw-zone {
   position: absolute;
-  left: 0; top: 79%;
+  /* 77%, and the markup at #sx-contact derives it: it is the scroll depth at
+     which the closing card starts playing (END_PLAY_AT, 0.81 of the section's
+     travel), so the pill lights on the same beat the card arrives on. Re-derive
+     it there if either number moves. */
+  left: 0; top: 77%;
   width: 1px; height: 1px;
   pointer-events: none;
 }
