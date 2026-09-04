@@ -824,6 +824,85 @@
   pointer-events: none;
 }
 
+/* ==========================================================================
+   THE CLOSING CARD, CENTRED
+   --------------------------------------------------------------------------
+   An alternative to the indented column above, off the frame that is literally
+   named "Contact us_ Centrally". Everything in that frame sits on x = 960 of
+   1920: the rule spans 631..1289 (centre 960), the lede 778..1143 (960), the
+   credit line 811..1109 (960). The title and the marks land within 10px either
+   side, which is slop on auto-width text boxes rather than a second alignment.
+
+   WHY IT IS BEHIND A MIN-WIDTH, which is the whole of the engineering here.
+   The frame is a 1920 composition and two things break it as the window
+   narrows, both measured rather than guessed:
+
+     1. The speech bubble. It rides the mascot, which rides a ledge welded to
+        the right edge, so its left edge sits at 70-80vw whatever the window
+        does. The centred block's right edge is fixed at 50 + 34.27/2 = 67.1vw.
+        Those two close on each other: 242px of air at 1920, 148 at 1600, 57 at
+        1280, 35 at 1200, and by 1100 they touch.
+
+     2. The type stops shrinking before the column does. Every size in the card
+        is a clamp with a rem floor — the address bottoms out at 1.4rem around
+        1195px wide — while the column is pure vw and keeps narrowing. Below
+        about 1000px the address is wider than the box that holds it and the
+        block overflows its own centre line: measured, 10px past the rule at
+        900 and 44px at 800.
+
+   So the centred layout owns >= 1200px, where it is the frame's own
+   proportions with room to spare, and below that the indented column is left
+   exactly as it is. That is not a compromise hidden in a breakpoint: a centred
+   block needs symmetric space around it, and under 1200px there is not any.
+
+   OFF by default. Preview with ?contact=centre; drop the parameter for the
+   indented column that ships. Every selector below is gated on an attribute
+   that the head script writes from that parameter, which is why this can sit in
+   the same stylesheet as the layout it replaces without touching it.
+
+   The gate is an attribute rather than a media query on its own because a
+   media query cannot read a URL. The specificity works out: [attr] .lw-copy-end
+   is (0,2,0) against the base rule's (0,1,0), and the two descendant rules are
+   (0,3,0) against (0,2,0) — so this wins on specificity rather than on source
+   order, which would break the next time these blocks are reordered.
+   ====================================================================== */
+@media (min-width: 1200px) {
+  /* Centred with left/right/margin, NOT with translateX(-50%) — the one
+     technique that cannot be used here. outside.js writes `transform` on this
+     element every frame to drift it along the travel axis, so a
+     transform-based centring is overwritten on the first scroll. (The phone
+     breakpoint does use translateX(-50%); there the JS appends it to the same
+     transform, which is why it works there and would not here.) */
+  [data-sx-contact="centre"] .lw-copy-end {
+    left: 0; right: 0;
+    margin-inline: auto;
+    /* 658 of 1920 = 34.27vw, the rule's own span and the widest thing in the
+       block. Held as a vw so it scales with the type, which is clamped on vw
+       too — the frame's proportions survive the window changing. */
+    width: min(34.27vw, 658px);
+    text-align: center;
+  }
+
+  /* The rule fades from the middle outward instead of left to right.
+     White-at-the-left-to-nothing-at-the-right reads correctly when the block
+     hangs off a left margin: it starts where the text starts and dissolves
+     into the empty half. Centred, that same gradient reads as a mistake — a
+     symmetrical block of type with one bright end and one dead one. This says
+     the same thing about a block that now has two edges instead of one. */
+  [data-sx-contact="centre"] .lw-copy-end .lw-end-rule {
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0) 0%, #FFFFFF 50%, rgba(255,255,255,0) 100%);
+  }
+
+  /* The marks centre, on the frame's own 60px gap — measured on the gaps
+     rather than the item origins, which are 170/187/176 apart only because the
+     labels are different lengths. */
+  [data-sx-contact="centre"] .lw-copy-end .lw-end-social {
+    justify-content: center;
+    gap: 1.1rem clamp(2.4rem, 3.125vw, 3.75rem);
+  }
+}
+
 /* The skip link. Present for everyone, visible only when tabbed to. */
 .lw-skip {
   position: fixed; left: 1rem; top: 1rem;

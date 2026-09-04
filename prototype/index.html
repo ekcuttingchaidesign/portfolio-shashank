@@ -24,6 +24,23 @@
      never share a selector, so neither can surprise the other. -->
 <link rel="stylesheet" href="../assets/css/outside.css">
 
+<!-- The closing card's layout switch, read here in the head rather than with
+     the rest of the scripts at the foot of the body.
+
+     ?contact=centre selects the centred alternative in outside.css; no
+     parameter gets the indented column that ships. It is one attribute because
+     CSS cannot read a URL, and it is set BEFORE the stylesheet has anything to
+     lay out — from the foot of the body it would be a layout switch applied
+     after first paint, which is a visible jump on any page that reloads deep
+     enough to have the card on screen. -->
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search).get('contact');
+    if (q === 'centre' || q === 'center' || q === 'centred' || q === 'centered' || q === '1')
+      document.documentElement.setAttribute('data-sx-contact', 'centre');
+  })();
+</script>
+
 <!-- With no script the Experience stage would be an empty box: its two cels are
      handed their sheets by JS, on purpose, so that four sprite sheets are not
      all fetched at page load. This puts the first character on the stage,
