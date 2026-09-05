@@ -26,10 +26,12 @@ just dived into.
 | `assets/vendor/motion.js` | [Motion](https://motion.dev) 13.1.0, vendored as a UMD bundle so there is no build step. |
 | `assets/fonts/` | Satoshi, as woff2. The two weights the hero needs are preloaded. |
 | `public/video/` | The two source films (`into-the-screen`, `out-of-the-screen`). |
+| `public/video/motion/` | The thirteen films on the Things That Move reel, plus a poster each. Built from `assets/motion_videos/` (masters, not committed) by `tools/prep-motion.py`. |
 | `public/img/` | The portrait, the three headline objects, and project covers. |
 | `docs/pending-art.md` | What each More Stories slot holds, the brief for the projectionist mascot, and how to drop films into the reel. |
 | `portfolio-content.html` | The hi-fi content wireframe all the copy below the hero comes from. Reference, not shipped. |
 | `portfolio_spec.md` | The written spec behind the same. Reference, not shipped. |
+| `tools/prep-motion.py` | Turns the motion masters into the MP4s and posters the reel serves. Needs ffmpeg; see the header in the file. |
 | `tools/normalize-sprite.mjs` | Redraws a sprite sheet onto a strict uniform grid. The mascot's delivered sheet is not on one; see `docs/pending-art.md`. |
 | `serve.js` | Local dev server. See **Running it locally** — the usual one-liner does not work here. |
 | `.nojekyll` | Tells Pages to publish the files as-is instead of running them through Jekyll. |

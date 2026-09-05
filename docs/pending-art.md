@@ -201,30 +201,113 @@ breakpoint where the stand is hidden, the walk sheet is never fetched at all.
 a resource of its own — warming an `Image()` with the same URL does not warm it,
 which is exactly how the character kept vanishing after the first fix went in.
 
-## The fourteen tiles
+## The thirteen tiles
 
-Blocks for now, by design. Each plate takes a video with no code change:
+Filled. Thirteen films, and the strip is stills — every card is a poster that
+opens its film in the gallery overlay, the same dialog the photographs and the
+memes open.
 
-```html
-<div class="sx-cel-plate">
-  <video src="../public/video/reel/upi-receipt.mp4" muted loop playsinline
-         preload="metadata" poster="..."></video>
-</div>
+### Hover plays it, click opens it
+
+A card is a still until the pointer arrives, and then it is the film — silent,
+looping, no controls. Click and it opens properly in the gallery overlay, with
+sound and a scrubber, the same dialog the photographs use.
+
+This is the third answer to the question and the two it replaces are worth
+recording, because both are the obvious thing to try.
+
+**Thirteen looping `<video>` tags** was the first. Thirteen decoders behind a
+moving marquee is a fan spinning up, it is the most expensive thing the page
+could possibly do, and a strip where everything moves at once is a strip where
+nothing is legible.
+
+**Six-frame flipbooks** were the second — five cards stepping through stills cut
+from across their films, on the theory that a reel of frozen posters does not
+announce that these are films. Built, and thrown out on sight: it looked like
+what it was, which is a slideshow pretending to be footage.
+
+What both got wrong is the same thing. They tried to make the whole strip alive
+at once, and **only one card is ever being looked at.** So exactly one `<video>`
+exists at a time. It is built when the pointer arrives and destroyed when it
+leaves, and the reel at rest costs thirteen stills — which is what it cost
+before any of this.
+
+| | |
+| --- | --- |
+| **Delay** | 150ms of intent before anything is fetched |
+| **Sound** | Muted. A pointer crossing a strip is not a request to hear anything |
+| **Start** | The 8% mark, carried as a `#t=` media fragment |
+| **Teardown** | `removeAttribute('src')` then `load()`, which aborts the fetch |
+| **Stops** | Pointer leaves, strip goes off screen, tab hidden, overlay opens |
+| **Touch / reduced motion** | Never built. Tap opens the overlay, as it always did |
+
+Three of those have reasons that are not obvious.
+
+**The 150ms delay is not politeness, it is the whole thing.** A pointer crossing
+the strip on its way somewhere else passes over five or six cards. Without the
+delay that is five or six films fetched and thrown away on every mouse sweep.
+
+**It does not start at zero.** Almost every one of these opens on black, or on a
+logo animating up out of nothing — the same fact the poster picker had to work
+around. A card that answered the pointer with a second of black would read as
+broken, so playback starts where the poster search started. The fragment goes in
+the URL rather than being seeked after load, so the browser fetches from that
+point instead of fetching the opening and then jumping.
+
+**Muted is set before the src.** Autoplay policy allows a muted video to start
+without a user gesture and a hover is not a gesture — but the element has to
+already be muted when the source is attached, or the first `play()` is refused
+anyway.
+
+The card's silent preview and the overlay's real one must never be the same film
+playing twice, so `lb:open` tears the card's down. That matters more than it
+sounds: it is the click on that very card that opens the overlay.
+
+### Adding a film
+
+Drop it in `assets/motion_videos/` — masters, any size, not committed — and run:
+
+```bash
+python tools/prep-motion.py
 ```
 
-Drop the `data-empty` attribute off the plate when you add one — that attribute
-is what draws the reserved hatch and the label.
+That writes `public/video/motion/<slug>.mp4` (long edge 1280, faststart) and
+`<slug>_poster.webp` (long edge 900, picked by ffmpeg's `thumbnail` filter so
+it is not a title card fading up out of black). Existing outputs are left alone;
+`--force` re-encodes. Give the file a readable slug in the script's `NAMES`
+table while you are there.
 
-**Playback is already wired.** Tiles play only while on screen and pause the
-moment they leave, via IntersectionObserver — no scroll handler, no per-frame
-work. Fourteen decoders running at once would cost frames on a laptop and
-battery on a phone, and eleven of them would be painting outside the viewport.
-The observer also watches for tiles added later, so files can land in any
-order.
+Then add the cell to BOTH runs in `prototype/index.html` — the strip carries
+two identical copies so the marquee can wrap:
 
-Ratios are 16:9 and 9:16 and the strip is built for both — one shared height,
-width follows the aspect. Nothing needs cropping to fit.
+```html
+<figure class="sx-cel" style="--sx-cel-ar: 1920 / 1080">
+  <button class="sx-cel-plate" type="button"
+          data-video="../public/video/motion/<slug>.mp4"
+          data-at="5.5"
+          data-title="Caption"
+          aria-label="Play Caption">
+    <img src="../public/video/motion/<slug>_poster.webp" alt=""
+         loading="lazy" decoding="async">
+    <span class="sx-cel-play" aria-hidden="true"></span>
+    <span class="sx-sheen"></span>
+  </button>
+  <figcaption>Caption</figcaption>
+</figure>
+```
 
+`data-at` is where hover playback starts, in seconds — 8% of the running time,
+matching where the poster search began. The clone copy takes `aria-hidden="true"` on the run and on each button, plus
+`tabindex="-1"`, so a screen reader is not read the reel twice.
+
+`--sx-cel-ar` is the film's own ratio and is read twice: the CSS sizes the card
+from it, and `gallery.js` sizes the overlay's box from it so the film does not
+resize when its metadata lands. State the master's real pixels and neither has
+to be adjusted. Any ratio works — the strip is one shared height with width
+following the aspect, so 16:9, 9:16, 20:9 and 4:3 all sit on it without
+cropping. Nothing else needs touching: the count under the strip is counted,
+the posters are warmed when the section is approached, and the overlay builds
+its set from the first run at load.
 
 ---
 

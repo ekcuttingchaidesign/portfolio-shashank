@@ -2082,6 +2082,34 @@
     if (first) mvN.textContent = String(first.querySelectorAll('.sx-cel').length);
   }
 
+  /* --- warming the posters ---
+     Every card on this strip is a still now, and `loading="lazy"` cannot be
+     left to decide when to fetch them. Lazy loading asks where an element is in
+     the VIEWPORT, and a card on this strip is moved by a transform on the
+     strip: the two or three that happen to sit inside the lazy window at first
+     paint are the only ones ever considered near enough, and the other eleven
+     travel into view as empty rectangles. The plate is a dark surface, so a
+     card that has not arrived does not read as loading — it reads as a hole in
+     the reel with a caption under it.
+
+     Exactly the trap the ledge galleries hit, and the same answer: keep the
+     attribute, because it is still what keeps a quarter of a megabyte off the
+     initial load for a visitor who never scrolls this far, and cancel it at the
+     moment that stops being true. One screen of margin, so the strip is full
+     before it can be looked at.
+
+     Both runs, and they cost one fetch between them — the wrapping copy points
+     at the same thirteen files, so the browser serves the second run out of its
+     own cache. */
+  if (mvReel && 'IntersectionObserver' in window) {
+    const warm = new IntersectionObserver(es => {
+      if (!es.some(e => e.isIntersecting)) return;
+      warm.disconnect();
+      mvReel.querySelectorAll('img[loading="lazy"]').forEach(im => { im.loading = 'eager'; });
+    }, { rootMargin: '100% 0px' });
+    warm.observe(mvReel);
+  }
+
   if (mvStrip && M && M.animate && !reduced) {
     /* --- the strip, and why it is no longer an animation ---
        This used to be one Motion animation from 0% to -50% with its `speed`
@@ -2171,6 +2199,12 @@
     let hovering = false;
     let dragging = false;
     let onScreen = true;
+    /* True while the film overlay is up. The strip is behind a 22px blur at
+       that point, so every frame it computes is a frame nobody can see — and
+       it is being computed alongside a video decode, which is the one thing on
+       this page that actually wants the main thread. gallery.js owns the
+       dialog and says so with an event; this file never looks at it. */
+    let lbOpen = false;
     let raf = 0, last = 0;
 
     mvStrip.setAttribute('data-rolling', '');
@@ -2198,7 +2232,8 @@
     /* Parked whenever there is nothing to do — off screen, in a hidden tab, or
        held still with no throw left in it. A marquee painting behind a tab
        nobody is looking at is the cheapest frame on the page to not draw. */
-    const busy = () => onScreen && !document.hidden && (dragging || vel !== 0 || cruise() > 0);
+    const busy = () =>
+      onScreen && !document.hidden && !lbOpen && (dragging || vel !== 0 || cruise() > 0);
     const wake = () => {
       if (raf || !busy()) return;
       last = performance.now();
@@ -2234,6 +2269,7 @@
         moved = 0;
         lastX = e.clientX;
         lastT = e.timeStamp;
+        swallow = false;
         mvReel.dataset.grab = '';
         try { mvReel.setPointerCapture(e.pointerId); } catch (_) {}
         wake();
@@ -2258,16 +2294,40 @@
         vel = vel * 0.72 + (-dx / dt * 1000) * 0.28;
       });
 
+      /* --- the click at the end of a drag ---
+         Every card on the strip is now a button that opens a film, and a drag
+         ends with a real click on whichever card the pointer happened to let go
+         over. Without this, throwing the reel opens a video every single time —
+         and the harder you throw it, the more certainly it lands on something.
+
+         So a pointer that travelled is remembered, and the click it produces is
+         swallowed in the CAPTURE phase on the reel, which is before the button
+         it is aimed at and long before the delegated handler in gallery.js.
+         Six pixels of slop, because a mouse click is never exactly zero and a
+         finger's is never close to it. */
+      let swallow = false;
+
       const release = e => {
         if (!dragging || (dragId !== null && e.pointerId !== dragId)) return;
         dragging = false;
         dragId = null;
         delete mvReel.dataset.grab;
+        swallow = moved > 6;
         vel = Math.max(-MAX_FLICK, Math.min(MAX_FLICK, vel));
         wake();
       };
       mvReel.addEventListener('pointerup', release);
       mvReel.addEventListener('pointercancel', release);
+      mvReel.addEventListener('click', e => {
+        if (!swallow) return;
+        /* Cleared here rather than on a timer: exactly one click follows a
+           release, so the flag is spent the moment it is read. It is cleared on
+           the next pointerdown as well, for the release that produces no click
+           at all — a drag that ends off the reel. */
+        swallow = false;
+        e.preventDefault();
+        e.stopPropagation();
+      }, true);
       /* A pointer that vanishes without an up — the window going away
          mid-drag — otherwise leaves the strip frozen mid-grab forever. */
       addEventListener('blur', () => { if (dragging) release({ pointerId: dragId }); });
@@ -2407,19 +2467,170 @@
       mvReel.addEventListener('focusout', () => { hovering = false; wake(); });
     }
 
+    /* ====================================================================
+       THE FILM UNDER THE POINTER
+       ====================================================================
+       Hover a card and it stops being a still and becomes the film. Click it
+       and the film opens properly, with sound and a scrubber, in the overlay.
+
+       This is the third answer to the same question and the only one that is
+       right. Thirteen looping <video> tags was the first, thrown out because
+       thirteen decoders behind a moving marquee is a fan spinning up.
+       Six-frame flipbooks were the second, thrown out because they looked
+       like what they were.
+
+       What both got wrong is that they tried to make the whole strip alive at
+       once. Only one card is ever being looked at. So exactly one <video>
+       exists at a time, it is built when the pointer arrives and destroyed
+       when it leaves, and the reel at rest costs thirteen stills — which is
+       what it already cost.
+
+       --- muted, and why that is not a compromise ---
+       Autoplay policy allows a muted video to start without a user gesture,
+       and a hover is not a gesture. But sound would be wrong here even if it
+       were allowed: a pointer crossing a strip is not a request to hear
+       anything, and a row of cards that shout when brushed is a page nobody
+       scrolls twice. Sound is what the click is for.
+
+       --- and why it does not start at zero ---
+       Almost every one of these opens on black, or on a logo animating up out
+       of nothing. It is the same fact the poster picker had to work around,
+       and a card that answered the pointer with a second of black would read
+       as broken. So playback starts at the 8% mark the poster search started
+       from, carried in the URL as a media fragment so the browser seeks there
+       while loading rather than loading and then seeking.
+       ==================================================================== */
+    const FILM_DELAY = 150;   /* ms of intent before anything is fetched */
+    const canHover = matchMedia('(hover: hover)').matches;
+    let filmEl = null, filmPlate = null, filmTimer = 0;
+
+    /* Tearing one down has to abort the fetch, not just stop the picture.
+       pause() leaves the rest of a 7MB file arriving for a card the pointer
+       has already left; removeAttribute then load() is the pair that cancels
+       the request in flight.
+
+       filmPlate is cleared BEFORE the early return, not after it. It is set
+       the moment a card is wanted rather than when its film is built, so
+       between those two moments there is a plate on record and no element —
+       and a version of this that returned early would leave that plate marked
+       as current forever. The card the pointer left would then be the one card
+       on the strip that could never wake up again. */
+    const dropFilm = () => {
+      clearTimeout(filmTimer);
+      filmTimer = 0;
+      filmPlate = null;
+      if (!filmEl) return;
+      filmEl.pause();
+      filmEl.removeAttribute('src');
+      filmEl.load();
+      filmEl.remove();
+      filmEl = null;
+    };
+
+    const playFilm = plate => {
+      const src = plate.dataset.video;
+      if (!src) return;
+
+      const v = document.createElement('video');
+      v.className = 'sx-cel-film';
+      v.muted = true;          /* set BEFORE the src, or the play() is refused */
+      v.loop = true;
+      v.playsInline = true;
+      v.preload = 'auto';
+      v.tabIndex = -1;
+      v.setAttribute('aria-hidden', 'true');
+      /* The still the card is already showing, so the first painted frame is
+         the one that was there rather than black. */
+      const still = plate.querySelector('img');
+      if (still) v.poster = still.currentSrc || still.src;
+
+      const at = parseFloat(plate.dataset.at);
+      v.src = src + (at > 0 ? '#t=' + at : '');
+
+      /* Revealed on `playing`, not on `canplay`. canplay means it COULD
+         start; playing means a frame has actually been shown, which is the
+         only moment at which fading it in cannot expose an empty box. */
+      v.addEventListener('playing', () => { v.dataset.playing = ''; }, { once: true });
+
+      plate.appendChild(v);
+      filmEl = v;
+      filmPlate = plate;
+      const q = v.play();
+      if (q && q.catch) q.catch(() => {
+        /* Refused, offline, decoder busy — any of them leave the poster up,
+           which is the card the reader would have had anyway. */
+        if (filmEl === v) dropFilm();
+      });
+    };
+
+    /* --- what counts as wanting to see it ---
+       A pointer crossing the strip on its way somewhere else passes over five
+       or six cards, and without this that is five or six films fetched and
+       thrown away. The delay costs nothing anybody notices, and it is the
+       difference between a reel that answers you and one that hits the
+       network on every mouse sweep. */
+    const wantFilm = plate => {
+      if (!canHover || reduced || lbOpen || document.hidden) return;
+      /* Already the current card — whether its film is playing or still on the
+         clock. Without this second half, moving the pointer from the poster
+         onto the play badge counts as arriving at the card all over again and
+         restarts the delay, so a reader who lands on the badge waits twice. */
+      if (filmPlate === plate) return;
+      dropFilm();
+      filmPlate = plate;
+      filmTimer = setTimeout(() => { filmTimer = 0; playFilm(plate); }, FILM_DELAY);
+    };
+
+    if (mvReel) {
+      mvReel.addEventListener('pointerover', e => {
+        if (e.pointerType === 'touch') return;
+        const plate = e.target.closest('.sx-cel-plate[data-video]');
+        if (plate) wantFilm(plate);
+      });
+      mvReel.addEventListener('pointerout', e => {
+        if (e.pointerType === 'touch') return;
+        const plate = e.target.closest('.sx-cel-plate[data-video]');
+        if (!plate) return;
+        /* A relatedTarget still inside the same plate means the pointer moved
+           between the poster and the badge, not off the card. */
+        const to = e.relatedTarget;
+        if (to && to.closest && to.closest('.sx-cel-plate') === plate) return;
+        if (plate === filmPlate) dropFilm();
+      });
+      /* Leaving the strip, and the two cases a pointerout does not cover: the
+         window losing focus, and the click through to the overlay, which is
+         about to play the same film properly. */
+      mvReel.addEventListener('pointerleave', dropFilm);
+      addEventListener('blur', dropFilm);
+    }
+
     /* A strip travelling behind a hidden tab, or a hundred viewport-heights up
        the page, is work nobody is watching. */
     if ('IntersectionObserver' in window && mvReel) {
       new IntersectionObserver(es => {
         onScreen = es.some(e => e.isIntersecting);
+        if (!onScreen) dropFilm();
         wake();
       }, { rootMargin: '20% 0px' }).observe(mvReel);
     }
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) { if (sprite) sprite.pause(); }
       else if (posing && sprite) sprite.play();
+      if (document.hidden) dropFilm();
       applySpeed();
     });
+
+    /* The film overlay, opening and shutting. Same treatment as a hidden tab
+       and for the same reason — the strip is not being looked at — with the
+       one difference that the reader has not gone anywhere, so the strip has to
+       be exactly where they left it when the dialog closes. It is: `offset` is
+       a number that nothing else writes while the loop is parked, so wake()
+       resumes rather than restarts. */
+    /* The card's silent preview and the overlay's real one must never be the
+       same film playing twice — and it is the click on that very card that
+       opens the overlay. */
+    document.addEventListener('lb:open',  () => { lbOpen = true;  dropFilm(); });
+    document.addEventListener('lb:close', () => { lbOpen = false; wake(); });
 
     /* ====================================================================
        THE MUSIC NOTES
@@ -2997,33 +3208,29 @@
   }
 
   /* ------------------------------------------------------------------------
-     The tiles, once they hold video.
+     What used to be here: the tiles, once they hold video.
      ------------------------------------------------------------------------
-     There are no files yet, so this does nothing today and needs no change
-     when they arrive: drop a <video muted loop playsinline> into a plate and
-     it is picked up.
+     An IntersectionObserver that found any <video> dropped into a plate, muted
+     and looped it, and played only the ones on screen — plus a MutationObserver
+     watching the whole strip in case tiles were filled in later.
 
-     Playing only what is on screen is not a nicety. Fourteen decoders running
-     at once costs frames on a laptop and battery on a phone, and eleven of
-     them are painting outside the viewport. IntersectionObserver is the whole
-     mechanism — no scroll handler, no per-frame work.
+     The tiles are filled in now, and they are filled in with STILLS. A card is
+     a poster that opens the film in the overlay, which makes every line of that
+     machinery wrong rather than merely unused:
+
+       · thirteen looping decoders behind a marquee is a fan spinning up, and it
+         was going to be the most expensive thing on the page by a distance;
+       · a strip where everything moves at once is a strip where nothing is
+         legible — the section is called Things That Move and the reel is the
+         one part of it that should hold still;
+       · a muted loop is not what any of these films are. They are 30 to 120
+         seconds, cut, and several are cut to music. A three-second silent
+         window into the middle of one is not a shorter version of it.
+
+     The MutationObserver is the part worth naming: it watched the reel's whole
+     subtree for the lifetime of the page, waiting for files that were never
+     going to arrive that way. gallery.js reads the srcs off the markup once.
      ---------------------------------------------------------------------- */
-  if (mvReel && 'IntersectionObserver' in window) {
-    const filmObserver = new IntersectionObserver(entries => {
-      for (const e of entries) {
-        const v = e.target;
-        if (e.isIntersecting && !reduced) { const q = v.play(); if (q) q.catch(() => {}); }
-        else v.pause();
-      }
-    }, { rootMargin: '10% 0px', threshold: 0.1 });
-
-    const watchFilm = () => mvReel.querySelectorAll('.sx-cel-plate > video')
-      .forEach(v => { v.muted = true; v.loop = true; v.playsInline = true;
-                      filmObserver.observe(v); });
-    watchFilm();
-    /* If the tiles are ever filled in after load, pick those up too. */
-    new MutationObserver(watchFilm).observe(mvReel, { childList: true, subtree: true });
-  }
 
   /* ------------------------------------------------------------------------
      Case study buttons.

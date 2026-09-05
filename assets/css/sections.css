@@ -4882,6 +4882,19 @@
 .sx-cel-plate {
   position: relative;
   height: clamp(190px, 26vw, 330px);
+  /* A button, because it opens something. Everything a UA puts on one is
+     removed here rather than in a reset — the plate's whole appearance is the
+     twenty lines below it, and a border or a default background would sit
+     inside the 28px radius where it would read as a seam. `font: inherit` is
+     the one that is easy to miss: without it the ::after placeholder text
+     below comes out at the UA's own button size. */
+  appearance: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
   /* 28. Much rounder than the 6 it replaces, which changes what the strip is
      made of: at 6 these were plates, at 28 they are screens, and a reel of
      in-product motion is a reel of screens. Came down from 36, which read as too
@@ -4900,6 +4913,18 @@
   isolation: isolate;
   transition: transform .5s var(--sx-ease), box-shadow .5s var(--sx-ease);
 }
+/* --- the aspect ---
+   Each cell states the ratio of the FILM it holds, as a variable, because
+   these arrive in seven different shapes and not two: 16:9 films, 9:16 screen
+   recordings, a 20:9 chat prototype, two 4:3 concepts and an iPhone's 1124:2436.
+   Rounding each of those to the nearest of two named ratios would mean
+   object-fit cropping a tenth off the sides of the widest one — and the widest
+   one is a chat UI, where the sides are the message bubbles.
+
+   The two named ratios stay for anything that only knows it is landscape or
+   portrait; they win over the variable by specificity, which is the right way
+   round — a stated ratio beats a defaulted one. */
+.sx-cel-plate { aspect-ratio: var(--sx-cel-ar, 16 / 9); }
 .sx-cel[data-ar="16x9"] .sx-cel-plate { aspect-ratio: 16 / 9; }
 .sx-cel[data-ar="9x16"] .sx-cel-plate { aspect-ratio: 9 / 16; }
 .sx-cel-plate > img, .sx-cel-plate > video {
@@ -4924,6 +4949,89 @@
   background-image: repeating-linear-gradient(
     135deg, transparent 0 10px, rgba(244,241,236,.022) 10px 20px);
 }
+/* --- the film, under the pointer ---------------------------------------------
+   A card is a still until you put the pointer on it, and then it is the film.
+
+   This is not the thirteen looping <video> tags that were considered and
+   thrown out at the start, and the difference is the whole design: ONE plays,
+   the one you are pointing at, and it is built when you point and destroyed
+   when you leave. Thirteen decoders behind a marquee was the objection. One
+   decoder, on demand, is what a reel of films should have cost all along.
+
+   It sits over the poster rather than replacing it, so there is never a frame
+   where the card is empty: the poster holds the space, the film fades up on
+   top of it once it has enough data to actually play, and on the way out the
+   poster is simply what is left. Both are the same picture at the same size,
+   so the hand-off has nothing to move.
+
+   No controls, no audio and no chrome of any kind. It is a card that came
+   alive, not a player embedded in a strip — the controls, the sound and the
+   scrubber all live one click away in the overlay, which is the thing this is
+   advertising. */
+.sx-cel-plate > .sx-cel-film {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+  /* Long enough not to be a cut, short enough not to be a wait. The film is
+     already playing underneath by the time this finishes. */
+  transition: opacity .32s var(--sx-ease);
+}
+.sx-cel-plate > .sx-cel-film[data-playing] { opacity: 1; }
+
+/* --- the play badge ---------------------------------------------------------
+   Nothing on this strip autoplays, which is deliberate — thirteen videos
+   decoding at once behind a marquee is a fan spinning up, and a reel where
+   everything moves at once is a reel where nothing is legible. So every card
+   is a still, and a still of a film has to say it is a film.
+
+   Small, and off to the corner rather than centred. A centred play button turns
+   the card into a video player thumbnail — a YouTube result — and these are
+   meant to read as screens on a strip. In the corner it is a mark on the card
+   rather than a control drawn over the middle of the work.
+
+   It comes up to full on hover along with the plate's lift, so the affordance
+   arrives at the moment the pointer is on the thing it belongs to. */
+.sx-cel-play {
+  position: absolute;
+  z-index: 3;
+  left: .7rem;
+  bottom: .7rem;
+  width: clamp(28px, 3.4vw, 40px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(12, 12, 12, .58);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  box-shadow: inset 0 0 0 1px rgba(244,241,236,.22);
+  opacity: .82;
+  transition: opacity .4s var(--sx-ease), background .4s var(--sx-ease);
+}
+/* The triangle, drawn rather than fetched. A 6px clip-path is smaller than the
+   request for an icon file would be, and it takes its colour from the token
+   like everything else masked on this page. */
+.sx-cel-play::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 32%;
+  aspect-ratio: 1;
+  background: var(--sx-ink);
+  clip-path: polygon(12% 0%, 100% 50%, 12% 100%);
+  transform: translateX(8%);
+}
+.sx-cel:hover .sx-cel-play,
+.sx-cel:focus-within .sx-cel-play {
+  opacity: 1;
+  background: rgba(224, 84, 42, .82);
+}
+
 /* Highlight by dimming: hovering one cell lowers the strip around it. */
 .sx-reel:hover .sx-cel { opacity: .32; transition: opacity .4s var(--sx-ease); }
 .sx-reel:hover .sx-cel:hover { opacity: 1; }
@@ -5001,6 +5109,10 @@
   .sx-cel-plate, .sx-cel { transition: none; }
   .sx-reel:hover .sx-cel { opacity: 1; }
   .sx-cel:hover .sx-sheen { animation: none; opacity: 0; }
+  /* Belt and braces. The script never builds one under reduced motion, so
+     there is nothing here to hide — this is what holds if that ever stops
+     being true. */
+  .sx-cel-film { display: none; }
 }
 
 

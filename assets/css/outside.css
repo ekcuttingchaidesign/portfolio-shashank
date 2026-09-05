@@ -1187,7 +1187,8 @@
   max-width: min(92vw, 620px);
   display: flex;
 }
-.lw-lb-img {
+.lw-lb-img,
+.lw-lb-video {
   display: block;
   max-height: 86vh;
   max-width: 100%;
@@ -1195,6 +1196,69 @@
   object-fit: contain;
   box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, .6);
 }
+/* [hidden] on a <video> loses to the display:block above — attribute selectors
+   and class selectors weigh the same, and this rule comes later. Which of the
+   two elements is showing is the one thing in here that must not be a
+   coin toss, so it is stated. */
+.lw-lb-img[hidden], .lw-lb-video[hidden] { display: none; }
+
+/* --- when it is a film ------------------------------------------------------
+   The frame above is sized for the galleries, and it is right for them: every
+   photograph and every meme is the same 1080x1600 polaroid, so a 620px cap is
+   the card at its natural size on any ordinary window.
+
+   The reel is not one shape. It holds 16:9 films, 9:16 screen recordings and a
+   20:9 chat prototype, and 620px of a 20:9 film is 279px tall — a letterbox
+   slot in the middle of a blurred screen. So the width cap goes up for video
+   and the HEIGHT cap keeps doing the work it already did: portrait films still
+   run out of viewport height first and are still bounded by 86vh, landscape
+   ones now get the width they need. Nothing else about the overlay changes. */
+/* A WIDTH, not a max-width, and that is the load-bearing difference. The
+   video below sizes itself with `width: min(100%, ...)`, and a max-width-only
+   frame is a flex box whose width comes from its content — so 100% resolved to
+   the poster's own 900px and the film sat at 900 however much room it had.
+   Stating the frame's width breaks the loop: the frame is the room available,
+   the film takes the smaller of that and what its ratio needs. */
+.lw-lb[data-kind="video"] .lw-lb-frame {
+  width: min(94vw, 1180px);
+  max-width: none;
+  justify-content: center;
+}
+/* Controls are the browser's here, and a rounded corner would clip the
+   scrubber's own rounding at the ends. Left square on purpose. */
+.lw-lb-video {
+  background: #000;
+
+  /* --- why this is sized from a number and not from the file ---
+     Left to itself a <video> takes its box from whatever it currently holds,
+     and what it holds changes twice: the poster paints first at 900px on its
+     long edge, then the film's own metadata arrives and it is 1280. Same
+     aspect, different size — so the box grew by a quarter about half a second
+     after opening, which is a jump in the middle of the one moment the reader
+     is looking straight at it.
+
+     The ratio is the thing that does NOT change between those two states, so
+     the ratio is what the box is built from. The script writes it as --lw-ar
+     when it opens a film, and the width is the smaller of the frame and what
+     that ratio needs at full height: portrait films end up height-bound at
+     86vh, landscape ones width-bound at the frame, and neither moves when the
+     first frame decodes.
+
+     The fallback is 16:9 for the same reason every fallback here exists —
+     something has to be right if the variable never arrives. */
+  aspect-ratio: var(--lw-ar, 1.7778);
+  width: min(100%, calc(86vh * var(--lw-ar, 1.7778)));
+  height: auto;
+}
+
+/* The chevrons are measured off the CARD in the galleries, which works because
+   every card there is the same width. A film's frame is a different width for
+   every aspect on the strip, so measuring off it would move the buttons every
+   time you paged — the exact thing the note above says not to do. For video
+   they go to the viewport edges instead, where they are the same two places on
+   every film. */
+.lw-lb[data-kind="video"] .lw-lb-nav[data-lb-prev] { left:  clamp(.6rem, 1.6vw, 1.6rem); }
+.lw-lb[data-kind="video"] .lw-lb-nav[data-lb-next] { right: clamp(.6rem, 1.6vw, 1.6rem); }
 
 /* --- the controls ---------------------------------------------------------
    Circular chevrons flanking the card and a Close pill in the corner, as
@@ -1282,7 +1346,13 @@ html.lw-lb-open, body.lw-lb-open { overflow: hidden; }
 /* And the strips stop while it is open. They are behind a 22px blur where
    nobody can read them, and a paused animation is one fewer layer the
    compositor has to keep repainting under a backdrop-filter — which is the
-   most expensive thing on the page at that moment. */
+   most expensive thing on the page at that moment.
+
+   The motion reel in Things That Move is stopped too, but not from here: it is
+   a rAF writing transforms rather than a CSS animation, so there is no play
+   state to pause. sections.js listens for the overlay's own open and close
+   events and parks its loop, which also stops the frames being COMPUTED and
+   not merely composited. */
 html.lw-lb-open .lw-reel-track { animation-play-state: paused; }
 
 /* --- PHONE -----------------------------------------------------------------

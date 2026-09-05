@@ -1,8 +1,17 @@
 /* ============================================================================
    The reels, and the overlay they open.
 
-   Two galleries — I click's photographs and I meme's memes — and one dialog
-   shared between them, because only one is ever open.
+   Three sets now — I click's photographs, I meme's memes, and the thirteen
+   films on the strip up in Things That Move — and one dialog shared between
+   them, because only one is ever open.
+
+   The films are the reason this file grew a media TYPE. They are not this
+   file's strip: the motion reel is built, measured and thrown by sections.js
+   and nothing here touches it. What is shared is the thing a reader sees when
+   they click a card, and there is no argument for that being two different
+   dialogs with two different blurs, two close buttons in two places and two
+   sets of arrow keys. So the overlay takes a set of items, each of which
+   knows whether it is a picture or a film, and the strips stay strangers.
 
    Independent of outside.js in the same way outside.js is independent of
    sections.js: the reels sit inside the Ledge World's copy columns but they
@@ -21,7 +30,9 @@
 
   const lb    = document.getElementById('lw-lb');
   const reels = [...document.querySelectorAll('.lw-reel')];
-  if (!lb || !reels.length) return;
+  /* The dialog is the only hard requirement now. The ledge reels were, back
+     when they were the only thing that opened it. */
+  if (!lb) return;
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -44,7 +55,7 @@
      eleven photographs — not the twenty-two the marquee ends up holding, which
      would page through the whole set twice and report "1 of 22".
      ====================================================================== */
-  const SETS = new Map();          // name -> [{ href, alt }]
+  const SETS = new Map();          // name -> [{ kind, src, ... }]
 
   reels.forEach(reel => {
     const name  = reel.dataset.gallery;
@@ -56,7 +67,11 @@
     SETS.set(name, originals.map(li => {
       const a = li.querySelector('a');
       const img = li.querySelector('img');
-      return { href: a.getAttribute('href'), alt: img ? img.getAttribute('alt') || '' : '' };
+      return {
+        kind: 'image',
+        src: a.getAttribute('href'),
+        alt: img ? img.getAttribute('alt') || '' : '',
+      };
     }));
 
     /* The index travels on the card rather than being looked up by href.
@@ -68,6 +83,53 @@
     buildMirror(name, originals);
     arm(reel, track, originals);
   });
+
+  /* ==========================================================================
+     1b · THE FILMS
+     --------------------------------------------------------------------------
+     Read off the strip in Things That Move, and read off its FIRST RUN only.
+     The strip carries two identical runs so the marquee can wrap — the same
+     shape as the marquee clone above, and the same trap: paging a set built
+     from both runs would report "1 of 26" and walk through the reel twice.
+
+     Nothing else about that strip is touched from here. sections.js owns its
+     travel, its drag, its wheel and its heat; this reads thirteen srcs out of
+     the markup and never speaks to it again.
+     ====================================================================== */
+  const mvRuns = [...document.querySelectorAll('#sx-reel .sx-reel-run')];
+  if (mvRuns.length) {
+    /* Same reasoning as the photographs: the index rides on the card. Written
+       per RUN, so card four in the wrapping copy is still card four. */
+    mvRuns.forEach(run => {
+      [...run.querySelectorAll('.sx-cel-plate[data-video]')]
+        .forEach((plate, i) => { plate.dataset.lbIndex = i; });
+    });
+
+    const films = [...mvRuns[0].querySelectorAll('.sx-cel-plate[data-video]')]
+      .map(plate => {
+        const poster = plate.querySelector('img');
+        /* The cell already states its film's shape, because the strip needs it
+           to size the card — "1920 / 1080", as a custom property in the
+           markup. Reading it back here rather than repeating the number in a
+           second attribute keeps one source for it; the overlay wants it as a
+           single ratio, which is the one line of arithmetic below. */
+        const cell = plate.closest('.sx-cel');
+        const ar = (cell ? cell.style.getPropertyValue('--sx-cel-ar') : '').split('/');
+        const ratio = ar.length === 2 ? parseFloat(ar[0]) / parseFloat(ar[1]) : 0;
+        return {
+          kind: 'video',
+          src: plate.dataset.video,
+          ratio: ratio > 0 ? ratio : 0,
+          /* The card's own still, handed to the <video> as its poster. It is
+             already in cache — it is the thing that was on screen when the
+             card was clicked — so the dialog paints the right frame instantly
+             and the film fades up over it rather than over black. */
+          poster: poster ? poster.getAttribute('src') : '',
+          alt: plate.dataset.title || '',
+        };
+      });
+    if (films.length) SETS.set('motion', films);
+  }
 
   /* ==========================================================================
      2 · THE MIRROR
@@ -249,6 +311,7 @@
      4 · THE OVERLAY
      ====================================================================== */
   const img      = lb.querySelector('.lw-lb-img');
+  const vid      = lb.querySelector('.lw-lb-video');
   const live     = lb.querySelector('.lw-lb-live');
   const closeBtn = lb.querySelector('.lw-lb-close');
   const prevBtn  = lb.querySelector('[data-lb-prev]');
@@ -257,6 +320,49 @@
   let openName = null;      // which set is open, null when the dialog is shut
   let openIdx  = 0;
   let lastFocus = null;     // where focus came from, to put it back
+
+  /* --- putting a film down ---------------------------------------------------
+     Pausing is not enough and never was. A <video> that still holds a src goes
+     on buffering after the dialog shuts — on a 7MB film that is the rest of the
+     file pulled down for a viewer who has closed it — and paging from film four
+     to film five while four is still downloading leaves two fetches racing.
+
+     removeAttribute then load() is the pair that actually stops it: the first
+     takes the source away, the second is what makes the element notice and
+     abort the fetch in flight. Either one alone leaves the request running. */
+  /* Which play() the element is currently supposed to be answering. Bumped by
+     every drop(), and read by the fallback below — see the note there. */
+  let playGen = 0;
+
+  /* --- whose silence is it? ---
+     The overlay reuses one <video>, so `muted` outlives the film that set it,
+     and there are two entirely different reasons it can be on.
+
+     One is the reader's: they hit mute on the controls, and that has to stick
+     across every film they open afterwards. The other is ours: the unmuted
+     play() was refused and the fallback muted the element to get a picture up
+     at all. That must NOT stick, because the refusal is usually about the page
+     not having been interacted with yet — a state that stops being true the
+     moment somebody clicks anything, including the card that opened this.
+
+     Without the distinction the two were the same flag, and one early refusal
+     left every film for the rest of the visit silent.
+
+     `volumechange` is what tells them apart: our own mute fires it with muted
+     already true and changes nothing, while a reader turning the sound back on
+     fires it with muted false and hands ownership back to them. */
+  let autoMuted = false;
+  if (vid) vid.addEventListener('volumechange', () => {
+    if (!vid.muted) autoMuted = false;
+  });
+
+  function drop() {
+    if (!vid) return;
+    playGen++;
+    vid.pause();
+    vid.removeAttribute('src');
+    vid.load();
+  }
 
   function show(i) {
     const set = SETS.get(openName);
@@ -268,7 +374,78 @@
     openIdx = ((i % set.length) + set.length) % set.length;
 
     const it = set[openIdx];
-    img.src = it.href;
+
+    /* The kind rides on the ITEM, not on the set, so a set could one day hold
+       both without anything here changing. It is also written to the dialog,
+       because the frame the film needs is wider than the one a polaroid needs
+       and that is a CSS decision — see .lw-lb[data-kind] in outside.css. */
+    lb.dataset.kind = it.kind;
+
+    if (it.kind === 'video' && vid) {
+      img.hidden = true;
+      img.removeAttribute('src');
+      vid.hidden = false;
+      /* Poster before src, so the frame the card was showing is what fills the
+         box while the first bytes are still on their way. */
+      if (it.poster) vid.poster = it.poster; else vid.removeAttribute('poster');
+      /* Before the src, so the box is the right shape for the very first
+         paint — see the note on .lw-lb-video in outside.css. */
+      if (it.ratio) vid.style.setProperty('--lw-ar', String(it.ratio));
+      else vid.style.removeProperty('--lw-ar');
+      drop();
+      vid.src = it.src;
+
+      /* --- on the sound ---
+         play() is called from inside the click that opened this, so the
+         gesture is still live and the browser will allow it WITH audio — which
+         is the right default for a reel of motion design, where half the work
+         is cut to music.
+
+         It is allowed rather than guaranteed. Autoplay policies differ, a
+         reader may have muted the site, and a rejected promise here is not an
+         error to report — it is the browser saying "not with sound, then". So
+         the fallback is the same film playing silently rather than a film that
+         does not play, and the controls are right there to unmute it. */
+      /* Ours to undo, so undo it and let this film ask for sound on its own
+         merits. A mute the reader chose is left exactly where they put it. */
+      if (autoMuted) { autoMuted = false; vid.muted = false; }
+
+      const gen = ++playGen;
+      const started = vid.play();
+      if (started && started.catch) started.catch(() => {
+        /* A play() promise does not only reject because autoplay was refused.
+           It ALSO rejects when the play it belonged to was interrupted — by the
+           pause() inside drop(), which is to say by the reader closing the
+           dialog or paging to the next film before the first one got going.
+
+           Both arrive at this catch looking identical, and treating an
+           interruption as a refusal is how "close a film quickly" turned into
+           "every film after it is silent": the fallback muted the element and
+           called play() again on whatever was in it by then.
+
+           So the fallback only fires for the film it was started for. Anything
+           that has since dropped or replaced the source has moved the counter
+           on, and this rejection is old news. */
+        if (gen !== playGen) return;
+        autoMuted = true;
+        vid.muted = true;
+        const retry = vid.play();
+        if (retry && retry.catch) retry.catch(() => {});
+      });
+
+      live.textContent = `${it.alt || 'Video'} — ${openIdx + 1} of ${set.length}`;
+      /* No neighbour prefetch for film. Two hints on a gallery is 300KB of
+         photographs the reader is about to want; two hints here is a dozen
+         megabytes for a reader who may well stop at the first one. The poster
+         is already cached from the card, so paging still lands on a picture
+         rather than on black. */
+      return;
+    }
+
+    drop();
+    vid && (vid.hidden = true);
+    img.hidden = false;
+    img.src = it.src;
     img.alt = it.alt;
     live.textContent = `Image ${openIdx + 1} of ${set.length}`;
 
@@ -281,7 +458,7 @@
 
   function hint(set, i) {
     const it = set[((i % set.length) + set.length) % set.length];
-    if (it) new Image().src = it.href;
+    if (it && it.kind === 'image') new Image().src = it.src;
   }
 
   function open(name, i, from) {
@@ -296,14 +473,25 @@
     document.body.classList.add('lw-lb-open');
     show(i);
     closeBtn.focus();
+    /* Announced rather than reached for. The ledge reels stop from CSS because
+       they are CSS animations; the motion strip in Things That Move is a rAF
+       writing transforms and has to be TOLD. An event keeps that one-way — this
+       file still knows nothing about that strip, and sections.js still knows
+       nothing about this dialog beyond the fact that it opens and shuts. */
+    document.dispatchEvent(new CustomEvent('lb:open'));
   }
 
   function close() {
     if (openName === null) return;
     openName = null;
+    /* Before the dialog goes, not after: hiding it does not stop a video, and
+       a film left running behind a display:none dialog is audible. */
+    drop();
     lb.hidden = true;
+    delete lb.dataset.kind;
     document.documentElement.classList.remove('lw-lb-open');
     document.body.classList.remove('lw-lb-open');
+    document.dispatchEvent(new CustomEvent('lb:close'));
     /* Back to the card that opened it. Without this, focus falls to the top of
        the document and a keyboard reader who opened photograph nine has to tab
        back through the entire page to reach photograph ten. */
@@ -321,6 +509,21 @@
      reader deliberately did not ask for. */
   document.addEventListener('click', ev => {
     if (ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+    /* The strip's cards. Checked first and returned from, because a plate is a
+       <button> and nothing further down this handler would match it anyway —
+       putting it first just saves the rest of the page a closest() per click.
+
+       A drag across the strip ends in a click on whichever card the pointer let
+       go over, which would open a film every time somebody threw the reel.
+       sections.js swallows that click in the capture phase before it reaches
+       here, so this handler only ever sees a click that was meant. */
+    const plate = ev.target.closest('.sx-cel-plate[data-video]');
+    if (plate) {
+      ev.preventDefault();
+      open('motion', Number(plate.dataset.lbIndex) || 0, plate);
+      return;
+    }
+
     const a = ev.target.closest('.lw-reel-i');
     if (!a) return;
 
@@ -344,8 +547,15 @@
     if (openName === null) return;
 
     if (ev.key === 'Escape')     { ev.preventDefault(); close();          return; }
-    if (ev.key === 'ArrowLeft')  { ev.preventDefault(); show(openIdx - 1); return; }
-    if (ev.key === 'ArrowRight') { ev.preventDefault(); show(openIdx + 1); return; }
+
+    /* Arrows page the set — unless focus is in the player, where left and
+       right are the browser's own five-second scrub and taking them would
+       leave a keyboard reader with no way to seek a two-minute film. */
+    const inPlayer = vid && !vid.hidden && document.activeElement === vid;
+    if (!inPlayer) {
+      if (ev.key === 'ArrowLeft')  { ev.preventDefault(); show(openIdx - 1); return; }
+      if (ev.key === 'ArrowRight') { ev.preventDefault(); show(openIdx + 1); return; }
+    }
 
     /* The trap. aria-modal tells a screen reader the rest of the page is not
        there; it does nothing whatsoever about Tab, so without this a sighted
@@ -353,7 +563,11 @@
        cannot see behind the blur. Only three controls, so cycling the list is
        the whole implementation. */
     if (ev.key !== 'Tab') return;
+    /* The player joins the cycle when it is the thing on screen. Without it
+       there is no way to reach play, scrub or volume from the keyboard — the
+       controls are real focusable UI inside an element the trap was skipping. */
     const stops = [closeBtn, prevBtn, nextBtn];
+    if (vid && !vid.hidden) stops.splice(1, 0, vid);
     const at = stops.indexOf(document.activeElement);
     ev.preventDefault();
     const step = ev.shiftKey ? -1 : 1;

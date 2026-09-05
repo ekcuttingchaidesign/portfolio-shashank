@@ -34,3 +34,11 @@ node_modules/
 assets/photography/
 assets/memes/
 assets/*.png
+
+# Motion masters — the same argument, one medium up and two orders of
+# magnitude louder. assets/motion_videos holds 890MB of delivery files: 4K
+# portrait screen recordings, 1080p60 films, a 344MB spin wheel. tools/
+# prep-motion.py turns them into the ~1280px MP4s and WebP posters under
+# public/video/motion, and THAT is committed — about 50MB for the thirteen of
+# them, none of which a visitor downloads until they open one.
+assets/motion_videos/
