@@ -1447,7 +1447,16 @@
           </a>
         </li>
         <li class="cc-card" data-reveal>
-          <a class="cc-card-in" href="#" aria-label="upbusdriver.wtf — a jukebox that plays bollywood 90s bangers">
+          <!-- The one card here that has somewhere to go. It leaves the page,
+               so it opens in its own tab: this section sits two thirds of the
+               way down a long scroll-scrubbed document, and sending a reader
+               away from it means sending them back through all of that to
+               return. rel is the pair that goes with target — noopener so the
+               opened page cannot reach back through window.opener, noreferrer
+               for the browsers that still want it said separately. -->
+          <a class="cc-card-in" href="https://upbusdriver.wtf/"
+             target="_blank" rel="noopener noreferrer"
+             aria-label="upbusdriver.wtf — a jukebox that plays bollywood 90s bangers (opens in a new tab)">
             <span class="cc-shot">
               <img src="../public/img/uproadways.png" alt="upbusdriver.wtf screenshot"
                    width="1200" height="630" loading="lazy" decoding="async">
