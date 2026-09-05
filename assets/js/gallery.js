@@ -499,6 +499,39 @@
     lastFocus = null;
   }
 
+  /* --- which card is under the pointer ------------------------------------
+     A hit test rather than a look at ev.target, and it exists because of the
+     drag next door.
+
+     sections.js takes a POINTER CAPTURE on #sx-reel at pointerdown, so that
+     throwing the strip survives the pointer leaving it. A capture retargets the
+     pointerup onto the capturing element — and with it the compatibility
+     mouseup — so mousedown lands on the card and mouseup lands on the reel. The
+     click that follows is dispatched at the COMMON ANCESTOR of those two, which
+     is the reel, or the section above it once the strip has stepped a card
+     along under a stationary pointer. Either way it is never the card. Every
+     plain click on a film therefore arrived at the handler below matching no
+     plate and did nothing: the entire strip was unclickable while looking
+     perfectly clickable.
+
+     Hit-testing the click point sidesteps the retarget entirely, and it is also
+     the more honest question — the card under the cursor is the card the reader
+     is looking at, whether or not the event agrees. It runs on every unmatched
+     click rather than only inside the reel, which is safe because it can only
+     ever answer with a card that is genuinely the TOPMOST thing under the
+     point: with the overlay open it returns the overlay, not the strip behind
+     the blur.
+
+     Guarded on the coordinates, because a click synthesised by the keyboard
+     reports 0,0 and would otherwise open whatever sits in the top-left corner
+     of the page. Enter on a card never needs this path anyway: a button is the
+     target of its own synthetic click, so the plain check catches it first. */
+  function plateAt(ev) {
+    if (!ev.clientX && !ev.clientY) return null;
+    const el = document.elementFromPoint(ev.clientX, ev.clientY);
+    return el && el.closest ? el.closest('.sx-cel-plate[data-video]') : null;
+  }
+
   /* --- getting in ---------------------------------------------------------
      Delegated, so it covers the originals, the marquee clones and the mirror
      without three registrations, and keeps working if a reel is ever rebuilt.
@@ -517,7 +550,7 @@
        go over, which would open a film every time somebody threw the reel.
        sections.js swallows that click in the capture phase before it reaches
        here, so this handler only ever sees a click that was meant. */
-    const plate = ev.target.closest('.sx-cel-plate[data-video]');
+    const plate = ev.target.closest('.sx-cel-plate[data-video]') || plateAt(ev);
     if (plate) {
       ev.preventDefault();
       open('motion', Number(plate.dataset.lbIndex) || 0, plate);

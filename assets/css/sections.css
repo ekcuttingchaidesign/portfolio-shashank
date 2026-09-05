@@ -906,6 +906,19 @@
    enough to be read as one. */
 .sx-mv-how { color: var(--sx-ink-3); }
 
+/* --- the claim, on one line -------------------------------------------------
+   The head is capped at 46ch so the title stacks clear of the mascot on the
+   right. That cap breaks this line in two, and a four-item list broken across
+   two lines reads as a stanza rather than as the single breath it is — so the
+   lede alone is let past the cap and told not to wrap.
+
+   Only where there is room for it. Below this width the line would either
+   overrun the section or slide under the character, so the cap comes back and
+   it wraps like any other paragraph. */
+@media (min-width: 1080px) {
+  #sx-move .sx-lede { max-width: none; white-space: nowrap; }
+}
+
 @media (max-width: 860px) {
   .sx-mv-stand, .sx-mv-ledge { display: none; }
   .sx-mv-head { max-width: none; }
@@ -5005,16 +5018,25 @@
   width: clamp(28px, 3.4vw, 40px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: rgba(12, 12, 12, .58);
-  -webkit-backdrop-filter: blur(8px);
-          backdrop-filter: blur(8px);
-  box-shadow: inset 0 0 0 1px rgba(244,241,236,.22);
-  opacity: .82;
-  transition: opacity .4s var(--sx-ease), background .4s var(--sx-ease);
+  /* Solid brand orange rather than a smoked disc, and the blur went with it:
+     there is nothing to see through a solid fill, and a backdrop-filter on
+     thirteen badges is thirteen extra layers for nothing. */
+  background: #E76B17;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.24);
+  /* One badge at a time, and it is the colour that forces that. Thirteen orange
+     discs held at once turned the strip into a row of buttons — the eye counted
+     badges instead of reading work, and a mark that is on every card marks
+     nothing. So the badge belongs to the card the pointer is on: it arrives
+     with the hover and leaves with it, which is also the moment it is any use,
+     since that is the card a click would open. */
+  opacity: 0;
+  transform: scale(.88);
+  transition: opacity .3s var(--sx-ease), transform .3s var(--sx-ease);
 }
 /* The triangle, drawn rather than fetched. A 6px clip-path is smaller than the
-   request for an icon file would be, and it takes its colour from the token
-   like everything else masked on this page. */
+   request for an icon file would be. White rather than the ink token, because
+   it now sits on saturated orange rather than on smoked glass — cream at .95
+   reads as grubby against that fill where pure white reads as a play head. */
 .sx-cel-play::after {
   content: "";
   position: absolute;
@@ -5022,14 +5044,20 @@
   margin: auto;
   width: 32%;
   aspect-ratio: 1;
-  background: var(--sx-ink);
+  background: #fff;
   clip-path: polygon(12% 0%, 100% 50%, 12% 100%);
   transform: translateX(8%);
 }
 .sx-cel:hover .sx-cel-play,
 .sx-cel:focus-within .sx-cel-play {
   opacity: 1;
-  background: rgba(224, 84, 42, .82);
+  transform: none;
+}
+/* A touch device never hovers, so the rule above would hide the badge on every
+   card forever and leave nothing on the strip saying these are films. There it
+   simply stays on. */
+@media (hover: none) {
+  .sx-cel-play { opacity: .92; transform: none; }
 }
 
 /* Highlight by dimming: hovering one cell lowers the strip around it. */
@@ -5078,6 +5106,17 @@
   from { opacity: 1; background-position: 140% 0; }
   to   { opacity: 1; background-position: -60% 0; }
 }
+/* --- the caption, and what kind of film it is -------------------------------
+   Two facts now, and they are not the same weight. The title is what the piece
+   IS; the tag is what SORT of piece it is, and a reader scanning thirteen cards
+   for "the interaction work" wants the second one findable without reading the
+   first. So they are stacked rather than run together: the name holds the
+   caption's own type, the tag sits under it as a smaller, warmer line.
+
+   The tag stays a line of text rather than becoming a pill. A bordered chip on
+   every card puts thirteen small boxes on a strip whose whole composition is
+   rectangles of different widths — the badges would start reading as part of
+   the artwork. Colour is enough to separate two lines. */
 .sx-cel figcaption {
   font-family: var(--sx-ui);
   font-weight: 500;
@@ -5086,8 +5125,20 @@
   text-transform: uppercase;
   color: var(--sx-ink-3);
   margin-top: .65rem;
-  max-width: 22ch;
+  max-width: 24ch;
+  display: flex;
+  flex-direction: column;
+  gap: .28em;
 }
+.sx-cel-tag {
+  font-size: .86em;
+  letter-spacing: .18em;
+  /* The key colour held back to roughly the ink-3 weight it sits beside, so it
+     reads as a second line of the caption rather than as a call to action. */
+  color: rgba(231, 107, 23, .78);
+}
+.sx-cel:hover .sx-cel-tag,
+.sx-cel:focus-within .sx-cel-tag { color: #E76B17; }
 
 .sx-reel-hint {
   margin: 1rem 0 0;
