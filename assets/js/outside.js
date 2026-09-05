@@ -1379,39 +1379,54 @@
      11 · THE OVERLAP WITH THE PULL-OUT
      --------------------------------------------------------------------------
      The world rises over the last of the out-of-the-screen film rather than
-     waiting for it to finish, and ONE number says how much of the film that is.
+     waiting for it to finish. Two knobs, and they are INDEPENDENT — which is
+     worth stating loudly, because they look like one number written twice and
+     collapsing them breaks the title frame.
 
-     It is one number because it was always one idea stated twice. The section
-     is pulled up over the tail of #s-exit by this fraction of that section's
-     travel, so the two share that stretch of scroll; and the reveal ramp —
-     opacity, handed the film's own scrub position by the landing engine — runs
-     across exactly the same stretch. Two constants that must agree are two
-     constants that can drift, so the ramp is derived rather than repeated.
+     The SCROLL overlap — the section is pulled up over the tail of #s-exit by
+     this fraction of that section's travel, so the two share that stretch of
+     scroll. This is what MOVES THE CAMERA. The world's camera runs on the
+     world's own rect, so the only thing that gets it moving before the film
+     ends is the sections physically overlapping. At 0.40 the camera has run
+     from its approach key (-1600) to about -971 by the time the film finishes,
+     which is the title stop at -900 — so the title's four blocks, all placed at
+     t -900, have finished their entrance and the frame is composed.
 
-     It was 0.40, and 0.40 was too much of the film. The desk's turn starts at
-     pExit 0.45 (ROTATION_START, in the landing engine), so a world rising from
-     0.60 was already half-opaque a quarter of the way through the turn: the
+     The REVEAL ramp — opacity, handed the film's own scrub position by the
+     landing engine. This is what MAKES IT VISIBLE, and nothing else.
+
+     They were briefly the same number, and here is what that cost, so nobody
+     merges them again. The ramp had to move late: the desk's turn starts at
+     pExit 0.45 (ROTATION_START, in the landing engine), and a world rising from
+     0.60 was already half-opaque a quarter of the way through the turn — the
      ledge blocks and "My life beyond 9 to 5" printed over a desk that was still
-     visibly moving, and the two reads fought. At 0.15 the world does not begin
-     until the turn is nearly three quarters done and comes up as it lands, so
-     the film keeps the frame for its own event and the world arrives into the
-     end of it rather than across the middle.
+     visibly moving. Correct. But dragging the overlap down to 0.85 with it left
+     the section's top still 450px BELOW the fold when the film ended, so the
+     camera had not moved at all: it sat at -1600, where entrance() puts every
+     t -900 block at exactly 0. The title arrived — it is driven by the film,
+     not the camera — into an empty frame, and the green block only flew in once
+     the reader scrolled. Which is the one thing this whole overlap exists to
+     prevent.
+
+     So: the camera keeps its 0.40 and the ramp gets its own late start. An
+     invisible stage cannot overlap a film, so moving the ramp costs the camera
+     nothing.
 
      Reading #s-exit's height is a read, not a reach-in: the world owns its own
      overlap and the landing engine is not asked to know about it.
      ====================================================================== */
-  const FILM_OVERLAP = 0.15;
-  const REVEAL_START = 1 - FILM_OVERLAP, REVEAL_END = 1.00;
+  const CAMERA_OVERLAP = 0.40;
+  const REVEAL_START = 0.85, REVEAL_END = 1.00;
 
   /* How much of the reveal passes before the title starts arriving, and how
      far apart its six words land.
 
      0.42 was measured against a reveal that spanned 40% of the film's travel;
-     against 15% it means the same fraction of a window less than half the size,
-     so the six words had roughly a third of the scroll they were tuned in and
-     the line snapped on rather than arriving. It also double-counts now: the
-     delay existed to keep the type off the early part of the turn, and
-     FILM_OVERLAP already does that — the reveal cannot start before the turn is
+     the ramp is 15% now, so the same fraction of a window under half the size
+     left the six words about a third of the scroll they were tuned in and the
+     line snapped on rather than arriving. It also double-counts: the delay
+     existed to keep the type off the early part of the desk's turn, and
+     REVEAL_START already does that — the type cannot start before the turn is
      nearly done. What is left for this to do is hold a beat between the world
      appearing and the words following it, which 0.25 is. */
   const TITLE_DELAY = 0.25, TITLE_STAGGER = 0.085;
@@ -1421,7 +1436,7 @@
     if (!ex) return;
     const exTravel = ex.offsetHeight - innerHeight;
     if (exTravel <= 0) { sec.style.marginTop = ''; return; }
-    sec.style.marginTop = -(exTravel * FILM_OVERLAP) + 'px';
+    sec.style.marginTop = -(exTravel * CAMERA_OVERLAP) + 'px';
   }
   applyOverlap();
 
