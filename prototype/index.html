@@ -478,9 +478,14 @@
        repo is served with already handles. The films buffer as they are
        scrubbed instead.
 
-       Worth knowing if these are ever re-exported: both currently carry `moov`
-       at the END of the file, so even metadata costs a range request for the
-       tail. `ffmpeg -movflags +faststart` would make it one small leading read. -->
+       Both films are faststart — `moov` sits at offset 32, ahead of `mdat` — so
+       reading metadata is one small leading read rather than an open-ended
+       request followed by a second seek to the tail for the moov atom, which is
+       what it cost while they carried it at the end. The thirteen reel films
+       under public/video/motion already shipped this way; these two were the
+       exception. Keep it that way on any re-export:
+
+           ffmpeg -i in.mp4 -c copy -map 0 -movflags +faststart out.mp4 -->
   <video id="v-enter" src="../public/video/into-the-screen.mp4"   muted playsinline preload="metadata"></video>
   <video id="v-exit"  src="../public/video/out-of-the-screen.mp4" muted playsinline preload="metadata"></video>
 </div>
