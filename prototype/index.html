@@ -45,6 +45,37 @@
   })();
 </script>
 
+<!-- The Outside Work boot gate.
+
+     .lw-stage is `position: fixed; inset: 0` — it covers the window at EVERY
+     scroll position, scroll 0 included, so it is over the hero from the first
+     frame. Its four stations are absolutely positioned at one spot and are only
+     pulled apart, and faded down, by outside.js writing opacity per frame.
+
+     That means the hidden state lived only in JS. Between the stylesheet
+     landing and the deferred modules running, the browser painted the raw CSS
+     state: a full-window panel with all four stations stacked on top of each
+     other, over the hero. On a warm cache the gap is invisible; on a cold one
+     — a fresh machine, an incognito window — it is the first thing a visitor
+     sees.
+
+     So the un-revealed state gets a gate, the same principle .sx-js already
+     applies to the sections below: it exists only while something is around to
+     undo it. Set here rather than in the modules because this is synchronous
+     in <head> and they are deferred — by the time a deferred script runs, the
+     paint this is preventing has already happened. Set from script rather than
+     written into the markup so that with scripting off the attribute never
+     appears at all, and no-JS keeps whatever it had.
+
+     Removed by outside.js at the end of its first render, and on its
+     reduced-motion path. VISIBILITY, not opacity, and that is not a
+     preference: setReveal clears the stage's inline opacity at full strength
+     rather than setting it to 1 (an offscreen composite that size costs a
+     frame), so an `opacity: 0` default here would make the stage vanish at
+     full reveal instead of at boot. -->
+<script>document.documentElement.setAttribute('data-lw-boot', '');</script>
+<style>html[data-lw-boot] .lw-stage { visibility: hidden; }</style>
+
 <!-- With no script the Experience stage would be an empty box: its two cels are
      handed their sheets by JS, on purpose, so that four sprite sheets are not
      all fetched at page load. This puts the first character on the stage,
@@ -425,8 +456,38 @@
      line whenever you land on a treatment. -->
 
 <div class="film" aria-hidden="true">
-  <video id="v-enter" src="../public/video/into-the-screen.mp4"   muted playsinline preload="auto"></video>
-  <video id="v-exit"  src="../public/video/out-of-the-screen.mp4" muted playsinline preload="auto"></video>
+  <!-- preload="metadata", NOT "auto", and it is a boot-order fix rather than a
+       bandwidth one.
+
+       These two films are 6.2MB together, and `auto` starts both of them at
+       parse time — on the same connection the four deferred modules are queued
+       on. The modules are what hide the Outside Work stage and lay out
+       everything below the film, so the films were racing the code that makes
+       the page look like itself, and on a cold cache they won. Metadata is also
+       all the engine actually waits for: the scrub gates on `loadedmetadata`
+       (see the handler at the foot of this file) and then seeks with
+       currentTime, which the browser serves with range requests.
+
+       Deliberately NOT promoted back to `auto` on load. Setting the attribute
+       after the element has finished its metadata load moves no bytes — it is
+       a hint about a fetch that already happened — so a promotion only does
+       anything if it also calls .load(), and .load() resets currentTime and
+       re-enters the load algorithm underneath a scrubber that is holding a
+       frame. That is a real risk to the one element on this page with no
+       graceful failure, taken to save a buffering pass the Range support this
+       repo is served with already handles. The films buffer as they are
+       scrubbed instead.
+
+       Both films are faststart — `moov` sits at offset 32, ahead of `mdat` — so
+       reading metadata is one small leading read rather than an open-ended
+       request followed by a second seek to the tail for the moov atom, which is
+       what it cost while they carried it at the end. The thirteen reel films
+       under public/video/motion already shipped this way; these two were the
+       exception. Keep it that way on any re-export:
+
+           ffmpeg -i in.mp4 -c copy -map 0 -movflags +faststart out.mp4 -->
+  <video id="v-enter" src="../public/video/into-the-screen.mp4"   muted playsinline preload="metadata"></video>
+  <video id="v-exit"  src="../public/video/out-of-the-screen.mp4" muted playsinline preload="metadata"></video>
 </div>
 
 <div class="track">

@@ -24,9 +24,29 @@
   const world   = sec.querySelector('.lw-world');
   if (!stage || !world) return;
 
+  /* The head's boot gate. It holds .lw-stage at visibility:hidden from before
+     first paint, because the stage is fixed over the window and its four
+     stations only come apart once this file starts writing to them — without
+     it a cold load paints all four stacked, over the hero. Dropped the moment
+     this file has the stage under control; see the end of render().
+
+     Self-disarming: render() runs it every frame, and this file's rule is that
+     nothing in the loop touches the DOM it does not have to. */
+  let gated = true;
+  const openGate = () => {
+    if (!gated) return;
+    gated = false;
+    document.documentElement.removeAttribute('data-lw-boot');
+  };
+
   /* Reduced motion drops the stage entirely — the stack in the markup is the
-     section. Nothing below this point needs to run. */
-  if (reduced) { sec.dataset.lwMode = 'stack'; return; }
+     section. Nothing below this point needs to run.
+
+     The gate goes first: the stage is display:none on this path so it would
+     make no visible difference, but leaving an attribute set that says "JS has
+     not taken over yet" when JS has decided never to is the kind of thing that
+     is true until someone changes that stylesheet. */
+  if (reduced) { openGate(); sec.dataset.lwMode = 'stack'; return; }
 
   const clamp01 = v => (v < 0 ? 0 : v > 1 ? 1 : v);
   const clamp   = (v, a, b) => (v < a ? a : v > b ? b : v);
@@ -1373,6 +1393,13 @@
     const g = clamp01((p - .06) / .78);
     sec.style.setProperty('--lw-glow-rgb',
       `255,${Math.round(140 + (255 - 140) * g)},${Math.round(108 + (255 - 108) * g)}`);
+
+    /* One full frame has now been written — the stage carries its own reveal
+       and every station its own opacity — so the head's gate has nothing left
+       to protect. Last line of render() rather than anywhere earlier: it has to
+       be the frame's own completion that opens it, not the file merely having
+       been reached, or the gate lifts on a stage nothing has positioned yet. */
+    openGate();
   }
 
   /* ==========================================================================
