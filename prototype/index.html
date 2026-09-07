@@ -459,14 +459,15 @@
   <!-- preload="metadata", NOT "auto", and it is a boot-order fix rather than a
        bandwidth one.
 
-       These two films are 6.2MB together, and `auto` starts both of them at
-       parse time — on the same connection the four deferred modules are queued
-       on. The modules are what hide the Outside Work stage and lay out
-       everything below the film, so the films were racing the code that makes
-       the page look like itself, and on a cold cache they won. Metadata is also
-       all the engine actually waits for: the scrub gates on `loadedmetadata`
-       (see the handler at the foot of this file) and then seeks with
-       currentTime, which the browser serves with range requests.
+       These two films are 1.9MB together — 6.2MB before the re-encode below —
+       and `auto` starts both at parse time, on the same connection the four
+       deferred modules are queued on. The modules are what hide the Outside
+       Work stage and lay out everything below the film, so the films were
+       racing the code that makes the page look like itself, and on a cold
+       cache they won. Metadata is also all the engine actually waits for: the
+       scrub gates on `loadedmetadata` (see the handler at the foot of this
+       file) and then seeks with currentTime, which the browser serves with
+       range requests.
 
        Deliberately NOT promoted back to `auto` on load. Setting the attribute
        after the element has finished its metadata load moves no bytes — it is
@@ -478,6 +479,15 @@
        repo is served with already handles. The films buffer as they are
        scrubbed instead.
 
+       Encoded at CRF 20, which is where the weight went: the delivered masters
+       ran 9.5 Mbps for three seconds of dark, low-motion 1080p, about three
+       times what this content needs. A scrub has to hold the WHOLE clip to seek
+       freely, so that weight was time the reader spent watching a stale frame
+       while the scroll ran ahead of the decoder — measured, a first seek into
+       unbuffered video costs a little over two seconds. CRF 20 is transparent
+       here (SSIM 0.996, PSNR 50dB, worst frame 47.5dB, and the closing black
+       still reads 0) and cuts the wait by the same factor it cuts the bytes.
+
        Both films are faststart — `moov` sits at offset 32, ahead of `mdat` — so
        reading metadata is one small leading read rather than an open-ended
        request followed by a second seek to the tail for the moov atom, which is
@@ -485,7 +495,8 @@
        under public/video/motion already shipped this way; these two were the
        exception. Keep it that way on any re-export:
 
-           ffmpeg -i in.mp4 -c copy -map 0 -movflags +faststart out.mp4 -->
+           ffmpeg -i in.mp4 -c:v libx264 -crf 20 -preset slow \
+                  -pix_fmt yuv420p -movflags +faststart out.mp4 -->
   <video id="v-enter" src="../public/video/into-the-screen.mp4"   muted playsinline preload="metadata"></video>
   <video id="v-exit"  src="../public/video/out-of-the-screen.mp4" muted playsinline preload="metadata"></video>
 </div>
