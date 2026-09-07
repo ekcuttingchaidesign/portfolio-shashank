@@ -456,49 +456,49 @@
      line whenever you land on a treatment. -->
 
 <div class="film" aria-hidden="true">
-  <!-- preload="metadata", NOT "auto", and it is a boot-order fix rather than a
-       bandwidth one.
+  <!-- preload="auto", and for a scrub asset that is not a default — it is the
+       requirement.
 
-       These two films are 1.9MB together — 6.2MB before the re-encode below —
-       and `auto` starts both at parse time, on the same connection the four
-       deferred modules are queued on. The modules are what hide the Outside
-       Work stage and lay out everything below the film, so the films were
-       racing the code that makes the page look like itself, and on a cold
-       cache they won. Metadata is also all the engine actually waits for: the
-       scrub gates on `loadedmetadata` (see the handler at the foot of this
-       file) and then seeks with currentTime, which the browser serves with
-       range requests.
+       BOTH films are ALL-INTRA: every frame is a keyframe (91 of 91, and 111 of
+       111). That is what makes a scrub possible. `currentTime = t` on an
+       all-intra clip decodes exactly one frame; on an ordinary clip with a long
+       GOP it decodes the whole chain from the last keyframe, so seeking near
+       the end of a three-second film means decoding three seconds of video for
+       one frame, and the further in the reader scrubs the worse it gets.
 
-       Deliberately NOT promoted back to `auto` on load. Setting the attribute
-       after the element has finished its metadata load moves no bytes — it is
-       a hint about a fetch that already happened — so a promotion only does
-       anything if it also calls .load(), and .load() resets currentTime and
-       re-enters the load algorithm underneath a scrubber that is holding a
-       frame. That is a real risk to the one element on this page with no
-       graceful failure, taken to save a buffering pass the Range support this
-       repo is served with already handles. The films buffer as they are
-       scrubbed instead.
+       This is also why the files look heavy at 9.5 Mbps. That is the price of
+       all-intra, not a bad export, and it must not be "optimised" away: a
+       normal-GOP re-encode at CRF 20 makes the file a third of the size and the
+       scrub unusable. Measured, an all-intra re-encode at the same CRF comes out
+       LARGER than the delivered master (3.57MB against 3.45MB) — there is no
+       saving here to take. If these are ever re-exported, keep every frame a
+       keyframe and check it:
 
-       Encoded at CRF 20, which is where the weight went: the delivered masters
-       ran 9.5 Mbps for three seconds of dark, low-motion 1080p, about three
-       times what this content needs. A scrub has to hold the WHOLE clip to seek
-       freely, so that weight was time the reader spent watching a stale frame
-       while the scroll ran ahead of the decoder — measured, a first seek into
-       unbuffered video costs a little over two seconds. CRF 20 is transparent
-       here (SSIM 0.996, PSNR 50dB, worst frame 47.5dB, and the closing black
-       still reads 0) and cuts the wait by the same factor it cuts the bytes.
+           ffprobe -select_streams v -show_frames -show_entries frame=key_frame \
+                   -of csv=p=0 in.mp4 | grep -c "^1"     # must equal frame count
+
+       And `auto` rather than `metadata` because an all-intra seek needs the
+       BYTES for its frame, even though it needs no decode chain. Holding the
+       films at `metadata` leaves the reader scrubbing against on-demand range
+       requests, which is the same stutter arriving by a different route. The
+       eager download is the feature.
+
+       It was `metadata` for a while, to keep 6.2MB from racing the deferred
+       modules on a cold load. That race is real but it is not this element's
+       problem to solve: the Outside Work boot gate in <head> holds its stage
+       hidden until its module has placed it, and the gate does not care how
+       long the modules take. Starving the film bought nothing the gate was not
+       already covering, and cost the scrub.
 
        Both films are faststart — `moov` sits at offset 32, ahead of `mdat` — so
        reading metadata is one small leading read rather than an open-ended
-       request followed by a second seek to the tail for the moov atom, which is
-       what it cost while they carried it at the end. The thirteen reel films
-       under public/video/motion already shipped this way; these two were the
-       exception. Keep it that way on any re-export:
+       request followed by a second seek to the tail for the moov atom. The
+       thirteen reel films under public/video/motion already shipped that way;
+       these two were the exception. Preserve it on any re-export:
 
-           ffmpeg -i in.mp4 -c:v libx264 -crf 20 -preset slow \
-                  -pix_fmt yuv420p -movflags +faststart out.mp4 -->
-  <video id="v-enter" src="../public/video/into-the-screen.mp4"   muted playsinline preload="metadata"></video>
-  <video id="v-exit"  src="../public/video/out-of-the-screen.mp4" muted playsinline preload="metadata"></video>
+           ffmpeg -i in.mp4 -c copy -map 0 -movflags +faststart out.mp4 -->
+  <video id="v-enter" src="../public/video/into-the-screen.mp4"   muted playsinline preload="auto"></video>
+  <video id="v-exit"  src="../public/video/out-of-the-screen.mp4" muted playsinline preload="auto"></video>
 </div>
 
 <div class="track">
