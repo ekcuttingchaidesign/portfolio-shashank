@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Designing the batter · Hitman Cricket · Shashank</title>
+<meta name="description" content="How I rebuilt the batting in Hitman Cricket in eight days: slow-motion clips sent to Claude Code, every stroke reviewed at a timestamp, and my notes said in plain cricket words.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="From net clip to game stroke — a Hitman Cricket case study">
+<meta property="og:description" content="20+ strokes rebuilt from video in eight days, 16 pull requests, 2,261 tests holding the taste.">
+<meta property="og:image" content="https://ekcuttingchaidesign.github.io/portfolio-shashank/public/img/hitman/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Light.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Black.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Jaro-latin.woff2" crossorigin>
+<link rel="stylesheet" href="../../../assets/css/case.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the case study</a>
+
+<nav class="nav" aria-label="Site">
+  <a class="me" href="../../../prototype/" aria-label="Shashank — home"><img src="../../../public/img/profile.jpeg" alt="" width="64" height="64"></a>
+  <a class="on" href="../../../prototype/#sx-work" aria-current="page">Work</a>
+  <a href="../../../prototype/#sx-exp">Experience</a>
+  <a class="hide-xs" href="../../../prototype/#s-exit">Outside work</a>
+  <a href="../../../prototype/#sx-contact">Contact</a>
+</nav>
+
+<header class="bt-hero">
+  <div class="wrap bt-grid">
+    <div>
+      <a class="crumb" href="../" data-r>
+        <svg width="16" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true"><path d="M17.2 5H1.8M6.3 1.1 1.8 5l4.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Hitman Cricket
+      </a>
+      <h1 class="hl" data-r style="--d:.06s">From net clip <b>to game stroke</b></h1>
+      <p class="lede" data-r style="--d:.12s">How I rebuilt the batting in my browser cricket game by sending slow-motion clips to an AI, reviewing every stroke in a live preview, and saying what was wrong in plain cricket words.</p>
+      <dl class="meta" data-r style="--d:.18s">
+        <div><dt>My role</dt><dd>Product designer: the reference, the review, every call on what looks right</dd></div>
+        <div><dt>Built with</dt><dd>Claude Code, three.js, my phone&rsquo;s camera roll</dd></div>
+        <div><dt>Timeline</dt><dd>14&ndash;21 Oct 2026, eight days</dd></div>
+        <div><dt>The rig</dt><dd>A 3D batter built entirely in code, no animator</dd></div>
+      </dl>
+    </div>
+    <ul class="strokes" data-r style="--d:.1s" aria-label="Ten of the strokes, at their finish">
+        <li><img src="../../../public/img/hitman/rigs/h-cover.jpg" alt="The batter at the finish of the cover drive" width="360" height="398"><span>Cover drive</span></li>
+        <li><img src="../../../public/img/hitman/rigs/h-loft.jpg" alt="The batter at the finish of the straight six" width="360" height="398"><span>Straight six</span></li>
+        <li><img src="../../../public/img/hitman/rigs/h-charge.jpg" alt="The batter at the finish of the charge over cover" width="360" height="398"><span>Charge over cover</span></li>
+        <li><img src="../../../public/img/hitman/rigs/h-hook.jpg" alt="The batter at the finish of the hook" width="360" height="398"><span>Hook</span></li>
+        <li><img src="../../../public/img/hitman/rigs/h-pull.jpg" alt="The batter at the finish of the pull" width="360" height="398"><span>Pull</span></li>
+        <li><img src="../../../public/img/hitman/rigs/h-slog.jpg" alt="The batter at the finish of the slog sweep" width="360" height="398"><span>Slog sweep</span></li>
+        <li><img src="../../../public/img/hitman/rigs/h-cut.jpg" alt="The batter at the finish of the square cut" width="360" height="398"><span>Square cut</span></li>
+        <li><img src="../../../public/img/hitman/rigs/h-punch.jpg" alt="The batter at the finish of the back-foot punch" width="360" height="398"><span>Back-foot punch</span></li>
+        <li><img src="../../../public/img/hitman/rigs/h-spincut.jpg" alt="The batter at the finish of the cut off spin" width="360" height="398"><span>Cut off spin</span></li>
+        <li><img src="../../../public/img/hitman/rigs/h-latecut.jpg" alt="The batter at the finish of the late cut" width="360" height="398"><span>Late cut</span></li>
+    </ul>
+  </div>
+  <div class="wrap">
+    <div class="score s5" data-r>
+      <div><em>20+</em><span>strokes rebuilt or new</span></div>
+      <div><em>16</em><span>pull requests merged into production</span></div>
+      <div><em>8</em><span>days, start to finish</span></div>
+      <div><em>2,261</em><span>automated tests passing</span></div>
+      <div><em>1&ndash;3</em><span>review rounds per stroke</span></div>
+    </div>
+  </div>
+</header>
+
+<nav class="side" aria-label="Sections of this case study">
+  <div class="side-in">
+    <p class="side-t">Designing the batter</p>
+    <ol>
+      <li><a href="#problem"><i></i><span>The problem</span></a></li>
+      <li><a href="#loop"><i></i><span>The loop</span></a></li>
+      <li><a href="#vocab"><i></i><span>Shared words</span></a></li>
+      <li><a href="#spincut"><i></i><span>Cut off spin</span></a></li>
+      <li><a href="#squarecut"><i></i><span>Square cut</span></a></li>
+      <li><a href="#coverdrive"><i></i><span>Cover drive</span></a></li>
+      <li><a href="#charge"><i></i><span>Straight charge</span></a></li>
+      <li><a href="#flick"><i></i><span>Flick</span></a></li>
+      <li><a href="#guard"><i></i><span>Guardrails</span></a></li>
+      <li><a href="#week"><i></i><span>The week</span></a></li>
+      <li><a href="#lessons"><i></i><span>Lessons</span></a></li>
+    </ol>
+  </div>
+</nav>
+
+<main id="main">
+
+  <!-- the problem -->
+  <section class="sec" id="problem" aria-labelledby="problem-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label" data-r>The problem</p>
+        <h2 class="h2 hl" id="problem-h" data-r style="--d:.06s">The batter didn&rsquo;t bat <b>like a cricketer</b></h2>
+        <p class="lede" data-r style="--d:.12s">The game&rsquo;s batter is a 3D rig built entirely in code: every stroke is a handful of poses on a millisecond clock. Nobody on the project is an animator, so strokes were guessed.</p>
+      </div>
+      <div class="prob">
+        <ul class="faults">
+          <li data-r><b>The bat turned in his hands like a fan</b><span>After the ball, the blade kept spinning between his wrists.</span></li>
+          <li data-r style="--d:.06s"><b>The wrong side of the blade met the ball</b><span>The curved back or the edge, where every real stroke uses the flat face.</span></li>
+          <li data-r style="--d:.12s"><b>Follow-throughs went through his own helmet</b><span>On the way round, the bat passed straight through the body.</span></li>
+        </ul>
+        <figure data-r style="--d:.08s">
+          <img src="../../../public/img/hitman/rigs/flick2-before.jpg" alt="The flick&rsquo;s finish at 326 ms: the side edge of the bat faces the helmet" width="420" height="570" loading="lazy">
+          <figcaption class="cap">One of my review screenshots, 326&nbsp;ms into the flick: the bat&rsquo;s side edge towards the helmet.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- the loop -->
+  <section class="sec tint" id="loop" aria-labelledby="loop-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label" data-r>The loop</p>
+        <h2 class="h2 hl" id="loop-h" data-r style="--d:.06s">One stroke at a time, <b>same eight steps</b></h2>
+        <p class="lede" data-r style="--d:.12s">I bring the reference and the eye. Claude Code studies, poses, publishes and tests. Every stroke went round the same loop.</p>
+      </div>
+      <ol class="loop8">
+        <li class="me" data-r><span class="who">Me</span><b>Send a clip</b><p>A slow-motion net session, a coaching film or a broadcast replay. Phone screen recordings are fine.</p></li>
+        <li data-r style="--d:.04s"><span class="who">Claude</span><b>Study it frame by frame</b><p>Pulls stills every 80&ndash;250&nbsp;ms and reads the feet, the hands and the bat at each one.</p></li>
+        <li data-r style="--d:.08s"><span class="who">Claude</span><b>Say what it sees</b><p>Before touching any code, it writes back the footwork, contact point, face of the bat and finish. I correct it.</p></li>
+        <li class="rep" data-r style="--d:.12s"><span class="who">Claude</span><b>Pose the rig</b><p>Key poses on the stroke&rsquo;s clock: load, contact, through, finish, hold, home.</p></li>
+        <li class="rep" data-r><span class="who">Claude</span><b>Publish a preview</b><p>A live page with the stroke on a scrubber, 0.1&times; speed and five cameras.</p></li>
+        <li class="me rep" data-r style="--d:.04s"><span class="who">Me</span><b>Review at a timestamp</b><p>Scrub to the moment it&rsquo;s wrong, screenshot it, say it in cricket words.</p></li>
+        <li class="rep" data-r style="--d:.08s"><span class="who">Claude</span><b>Fix it and add a test</b><p>Every rejected behaviour becomes a check, so it can&rsquo;t come back.</p></li>
+        <li class="me" data-r style="--d:.12s"><span class="who">Me</span><b>&ldquo;Open the PR and merge it&rdquo;</b><p>Merged into production, the branch reset, on to the next stroke.</p></li>
+      </ol>
+      <p class="repeat" data-r>Steps 4 to 7 repeat until it looks right: usually two or three rounds.</p>
+    </div>
+  </section>
+
+  <!-- vocabulary -->
+  <section class="sec" id="vocab" aria-labelledby="vocab-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label" data-r>Shared vocabulary</p>
+        <h2 class="h2 hl" id="vocab-h" data-r style="--d:.06s">Three words fixed <b>half the bugs</b></h2>
+        <p class="lede" data-r style="--d:.12s">Most of my feedback was about which side of the bat faced where. Once we used the same three names, a one-line note was enough.</p>
+      </div>
+      <div class="vocab" data-r>
+        <svg viewBox="0 0 460 220" role="img" aria-label="Cross-section of a cricket bat: the flat face, the curved back and the two edges">
+          <path d="M40 150 L420 150 L410 110 Q380 62 230 52 Q80 62 50 110 Z" fill="#E8D29A" stroke="#F4F1EC" stroke-width="2"/>
+          <line x1="40" y1="150" x2="420" y2="150" stroke="#E0542A" stroke-width="7" stroke-linecap="round"/>
+          <path d="M90 92 Q230 40 370 92" fill="none" stroke="#57C74B" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="45" cy="131" r="9" fill="none" stroke="#F4F1EC" stroke-width="2.5"/>
+          <circle cx="415" cy="131" r="9" fill="none" stroke="#F4F1EC" stroke-width="2.5"/>
+          <text x="230" y="184" text-anchor="middle" font-size="13" fill="#F0A07C">FLAT FACE &middot; HITS THE BALL</text>
+          <text x="230" y="30" text-anchor="middle" font-size="13" fill="#9BE58E">CURVED BACK &middot; THE SPINE</text>
+          <text x="45" y="210" text-anchor="middle" font-size="12" fill="#BDB9B2">EDGE</text>
+          <text x="415" y="210" text-anchor="middle" font-size="12" fill="#BDB9B2">EDGE</text>
+          <line x1="45" y1="143" x2="45" y2="194" stroke="#BDB9B2" stroke-width="1" stroke-dasharray="3 3"/>
+          <line x1="415" y1="143" x2="415" y2="194" stroke="#BDB9B2" stroke-width="1" stroke-dasharray="3 3"/>
+        </svg>
+        <div class="terms">
+          <div class="term" style="--c:#F0A07C"><b>Flat face</b><span>Meets the ball in every stroke. At a wrap it looks at the sky.</span></div>
+          <div class="term" style="--c:#9BE58E"><b>Curved back</b><span>Rests on the shoulder at a wrap and faces the helmet at a high finish.</span></div>
+          <div class="term"><b>Edge</b><span>Never on the shoulder and never on the ball, unless it&rsquo;s an edge to slip.</span></div>
+          <div class="term ban"><b>Fan</b><span>My word for the bat spinning in the hands after impact. Banned everywhere.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- the strokes -->
+  <section class="sec" id="strokes" aria-labelledby="strokes-h">
+    <div class="wrap">
+      <div class="sec-head" style="margin-bottom:0">
+        <p class="label" data-r>Iterations</p>
+        <h2 class="h2 hl" id="strokes-h" data-r style="--d:.06s">Five strokes, <b>round by round</b></h2>
+        <p class="lede" data-r style="--d:.12s">My actual feedback, word for word, and what changed after it.</p>
+      </div>
+
+      <article class="stroke" id="spincut" aria-labelledby="spincut-h">
+        <div class="stroke-h">
+          <div><p class="k" data-r>New stroke, from my own net video</p><h3 id="spincut-h" data-r>Cut off the spinner</h3></div>
+          <div class="tags" data-r><span class="tag">2 rounds</span><span class="tag">PR #55</span></div>
+        </div>
+        <figure data-r>
+          <div class="scroll-x"><div class="plate"><img src="../../../public/img/hitman/rigs/spin-diagram.jpg" alt="The cut off the spinner, frame by frame: five frames of me in the nets above the game&rsquo;s batter at the same moment, with his skeleton drawn over him" width="1600" height="1124" loading="lazy"></div></div>
+          <figcaption class="plate-cap"><b>No motion capture suit, so I went through my phone gallery:</b> one 1.27-second net clip at 30 frames a second. Top, me in the nets. Bottom, the game&rsquo;s batter at the same moment, his skeleton drawn over him.</figcaption>
+        </figure>
+        <div class="st-grid" style="margin-top:clamp(40px,5vw,64px)">
+          <div class="st-side">
+            <div class="thread">
+              <div class="fb" data-r><span class="w">Brief</span><p>&ldquo;A ball pitching outside off turns in, so the batsman makes room by moving towards leg, then cuts. It&rsquo;s played on the back foot. Analyse carefully the feet, the follow-through, the hands, and how the bat lands on the opposite shoulder.&rdquo;</p></div>
+              <div class="fb" data-r><span class="w">Round 2</span><p>&ldquo;The bat will not go over the head, it will land on the opposite shoulder. The hands going over the head look forceful. Like the hook, hold a little when the bat lands on the shoulder.&rdquo;</p></div>
+              <div class="fb" data-r><span class="w">The rules</span><p>&ldquo;It should not be out every time. It could be a dot off the inside edge, or a single if it&rsquo;s close to good timing. &hellip; Even with poor contact it should go towards off.&rdquo;</p></div>
+            </div>
+            <div class="path" data-r><span class="no">Bat over the head</span><i aria-hidden="true">&rarr;</i><span class="">Hands at the brow, bat onto the shoulder</span><i aria-hidden="true">&rarr;</i><span class="yes">Held, like the hook</span></div>
+          </div>
+          <figure class="film" data-r style="--d:.08s">
+            <video src="../../../public/video/hitman/spincut.mp4" poster="../../../public/img/hitman/rigs/spincut-poster.jpg" muted loop playsinline autoplay preload="metadata" width="420" height="494" aria-label="The cut off the spinner in the game, slowed down"></video>
+            <figcaption>In the game &middot; slowed down</figcaption>
+          </figure>
+        </div>
+        <ul class="fixes"><li data-r style="--d:0.00s"><b>Room made, not given</b><span>Back and away to leg, front foot drawn back, stance opened wide.</span></li><li data-r style="--d:0.06s"><b>No forced finish</b><span>Hands stop at the peak of the helmet; the bat tips past the ear onto the shoulder and holds.</span></li><li data-r style="--d:0.12s"><b>Fair at the edges</b><span>A ball going on down leg gets a cramped cut: squeezed to point or off the pad, out only when misread and mistimed.</span></li></ul>
+      </article>
+
+      <article class="stroke" id="squarecut" aria-labelledby="squarecut-h">
+        <div class="stroke-h">
+          <div><p class="k" data-r>Rebuilt from a net clip</p><h3 id="squarecut-h" data-r>Square cut</h3></div>
+          <div class="tags" data-r><span class="tag">3 rounds</span><span class="tag">PR #69</span></div>
+        </div>
+        <div class="st-grid">
+          <div class="st-side">
+            <div class="thread"><div class="fb" data-r><span class="w">Round 2</span><p>&ldquo;Same mistakes again. Curved side of the bat hits the ball, but flat face of the bat hits the ball in every bat. The hands will be stretched, since it&rsquo;s played away from the body.&rdquo;</p></div></div>
+            <div class="path" data-r><span class="">Original</span><i aria-hidden="true">&rarr;</i><span class="no">Full rebuild</span><i aria-hidden="true">&rarr;</i><span class="yes">Original + 3 targeted fixes</span></div>
+          </div>
+          <div class="fb ok" data-r style="--d:.08s"><span class="w">The lesson</span><p>The full rebuild was worse than the original. Keeping what worked and fixing three named things got approved.</p></div>
+        </div>
+        <figure data-r style="margin-top:clamp(32px,4vw,48px)">
+          <div class="scroll-x"><div class="plate"><img src="../../../public/img/hitman/rigs/cut-rows.jpg" alt="The square cut in eight moments, from stance to home: the net clip on top, the current stroke in the middle, the fixed stroke below" width="1400" height="695" loading="lazy"></div></div>
+          <figcaption class="plate-cap"><b>Clip, current, fixed.</b> Eight moments from stance to home, the net clip above the stroke before and after the three fixes.</figcaption>
+        </figure>
+        <ul class="fixes"><li data-r style="--d:0.00s"><b>Flat face to the bowler</b><span>The forearms turn it over the ball on the way down.</span></li><li data-r style="--d:0.06s"><b>Arms out straight</b><span>He leaves 30&nbsp;cm of room and leans away. Elbows went from 26&deg; to 74&deg;.</span></li><li data-r style="--d:0.12s"><b>Back of the blade on the shoulder</b><span>The bottom hand rolls over at the wrap.</span></li></ul>
+      </article>
+
+      <article class="stroke" id="coverdrive" aria-labelledby="cover-h">
+        <div class="stroke-h">
+          <div><p class="k" data-r>One stroke, three versions</p><h3 id="cover-h" data-r>Cover drive</h3></div>
+          <div class="tags" data-r><span class="tag">Several rounds</span><span class="tag">PR #53</span></div>
+        </div>
+        <div class="st-grid wide-l">
+          <div class="cv" data-r>
+            <div class="cv-t" role="radiogroup" aria-label="Moment in the stroke">
+              <input type="radio" name="cvt" id="cv55" checked><label for="cv55"><span>Front foot down</span><b>55 ms</b></label>
+              <input type="radio" name="cvt" id="cv110"><label for="cv110"><span>Contact</span><b>110 ms</b></label>
+              <input type="radio" name="cvt" id="cv410"><label for="cv410"><span>Finish</span><b>410 ms</b></label>
+            </div>
+            <div class="cv-v">
+            <figure>
+              <div class="fr"><img class="t55" src="../../../public/img/hitman/rigs/cv1-55.jpg" alt="Version 1, front foot down at 55 ms" width="360" height="325"><img class="t110" src="../../../public/img/hitman/rigs/cv1-110.jpg" alt="Version 1 at contact, 110 ms" width="360" height="325"><img class="t410" src="../../../public/img/hitman/rigs/cv1-410.jpg" alt="Version 1 at the finish, 410 ms" width="360" height="325"></div>
+              <figcaption><b>V1 &middot; 40%</b><span>As it was</span></figcaption>
+            </figure>
+            <figure>
+              <div class="fr"><img class="t55" src="../../../public/img/hitman/rigs/cv2-55.jpg" alt="Version 2, front foot down at 55 ms" width="360" height="325"><img class="t110" src="../../../public/img/hitman/rigs/cv2-110.jpg" alt="Version 2 at contact, 110 ms" width="360" height="325"><img class="t410" src="../../../public/img/hitman/rigs/cv2-410.jpg" alt="Version 2 at the finish, 410 ms" width="360" height="325"></div>
+              <figcaption><b>V2 &middot; 20%</b><span>Rebuilt from slow-mo</span></figcaption>
+            </figure>
+            <figure>
+              <div class="fr"><img class="t55" src="../../../public/img/hitman/rigs/cv3-55.jpg" alt="Version 3, front foot down at 55 ms" width="360" height="325"><img class="t110" src="../../../public/img/hitman/rigs/cv3-110.jpg" alt="Version 3 at contact, 110 ms" width="360" height="325"><img class="t410" src="../../../public/img/hitman/rigs/cv3-410.jpg" alt="Version 3 at the finish, 410 ms" width="360" height="325"></div>
+              <figcaption><b>V3 &middot; 40%</b><span>Met beside the pad</span></figcaption>
+            </figure>
+            </div>
+            <div class="odds" role="img" aria-label="Each cover drive is version 1 forty percent of the time, version 2 twenty percent, version 3 forty percent"><i style="--v:40;--b:#7A3B24">V1 40%</i><i style="--v:20;--b:#B6461F">V2</i><i style="--v:40;--b:#E0542A">V3 40%</i></div>
+            <p class="odds-k">How often each version is drawn, after the swipe is judged.</p>
+          </div>
+          <div class="thread">
+            <div class="fb" data-r><span class="w">Brief</span><p>&ldquo;Watch the video and analyse how the batsman plays the cover drive. It has the same shot from two angles in slo-mo. Figure out what improvement we need in our rig.&rdquo;</p></div>
+            <div class="fb" data-r><span class="w">Feedback</span><p>&ldquo;The bat should return along its path to the batting stance. Currently it rotates twice in the hand.&rdquo;</p></div>
+            <div class="fb" data-r><span class="w">Next ask</span><p>&ldquo;Create a v3 that meets the ball beside the front pad. I want to preview and experience it first.&rdquo;</p></div>
+            <div class="fb ok" data-r><span class="w">Decision</span><p>&ldquo;Let&rsquo;s keep all 3 versions. V1 40%, V2 20%, V3 40%. &hellip; V3 and V2 should result in 4 only.&rdquo;</p></div>
+          </div>
+        </div>
+        <ul class="fixes"><li data-r style="--d:0.00s"><b>Variety without luck</b><span>The version is drawn after the swipe is judged, so nobody can time for it. A rival on the same seed sees the same version.</span></li><li data-r style="--d:0.06s"><b>V2 and V3 stay down</b><span>Middled is four, never six. Skied and not caught still runs away for four.</span></li><li data-r style="--d:0.12s"><b>Home along its own path</b><span>The bat goes back down its swing into the stance and never turns in his hands.</span></li></ul>
+      </article>
+
+      <article class="stroke" id="charge" aria-labelledby="charge-h">
+        <div class="stroke-h">
+          <div><p class="k" data-r>A held wrap</p><h3 id="charge-h" data-r>Straight charge six</h3></div>
+          <div class="tags" data-r><span class="tag">3 rounds</span><span class="tag">PR #80</span></div>
+        </div>
+        <div class="st-grid">
+          <div class="st-side">
+            <div class="thread">
+              <div class="fb" data-r><span class="w">Round 1</span><p>&ldquo;Around 669 ms, when the bat is on the opposite shoulder, the side blade lands on the shoulder instead of the curved face.&rdquo;</p></div>
+              <div class="fb" data-r><span class="w">Round 2</span><p>&ldquo;No, the side face is still on the shoulder. Flat face towards the sky and curved face on the shoulder.&rdquo;</p></div>
+              <div class="fb ok" data-r><span class="w">Round 3</span><p>&ldquo;Just hold the pose a little at 672 ms and then return to stance smoothly.&rdquo;</p></div>
+            </div>
+            <div class="path" data-r><span class="no">Edge on shoulder</span><i aria-hidden="true">&rarr;</i><span class="no">Wrong metric</span><i aria-hidden="true">&rarr;</i><span class="">Face to sky</span><i aria-hidden="true">&rarr;</i><span class="yes">Hold + smooth home</span></div>
+          </div>
+          <figure data-r style="--d:.08s"><div class="plate" style="max-width:460px"><img src="../../../public/img/hitman/rigs/charge-wrap.jpg" alt="The charge&rsquo;s wrap before and now: the edge on the shoulder, then the curved back on the shoulder and the face to the sky" width="640" height="765" loading="lazy"></div></figure>
+        </div>
+        <ul class="fixes"><li data-r style="--d:0.00s"><b>Round 1 measured the wrong thing</b><span>The check was &ldquo;face away from the shoulder&rdquo;. My eye said otherwise, so the test became &ldquo;face to the sky&rdquo;.</span></li><li data-r style="--d:0.06s"><b>A held finish</b><span>220&nbsp;ms of stillness at the wrap, then 380&nbsp;ms home.</span></li><li data-r style="--d:0.12s"><b>Smooth, not hurried</b><span>Home keys spaced by how far the hands travel, eased in and out.</span></li></ul>
+      </article>
+
+      <article class="stroke" id="flick" aria-labelledby="flick-h">
+        <div class="stroke-h">
+          <div><p class="k" data-r>One screenshot, one round</p><h3 id="flick-h" data-r>Flick, version 2</h3></div>
+          <div class="tags" data-r><span class="tag">1 round</span><span class="tag">PR #82</span></div>
+        </div>
+        <div class="st-grid">
+          <div class="st-side">
+            <div class="thread"><div class="fb" data-r><span class="w">My screenshot</span><p>&ldquo;The follow-through will end with the curved face of the bat towards the helmet and the flat face towards the bowler&rsquo;s end. Currently the bat&rsquo;s side edge is towards the helmet.&rdquo;</p></div></div>
+            <p class="prose" data-r><span><strong>The fix:</strong> the wrists&rsquo; roll keeps going the same way as the bat rises, about 100&deg; more, and stops when the face looks at the bowler. One screenshot with a timestamp, one round.</span></p>
+          </div>
+          <div class="ba2" data-r style="--d:.08s">
+            <figure><img src="../../../public/img/hitman/rigs/flick2-before.jpg" alt="Before, at 326 ms: the side edge towards the helmet" width="420" height="570" loading="lazy"><figcaption><span class="pill before">My screenshot &middot; 326 ms</span></figcaption></figure>
+            <figure><img src="../../../public/img/hitman/rigs/flick2-after.jpg" alt="After, at 326 ms: the curved face towards the helmet, the flat face to the bowler" width="420" height="573" loading="lazy"><figcaption><span class="pill after">After &middot; 326 ms</span></figcaption></figure>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- guardrails -->
+  <section class="sec tint" id="guard" aria-labelledby="guard-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label" data-r>Guardrails</p>
+        <h2 class="h2 hl" id="guard-h" data-r style="--d:.06s">Tests hold <b>the taste</b></h2>
+        <p class="lede" data-r style="--d:.12s">The rig has nine invisible spheres: helmet, shoulders, elbows, hips and knees. Every stroke is swept every 4&nbsp;ms to check the blade never enters one. A preview shows what looks wrong. The tests catch what I&rsquo;d never spot at full speed.</p>
+      </div>
+      <div class="guard">
+        <svg viewBox="0 0 300 420" role="img" aria-label="Body diagram with nine collision spheres; the back elbow is highlighted where the blade passed through it" data-r>
+          <g fill="none" stroke="rgba(244,241,236,.7)" stroke-width="2">
+            <circle cx="150" cy="58" r="34"/>
+            <line x1="150" y1="92" x2="150" y2="230"/>
+            <line x1="96" y1="122" x2="204" y2="122"/>
+            <line x1="96" y1="122" x2="80" y2="190"/><line x1="204" y1="122" x2="222" y2="190"/>
+            <line x1="120" y1="230" x2="180" y2="230"/>
+            <line x1="120" y1="230" x2="112" y2="315"/><line x1="180" y1="230" x2="188" y2="315"/>
+            <line x1="112" y1="315" x2="108" y2="395"/><line x1="188" y1="315" x2="192" y2="395"/>
+          </g>
+          <g fill="#57C74B" fill-opacity=".16" stroke="#57C74B" stroke-width="1.5">
+            <circle cx="96" cy="122" r="18"/><circle cx="204" cy="122" r="18"/>
+            <circle cx="80" cy="190" r="15"/>
+            <circle cx="120" cy="230" r="20"/><circle cx="180" cy="230" r="20"/>
+            <circle cx="112" cy="315" r="17"/><circle cx="188" cy="315" r="17"/>
+            <circle cx="150" cy="58" r="40" fill-opacity=".07"/>
+          </g>
+          <circle cx="222" cy="190" r="15" fill="#E0542A" fill-opacity=".35" stroke="#E0542A" stroke-width="2.5"/>
+          <line x1="262" y1="132" x2="200" y2="236" stroke="#E8D29A" stroke-width="12" stroke-linecap="round"/>
+          <text x="236" y="262" font-family="Satoshi, sans-serif" font-weight="700" font-size="13" fill="#F0A07C">back elbow</text>
+          <text x="236" y="280" font-family="Satoshi, sans-serif" font-weight="700" font-size="13" fill="#F0A07C">@ 308 ms</text>
+        </svg>
+        <ul class="catches">
+          <li data-r><em>308 ms</em><span><b>Blade through the back elbow</b>Flick v3, as the bat tipped over. Fixed by carrying the hands further out in front.</span></li>
+          <li data-r><em>100 ms</em><span><b>Back shoulder, then the front hip</b>Turning the face to square leg swung the blade broadside into the body on the way down. Fixed by leaving the contact pose alone and turning the face separately.</span></li>
+          <li data-r><em>&lt; 1 mm</em><span><b>Too close to a forearm</b>A near miss on the pick-up. A 2&nbsp;cm change to one pose cleared it.</span></li>
+          <li data-r><em>Test bug</em><span><b>The checker was wrong once</b>A helper sent every &ldquo;version 3&rdquo; ball to the cover drive&rsquo;s contact point. Fixed the test, not the stroke.</span></li>
+          <li data-r><em>&lt; 2&deg;</em><span><b>The fan, banned by number</b>&ldquo;No wrist roll&rdquo; became a rule: the bat may barely turn in his hands after the ball.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- the week -->
+  <section class="sec" id="week" aria-labelledby="week-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label" data-r>The week, 14&ndash;21 Oct</p>
+        <h2 class="h2 hl" id="week-h" data-r style="--d:.06s">Sixteen merges <b>into production</b></h2>
+      </div>
+      <div class="wk" data-r>
+        <div><time>Oct 14&ndash;15</time>
+          <div class="pr"><em>#53</em><b>Cover drive &times; 3 versions</b><span>Rebuilt from side-on slow motion; v2 and v3 stay on the ground</span></div>
+          <div class="pr"><em>#54</em><b>On drive and its six</b><span>A drive to long-on, not a flick over the shoulder</span></div></div>
+        <div><time>Oct 16</time>
+          <div class="pr"><em>#55</em><b>Hook, late cut, spin cut</b><span>Swipe zones retuned; stories filmed in the game engine</span></div>
+          <div class="pr"><em>#56</em><b>What&rsquo;s new, launch week</b><span>The new strokes shown once a day</span></div></div>
+        <div><time>Oct 17</time>
+          <div class="pr"><em>#59</em><b>Straight six v2</b><span>From a broadcast six, arms long, no wrap</span></div>
+          <div class="pr"><em>#61</em><b>Scoop and reverse scoop</b><span>Rebuilt from a net session</span></div>
+          <div class="pr"><em>#63</em><b>Slog sweep</b><span>Three-angle broadcast clip, round to leg</span></div></div>
+        <div><time>Oct 19</time>
+          <div class="pr"><em>#69</em><b>Square cut</b><span>Flat face on the ball, arms out</span></div>
+          <div class="pr"><em>#70</em><b>Pull v1 and v2</b><span>Rebuilt on the hook&rsquo;s stroke</span></div>
+          <div class="pr"><em>#71</em><b>Two defences</b><span>Length picks front or back foot</span></div></div>
+        <div><time>Oct 20</time>
+          <div class="pr"><em>#72</em><b>Back-foot punch</b><span>New stroke for short balls</span></div>
+          <div class="pr"><em>#79</em><b>Charge over cover</b><span>One version, bat level</span></div>
+          <div class="pr"><em>#80</em><b>Straight charge</b><span>Face to the sky, held wrap</span></div>
+          <div class="pr"><em>#81 #82</em><b>Flick v2</b><span>Built in my terminal, face fixed in the cloud</span></div></div>
+        <div><time>Oct 21</time>
+          <div class="pr"><em>#83</em><b>Flick v3</b><span>Back foot, picked by the ball&rsquo;s length</span></div></div>
+      </div>
+      <p class="note" data-r style="margin-top:32px"><b>The work followed the branch, not the machine.</b> Mid-week I teleported the cloud session into my own terminal. Flick v2 was built there on the same branch, and the cloud session picked it up again for the fix and v3.</p>
+    </div>
+  </section>
+
+  <!-- lessons -->
+  <section class="sec" id="lessons" aria-labelledby="lessons-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label" data-r>What I&rsquo;d tell another designer</p>
+        <h2 class="h2 hl" id="lessons-h" data-r style="--d:.06s">How to direct an AI <b>on motion</b></h2>
+      </div>
+      <div class="lessons">
+        <div data-r><h3>Ask it to explain first</h3><p>Make it describe the clip before it writes code. Half the corrections happen there, and they cost nothing.</p><q>Analyse the video and first tell me what you understand.</q></div>
+        <div data-r style="--d:.05s"><h3>Point at a millisecond</h3><p>A screenshot with a timecode beats any description of motion.</p><q>Around 669 ms the side blade lands on the shoulder.</q></div>
+        <div data-r style="--d:.1s"><h3>Agree on names</h3><p>Flat face, curved back, edge, fan. Shared words made every later note one line long.</p><q>Flat face to the sky, curved face on the shoulder.</q></div>
+        <div data-r><h3>Scope the change</h3><p>Say what must not move. It protects the parts you already approved.</p><q>Only change. The follow-through is fine, don&rsquo;t change that.</q></div>
+        <div data-r style="--d:.05s"><h3>Reject rebuilds early</h3><p>When a redo is worse, say so and go back. Targeted fixes on the original won every time.</p><q>The current version looks way better than your new version.</q></div>
+        <div data-r style="--d:.1s"><h3>Turn taste into tests</h3><p>Each &ldquo;never do that again&rdquo; became an automated check. That&rsquo;s why later rounds didn&rsquo;t break earlier strokes.</p><q>bat turns &lt; 2&deg; after the ball</q></div>
+      </div>
+      <div class="next">
+        <a href="../" data-r><span class="label">Back to</span><b>Hitman Cricket: <strong>all seven stories</strong></b><p>Leaderboards, identity, the UI revamp, Super10 and more.</p></a>
+        <a href="../dressing-room/" data-r style="--d:.06s"><span class="label">Read next</span><b>Play. Earn. Wear: <strong>The Dressing Room</strong></b><p>Kits and bats earned, never bought, and an unlock you&rsquo;d want to show someone.</p></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-in">
+      <div>
+        <h2 class="hl">Go and play <b>a cover drive.</b></h2>
+        <p>Every stroke on this page is live in Hitman Cricket. It&rsquo;s free, and it&rsquo;s best on a phone.</p>
+        <div class="row">
+          <a class="btn" href="https://hitmancricket.in/" target="_blank" rel="noopener">Play Hitman Cricket
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="link" href="../">All Hitman Cricket stories</a>
+        </div>
+        <p class="foot-note">The spin-cut clip is my own net session. Other reference frames are from clips I supplied.</p>
+      </div>
+      <div class="foot-play" aria-hidden="true">
+        <div class="ph"><img src="../../../public/img/hitman/screens/gameplay.webp" alt="" width="603" height="1311" loading="lazy"></div>
+        <div class="ph"><img src="../../../public/img/hitman/screens/gameplay-2.webp" alt="" width="603" height="1311" loading="lazy"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../../../assets/js/case.js" defer></script>
+</body>
+</html>

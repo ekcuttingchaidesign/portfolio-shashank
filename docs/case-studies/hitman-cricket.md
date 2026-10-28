@@ -16,8 +16,8 @@ per day, so figures are **player-days** unless marked exact. Lines marked
 The project is now an overview page plus seven case studies, in this order:
 Leaderboards, Identity without accounts, The Dressing Room (with bat skins),
 UI revamp, Super10 (in progress), Designing the batter (rigs and shots), and
-Test Marathon. The Dressing Room is written and live at
-`work/hitman-cricket/dressing-room/`. The chapter notes below are the raw
+Test Marathon. The Dressing Room (`work/hitman-cricket/dressing-room/`) and
+Designing the batter (`work/hitman-cricket/batter/`) are written. The chapter notes below are the raw
 material for the others; the identity chapter is drafted in full.
 
 ## Chapters (earlier single-page draft)

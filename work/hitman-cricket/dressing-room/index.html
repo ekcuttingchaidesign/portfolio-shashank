@@ -12,6 +12,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Light.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Black.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Jaro-latin.woff2" crossorigin>
 <link rel="stylesheet" href="../../../assets/css/case.css">
 <script>document.documentElement.classList.add('js')</script>
 </head>
@@ -26,8 +27,8 @@
   <a href="../../../prototype/#sx-contact">Contact</a>
 </nav>
 
-<header class="cs-hero grid-bg">
-  <div class="wrap hero-grid">
+<header class="dr-hero">
+  <div class="wrap dr-grid">
     <div>
       <a class="crumb" href="../" data-r>
         <svg width="16" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true"><path d="M17.2 5H1.8M6.3 1.1 1.8 5l4.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -42,10 +43,29 @@
         <div><dt>Platform</dt><dd>Mobile web, where 95% of play happens</dd></div>
       </dl>
     </div>
-    <div class="trio" data-r style="--d:.1s" aria-label="Three screens of the Dressing Room">
-      <div class="ph"><img src="../../../public/img/hitman/dressing-room/s-08-kit-crimson.webp" alt="The batter on the pedestal in the red Crimson kit, ready to unlock" width="540" height="1168"></div>
-      <div class="ph"><video src="../../../public/video/hitman/bat-unlock.mp4" poster="../../../public/img/hitman/dressing-room/poster-bat-unlock.webp" muted loop playsinline autoplay preload="metadata" width="540" height="1168" aria-label="The Boom bat unlocking: it flies to full screen, the stickers scan on, then confetti and rays"></video></div>
-      <div class="ph"><img src="../../../public/img/hitman/dressing-room/s-07-bat-venom.webp" alt="The Venom bat standing on the pedestal" width="540" height="1168"></div>
+    <div class="dr-stage" data-r style="--d:.1s">
+      <div class="dr-room" aria-hidden="true"></div>
+      <div class="dr-show">
+        <p class="dr-name" aria-live="polite" style="--c:#FF2E88"><em>Bat &middot; free</em><b>Boom</b><span>Free, but you unlock it yourself</span></p>
+        <div class="ph dr-ph">
+          <video src="../../../public/video/hitman/bat-unlock.mp4" poster="../../../public/img/hitman/dressing-room/poster-bat-unlock.webp" muted loop playsinline autoplay preload="metadata" width="540" height="1168" aria-label="The Boom bat unlocking: it flies to full screen, the stickers scan on, then confetti and rays"></video>
+          <img src="../../../public/img/hitman/dressing-room/s-07-bat-venom.webp" alt="" width="540" height="1168" hidden>
+        </div>
+        <i class="dr-ped" aria-hidden="true"></i>
+      </div>
+      <div class="dr-shelf">
+        <p class="label">Try one on</p>
+        <div class="dr-rail" role="group" aria-label="Pick a bat or a kit to put it on the pedestal">
+          <button type="button" data-name="Boom" data-kind="Bat · free" data-goal="Free, but you unlock it yourself" data-c="#FF2E88" data-video="1" aria-pressed="true" aria-label="Boom"><span class="bat" style="--s:url(../../../public/img/hitman/dressing-room/sheet-boom.webp)"></span></button>
+          <button type="button" data-name="Venom" data-kind="Bat" data-goal="1,000 career runs" data-c="#57E31F" data-src="../../../public/img/hitman/dressing-room/s-07-bat-venom.webp" data-alt="The Venom bat standing on the pedestal" aria-pressed="false" aria-label="Venom"><span class="bat" style="--s:url(../../../public/img/hitman/dressing-room/sheet-venom.webp)"></span></button>
+          <button type="button" data-name="Ice Cold" data-kind="Bat" data-goal="250 career sixes" data-c="#46D2FF" data-src="../../../public/img/hitman/dressing-room/s-07-bat-icecold.webp" data-alt="Ice Cold locked, showing 212 of 250 career sixes" aria-pressed="false" aria-label="Ice Cold"><span class="bat" style="--s:url(../../../public/img/hitman/dressing-room/sheet-icecold.webp)"></span></button>
+          <button type="button" data-name="Meg" data-kind="Bat" data-goal="5 Rival Match wins" data-c="#8E5CFF" data-src="../../../public/img/hitman/dressing-room/s-07-bat-meg.webp" data-alt="Meg locked, with the key Start a Rival Match" aria-pressed="false" aria-label="Meg"><span class="bat" style="--s:url(../../../public/img/hitman/dressing-room/sheet-meg.webp)"></span></button>
+          <button type="button" data-name="Roar" data-kind="Bat" data-goal="Star in any mode" data-c="#FFB02E" data-src="../../../public/img/hitman/dressing-room/s-07-bat-roar.webp" data-alt="Roar on the pedestal under the spotlight" aria-pressed="false" aria-label="Roar"><span class="bat" style="--s:url(../../../public/img/hitman/dressing-room/sheet-roar.webp)"></span></button>
+          <i class="sep" aria-hidden="true"></i>
+          <button type="button" data-name="Crimson" data-kind="Kit" data-goal="25 finished innings" data-c="#FF3B3B" data-src="../../../public/img/hitman/dressing-room/s-08-kit-crimson.webp" data-alt="The batter on the pedestal in the red Crimson kit" aria-pressed="false" aria-label="Crimson kit"><span class="kit" style="--c:#FF3B3B"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 3 3.6 5.4 1.8 9.2l3 1.9 1.4-.9V21h11.6V10.2l1.4.9 3-1.9-1.8-3.8L15.8 3c-.7 1.5-2.1 2.4-3.8 2.4S8.9 4.5 8.2 3Z" fill="currentColor"/></svg></span></button>
+          <button type="button" data-name="Electric" data-kind="Kit" data-goal="150 in a Blast, 5,000 Blast runs" data-c="#2F8BFF" data-src="../../../public/img/hitman/dressing-room/s-08-kit-electric.webp" data-alt="Electric locked, with a two-line checklist" aria-pressed="false" aria-label="Electric kit"><span class="kit" style="--c:#2F8BFF"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.2 3 3.6 5.4 1.8 9.2l3 1.9 1.4-.9V21h11.6V10.2l1.4.9 3-1.9-1.8-3.8L15.8 3c-.7 1.5-2.1 2.4-3.8 2.4S8.9 4.5 8.2 3Z" fill="currentColor"/></svg></span></button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="wrap">
@@ -55,50 +75,77 @@
       <div><em>93</em><span>unlock moments in two weeks: 50 after an innings, 43 in the room</span></div>
       <div><em>8<small> KB</small></em><span>of code for the launch story, in place of a 1.7&nbsp;MB animation file</span></div>
     </div>
-    <nav class="toc" aria-label="In this case study">
-      <a href="#insight">The insight</a><a href="#idea">The idea</a><a href="#skins">Bat skins</a><a href="#prototype">The prototype</a>
-      <a href="#phone">On my phone</a><a href="#unlock">The unlock</a><a href="#ladder">The targets</a><a href="#launch">The launch</a>
-      <a href="#process">How I built it</a><a href="#results">Results</a><a href="#learned">What I learned</a>
-    </nav>
   </div>
 </header>
+
+<nav class="side" aria-label="Sections of this case study">
+  <div class="side-in">
+    <p class="side-t">The Dressing Room</p>
+    <ol>
+      <li><a href="#insight"><i></i><span>The insight</span></a></li>
+      <li><a href="#idea"><i></i><span>The idea</span></a></li>
+      <li><a href="#skins"><i></i><span>Bat skins</span></a></li>
+      <li><a href="#prototype"><i></i><span>The prototype</span></a></li>
+      <li><a href="#phone"><i></i><span>On my phone</span></a></li>
+      <li><a href="#unlock"><i></i><span>The unlock</span></a></li>
+      <li><a href="#ladder"><i></i><span>The targets</span></a></li>
+      <li><a href="#launch"><i></i><span>The launch</span></a></li>
+      <li><a href="#process"><i></i><span>How I built it</span></a></li>
+      <li><a href="#after"><i></i><span>After launch</span></a></li>
+      <li><a href="#results"><i></i><span>Results</span></a></li>
+      <li><a href="#learned"><i></i><span>What I learned</span></a></li>
+    </ol>
+  </div>
+</nav>
 
 <main id="main">
 
   <!-- the insight -->
   <section class="sec" id="insight" aria-labelledby="insight-h">
     <div class="wrap">
-      <div class="sec-head split">
-        <div>
-          <p class="label" data-r>The insight, from the analytics</p>
-          <h2 class="h2 hl" id="insight-h" data-r style="--d:.06s">Players came back. <b>Nothing to chase.</b></h2>
-        </div>
+      <div class="sec-head">
+        <p class="label" data-r>The insight, from the analytics</p>
+        <h2 class="h2 hl" id="insight-h" data-r style="--d:.06s">Players came back. <b>Nothing to chase.</b></h2>
         <p class="lede" data-r style="--d:.12s">Before this update I read a month of analytics. Retention was strong: of the players who came back on a later day, three in four came back the very next day.</p>
       </div>
-      <div class="panel" data-r>
-        <p class="label">When returning players came back, 16 Sep &ndash; 12 Oct</p>
-        <div class="bar" role="img" aria-label="76% came back the next day, 21% two to seven days later, 3% eight to thirty days later">
-          <div class="a">76% next day</div><div class="b">21%</div><div class="c"></div>
-        </div>
-        <div class="legend"><span><i style="background:var(--sx-key)"></i>Next day &middot; 266</span><span><i style="background:#7A3B24"></i>2&ndash;7 days later &middot; 73</span><span><i style="background:#3B231A"></i>8&ndash;30 days later &middot; 11</span></div>
-        <div class="trip">
-          <div><em>57</em><span>innings started a day, across all players</span></div>
-          <div><em>69%</em><span>of them in The Blast, the five-over mode</span></div>
-          <div><em>95%</em><span>of visits on a phone, 97% from India</span></div>
-        </div>
+      <div class="duel">
+        <article class="g" data-r>
+          <p class="k">What was working</p>
+          <p class="n">76<small>%</small></p>
+          <h3>of returning players came back <b>the very next day.</b></h3>
+          <div class="seg" role="img" aria-label="Of 350 returns: 266 the next day, 73 two to seven days later, 11 eight to thirty days later"><i style="--v:266;--b:#57C74B"></i><i style="--v:73;--b:#2F7A33"></i><i style="--v:11;--b:#1E4A22"></i></div>
+          <ul class="skey">
+            <li style="--b:#57C74B">Next day<b>266</b></li>
+            <li style="--b:#2F7A33">2&ndash;7 days later<b>73</b></li>
+            <li style="--b:#1E4A22">8&ndash;30 days later<b>11</b></li>
+          </ul>
+        </article>
+        <article class="o" data-r style="--d:.08s">
+          <p class="k">What was missing</p>
+          <p class="n">69<small>%</small></p>
+          <h3>of the 57 innings started each day were <b>The Blast: the same five overs.</b></h3>
+          <div class="seg" role="img" aria-label="69% of innings in The Blast, 31% in every other mode"><i style="--v:69;--b:#E0542A"></i><i style="--v:31;--b:#6B2D1A"></i></div>
+          <ul class="skey">
+            <li style="--b:#E0542A">The Blast<b>69%</b></li>
+            <li style="--b:#6B2D1A">Every other mode<b>31%</b></li>
+          </ul>
+          <p class="d">Playing more changed nothing. There was nothing to earn and nothing to unlock, and the only thing to chase was a leaderboard most players would never top.</p>
+        </article>
+        <span class="duel-but" aria-hidden="true">but</span>
       </div>
-      <p class="goal hl" data-r>Daily players had nothing to work for. <b>The goal: a reason to play one more innings.</b></p>
+      <div class="goal-band" data-r>
+        <p class="label">So the goal</p>
+        <p class="goal hl">Daily players had nothing to work for. <b>Give them a reason to play one more innings.</b></p>
+      </div>
     </div>
   </section>
 
   <!-- the idea -->
-  <section class="sec" id="idea" aria-labelledby="idea-h">
+  <section class="sec tint" id="idea" aria-labelledby="idea-h">
     <div class="wrap">
-      <div class="sec-head split">
-        <div>
-          <p class="label" data-r>The idea, 11 Oct</p>
-          <h2 class="h2 hl" id="idea-h" data-r style="--d:.06s">Play. Earn. <b>Wear.</b></h2>
-        </div>
+      <div class="sec-head">
+        <p class="label" data-r>The idea, 11 Oct</p>
+        <h2 class="h2 hl" id="idea-h" data-r style="--d:.06s">Play. Earn. <b>Wear.</b></h2>
         <p class="lede" data-r style="--d:.12s">It started with one question to Claude: can a batter carry stickers on his bat, the way Rohit plays with CEAT and Kohli with MRF? That grew into a room where your whole look is earned.</p>
       </div>
       <div class="pew">
@@ -122,17 +169,15 @@
   <!-- bat skins -->
   <section class="sec" id="skins" aria-labelledby="skins-h">
     <div class="wrap">
-      <div class="sec-head split">
-        <div>
-          <p class="label" data-r>Day one, the bat</p>
-          <h2 class="h2 hl" id="skins-h" data-r style="--d:.06s">Drawn flat in Figma, <b>wrapped onto 3D</b></h2>
-        </div>
+      <div class="sec-head">
+        <p class="label" data-r>Day one, the bat</p>
+        <h2 class="h2 hl" id="skins-h" data-r style="--d:.06s">Drawn flat in Figma, <b>wrapped onto 3D</b></h2>
         <p class="lede" data-r style="--d:.12s">I wanted to design bat stickers the way I design anything else: flat, in Figma. So we built a template from real bat sizes, and the game wraps whatever I draw onto the 3D blade.</p>
       </div>
       <ol class="flow">
         <li data-r><div class="tile"><svg viewBox="0 0 120 160" role="img" aria-label="A real bat outline with its width and length measured"><g fill="none" stroke="#BDB9B2" stroke-width="1.4"><path d="M54 8h12v34"/><path d="M54 8v34"/><path d="M44 46q16-8 32 0v92q0 10-16 12-16-2-16-12z" fill="rgba(245,184,61,.14)" stroke="#F5B83D"/></g><g stroke="#E0542A" stroke-width="1.1"><path d="M40 156h40M40 152v8M80 152v8"/><path d="M90 46v104M86 46h8M86 150h8"/></g></svg></div><span class="step">Measure</span><p><b>Real SG and SS bats</b>I sent photos. Claude measured them in pixels and reshaped the 3D blade to match.</p></li>
         <li data-r style="--d:.06s"><div class="tile"><svg viewBox="0 0 177 314" role="img" aria-label="The template: face 252 by 1400, edge 88, back 252, edge 88 pixels, with the safe area on the face and back marked" style="font-family:Satoshi,sans-serif"><rect x="8.0" y="22" width="47.9" height="266.0" rx="3" fill="rgba(245,184,61,.10)" stroke="#F5B83D" stroke-width="1.2"/><rect x="10.3" y="32.5" width="43.3" height="245.1" fill="none" stroke="#E0542A" stroke-dasharray="3 3" stroke-width="1"/><text x="31.9" y="14" text-anchor="middle" fill="#BDB9B2" font-size="9" font-weight="700" letter-spacing=".6">FACE</text><text x="31.9" y="302.0" text-anchor="middle" fill="#8F8B85" font-size="9">252</text><rect x="61.9" y="22" width="16.7" height="266.0" rx="3" fill="rgba(245,184,61,.10)" stroke="#F5B83D" stroke-width="1.2"/><text x="70.2" y="14" text-anchor="middle" fill="#BDB9B2" font-size="9" font-weight="700" letter-spacing=".6">EDGE</text><text x="70.2" y="302.0" text-anchor="middle" fill="#8F8B85" font-size="9">88</text><rect x="84.6" y="22" width="47.9" height="266.0" rx="3" fill="rgba(245,184,61,.10)" stroke="#F5B83D" stroke-width="1.2"/><rect x="86.9" y="32.5" width="43.3" height="245.1" fill="none" stroke="#E0542A" stroke-dasharray="3 3" stroke-width="1"/><text x="108.5" y="14" text-anchor="middle" fill="#BDB9B2" font-size="9" font-weight="700" letter-spacing=".6">BACK</text><text x="108.5" y="302.0" text-anchor="middle" fill="#8F8B85" font-size="9">252</text><rect x="138.5" y="22" width="16.7" height="266.0" rx="3" fill="rgba(245,184,61,.10)" stroke="#F5B83D" stroke-width="1.2"/><text x="146.8" y="14" text-anchor="middle" fill="#BDB9B2" font-size="9" font-weight="700" letter-spacing=".6">EDGE</text><text x="146.8" y="302.0" text-anchor="middle" fill="#8F8B85" font-size="9">88</text><text x="165.2" y="155.0" fill="#8F8B85" font-size="9" transform="rotate(90 165.2 155.0)" text-anchor="middle">1400 px</text></svg></div><span class="step">Template</span><p><b>Four panels in Figma</b>Face, edge, back, edge. The willow and guides sit on locked layers, so an export holds only the stickers.</p></li>
-        <li data-r style="--d:.12s"><div class="tile check"><img src="../../../public/img/hitman/dressing-room/sheet-venom.webp" alt="The Venom skin as one flat sheet: face, edge, back and edge side by side" width="360" height="700" loading="lazy"></div><span class="step">Pack</span><p><b>One sheet a bat</b>A script packs the four exports into one 720 &times; 1400 image the game reads.</p></li>
+        <li data-r style="--d:.12s"><div class="tile check"><img src="../../../public/img/hitman/dressing-room/sheet-venom.webp" alt="The Venom skin as one flat sheet: face, edge, back and edge side by side" width="360" height="700" decoding="async"></div><span class="step">Pack</span><p><b>One sheet a bat</b>A script packs the four exports into one 720 &times; 1400 image the game reads.</p></li>
         <li data-r style="--d:.18s"><div class="tile full"><img src="../../../public/img/hitman/dressing-room/s-07-bat-venom.webp" alt="Venom on the 3D bat, standing on the pedestal" width="540" height="1168" loading="lazy"></div><span class="step">Wrap</span><p><b>Onto the blade</b>Each panel lands on its own side of the bat, over the willow.</p></li>
       </ol>
       <div class="measures" data-r>
@@ -145,22 +190,23 @@
         <p>&ldquo;The bottom of the bat looks chopped. A real bat has a little smiling curve at the toe.&rdquo;</p>
         <cite>My feedback on the first 3D blade &middot; the toe guard came off and the curve came back</cite>
       </blockquote>
-      <figure class="wide" data-r>
-        <img src="../../../public/img/hitman/dressing-room/figma-bat-skins.webp" alt="The bat skins page of the Figma file: eleven bats, each drawn as four panels, with their emblems below" width="2000" height="1569" loading="lazy">
+      <figure data-r>
+        <div class="figwin"><div class="figwin-bar"><i aria-hidden="true"></i>Hitman Cricket &nbsp;/&nbsp; Bat skins</div>
+          <img src="../../../public/img/hitman/dressing-room/figma-bat-skins.webp" alt="The bat skins page of the Figma file: eleven bats, each drawn as four panels, with their emblems below" width="2000" height="1569" decoding="async"></div>
         <figcaption class="cap"><b>Eleven bats in Figma.</b> Claude built me a previewer that puts the stickers on the 3D bat through the game&rsquo;s own camera, so I checked each one before it went in. Each bat is named after the wordmark I drew on it.</figcaption>
       </figure>
       <div class="shelf" data-r aria-label="Every bat skin as its flat sheet">
-        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-boom.webp" alt="Boom" width="360" height="700" loading="lazy"></div><figcaption>Boom</figcaption></figure>
-        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-rage.webp" alt="Rage" width="360" height="700" loading="lazy"></div><figcaption>Rage</figcaption></figure>
-        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-venom.webp" alt="Venom" width="360" height="700" loading="lazy"></div><figcaption>Venom</figcaption></figure>
-        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-lonewolf.webp" alt="Lone Wolf" width="360" height="700" loading="lazy"></div><figcaption>Lone Wolf</figcaption></figure>
-        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-meg.webp" alt="Meg" width="360" height="700" loading="lazy"></div><figcaption>Meg</figcaption></figure>
-        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-icecold.webp" alt="Ice Cold" width="360" height="700" loading="lazy"></div><figcaption>Ice Cold</figcaption></figure>
-        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-roar.webp" alt="Roar" width="360" height="700" loading="lazy"></div><figcaption>Roar</figcaption></figure>
-        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-savage.webp" alt="Savage" width="360" height="700" loading="lazy"></div><figcaption>Savage</figcaption></figure>
-        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-reign.webp" alt="Reign" width="360" height="700" loading="lazy"></div><figcaption>Reign</figcaption></figure>
-        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-inferno.webp" alt="Inferno" width="360" height="700" loading="lazy"></div><figcaption>Inferno</figcaption></figure>
-        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-hitman.webp" alt="Hitman" width="360" height="700" loading="lazy"></div><figcaption>Hitman</figcaption></figure>
+        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-boom.webp" alt="Boom" width="360" height="700" decoding="async"></div><figcaption>Boom</figcaption></figure>
+        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-rage.webp" alt="Rage" width="360" height="700" decoding="async"></div><figcaption>Rage</figcaption></figure>
+        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-venom.webp" alt="Venom" width="360" height="700" decoding="async"></div><figcaption>Venom</figcaption></figure>
+        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-lonewolf.webp" alt="Lone Wolf" width="360" height="700" decoding="async"></div><figcaption>Lone Wolf</figcaption></figure>
+        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-meg.webp" alt="Meg" width="360" height="700" decoding="async"></div><figcaption>Meg</figcaption></figure>
+        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-icecold.webp" alt="Ice Cold" width="360" height="700" decoding="async"></div><figcaption>Ice Cold</figcaption></figure>
+        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-roar.webp" alt="Roar" width="360" height="700" decoding="async"></div><figcaption>Roar</figcaption></figure>
+        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-savage.webp" alt="Savage" width="360" height="700" decoding="async"></div><figcaption>Savage</figcaption></figure>
+        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-reign.webp" alt="Reign" width="360" height="700" decoding="async"></div><figcaption>Reign</figcaption></figure>
+        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-inferno.webp" alt="Inferno" width="360" height="700" decoding="async"></div><figcaption>Inferno</figcaption></figure>
+        <figure><div class="sheet"><img src="../../../public/img/hitman/dressing-room/sheet-hitman.webp" alt="Hitman" width="360" height="700" decoding="async"></div><figcaption>Hitman</figcaption></figure>
       </div>
     </div>
   </section>
@@ -168,11 +214,9 @@
   <!-- prototype -->
   <section class="sec" id="prototype" aria-labelledby="proto-h">
     <div class="wrap">
-      <div class="sec-head split">
-        <div>
-          <p class="label" data-r>Day one, the room</p>
-          <h2 class="h2 hl" id="proto-h" data-r style="--d:.06s">Flat failed. <b>3D won.</b></h2>
-        </div>
+      <div class="sec-head">
+        <p class="label" data-r>Day one, the room</p>
+        <h2 class="h2 hl" id="proto-h" data-r style="--d:.06s">Flat failed. <b>3D won.</b></h2>
         <p class="lede" data-r style="--d:.12s">The first room was drawn flat: a batter in an open locker, jerseys on hangers, bats on a wooden table, sheets of progress bars. I turned it down.</p>
       </div>
       <blockquote class="quote" data-r style="margin-top:0">
@@ -208,11 +252,9 @@
   <!-- on my phone -->
   <section class="sec" id="phone" aria-labelledby="phone-h">
     <div class="wrap">
-      <div class="sec-head split">
-        <div>
-          <p class="label" data-r>Day two, on a real phone</p>
-          <h2 class="h2 hl" id="phone-h" data-r style="--d:.06s">What broke on <b>my phone</b></h2>
-        </div>
+      <div class="sec-head">
+        <p class="label" data-r>Day two, on a real phone</p>
+        <h2 class="h2 hl" id="phone-h" data-r style="--d:.06s">What broke on <b>my phone</b></h2>
         <p class="lede" data-r style="--d:.12s">Every change went to a preview link. I tested it on my phone, circled what was wrong, and sent the screenshot back. These are those screenshots.</p>
       </div>
 
@@ -272,11 +314,9 @@
   <!-- the unlock -->
   <section class="theatre" id="unlock" aria-labelledby="unlock-h">
     <div class="wrap">
-      <div class="sec-head split">
-        <div>
-          <p class="label" data-r>Day two, the moment</p>
-          <h2 class="h2 hl" id="unlock-h" data-r style="--d:.06s">An unlock you&rsquo;d want <b>to show someone</b></h2>
-        </div>
+      <div class="sec-head">
+        <p class="label" data-r>Day two, the moment</p>
+        <h2 class="h2 hl" id="unlock-h" data-r style="--d:.06s">An unlock you&rsquo;d want <b>to show someone</b></h2>
         <p class="lede" data-r style="--d:.12s">The first unlock just faded the item in. I called it &ldquo;boring and slow&rdquo; and sent CRED Garage as the reference: joyful, confetti, the bat going full screen as its stickers appear.</p>
       </div>
       <div class="duo">
@@ -318,11 +358,9 @@
   <!-- the targets -->
   <section class="sec" id="ladder" aria-labelledby="ladder-h">
     <div class="wrap">
-      <div class="sec-head split">
-        <div>
-          <p class="label" data-r>The targets, set from the data</p>
-          <h2 class="h2 hl" id="ladder-h" data-r style="--d:.06s">A ladder you <b>grind</b></h2>
-        </div>
+      <div class="sec-head">
+        <p class="label" data-r>The targets, set from the data</p>
+        <h2 class="h2 hl" id="ladder-h" data-r style="--d:.06s">A ladder you <b>grind</b></h2>
         <p class="lede" data-r style="--d:.12s">Claude&rsquo;s first targets were 3 innings and 25 sixes. Too easy. I asked for a grind: some easy, some tough, the top ones rare. We sized them against how much people actually play.</p>
       </div>
       <div class="ladders">
@@ -371,11 +409,9 @@
   <!-- the launch -->
   <section class="sec" id="launch" aria-labelledby="launch-h">
     <div class="wrap">
-      <div class="sec-head split">
-        <div>
-          <p class="label" data-r>Day three, telling players</p>
-          <h2 class="h2 hl" id="launch-h" data-r style="--d:.06s">A launch story on <b>the live stage</b></h2>
-        </div>
+      <div class="sec-head">
+        <p class="label" data-r>Day three, telling players</p>
+        <h2 class="h2 hl" id="launch-h" data-r style="--d:.06s">A launch story on <b>the live stage</b></h2>
         <p class="lede" data-r style="--d:.12s">An update nobody sees doesn&rsquo;t exist, and the game announces updates as stories. I made a Lottie for this one and it came out at 1.7&nbsp;MB &mdash; a lot to download on mobile data before you can bat.</p>
       </div>
       <div class="split">
@@ -389,14 +425,6 @@
           </div>
         </div>
       </div>
-      <h3 class="sub hl" data-r>Three passes <b>on one morning</b></h3>
-      <div class="phones c5">
-        <figure data-r><div class="ph short"><img src="../../../public/img/hitman/dressing-room/b-story-card-1.webp" alt="First stories inside a card, with an item name pill circled" width="540" height="912" loading="lazy"></div><figcaption><span class="pill time">8:16</span><br>Inside a card, with name pills</figcaption></figure>
-        <figure data-r style="--d:.05s"><div class="ph short"><img src="../../../public/img/hitman/dressing-room/b-story-card-2.webp" alt="Boom is on the house story with two stacked keys circled" width="540" height="912" loading="lazy"></div><figcaption><span class="pill time">8:16</span><br>&ldquo;Boom is on the house&rdquo;, keys stacked</figcaption></figure>
-        <figure data-r style="--d:.1s"><div class="ph short"><img src="../../../public/img/hitman/dressing-room/b-story-full-1.webp" alt="Full screen Suit up, with an orphan word" width="540" height="912" loading="lazy"></div><figcaption><span class="pill time">9:34</span><br>Full screen, but an orphan word</figcaption></figure>
-        <figure data-r style="--d:.15s"><div class="ph short"><img src="../../../public/img/hitman/dressing-room/b-story-full-2.webp" alt="Earn your willow saying eleven bats" width="540" height="912" loading="lazy"></div><figcaption><span class="pill time">9:34</span><br>&ldquo;Eleven bats&rdquo;, a number that will grow</figcaption></figure>
-        <figure data-r style="--d:.2s"><div class="ph short"><img src="../../../public/img/hitman/dressing-room/b-story-red.webp" alt="The final story with the batter on the red ground" width="540" height="912" loading="lazy"></div><figcaption><span class="pill after">Shipped</span><br>Both keys on both stories</figcaption></figure>
-      </div>
       <div class="split flip" style="margin-top:clamp(64px,8vw,112px)">
         <figure data-r><div class="ph"><img src="../../../public/img/hitman/dressing-room/s-01-modes.webp" alt="Choose a mode, with the Dressing Room card and a New tag" width="540" height="1168" loading="lazy"></div></figure>
         <div data-r style="--d:.08s">
@@ -409,13 +437,11 @@
   </section>
 
   <!-- process -->
-  <section class="sec" id="process" aria-labelledby="process-h">
+  <section class="sec tint" id="process" aria-labelledby="process-h">
     <div class="wrap">
-      <div class="sec-head split">
-        <div>
-          <p class="label" data-r>How I built it, with Claude Code</p>
-          <h2 class="h2 hl" id="process-h" data-r style="--d:.06s">I directed. <b>Claude built.</b></h2>
-        </div>
+      <div class="sec-head">
+        <p class="label" data-r>How I built it, with Claude Code</p>
+        <h2 class="h2 hl" id="process-h" data-r style="--d:.06s">I directed. <b>Claude built.</b></h2>
         <p class="lede" data-r style="--d:.12s">And my phone was the judge. I don&rsquo;t write the code; I own the vision, the art and every call on what looks right. Claude Code turned that into a working feature, and proved it with tests a person can&rsquo;t run by hand.</p>
       </div>
       <ol class="cycle">
@@ -483,11 +509,9 @@
   <!-- results -->
   <section class="sec" id="results" aria-labelledby="results-h">
     <div class="wrap">
-      <div class="sec-head split">
-        <div>
-          <p class="label" data-r>Results, the first two weeks</p>
-          <h2 class="h2 hl" id="results-h" data-r style="--d:.06s">Sessions got <b>longer</b></h2>
-        </div>
+      <div class="sec-head">
+        <p class="label" data-r>Results, the first two weeks</p>
+        <h2 class="h2 hl" id="results-h" data-r style="--d:.06s">Sessions got <b>longer</b></h2>
         <p class="lede" data-r style="--d:.12s">I compared the 14 days before launch with the 13 days after it, leaving launch day out. Visits stayed about the same. Time in the game didn&rsquo;t.</p>
       </div>
       <div class="panel" data-r>
@@ -598,20 +622,6 @@
   </div>
 </footer>
 
-<script>
-(() => {
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const els = document.querySelectorAll('[data-r]');
-  if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('in')); return; }
-  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
-  els.forEach(e => io.observe(e));
-  /* Films play while they are on screen and rest when they are not; with
-     reduced motion they wait for the viewer to press play. */
-  const vids = document.querySelectorAll('video');
-  if (reduce) { vids.forEach(v => { v.removeAttribute('autoplay'); v.pause(); v.controls = true; }); return; }
-  const vo = new IntersectionObserver(es => es.forEach(e => { const v = e.target; if (e.isIntersecting) { const p = v.play(); if (p) p.catch(() => {}); } else v.pause(); }), { threshold: .25 });
-  vids.forEach(v => vo.observe(v));
-})();
-</script>
+<script src="../../../assets/js/case.js" defer></script>
 </body>
 </html>
