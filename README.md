@@ -29,6 +29,10 @@ just dived into.
 | `public/video/motion/` | The thirteen films on the Things That Move reel, plus a poster each. Built from `assets/motion_videos/` (masters, not committed) by `tools/prep-motion.py`. |
 | `public/img/` | The portrait, the three headline objects, and project covers. |
 | `docs/pending-art.md` | What each More Stories slot holds, the brief for the projectionist mascot, and how to drop films into the reel. |
+| `work/hitman-cricket/index.html` | The Hitman Cricket case study, the first page under `/work/`. Featured Work's first card links to it; the other cards' **View** still says the page is not built yet. |
+| `assets/css/case.css` | Styles for case-study pages: the landing page's ground, ink and accent, copied rather than imported, and nothing that moves on its own. |
+| `public/img/hitman/`, `public/video/hitman/` | The case study's screens (exported from the Hitman Cricket Figma handover at 1×), its card cover, its share image, and the Dressing Room's unlock film. |
+| `docs/case-studies/` | The written draft behind each case study, with where every number comes from. |
 | `portfolio-content.html` | The hi-fi content wireframe all the copy below the hero comes from. Reference, not shipped. |
 | `portfolio_spec.md` | The written spec behind the same. Reference, not shipped. |
 | `tools/prep-motion.py` | Turns the motion masters into the MP4s and posters the reel serves. Needs ffmpeg; see the header in the file. |

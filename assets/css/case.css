@@ -1,0 +1,324 @@
+/* Case-study pages under /work/.
+
+   The landing page is a film you scroll through; a case study is something
+   you read. So this sheet keeps the landing page's ground, ink and accent —
+   the same tokens, copied rather than imported, because sections.css carries
+   five thousand lines of scrub engine a reading page has no use for — and
+   drops everything that moves on its own. One column of text, pictures that
+   break out of it, and a chapter rail that stays put on wide screens.
+
+   Nothing here is smaller than 12px. The landing page's 9–11px labels were the
+   first thing the critique asked to fix, and a page made for reading should
+   not repeat them. */
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Light.woff2") format("woff2");
+  font-weight: 300; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Regular.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Medium.woff2") format("woff2");
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-Bold.woff2") format("woff2");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Satoshi";
+  src: url("../fonts/Satoshi-BlackItalic.woff2") format("woff2");
+  font-weight: 900; font-style: italic; font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+  --ground:  #0A0A0A;   /* --sx-wall */
+  --surface: #121211;   /* --sx-surface */
+  --raise:   #1A1A18;   /* --sx-raise */
+  --ink:   #F4F1EC;                  /* --sx-ink */
+  --ink-2: rgba(244,241,236,.74);    /* body copy, ~12:1 on the ground */
+  --ink-3: rgba(244,241,236,.58);    /* labels, ~7:1 */
+  --rule:  rgba(244,241,236,.12);
+  --key:   #E0542A;                  /* the page's one accent */
+  --key-2: #F0A07C;                  /* the accent as type on dark, ~8:1 */
+  --game:  #E9582B;                  /* Hitman Cricket's own orange, off its cover */
+  --sans: "Satoshi", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --gutter: clamp(16px, 4vw, 40px);
+  --text: 40rem;
+  --wide: 72rem;
+  --r: 18px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: 400 1.0625rem/1.65 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img, video { display: block; max-width: 100%; height: auto; }
+a { color: var(--key-2); text-underline-offset: .2em; }
+a:hover { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--key-2); outline-offset: 3px; border-radius: 6px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 500; }
+p { margin: 0; text-wrap: pretty; }
+strong { color: var(--ink); font-weight: 500; }
+
+.skip {
+  position: absolute; left: 12px; top: -60px; z-index: 50;
+  padding: 10px 14px; border-radius: 10px;
+  background: var(--ink); color: var(--ground); font-weight: 500; text-decoration: none;
+}
+.skip:focus { top: 12px; }
+
+/* ---------- the bar ----------
+   Two ways out and nothing else: back to the work, and the game itself. */
+.bar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px var(--gutter);
+  background: rgba(10,10,10,.82);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--rule);
+}
+.bar a { text-decoration: none; }
+.back {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 44px;
+  color: var(--ink-2); font-size: .9375rem;
+}
+.back img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.back:hover { color: var(--ink); }
+
+.play {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 44px; padding: 0 20px; border-radius: 999px;
+  background: var(--game); color: #120A06;
+  font-weight: 700; font-size: .9375rem; letter-spacing: .02em;
+  text-decoration: none; white-space: nowrap;
+  transition: transform .2s ease, background .2s ease;
+}
+.play:hover { color: #120A06; background: #F26A3E; transform: translateY(-1px); }
+.play svg { flex: none; }
+
+/* ---------- hero ---------- */
+.hero {
+  position: relative; overflow: hidden;
+  padding: clamp(40px, 7vw, 96px) var(--gutter) clamp(48px, 7vw, 88px);
+  border-bottom: 1px solid var(--rule);
+}
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(50% 60% at 78% 40%, rgba(233,88,43,.22), transparent 70%),
+    radial-gradient(40% 50% at 10% 100%, rgba(233,88,43,.08), transparent 70%);
+}
+.hero-in {
+  max-width: var(--wide); margin: 0 auto;
+  display: grid; gap: clamp(32px, 5vw, 64px); align-items: center;
+}
+@media (min-width: 900px) { .hero-in { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+
+.kicker {
+  font-size: .8125rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.hero h1 {
+  margin-top: 16px;
+  font-size: clamp(2.75rem, 7.5vw, 5.75rem); line-height: .95; letter-spacing: -.02em; font-weight: 300;
+}
+.hero h1 em { font-weight: 900; font-style: italic; color: var(--game); letter-spacing: -.01em; }
+.hero .lede { margin-top: 22px; max-width: 34rem; font-size: clamp(1.125rem, 1.7vw, 1.3125rem); line-height: 1.5; color: var(--ink-2); }
+
+.facts {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 28px;
+  margin: 32px 0 0; padding-top: 24px; border-top: 1px solid var(--rule); max-width: 34rem;
+}
+@media (min-width: 560px) { .facts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.facts div { display: grid; gap: 4px; min-width: 0; }
+.facts dt { font-size: .75rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.facts dd { margin: 0; font-size: 1rem; color: var(--ink); }
+.hero .play { margin-top: 32px; min-height: 52px; padding: 0 26px; font-size: 1rem; }
+
+.hero-art { position: relative; display: grid; justify-items: center; }
+.hero-art .phone { width: min(300px, 70vw); transform: rotate(3deg); }
+.hero-title {
+  position: absolute; z-index: 2; width: min(300px, 74vw);
+  left: 50%; top: 9%; transform: translateX(-50%) rotate(3deg);
+  pointer-events: none;
+}
+
+/* ---------- the phone ----------
+   Every screen sits in the same frame so a row of them reads as one product,
+   not as a pile of exports. */
+.phone {
+  position: relative; overflow: hidden; border-radius: 28px;
+  aspect-ratio: 402 / 874; background: #000;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.10), 0 0 0 6px #050505, 0 0 0 7px rgba(255,255,255,.08), 0 24px 60px rgba(0,0,0,.55);
+}
+.phone > img, .phone > video { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.phone.tall { aspect-ratio: 540 / 1168; }
+
+/* ---------- layout ---------- */
+.layout {
+  max-width: var(--wide); margin: 0 auto; padding: 0 var(--gutter);
+  display: grid; gap: 0;
+}
+@media (min-width: 1100px) {
+  .layout { grid-template-columns: 200px minmax(0, 1fr); gap: 56px; }
+}
+
+/* The chapter rail. On a phone it is the contents list under the summary;
+   from 1100px it stands beside the text and lights the chapter being read. */
+.rail { padding: 40px 0 8px; }
+.rail h2 { font-size: .75rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.rail ol { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 2px; counter-reset: ch; }
+.rail li { counter-increment: ch; }
+.rail a {
+  display: grid; grid-template-columns: 1.6em minmax(0, 1fr); gap: 4px;
+  padding: 8px 10px 8px 12px; border-left: 2px solid var(--rule);
+  color: var(--ink-3); text-decoration: none; font-size: .9375rem; line-height: 1.35;
+}
+.rail a::before { content: counter(ch, decimal-leading-zero); font-variant-numeric: tabular-nums; }
+.rail a:hover { color: var(--ink); }
+.rail a[aria-current="true"] { color: var(--ink); border-left-color: var(--key); }
+@media (min-width: 1100px) {
+  .rail { position: sticky; top: 72px; align-self: start; padding-top: 72px; max-height: calc(100vh - 72px); overflow-y: auto; }
+}
+
+main { min-width: 0; }
+
+/* ---------- summary ---------- */
+.summary { padding: clamp(40px, 6vw, 72px) 0 0; }
+.summary > p { max-width: var(--text); color: var(--ink-2); }
+.nums {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 28px; border-top: 1px solid var(--rule);
+}
+@media (min-width: 760px) { .nums { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.num {
+  display: grid; gap: 8px; align-content: start; min-width: 0;
+  padding: 22px 16px 22px 0; border-bottom: 1px solid var(--rule);
+}
+.num b { font-size: clamp(2rem, 4vw, 2.75rem); line-height: 1; font-weight: 900; font-style: italic; color: var(--ink); font-variant-numeric: tabular-nums; }
+.num b small { font-size: .5em; color: var(--ink-3); font-style: normal; font-weight: 500; }
+.num span { font-size: .9375rem; line-height: 1.4; color: var(--ink-2); }
+.fine { margin-top: 14px; font-size: .8125rem; line-height: 1.5; color: var(--ink-3); max-width: var(--text); }
+
+/* ---------- chapters ---------- */
+.ch { padding: clamp(64px, 9vw, 112px) 0 0; }
+.ch-head { display: grid; gap: 14px; max-width: var(--text); }
+.ch-n { font-size: .8125rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--key-2); }
+.ch h2 { font-size: clamp(1.875rem, 4vw, 2.875rem); line-height: 1.08; letter-spacing: -.015em; font-weight: 500; }
+.ch-lede { font-size: clamp(1.125rem, 1.6vw, 1.25rem); line-height: 1.55; color: var(--ink-2); }
+.prose { display: grid; gap: 18px; max-width: var(--text); margin-top: 28px; color: var(--ink-2); }
+.prose h3 { margin-top: 18px; font-size: 1.1875rem; font-weight: 500; color: var(--ink); }
+.prose ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.prose li { position: relative; padding-left: 22px; }
+.prose li::before { content: ""; position: absolute; left: 2px; top: .68em; width: 8px; height: 2px; background: var(--key); }
+.prose code { font-size: .9em; padding: 1px 6px; border-radius: 6px; background: var(--raise); color: var(--ink); }
+
+.pull {
+  margin: 8px 0; padding: 4px 0 4px 20px; border-left: 3px solid var(--key);
+  font-size: clamp(1.1875rem, 2vw, 1.375rem); line-height: 1.45; color: var(--ink); font-weight: 500;
+}
+
+/* A band of figures inside the text column, for a chapter's evidence. */
+.stats {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+  max-width: var(--text); margin-top: 28px;
+}
+@media (min-width: 640px) { .stats.three { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.stat { display: grid; gap: 6px; align-content: start; padding: 16px 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--rule); min-width: 0; }
+.stat b { font-size: 1.75rem; line-height: 1; font-weight: 900; font-style: italic; font-variant-numeric: tabular-nums; }
+.stat span { font-size: .875rem; line-height: 1.4; color: var(--ink-2); }
+
+/* ---------- figures ---------- */
+figure { margin: 0; min-width: 0; }
+figcaption { margin-top: 12px; font-size: .875rem; line-height: 1.45; color: var(--ink-3); }
+figcaption b { display: block; margin-bottom: 2px; color: var(--ink); font-weight: 500; }
+
+.screens {
+  display: grid; gap: clamp(14px, 2.4vw, 28px); margin-top: 36px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 760px) {
+  .screens.s3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .screens.s4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+/* An odd one out on a phone takes the row's left half rather than stretching. */
+.screens.s3 > :last-child:nth-child(odd) { grid-column: auto; }
+
+.wide { margin-top: 36px; }
+.wide-frame {
+  display: block; overflow: hidden; border-radius: var(--r);
+  background: var(--surface); border: 1px solid var(--rule);
+}
+.wide-frame img { width: 100%; }
+.wide-frame.crop { max-height: 640px; }
+.wide-frame.crop img { object-fit: cover; object-position: top; }
+.open { display: inline-block; margin-top: 8px; font-size: .875rem; }
+
+.pair { display: grid; gap: 18px; margin-top: 36px; }
+@media (min-width: 760px) { .pair { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tag {
+  display: inline-block; margin-bottom: 8px; padding: 4px 9px; border-radius: 999px;
+  font-size: .75rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+}
+.tag.before { color: #FFB8B0; background: rgba(255,90,78,.12); border: 1px solid rgba(255,90,78,.32); }
+.tag.after  { color: #A8EFC6; background: rgba(91,208,143,.10); border: 1px solid rgba(91,208,143,.32); }
+
+/* ---------- links out ---------- */
+.out {
+  display: grid; gap: 10px; margin-top: 32px; max-width: var(--text);
+  padding: 20px 22px; border-radius: var(--r);
+  background: linear-gradient(180deg, var(--raise), var(--surface)); border: 1px solid var(--rule);
+  text-decoration: none; color: var(--ink);
+}
+.out:hover { color: var(--ink); border-color: rgba(240,160,124,.45); }
+.out span { font-size: .8125rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--key-2); }
+.out b { font-size: 1.1875rem; font-weight: 500; }
+.out p { font-size: .9375rem; color: var(--ink-2); }
+
+.learn { display: grid; gap: 12px; margin-top: 32px; max-width: var(--text); }
+.learn div { padding: 18px 20px; border-radius: 14px; background: var(--surface); border: 1px solid var(--rule); }
+.learn b { display: block; color: var(--ink); font-weight: 500; margin-bottom: 4px; }
+.learn p { color: var(--ink-2); font-size: .9688rem; }
+
+/* ---------- end ---------- */
+.end {
+  max-width: var(--wide); margin: clamp(80px, 10vw, 128px) auto 0;
+  padding: 40px var(--gutter) 56px; border-top: 1px solid var(--rule);
+  display: grid; gap: 24px;
+}
+@media (min-width: 760px) { .end { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } }
+.end h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 500; }
+.end p { margin-top: 8px; color: var(--ink-2); }
+.end-links { display: flex; flex-wrap: wrap; gap: 12px; }
+.ghost {
+  display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px;
+  border: 1px solid rgba(244,241,236,.28); color: var(--ink); text-decoration: none; font-weight: 500;
+}
+.ghost:hover { color: var(--ink); border-color: var(--ink); }
+
+/* Frames exported with their own phone and browser drawn round them: show the
+   picture as it is rather than a phone inside a phone. */
+.phone.bare { aspect-ratio: auto; border-radius: 0; background: none; box-shadow: none; }
+.phone.bare > img { height: auto; object-fit: initial; }
+
+/* Two phones side by side would each take half the text column — a phone
+   800px tall on a laptop. Two-up rows hold to the width of three-up phones. */
+.screens.s2, .pair.narrow { max-width: 36rem; }
+/* Before and after are read against each other, so they stay side by side on
+   a phone too. */
+.pair.narrow { grid-template-columns: repeat(2, minmax(0, 1fr)); }

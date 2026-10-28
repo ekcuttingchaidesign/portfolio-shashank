@@ -3587,6 +3587,8 @@
     box-shadow .35s var(--sx-ease),
     gap .35s var(--sx-ease);
 }
+/* Once a case study exists the control is a link to it, and a link underlines. */
+a.sx-feat-view { text-decoration: none; }
 .sx-feat-view svg { flex: none; transition: transform .35s var(--sx-ease); }
 /* The edge is already the accent, so hover lights it rather than recolouring
    it — the same lamp turned up, which is what a hover on an outlined control

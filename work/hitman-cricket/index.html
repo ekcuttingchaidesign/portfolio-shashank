@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hitman Cricket — case study · Shashank</title>
+<meta name="description" content="A two-minute cricket game for the phone browser that I designed, built with Claude Code and shipped on my own — identity without accounts, Rivals, the Dressing Room, and what 479 players did with it.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hitman Cricket — a case study by Shashank">
+<meta property="og:description" content="Designed, built and shipped solo. 479 players, and a third of play-days from players on their 11th day or later.">
+<meta property="og:image" content="https://ekcuttingchaidesign.github.io/portfolio-shashank/public/img/hitman/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/Satoshi-Regular.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/Satoshi-BlackItalic.woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/css/case.css">
+</head>
+<body>
+<a class="skip" href="#summary">Skip to the case study</a>
+
+<header class="bar">
+  <a class="back" href="../../prototype/#sx-work">
+    <img src="../../public/img/profile.jpeg" alt="" width="32" height="32">
+    <span>Back to Shashank&rsquo;s work</span>
+  </a>
+  <a class="play" href="https://hitmancricket.in/" target="_blank" rel="noopener">
+    Play it
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="sr" hidden>(opens in a new tab)</span>
+  </a>
+</header>
+
+<section class="hero" aria-labelledby="title">
+  <div class="hero-in">
+    <div>
+      <p class="kicker">Case study · 2026 · My own product</p>
+      <h1 id="title">Hitman <em>Cricket</em></h1>
+      <p class="lede">A two-minute cricket game for the phone browser. I designed it, built it with Claude Code and shipped it on my own &mdash; and kept going for seven weeks, because people kept coming back.</p>
+      <dl class="facts">
+        <div><dt>Year</dt><dd>2026</dd></div>
+        <div><dt>Role</dt><dd>Solo: design, build, ship</dd></div>
+        <div><dt>Chapters</dt><dd>7</dd></div>
+        <div><dt>Read</dt><dd>10 min</dd></div>
+      </dl>
+      <a class="play" href="https://hitmancricket.in/" target="_blank" rel="noopener">
+        Play Hitman Cricket
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="hero-art">
+      <div class="phone"><img src="../../public/img/hitman/cover.webp" alt="Hitman Cricket in play: a batter at the crease as the bowler runs in" width="720" height="1280"></div>
+      <img class="hero-title" src="../../public/img/hitman/title.webp" alt="" width="1100" height="399">
+    </div>
+  </div>
+</section>
+
+<div class="layout">
+  <nav class="rail" aria-labelledby="rail-h">
+    <h2 id="rail-h">Chapters</h2>
+    <ol>
+      <li><a href="#ch1">An experiment that wouldn&rsquo;t stop</a></li>
+      <li><a href="#ch2">Identity without accounts</a></li>
+      <li><a href="#ch3">Playing friends who aren&rsquo;t online</a></li>
+      <li><a href="#ch4">The Dressing Room</a></li>
+      <li><a href="#ch5">One card for every ending</a></li>
+      <li><a href="#ch6">Teach once, ask late</a></li>
+      <li><a href="#ch7">What the numbers said, and what&rsquo;s next</a></li>
+    </ol>
+  </nav>
+
+  <main id="main">
+
+    <section class="summary" id="summary" aria-labelledby="summary-h">
+      <h2 id="summary-h" class="kicker">In two minutes</h2>
+      <p style="margin-top:14px">Thirty balls, three wickets: read the delivery, swipe a direction, time the swing. It started as a five-over hitting game and grew into three modes &mdash; The Blast, Test Survival and Rivals &mdash; with a fourth, Super10, in the works. No install and no sign-up: you open a link and you&rsquo;re batting. The hard design problems were the ones that came with that promise.</p>
+      <div class="nums">
+        <div class="num"><b>479</b><span>players since analytics went in on 16&nbsp;Sep</span></div>
+        <div class="num"><b>1<small> in </small>3</b><span>play-days come from players on their 11th day or later</span></div>
+        <div class="num"><b>89<small>%</small></b><span>of Rivals matches were played apart, not live &mdash; the bet the mode was built on</span></div>
+        <div class="num"><b>2.9&times;</b><span>more 20-minute sessions a day after the Dressing Room shipped</span></div>
+      </div>
+      <p class="fine">Numbers are from GoatCounter, 16 Sep &ndash; 27 Oct 2026. It counts an event at most once per player per day, so most figures are player-days rather than people; the player count is exact. Ad blockers hide some players, so treat ratios as approximate.</p>
+    </section>
+
+    <!-- 1 -->
+    <section class="ch" id="ch1" aria-labelledby="ch1-h">
+      <div class="ch-head">
+        <p class="ch-n">Chapter 01</p>
+        <h2 id="ch1-h">An experiment that wouldn&rsquo;t stop</h2>
+        <p class="ch-lede">It started as a test of ChatGPT Astra. The base it gave me was good enough that I didn&rsquo;t want to throw it away, so I kept building &mdash; with Claude.</p>
+      </div>
+      <div class="prose">
+        <p>On 7 September it was a five-over batting game in the browser. By the end of the same day it had swipe batting on phones, sounds and a public link. Seven weeks and 765 commits later it has three modes, leaderboards, player profiles, rival matches and a locker room.</p>
+        <p>My part is the product: the idea, the direction and every design call. I drew the screens in Figma first &mdash; a handover file that runs from foundations and a journey map to every state of every flow &mdash; and built them with Claude Code, testing each change on my own phone before it shipped.</p>
+        <p>The audience turned out to be exactly who it was built for: <strong>97% in India, 95% on phones, 68% on iPhones.</strong> That last figure matters more than it looks, and it is where chapter two starts.</p>
+      </div>
+      <figure class="wide">
+        <a class="wide-frame" href="../../public/img/hitman/ch1-journey-map.webp"><img src="../../public/img/hitman/ch1-journey-map.webp" alt="The journey map from the Figma handover: every screen of the game linked by labelled arrows" width="2400" height="2094" loading="lazy"></a>
+        <figcaption><b>The journey map</b>Every screen in the game and what moves a player between them, from the handover file the build followed.</figcaption>
+      </figure>
+      <div class="screens s3">
+        <figure><div class="phone"><img src="../../public/img/hitman/ch1-modes.webp" alt="Choose a mode screen for a new player" width="402" height="874" loading="lazy"></div><figcaption><b>Choose a mode</b>A new player&rsquo;s first decision.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch1-name.webp" alt="The name entry screen on a player's first visit" width="402" height="874" loading="lazy"></div><figcaption><b>A name, a kit, a hand</b>All a new player is asked for before the first ball.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch6-howto-1.webp" alt="How to play: the first coachmark over the ground" width="402" height="874" loading="lazy"></div><figcaption><b>How to play</b>Taught on the ground, in the first innings.</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="ch" id="ch2" aria-labelledby="ch2-h">
+      <div class="ch-head">
+        <p class="ch-n">Chapter 02</p>
+        <h2 id="ch2-h">Identity without accounts</h2>
+        <p class="ch-lede">No sign-up was the promise. But without an account, a player&rsquo;s career lives in the browser &mdash; and on an iPhone, the browser forgets.</p>
+      </div>
+      <div class="prose">
+        <h3>The problem</h3>
+        <p>A career is runs, rank and everything a player has unlocked. Lose the browser&rsquo;s memory and you lose it all &mdash; worse, the game quietly makes a second player under the same name. Safari deletes everything a page&rsquo;s script stored after a week away. With two players in three on iPhones, that isn&rsquo;t an edge case. It&rsquo;s the main case.</p>
+        <h3>The constraints</h3>
+        <ul>
+          <li>A new player gives a name and is batting. Nothing more may stand before the first ball.</li>
+          <li>Mobile web only: no app storage to lean on.</li>
+          <li>Private windows can&rsquo;t be reliably detected, and forget everything on close.</li>
+          <li>People forward links, so no link may ever wipe anything on sight.</li>
+        </ul>
+        <h3>Version one: make the browser hard to lose</h3>
+        <ul>
+          <li><strong>Identity is kept in three places at once</strong> &mdash; local storage, a long-lived cookie and IndexedDB &mdash; and restored from whichever survives. When they disagree, the oldest wins.</li>
+          <li><strong>A fourth copy Safari can&rsquo;t wipe:</strong> a &ldquo;return ticket&rdquo;, a cookie the server sets rather than the page, which Safari keeps for a year. When the other three come back empty, it puts the player back before the first ball. <strong>8 players were brought back this way without doing a thing.</strong></li>
+          <li><strong>A career key</strong> for when even that fails: three words and two digits, saved as a picture, to WhatsApp or copied, with a &ldquo;bring your record back&rdquo; sheet to use it.</li>
+          <li><strong>Names that can&rsquo;t be stolen:</strong> a name and the same name with a number on the end belong to one person for a day after it&rsquo;s claimed. A player can rename once every 30 days, and going back to an old name is free.</li>
+          <li><strong><code>?fresh=1</code> asks before it clears anything</strong>, because a link is something people send each other, and one that wiped a career on sight would be a prank with a cost.</li>
+        </ul>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>107</b><span>players claimed a name &mdash; 89% of those who started</span></div>
+        <div class="stat"><b>31<small style="font-size:.55em;font-style:normal;font-weight:500;color:var(--ink-3)"> of 85</small></b><span>career keys were ever saved</span></div>
+      </div>
+      <div class="screens s2">
+        <figure><div class="phone"><img src="../../public/img/hitman/ch2-key-save.webp" alt="The career key screen asking the player to save their key" width="402" height="874" loading="lazy"></div><figcaption><b>Save your career key</b>Three words and two digits.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch2-restore.webp" alt="The bring your record back sheet" width="402" height="874" loading="lazy"></div><figcaption><b>Bring your record back</b>The way home when a browser forgets.</figcaption></figure>
+      </div>
+      <div class="prose">
+        <h3>What the numbers said</h3>
+        <p>Players claimed names happily. They didn&rsquo;t save keys: <strong>about two in three named players had no way back</strong> if their browser forgot them. A key is something you have to remember to keep. A password is something people already know how to keep &mdash; and their phone offers to remember it for them.</p>
+        <h3>Version two: a password, and most of the design is <em>when</em> to ask</h3>
+        <ul>
+          <li><strong>Never before the first ball.</strong> The name screen asks for a name, a kit and a batting hand, nothing more.</li>
+          <li><strong>On the end-of-innings card, once a career passes 50 runs</strong> &mdash; when a player has something worth protecting &mdash; in solid orange so it can&rsquo;t be mistaken for Play again.</li>
+          <li><strong>On My Stats from the first visit</strong>, as a card on the career page.</li>
+          <li><strong>A nudge sheet after three end cards walked past</strong>, then every five, never twice in a visit, and never in the way of batting.</li>
+          <li>A hidden username field so Safari and Chrome offer to save it; an optional security question; and restore that lists names with a password, so players find themselves by name.</li>
+        </ul>
+      </div>
+      <figure class="wide">
+        <a class="wide-frame crop" href="../../public/img/hitman/ch2-password-lanes.webp"><img src="../../public/img/hitman/ch2-password-lanes.webp" alt="The career password section of the Figma file, laid out as five user-journey lanes" width="1462" height="3200" loading="lazy"></a>
+        <figcaption><b>Five lanes, A to E</b>New player, nudges, a returning player who&rsquo;s protected, a returning player whose browser was wiped, and edge cases &mdash; designed before a line of it was built. <a class="open" href="../../public/img/hitman/ch2-password-lanes.webp">Open full size</a></figcaption>
+      </figure>
+      <div class="screens s4">
+        <figure><div class="phone"><img src="../../public/img/hitman/ch2-password-endcard.webp" alt="The Blast end card with a create a password card under the score" width="402" height="874" loading="lazy"></div><figcaption><b>On the end card</b>Where 10 of the first 11 passwords were made.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch2-password-create.webp" alt="The create a password sheet" width="402" height="874" loading="lazy"></div><figcaption><b>Create a password</b>The rules said live, as you type.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch2-password-nudge.webp" alt="The nudge sheet shown after three end cards were walked past" width="402" height="874" loading="lazy"></div><figcaption><b>The nudge</b>After three ignored asks. Mostly put off.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch2-password-protected.webp" alt="Career protected confirmation" width="402" height="874" loading="lazy"></div><figcaption><b>Career protected</b>The reward for saying yes.</figcaption></figure>
+      </div>
+      <div class="stats three">
+        <div class="stat"><b>10<small style="font-size:.55em;font-style:normal;font-weight:500;color:var(--ink-3)"> of 11</small></b><span>passwords in the first 10 days came from the end card</span></div>
+        <div class="stat"><b>24<small style="font-size:.55em;font-style:normal;font-weight:500;color:var(--ink-3)"> of 28</small></b><span>times the nudge sheet was shown, it was put off with &ldquo;Later&rdquo;</span></div>
+        <div class="stat"><b>5</b><span>careers restored by password in 10 days &mdash; against 9 by key in the 35 days before</span></div>
+      </div>
+      <div class="prose">
+        <p class="pull">Asking in context worked. Interrupting mostly didn&rsquo;t.</p>
+        <p>The numbers are small, but they point the same way. And the part of this chapter nobody ever sees &mdash; the return ticket &mdash; is the part that saved the most careers without asking anyone for anything.</p>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="ch" id="ch3" aria-labelledby="ch3-h">
+      <div class="ch-head">
+        <p class="ch-n">Chapter 03</p>
+        <h2 id="ch3-h">Playing friends who aren&rsquo;t online</h2>
+        <p class="ch-lede">Cricket is something you argue about with friends. But friends are rarely free at the same moment &mdash; so Rivals had to work whether they were or not.</p>
+      </div>
+      <div class="prose">
+        <p><strong>One link is one match room.</strong> Whoever opens it joins; whoever taps Play bats; every ball is written to the room as it happens. Two friends can bat at the same time and see each other&rsquo;s balls land, or one can bat tonight and the other on Thursday &mdash; the room reads the same either way. Nobody sees a score until their own last ball.</p>
+        <ul>
+          <li><strong>The room explains itself.</strong> A dashed seat waiting for a friend; their face appearing without a tap when they join; a ring that fills ball by ball while somebody bats; &ldquo;needs 7 off 4 balls&rdquo; for the one watching.</li>
+          <li><strong>It ends cleanly.</strong> A week with no second innings closes the match; leaving one half-played for a day forfeits it; declining goes down as a loss.</li>
+          <li><strong>It grows if it&rsquo;s forwarded.</strong> A third friend on the link turns the room into a leaderboard, up to four seats. A fifth is told, kindly, that they&rsquo;re late to the party.</li>
+          <li><strong>Everyone bats in their own colours</strong>, fixed in the order they joined, so every phone in the room agrees on who&rsquo;s who.</li>
+        </ul>
+      </div>
+      <div class="screens s4">
+        <figure><div class="phone"><img src="../../public/img/hitman/ch3-invite.webp" alt="The Rivals invite sheet" width="402" height="874" loading="lazy"></div><figcaption><b>Invite</b>One link, one room.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch3-room-waiting.webp" alt="A match room waiting for a friend to join" width="402" height="874" loading="lazy"></div><figcaption><b>Waiting</b>A seat kept for a friend.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch3-result-win.webp" alt="The result screen: you win" width="402" height="874" loading="lazy"></div><figcaption><b>Result</b>Only once both innings are in.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch3-head-to-head.webp" alt="Head-to-head record against one friend" width="402" height="874" loading="lazy"></div><figcaption><b>Head to head</b>So a rivalry has a history.</figcaption></figure>
+      </div>
+      <div class="stats three">
+        <div class="stat"><b>141</b><span>match rooms made, and 83 friends joined one</span></div>
+        <div class="stat"><b>89<small style="font-size:.55em;font-style:normal;font-weight:500;color:var(--ink-3)">%</small></b><span>of matches played apart (139) rather than live (17)</span></div>
+        <div class="stat"><b>56</b><span>rematches &mdash; and 27 rooms grew to three or four players</span></div>
+      </div>
+      <div class="prose">
+        <p class="pull">Building for &ldquo;not at the same time&rdquo; was the bet. Nine matches in ten say it was the right one.</p>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="ch" id="ch4" aria-labelledby="ch4-h">
+      <div class="ch-head">
+        <p class="ch-n">Chapter 04</p>
+        <h2 id="ch4-h">The Dressing Room</h2>
+        <p class="ch-lede">Players came back &mdash; three in four of returns were the very next day &mdash; but a daily player who was never going to top the board had nothing to chase.</p>
+      </div>
+      <div class="prose">
+        <p>So I built them a reason: a 3D locker room where kits and bats are <strong>earned, never bought</strong>. Every innings in every mode counts towards something, past innings included, and the batter walks out in what you&rsquo;ve won &mdash; in every mode, and in Rival Matches where your opponent sees it.</p>
+        <ul>
+          <li><strong>You press unlock.</strong> No pop-up mid-flow: an earned item waits with a dot, and the moment plays when the player asks for it. Even the free Boom bat waits, because handing it over on arrival took the best part away.</li>
+          <li><strong>Every lock says what it takes</strong> &mdash; try a locked item on, see the exact target, and go play for it in one tap.</li>
+          <li><strong>Flat mock-ups failed; a 3D prototype won in one evening</strong>, with the real batter and real bat art, so what I reviewed was what would ship.</li>
+        </ul>
+      </div>
+      <div class="screens s3">
+        <figure><div class="phone tall"><img src="../../public/img/hitman/ch4-room-bat-waiting.webp" alt="The bat shelf with a dot on the tab and the Boom bat waiting to be unlocked" width="540" height="1168" loading="lazy"></div><figcaption><b>Something is waiting</b>A dot, and an UNLOCK key.</figcaption></figure>
+        <figure><div class="phone tall"><video src="../../public/video/hitman/bat-unlock.mp4" poster="../../public/img/hitman/ch4-bat-unlock-poster.webp" muted loop playsinline autoplay preload="none" width="540" height="1168" aria-label="The bat unlock: the bat flies to full screen, the stickers scan on, then confetti and rays"></video></div><figcaption><b>The moment</b>The stickers scan onto the blade.</figcaption></figure>
+        <figure><div class="phone tall"><img src="../../public/img/hitman/ch4-bat-icecold.webp" alt="The Ice Cold bat locked, showing 212 of 250 career sixes" width="540" height="1168" loading="lazy"></div><figcaption><b>One goal, one number</b>212 of 250 sixes.</figcaption></figure>
+      </div>
+      <div class="stats three">
+        <div class="stat"><b>2.9&times;</b><span>sessions past 20 minutes a day: 2.0 before, 5.7 after</span></div>
+        <div class="stat"><b>26<small style="font-size:.55em;font-style:normal;font-weight:500;color:var(--ink-3)">%</small></b><span>of visits passed 10 minutes, up from 11.6%</span></div>
+        <div class="stat"><b>93</b><span>unlock moments in the first two weeks</span></div>
+      </div>
+      <p class="fine">14 days before against 13 after, launch day left out. Profiles and new shots shipped in the same fortnight and new visitors fell, so the rise came from returning players &mdash; who the room was made for. The jump is clear; how much of it is the room alone, this data can&rsquo;t say.</p>
+      <a class="out" href="https://claude.ai/artifact/KgYVDDPDD4BamuG3ReiKhL" target="_blank" rel="noopener">
+        <span>The full story</span>
+        <b>The Dressing Room, in three days &rarr;</b>
+        <p>A Figma template that wraps onto a 3D bat, five rounds to make a target readable, what broke on a real phone, and a 1.7&nbsp;MB launch animation replaced by 8&nbsp;KB of code.</p>
+      </a>
+    </section>
+
+    <!-- 5 -->
+    <section class="ch" id="ch5" aria-labelledby="ch5-h">
+      <div class="ch-head">
+        <p class="ch-n">Chapter 05</p>
+        <h2 id="ch5-h">One card for every ending</h2>
+        <p class="ch-lede">Every mode had grown its own ending, and the place on the board each one showed could be a guess. The end of an innings is the screen players see most. It had to be one thing, and it had to be true.</p>
+      </div>
+      <figure class="wide">
+        <a class="wide-frame" href="../../public/img/hitman/ch5-card-variants.webp"><img src="../../public/img/hitman/ch5-card-variants.webp" alt="The player card as it was, next to four redesign options: rank hero, board slice, climb track and compact" width="2066" height="475" loading="lazy"></a>
+        <figcaption><b>Now, and four ways forward</b>Rank hero, board slice, climb track, compact. The rank hero won: where you landed is the news.</figcaption>
+      </figure>
+      <div class="prose">
+        <ul>
+          <li><strong>One card for every mode, with a part for each:</strong> the Blast&rsquo;s over-by-over chart, the Marathon&rsquo;s worm, Survival&rsquo;s injury ring.</li>
+          <li><strong>A place is never a guess.</strong> The card waits for the server&rsquo;s answer rather than reading the board on screen; until it arrives, the innings is &ldquo;going up&rdquo;.</li>
+          <li><strong>Named players have nothing to press.</strong> A place they earn is posted for them, which removed a step rather than decorating one.</li>
+          <li><strong>The buttons sit outside the scroll.</strong> Inside it, they covered the career key.</li>
+          <li><strong>Only finished innings count towards a career.</strong> Walking out mid-innings happened on half the days anyone played; if it counted, restarting whenever an over went badly would be a way to pile up runs.</li>
+        </ul>
+      </div>
+      <div class="pair narrow">
+        <figure><span class="tag before">Before</span><div class="phone"><img src="../../public/img/hitman/ch5-blast-before.webp" alt="The Blast end card from the first handover" width="402" height="874" loading="lazy"></div><figcaption><b>The first handover</b>The score leads; the place is one line, and the career key competes for room.</figcaption></figure>
+        <figure><span class="tag after">After</span><div class="phone"><img src="../../public/img/hitman/ch5-rank-hero.webp" alt="The redesigned end card led by rank: climbed, new best" width="402" height="874" loading="lazy"></div><figcaption><b>Rank hero</b>Where you landed, and how far you climbed.</figcaption></figure>
+      </div>
+      <div class="screens s2">
+        <figure><div class="phone"><img src="../../public/img/hitman/ch5-survival-won.webp" alt="Test Survival end card: won" width="402" height="874" loading="lazy"></div><figcaption><b>Test Survival</b>The injury ring is Survival&rsquo;s part.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch5-marathon.webp" alt="Test Marathon end card" width="402" height="874" loading="lazy"></div><figcaption><b>Test Marathon</b>The worm: runs climbing ball by ball.</figcaption></figure>
+      </div>
+      <div class="prose">
+        <h3>What went wrong</h3>
+        <p>Two bugs on this card got past every automated check. The checks reached the card from the cover; players reach it by finishing an innings. Same card, different road, different bugs.</p>
+        <p class="pull">Reach the screen the way a player does.</p>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="ch" id="ch6" aria-labelledby="ch6-h">
+      <div class="ch-head">
+        <p class="ch-n">Chapter 06</p>
+        <h2 id="ch6-h">Teach once, ask late</h2>
+        <p class="ch-lede">A two-minute game has no room for a manual, and no patience for a survey. Both are about restraint: say it once, in context, then get out of the way.</p>
+      </div>
+      <div class="prose">
+        <h3>Teaching</h3>
+        <ul>
+          <li>The first innings teaches on the ground itself: <strong>five lanes of light fan out from the bat</strong>, one per stroke, and the confidence meter is shown through a hole cut in the dark overlay.</li>
+          <li>The cards <strong>never appear twice</strong>, and anyone who has batted before skips them.</li>
+          <li>In a Test Marathon they&rsquo;re drawn <strong>mirrored for a left-hander</strong>.</li>
+        </ul>
+      </div>
+      <div class="screens s3">
+        <figure><div class="phone"><img src="../../public/img/hitman/ch6-howto-confidence.webp" alt="Coachmark: the confidence meter outlined through a hole in the overlay" width="402" height="874" loading="lazy"></div><figcaption><b>The meter, outlined</b>A hole cut in the scrim.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch6-marathon-focus.webp" alt="Test Marathon coachmark about focus" width="402" height="874" loading="lazy"></div><figcaption><b>One rule at a time</b>The Marathon&rsquo;s rules, the first time only.</figcaption></figure>
+        <figure><div class="phone"><img src="../../public/img/hitman/ch6-rating-ask.webp" alt="The rating prompt under the end card, untouched" width="402" height="874" loading="lazy"></div><figcaption><b>The ask</b>About one thing, by name.</figcaption></figure>
+      </div>
+      <div class="prose">
+        <h3>Asking</h3>
+        <p>Every rule about the rating prompt is a rule about <em>not</em> asking:</p>
+        <ul>
+          <li><strong>Never on anyone&rsquo;s first innings</strong> &mdash; that&rsquo;s an opinion of controls they haven&rsquo;t learned yet.</li>
+          <li><strong>The first finished innings of a new mode</strong> asks about that mode, while it&rsquo;s fresh; the third finished innings asks about the game.</li>
+          <li><strong>One ask a visit.</strong> Waved away, it keeps quiet for seven days; waved away three times, it stops for good.</li>
+          <li>The reaction scales with the stars: one or two settle quietly, and <strong>five is hit for six</strong>.</li>
+        </ul>
+      </div>
+      <div class="stats three">
+        <div class="stat"><b>4.7</b><span>average from 20 ratings, 15 of them five stars</span></div>
+        <div class="stat"><b>~1<small style="font-size:.55em;font-style:normal;font-weight:500;color:var(--ink-3)"> in </small>5</b><span>asks answered &mdash; and nobody asked twice in a visit</span></div>
+        <div class="stat"><b>31<small style="font-size:.55em;font-style:normal;font-weight:500;color:var(--ink-3)"> of 50</small></b><span>who started the tutorial finished it</span></div>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="ch" id="ch7" aria-labelledby="ch7-h">
+      <div class="ch-head">
+        <p class="ch-n">Chapter 07</p>
+        <h2 id="ch7-h">What the numbers said, and what&rsquo;s next</h2>
+        <p class="ch-lede">I measured questions, not vanity. Every event in the game exists to answer one, and that made it easy to see what worked &mdash; and what didn&rsquo;t.</p>
+      </div>
+      <div class="prose">
+        <h3>What worked</h3>
+        <ul>
+          <li><strong>The loop.</strong> On three days in four that someone started an innings, they replayed one too.</li>
+          <li><strong>The core.</strong> Returning players made up 78% of the days anyone played, and a third of play-days came from players on their 11th day or later. In the week of 20 October new players fell to 25, and returning players held at about 276.</li>
+          <li><strong>Privacy by design.</strong> Scores go out as ranges, never figures; there&rsquo;s no cookie banner because there&rsquo;s nothing to consent to; and retention is measured in the player&rsquo;s own browser, so the counter stays anonymous.</li>
+        </ul>
+        <h3>What didn&rsquo;t, yet</h3>
+        <p><strong>Sharing.</strong> The career card is the most polished thing in the game, and it was shared about a dozen times. It looks like a growth loop and isn&rsquo;t one yet. That&rsquo;s the open problem I&rsquo;d point at first.</p>
+        <h3>Next: Super10</h3>
+        <p>A ten-over innings played against a field you can see, with a Power Surge to time. Before building any of it, I put a coming-soon card on Choose a mode with one button: I&rsquo;M EXCITED. <strong>8 of the 18 players who opened it pressed it.</strong> Small numbers again &mdash; but a reason to build, measured before the build.</p>
+      </div>
+      <div class="pair">
+        <figure><span class="tag after">Chosen</span><a class="wide-frame" href="../../public/img/hitman/ch7-super10-chosen.webp"><img src="../../public/img/hitman/ch7-super10-chosen.webp" alt="Super10 direction chosen: the field map in two corners" width="2400" height="902" loading="lazy"></a><figcaption><b>Two corners</b>A small map in the corner, tapped to see it big.</figcaption></figure>
+        <figure><span class="tag before">Not chosen</span><a class="wide-frame" href="../../public/img/hitman/ch7-super10-not-chosen.webp"><img src="../../public/img/hitman/ch7-super10-not-chosen.webp" alt="Super10 direction not chosen: a persistent field map" width="2400" height="1568" loading="lazy"></a><figcaption><b>A persistent map</b>The field kept on screen for the whole innings.</figcaption></figure>
+      </div>
+      <div class="screens s3">
+        <figure><div class="phone"><img src="../../public/img/hitman/ch7-super10-play-card.webp" alt="Choose a mode with the Super10 play card" width="402" height="874" loading="lazy"></div><figcaption><b>On the mode screen</b>The card Super10 gets when it ships.</figcaption></figure>
+        <figure><div class="phone bare"><img src="../../public/img/hitman/ch7-super10-m1.webp" alt="Super10 coachmark: the field, live, with the field map in the corner" width="522" height="994" loading="lazy"></div><figcaption><b>The field, in play</b>Find the gaps.</figcaption></figure>
+        <figure><div class="phone bare"><img src="../../public/img/hitman/ch7-super10-surge.webp" alt="Super10 Power Surge banner: two fielders in, this over" width="522" height="994" loading="lazy"></div><figcaption><b>Power Surge</b>The over you choose to go big.</figcaption></figure>
+      </div>
+      <div class="prose"><h3>What I&rsquo;d tell myself on day one</h3></div>
+      <div class="learn">
+        <div><b>Reach the screen the way a player does.</b><p>Testing from a shortcut tests the shortcut.</p></div>
+        <div><b>Ask in context, not by interruption.</b><p>The password card on the end card beat the nudge sheet ten to two.</p></div>
+        <div><b>The invisible fix can be the best one.</b><p>The return ticket saved careers without asking anyone for anything.</p></div>
+        <div><b>Measure the question, not the total.</b><p>Small numbers are fine when each one answers something.</p></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="end">
+  <div>
+    <h2>Want to see it move?</h2>
+    <p>It&rsquo;s live, it&rsquo;s free, and it works best on a phone.</p>
+  </div>
+  <div class="end-links">
+    <a class="play" href="https://hitmancricket.in/" target="_blank" rel="noopener">Play Hitman Cricket</a>
+    <a class="ghost" href="../../prototype/#sx-work">More work</a>
+  </div>
+</footer>
+
+<script>
+/* Light the chapter being read in the rail. A chapter counts as current once
+   its top passes a third of the way down the window. */
+(() => {
+  const links = [...document.querySelectorAll('.rail a')];
+  const chapters = links.map(a => document.querySelector(a.getAttribute('href')));
+  const mark = () => {
+    const line = innerHeight / 3;
+    let current = -1;
+    chapters.forEach((ch, i) => { if (ch && ch.getBoundingClientRect().top <= line) current = i; });
+    links.forEach((a, i) => a.setAttribute('aria-current', i === current ? 'true' : 'false'));
+  };
+  addEventListener('scroll', mark, { passive: true });
+  addEventListener('resize', mark);
+  mark();
+  /* Autoplaying film is a courtesy, not a requirement. */
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll('video[autoplay]').forEach(v => { v.removeAttribute('autoplay'); v.controls = true; });
+  }
+})();
+</script>
+</body>
+</html>

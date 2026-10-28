@@ -9,7 +9,7 @@ per day, so figures are **player-days** unless marked exact. Lines marked
 
 | Year | Role | Chapters | Read |
 | --- | --- | --- | --- |
-| 2026 | Solo — design, build, ship | 7 | ~12 min |
+| 2026 | Solo — design, build, ship | 7 | ~10 min |
 
 ## Chapters
 
