@@ -30,18 +30,30 @@ per day, so figures are **player-days** unless marked exact. Lines marked
    test (8 of 18 pressed I'M EXCITED), sharing as the thing that hasn't
    worked yet, and the Marathon.
 
-### Evidence for chapter 4 (Dressing Room, launched 13 Oct)
+### Chapter 4 (Dressing Room, launched 13 Oct)
 
-- 93 items unlocked or claimed, across 27 different kits, bats and guards;
-  132 times a player changed what they wore.
-- The week before vs the week after launch: sessions past 20 minutes went
-  from 19 to 47, and next-day returns from 15% to 21% of player-days, while
-  total visits fell (479 → 350 player-days).
-- Caveat to say out loud: new players also fell that week (167 → 56), so the
-  audience was more of a returning core, and returning players play longer
-  anyway. Claim "sessions got longer after it shipped", not "it caused it".
-- The Boom bat is deliberately not free: it waits with a dot until the player
-  presses UNLOCK, which teaches the interaction. 13 players claimed it.
+The full long-form version already exists as its own case study:
+https://claude.ai/artifact/KgYVDDPDD4BamuG3ReiKhL — so in the flagship this
+chapter is a short version that links out to it, and the long one becomes
+the second Hitman piece (More Stories, or a second Featured card).
+
+Short version, using that artifact's numbers (14 days before vs 13 after,
+launch day left out):
+
+- **The insight:** players came back — 76% of returns were the next day —
+  but a daily player who'd never top the board had nothing to chase.
+- **Play. Earn. Wear.** Earned, never bought; past innings count; the player
+  presses UNLOCK themselves; every lock says exactly what it takes.
+- **Process:** flat mock-ups rejected, a 3D prototype with the real batter
+  approved in one evening; five rounds to make a target readable; fixes found
+  on a real phone (Safari's 660px vs the prototype's 874px).
+- **Results:** sessions past 20 minutes 2.0 → 5.7 a day (2.9×); visits past
+  10 minutes 11.6% → 26%; 93 unlock moments; a 1.7 MB Lottie replaced by
+  ~8 KB of code that plays the launch story on the live 3D stage.
+- **Caveat (already stated in the artifact):** profiles and new shots
+  shipped in the same fortnight, and new visitors fell, so the rise came from
+  returning players. The jump is clear; how much is the room alone, the data
+  can't say.
 
 ---
 
