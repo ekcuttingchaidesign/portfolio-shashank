@@ -808,7 +808,8 @@ a.sc:hover .sc-art .ph:nth-child(2) { transform: translateX(8%) rotate(6deg) tra
 .dr-rail button:active { transform: scale(.94); }
 .dr-rail button[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--hc-orange); }
 /* A bat tile is the top of its own face panel, cut from the flat sheet. */
-.dr-rail .bat { position: absolute; inset: 5px; border-radius: 11px; background: var(--s) 0 6% / 286% auto no-repeat; }
+.dr-rail .bat { position: absolute; inset: 5px; overflow: hidden; border-radius: 11px; }
+.dr-rail .bat img { position: absolute; left: 0; top: 0; width: 286%; max-width: none; height: auto; translate: 0 -5%; }
 .dr-rail .kit { position: absolute; inset: 0; display: grid; place-items: center; color: var(--c); }
 .dr-rail .sep { width: 28px; height: 1px; margin: 2px auto; background: #2a313a; }
 @media (max-width: 1039px) {
