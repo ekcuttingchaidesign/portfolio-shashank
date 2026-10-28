@@ -26,37 +26,85 @@
   <a href="../../prototype/#sx-contact">Contact</a>
 </nav>
 
-<header class="hub-hero grid-bg">
-  <div class="wrap hero-grid">
+<header class="hh">
+  <div class="wrap">
     <div>
       <p class="label" data-r>My own product · 2026</p>
       <h1 class="hl" data-r style="--d:.06s">Hitman <b>Cricket</b></h1>
       <p class="lede" data-r style="--d:.12s">A cricket game for the phone browser. I designed it, built it with Claude Code and shipped it on my own &mdash; then kept going for seven weeks, because people kept coming back. These are the stories behind it.</p>
       <div class="row" data-r style="--d:.18s">
-        <a class="btn solid" href="https://hitmancricket.in/" target="_blank" rel="noopener">Play it
+        <a class="btn" href="https://hitmancricket.in/" target="_blank" rel="noopener">Play it
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         <a class="link" href="#studies">Read the case studies
           <svg width="12" height="14" viewBox="0 0 12 14" fill="none" aria-hidden="true"><path d="M6 1v12M1.5 8.5 6 13l4.5-4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       </div>
     </div>
-    <div class="stage" data-r style="--d:.1s">
-      <span class="beam" aria-hidden="true"></span>
-      <img class="ledge" src="../../public/img/right_side_ledge.svg" alt="" width="120" height="186" aria-hidden="true">
-      <div class="ph"><img src="../../public/img/hitman/cover.webp" alt="The Hitman Cricket start screen: the batter walking out under stadium lights, the player&rsquo;s best score, and Play" width="402" height="874"></div>
-      <img class="block" src="../../public/img/master_block.svg" alt="" aria-hidden="true">
-    </div>
-  </div>
-  <div class="wrap">
-    <div class="score" data-r>
-      <div><em>479</em><span>players since analytics went in on 16&nbsp;September</span></div>
-      <div><em>1<small> in </small>3</em><span>play-days come from players on their 11th day or later</span></div>
-      <div><em>765</em><span>commits in seven weeks, from a five-over game to three modes</span></div>
-      <div><em>95<small>%</small></em><span>of play on phones, 97% of it in India</span></div>
+    <div class="fan" data-r style="--d:.1s" aria-label="Five screens of the game">
+      <div class="ph"><img src="../../public/img/hitman/screens/leaderboard.webp" alt="The Blast leaderboard: Rohit on top with 148, the podium and the ranks below" width="603" height="1311"></div>
+      <div class="ph"><img src="../../public/img/hitman/screens/endcard.webp" alt="An innings card: 101 for 2 in five overs, fifth on the leaderboard" width="603" height="1311"></div>
+      <div class="ph"><img src="../../public/img/hitman/screens/start.webp" alt="The start screen: the batter walking out under floodlights, with Play and How to play" width="603" height="1311"></div>
+      <div class="ph"><img src="../../public/img/hitman/screens/gameplay.webp" alt="In play: the batter in the red Crimson kit as the ball arrives" width="603" height="1311"></div>
+      <div class="ph"><img src="../../public/img/hitman/screens/dressing-kit.webp" alt="The Dressing Room: the batter in OG Navy on the pedestal, kits down the side" width="603" height="1311"></div>
     </div>
   </div>
 </header>
 
 <main id="main">
+  <section class="sec" aria-labelledby="nums-h" style="padding-top:clamp(48px,6vw,88px)">
+    <div class="wrap">
+      <div class="sec-head split">
+        <div>
+          <p class="label" data-r>The numbers, 16 Sep &ndash; 27 Oct</p>
+          <h2 class="h2 hl" id="nums-h" data-r style="--d:.06s">A small game, <b>a real habit</b></h2>
+        </div>
+        <p class="lede" data-r style="--d:.12s">No ads and no launch: just a link passed around. Here&rsquo;s who came, how often they came back, and what they played on.</p>
+      </div>
+      <div class="nums">
+        <article class="num" data-r>
+          <em>479</em>
+          <p>players found it, most of them through a link a friend sent.</p>
+          <figure>
+            <div class="vbars" role="img" aria-label="New players a week: 79, 64, 84, 152, 67 and 25, from the week of 14 September to the week of 19 October">
+              <div tabindex="0"><b>79</b><i style="--v:79"></i></div>
+              <div tabindex="0"><b>64</b><i style="--v:64"></i></div>
+              <div tabindex="0"><b>84</b><i style="--v:84"></i></div>
+              <div class="pk" tabindex="0"><b>152</b><i style="--v:152"></i></div>
+              <div tabindex="0"><b>67</b><i style="--v:67"></i></div>
+              <div tabindex="0"><b>25</b><i style="--v:25"></i></div>
+            </div>
+            <div class="vticks" aria-hidden="true"><span>14 Sep</span><span>21</span><span>28</span><span>5 Oct</span><span>12</span><span>19</span></div>
+            <figcaption>New players each week. The peak is the week the Test Marathon arrived.</figcaption>
+          </figure>
+        </article>
+        <article class="num" data-r style="--d:.06s">
+          <em>1<small> in </small>3</em>
+          <p>play-days came from players on their 11th day or later.</p>
+          <figure>
+            <div class="hbar" role="img" aria-label="Play-days by how many days the player had played: 11 or more days 33%, everyone else 67%"><i class="a" style="--v:33"></i><i style="--v:67"></i></div>
+            <div class="hkey"><span style="--c:var(--sx-key)">11+ days, 33%</span><span>Everyone else, 67%</span></div>
+            <ol class="days" aria-label="Play-days by days played">
+              <li><b>632</b>1 day</li><li><b>221</b>2 days</li><li><b>301</b>3&ndash;5</li><li><b>294</b>6&ndash;10</li><li class="a"><b>726</b>11+</li>
+            </ol>
+          </figure>
+        </article>
+        <article class="num" data-r style="--d:.12s">
+          <em>95<small>%</small></em>
+          <p>of play was on a phone, and two thirds of it on an iPhone.</p>
+          <figure>
+            <div class="hrow"><span>Screen</span>
+              <div class="hbar" role="img" aria-label="Phones 95%, desktop and tablet 5%"><i class="a" style="--v:95"></i><i style="--v:5"></i></div>
+              <div class="hkey"><span style="--c:var(--sx-key)">Phone, 95%</span><span>Desktop and tablet, 5%</span></div>
+            </div>
+            <div class="hrow"><span>System</span>
+              <div class="hbar" role="img" aria-label="iOS 68%, Android 27%, other 5%"><i class="a" style="--v:68"></i><i style="--v:27"></i><i class="c" style="--v:5"></i></div>
+              <div class="hkey"><span style="--c:var(--sx-key)">iOS, 68%</span><span>Android, 27%</span><span style="--c:#45423E">Other, 5%</span></div>
+            </div>
+          </figure>
+        </article>
+      </div>
+    </div>
+  </section>
+
   <section class="sec" id="studies" aria-labelledby="studies-h">
     <div class="wrap">
       <div class="sec-head split">
@@ -68,84 +116,87 @@
       </div>
 
       <div class="studies">
-        <article class="st st-lb" data-r>
-          <div class="st-art" aria-hidden="true">
-            <img class="crowd" src="../../public/img/hitman/game/result-won.webp" alt="" width="1200" height="675" loading="lazy">
-            <img class="board phone" src="../../public/img/hitman/game/board.webp" alt="" width="620" height="1202" loading="lazy">
+        <article class="sc sc-lb" data-r>
+          <div class="sc-txt">
+            <div class="sc-top"><span class="sc-kick">Competing with a purpose</span><span class="tag"><i></i>Writing now</span></div>
+            <h3>Leaderboards</h3>
+            <p>The board turned a toy into a game. Fair ranking, career ladders, a place that&rsquo;s never a guess, and a crown when you take the top.</p>
           </div>
-          <div class="st-txt">
-            <h3><span>Competing with a purpose</span><b>Leaderboards</b></h3>
-            <p>The board is what turned a toy into a game. Fair ranking, career ladders, and a place that&rsquo;s never a guess &mdash; the reason players had something to beat.</p>
+          <div class="sc-art" aria-hidden="true">
+            <img class="ph" src="../../public/img/hitman/screens/leaderboard.webp" alt="" width="603" height="1311" loading="lazy">
+            <img class="ph" src="../../public/img/hitman/screens/top-spot.webp" alt="" width="603" height="1311" loading="lazy">
           </div>
-          <div class="st-foot"><span class="tag"><i></i>Writing now</span></div>
         </article>
 
-        <article class="st st-id" data-r style="--d:.06s">
-          <div class="st-art" aria-hidden="true">
-            <img class="key" src="../../public/img/hitman/game/key.webp" alt="" width="620" height="313" loading="lazy">
-          </div>
-          <div class="st-txt">
-            <h3><span>Key vs password</span><b>Identity without accounts</b></h3>
+        <article class="sc sc-id" data-r style="--d:.06s">
+          <div class="sc-txt">
+            <div class="sc-top"><span class="sc-kick">Key vs password</span><span class="tag"><i></i>Writing now</span></div>
+            <h3>Identity without accounts</h3>
             <p>No sign-up, and Safari forgets after a week. A career key nobody saved, then a password asked for at the right moment.</p>
           </div>
-          <div class="st-foot"><span class="tag"><i></i>Writing now</span></div>
+          <div class="sc-art" aria-hidden="true">
+            <img class="key" src="../../public/img/hitman/game/key.webp" alt="" width="620" height="313" loading="lazy">
+          </div>
         </article>
 
-        <a class="st st-dr" href="dressing-room/" data-r>
-          <div class="st-art" aria-hidden="true">
-            <img class="p1 phone" src="../../public/img/hitman/dressing-room/s-08-kit-crimson.webp" alt="" width="540" height="1168" loading="lazy">
-            <video class="p2 phone" src="../../public/video/hitman/bat-unlock.mp4" poster="../../public/img/hitman/dressing-room/poster-bat-unlock.webp" muted loop playsinline autoplay preload="metadata" width="540" height="1168"></video>
+        <a class="sc sc-dr" href="dressing-room/" data-r>
+          <div class="sc-txt">
+            <div class="sc-top"><span class="sc-kick">Play. Earn. Wear.</span><span class="tag live"><i></i>Ready</span></div>
+            <h3>The Dressing Room</h3>
+            <p>Kits and bats earned, never bought; bat skins drawn in Figma and wrapped onto 3D. Built in three days.</p>
+            <span class="read">Read the case study <svg width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true"><path d="M.8 5h15.4M11.7 1.1 16.2 5l-4.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           </div>
-          <div class="st-txt">
-            <h3><span>Play. Earn. Wear.</span><b>The Dressing Room</b></h3>
-            <p>A 3D locker room where kits and bats are earned, never bought. Bat skins drawn flat in Figma and wrapped onto a 3D blade, and an unlock you&rsquo;d want to show someone. Built in three days.</p>
+          <div class="sc-art" aria-hidden="true">
+            <img class="ph" src="../../public/img/hitman/screens/dressing-kit.webp" alt="" width="603" height="1311" loading="lazy">
+            <video class="ph" src="../../public/video/hitman/bat-unlock.mp4" poster="../../public/img/hitman/dressing-room/poster-bat-unlock.webp" muted loop playsinline autoplay preload="metadata" width="540" height="1168"></video>
           </div>
-          <div class="st-foot"><span class="tag live"><i></i>Ready</span><span class="read">Read the case study <svg width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true"><path d="M.8 5h15.4M11.7 1.1 16.2 5l-4.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
         </a>
 
-        <article class="st st-ui" data-r>
-          <div class="st-art" aria-hidden="true">
-            <img class="p1 phone" src="../../public/img/hitman/ch5-blast-before.webp" alt="" width="402" height="874" loading="lazy">
-            <img class="p2 phone" src="../../public/img/hitman/ch5-rank-hero.webp" alt="" width="402" height="874" loading="lazy">
+        <article class="sc sc-ui" data-r style="--d:.06s">
+          <div class="sc-txt">
+            <div class="sc-top"><span class="sc-kick">When it got crowded</span><span class="tag"><i></i>Writing now</span></div>
+            <h3>UI revamp</h3>
+            <p>Every feature added a button. How the screens drifted into clutter, and the redraw that pulled them back together.</p>
           </div>
-          <div class="st-txt">
-            <h3><span>When it got crowded</span><b>UI revamp</b></h3>
-            <p>Every feature added a button. How the screens drifted into clutter, and the redraw that pulled them back.</p>
+          <div class="sc-art" aria-hidden="true">
+            <img class="ph" src="../../public/img/hitman/ch5-blast-before.webp" alt="" width="402" height="874" loading="lazy">
+            <img class="ph" src="../../public/img/hitman/screens/endcard.webp" alt="" width="603" height="1311" loading="lazy">
+            <span class="ba l">Before</span><span class="ba r">Now</span>
           </div>
-          <div class="st-foot"><span class="tag"><i></i>Writing now</span></div>
         </article>
 
-        <article class="st st-s10" data-r style="--d:.06s">
-          <div class="st-art fade" aria-hidden="true">
-            <img class="bleed" src="../../public/img/hitman/game/super10.webp" alt="" width="900" height="1125" loading="lazy" style="object-position:50% 30%">
+        <article class="sc sc-s10" data-r>
+          <div class="sc-txt">
+            <div class="sc-top"><span class="sc-kick">Work in progress</span><span class="tag"><i></i>Being built</span></div>
+            <h3>Super10</h3>
+            <p>Ten overs and a field you can see. Demand tested first: 8 of 18 pressed I&rsquo;M EXCITED.</p>
           </div>
-          <div class="st-txt">
-            <h3><span>Work in progress</span><b>Super10</b></h3>
-            <p>A ten-over mode with a field you can see. Demand tested before a line of it was built: 8 of 18 pressed I&rsquo;M EXCITED.</p>
+          <div class="sc-art fade" aria-hidden="true">
+            <img class="bleed" src="../../public/img/hitman/game/super10.webp" alt="" width="900" height="1125" loading="lazy" style="object-position:50% 28%">
           </div>
-          <div class="st-foot"><span class="tag"><i></i>Being built</span></div>
         </article>
 
-        <article class="st st-rig" data-r>
-          <div class="st-art fade" aria-hidden="true">
-            <img class="bleed" src="../../public/img/hitman/game/cover-drive.webp" alt="" width="720" height="1280" loading="lazy" style="object-position:50% 40%">
+        <article class="sc sc-rig" data-r style="--d:.06s">
+          <div class="sc-txt">
+            <div class="sc-top"><span class="sc-kick">Rigs and shots</span><span class="tag"><i></i>Writing now</span></div>
+            <h3>Designing the batter</h3>
+            <p>A batter built in code: his stance, two-handed strokes, and every shot&rsquo;s way back to the guard.</p>
           </div>
-          <div class="st-txt">
-            <h3><span>Rigs and shot variations</span><b>Designing the batter</b></h3>
-            <p>A batter built in code with no character pack: his stance, two-handed strokes, and each shot&rsquo;s way back to the guard.</p>
+          <div class="sc-art" aria-hidden="true">
+            <img class="ph" src="../../public/img/hitman/screens/coachmark.webp" alt="" width="603" height="1311" loading="lazy">
+            <img class="ph" src="../../public/img/hitman/screens/gameplay.webp" alt="" width="603" height="1311" loading="lazy">
           </div>
-          <div class="st-foot"><span class="tag"><i></i>Writing now</span></div>
         </article>
 
-        <article class="st st-tm" data-r style="--d:.06s">
-          <div class="st-art fade" aria-hidden="true">
-            <img class="bleed" src="../../public/img/hitman/game/survive-cover.webp" alt="" width="800" height="800" loading="lazy" style="object-position:50% 60%">
+        <article class="sc sc-tm" data-r style="--d:.12s">
+          <div class="sc-txt">
+            <div class="sc-top"><span class="sc-kick">A Test on a phone</span><span class="tag"><i></i>Writing now</span></div>
+            <h3>Test Marathon</h3>
+            <p>Three batters, no over limit, and bowling that changes every ten overs: a long game for a two-minute habit.</p>
           </div>
-          <div class="st-txt">
-            <h3><span>A Test on a phone</span><b>Test Marathon</b></h3>
-            <p>Three batters and no over limit, with bowling that changes every ten overs. Designing a long game for a two-minute habit.</p>
+          <div class="sc-art fade" aria-hidden="true">
+            <img class="bleed" src="../../public/img/hitman/game/survive-cover.webp" alt="" width="800" height="800" loading="lazy" style="object-position:50% 62%">
           </div>
-          <div class="st-foot"><span class="tag"><i></i>Writing now</span></div>
         </article>
       </div>
     </div>
@@ -158,7 +209,7 @@
           <p class="label" data-r>The build</p>
           <h2 class="h2 hl" id="build-h" data-r style="--d:.06s">Seven weeks, <b>765 commits</b></h2>
         </div>
-        <p class="lede" data-r style="--d:.12s">Commits each week in green, and what reached players underneath. I designed in Figma, directed Claude Code, and tested every change on my own phone.</p>
+        <p class="lede" data-r style="--d:.12s">Commits each week, and what reached players underneath. I designed in Figma, directed Claude Code, and tested every change on my own phone.</p>
       </div>
       <div class="weeks" data-r role="img" aria-label="Commits per week: 80, 138, 68, 96, 148, 155, 72, and 8 so far this week">
         <div><b>80</b><i style="--v:80"></i></div>
@@ -171,7 +222,7 @@
         <div><b>8</b><i style="--v:8"></i></div>
       </div>
       <div class="rail" data-r>
-        <div><time datetime="2026-09-07">7 Sep</time><ul><li>Five overs in a browser, swipe batting, and a public link &mdash; all on day one</li></ul></div>
+        <div><time datetime="2026-09-07">7 Sep</time><ul><li>Five overs in a browser, swipe batting, and a public link, all on day one</li></ul></div>
         <div><time datetime="2026-09-14">14 Sep</time><ul><li>Analytics go in</li><li>Career boards and My Stats</li></ul></div>
         <div><time datetime="2026-09-21">21 Sep</time><ul><li>The career key</li><li>Rivals: one link, one match</li></ul></div>
         <div><time datetime="2026-09-28">28 Sep</time><ul><li>Test Marathon starts</li></ul></div>
@@ -191,26 +242,29 @@
         <h2 class="hl">Five overs. <b>Two minutes.</b></h2>
         <p>It&rsquo;s live, it&rsquo;s free, and it&rsquo;s best on a phone.</p>
         <div class="row">
-          <a class="btn solid" href="https://hitmancricket.in/" target="_blank" rel="noopener">Play Hitman Cricket</a>
-          <a class="btn" href="../../prototype/#sx-work">All my work</a>
+          <a class="btn" href="https://hitmancricket.in/" target="_blank" rel="noopener">Play Hitman Cricket
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="link" href="../../prototype/#sx-work">All my work</a>
         </div>
+        <p class="foot-note">Numbers from GoatCounter, 16 Sep &ndash; 27 Oct 2026. It counts an event once per player per day, so most figures are player-days; the player count is exact.</p>
       </div>
-      <div class="foot-mascot" aria-hidden="true">
-        <img class="m" src="../../public/img/mascot_say_hi.png" alt="" loading="lazy">
-        <img class="b" src="../../public/img/master_block.svg" alt="" loading="lazy">
+      <div class="foot-play" aria-hidden="true">
+        <div class="ph"><img src="../../public/img/hitman/screens/gameplay-2.webp" alt="" width="603" height="1311" loading="lazy"></div>
+        <div class="ph"><img src="../../public/img/hitman/screens/top-crown.webp" alt="" width="603" height="1311" loading="lazy"></div>
       </div>
     </div>
-    <p class="foot-note">Numbers from GoatCounter, 16 Sep &ndash; 27 Oct 2026. It counts an event once per player per day, so most figures are player-days; the player count is exact.</p>
   </div>
 </footer>
 
 <script>
 (() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const els = document.querySelectorAll('[data-r]');
-  if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('in')); return; }
-  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
-  els.forEach(e => io.observe(e));
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.querySelectorAll('video').forEach(v => { v.removeAttribute('autoplay'); v.pause(); });
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+    els.forEach(e => io.observe(e));
+  } else els.forEach(e => e.classList.add('in'));
+  if (reduce) document.querySelectorAll('video').forEach(v => { v.removeAttribute('autoplay'); v.pause(); });
 })();
 </script>
 </body>
