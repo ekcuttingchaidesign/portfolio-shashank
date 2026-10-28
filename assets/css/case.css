@@ -152,11 +152,6 @@ strong { color: var(--ink); font-weight: 500; }
 
 .hero-art { position: relative; display: grid; justify-items: center; }
 .hero-art .phone { width: min(300px, 70vw); transform: rotate(3deg); }
-.hero-title {
-  position: absolute; z-index: 2; width: min(300px, 74vw);
-  left: 50%; top: 9%; transform: translateX(-50%) rotate(3deg);
-  pointer-events: none;
-}
 
 /* ---------- the phone ----------
    Every screen sits in the same frame so a row of them reads as one product,
