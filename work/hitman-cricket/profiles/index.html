@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>User profiles · Hitman Cricket · Shashank</title>
+<meta name="description" content="Player profiles and a chase mode for Hitman Cricket: every name on the leaderboard became someone to beat. Designed on 18 October, live on 19 October, measured for nine days.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Every name on the board is someone to beat — a Hitman Cricket case study">
+<meta property="og:description" content="31% of board opens led to a profile, 30% of profiles led to a chase, and nobody has won one yet.">
+<meta property="og:image" content="https://ekcuttingchaidesign.github.io/portfolio-shashank/public/img/hitman/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Light.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Black.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Jaro-latin.woff2" crossorigin>
+<link rel="stylesheet" href="../../../assets/css/case.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the case study</a>
+
+<nav class="nav" aria-label="Site">
+  <a class="me" href="../../../prototype/" aria-label="Shashank — home"><img src="../../../public/img/profile.jpeg" alt="" width="64" height="64"></a>
+  <a class="on" href="../../../prototype/#sx-work" aria-current="page">Work</a>
+  <a href="../../../prototype/#sx-exp">Experience</a>
+  <a class="hide-xs" href="../../../prototype/#s-exit">Outside work</a>
+  <a href="../../../prototype/#sx-contact">Contact</a>
+</nav>
+
+<header class="pf-hero">
+  <div class="wrap pf-grid">
+    <div>
+      <a class="crumb" href="../" data-r>
+        <svg width="16" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true"><path d="M17.2 5H1.8M6.3 1.1 1.8 5l4.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Hitman Cricket
+      </a>
+      <h1 class="hl" data-r style="--d:.06s">Every name on the board is <b>someone to beat</b></h1>
+      <p class="lede" data-r style="--d:.12s">Player profiles, a chase mode and a reason to come back, for a phone cricket game. Designed on 18 October, live on 19 October, and measured for nine days. Players used it. Nobody has won a chase yet.</p>
+      <dl class="meta" data-r style="--d:.18s">
+        <div><dt>My role</dt><dd>Product designer: framing, scope, flows, the Figma design, motion and copy</dd></div>
+        <div><dt>Built with</dt><dd>Claude Code, inside the game&rsquo;s repository</dd></div>
+      </dl>
+      <dl class="facts" data-r style="--d:.22s">
+        <div><dt>56</dt><dd>profiles opened in 9 days</dd></div>
+        <div><dt>17</dt><dd>chases started</dd></div>
+        <div><dt>0</dt><dd>chases won</dd></div>
+      </dl>
+    </div>
+    <ol class="pf-flow" data-r style="--d:.1s" aria-label="The flow: the board, a profile, the chase">
+      <li><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-a1-board.webp" alt="The Blast leaderboard: a podium of three and the list below, every name a tap target" width="402" height="874" loading="lazy"></div><span>The board</span></li>
+      <li><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-a2-star.webp" alt="Kabir&rsquo;s profile: a Star, his stats, and a key reading CHASE KABIR&rsquo;S 187" width="402" height="874" loading="lazy"></div><span>Their profile</span></li>
+      <li><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-b1-intro.webp" alt="The chase intro: 187 to beat, you versus Kabir, LET&rsquo;S BAT" width="402" height="874" loading="lazy"></div><span>The chase</span></li>
+    </ol>
+  </div>
+</header>
+
+<nav class="side" aria-label="Sections of this case study">
+  <div class="side-in">
+    <p class="side-t">User profiles</p>
+    <ol>
+      <li><a href="#problem"><i></i><span>The problem</span></a></li>
+      <li><a href="#how"><i></i><span>How I worked</span></a></li>
+      <li><a href="#walls"><i></i><span>Constraints</span></a></li>
+      <li><a href="#wickets"><i></i><span>Ten cut ideas</span></a></li>
+      <li><a href="#wireframes"><i></i><span>Wireframes</span></a></li>
+      <li><a href="#figma"><i></i><span>Into Figma</span></a></li>
+      <li><a href="#cost"><i></i><span>Cost</span></a></li>
+      <li><a href="#results"><i></i><span>Results</span></a></li>
+      <li><a href="#learned"><i></i><span>What I learned</span></a></li>
+    </ol>
+  </div>
+</nav>
+
+<main id="main">
+
+  <section class="sec" id="problem" aria-labelledby="problem-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="problem-h" data-r>Fifty strangers don&rsquo;t make you <b>bat again</b></h2>
+        <p class="lede" data-r style="--d:.08s">Hitman Cricket keeps a top-50 board for every mode and a career for every named player. The boards worked as a scoreboard and failed as a reason to play. A name on a board was text. You couldn&rsquo;t learn anything about the person, compare yourself to them, or do anything about them.</p>
+      </div>
+      <div class="hyp">
+        <p class="hyp-t" data-r>Three hypotheses, because we hadn&rsquo;t measured them</p>
+        <ol>
+          <li data-r>The boards had no next step. You looked at them and left.</li>
+          <li data-r style="--d:.06s">Players drifted after a few innings. Nothing told them something had happened while they were away.</li>
+          <li data-r style="--d:.12s">&ldquo;Get on the board&rdquo; is a weak goal. &ldquo;Beat Kabir&rsquo;s 187&rdquo; has a face on it.</li>
+        </ol>
+      </div>
+      <blockquote class="quote" data-r>
+        <p>&ldquo;What if we can build a profile card for each player. You tap anyone on the leaderboard, you see their profile, their stats and all. You can challenge them for a Rival Match.&rdquo;</p>
+        <cite>My first message to Claude</cite>
+      </blockquote>
+    </div>
+  </section>
+
+  <section class="sec tint" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="how-h" data-r>Discuss first, <b>then draw</b></h2>
+        <p class="lede" data-r style="--d:.08s">I worked with Claude Code inside the game&rsquo;s repository, which changed what a brainstorm could be. When I asked what a profile could show, the answer came from the data the game actually stores. Ideas arrived already priced and already possible. Nothing was drawn until I&rsquo;d made the call.</p>
+      </div>
+      <ol class="steps">
+        <li data-r><b>Brainstorm against the code</b><span>What exists, what each idea needs, what it would break.</span></li>
+        <li data-r style="--d:.04s"><b>Price it</b><span>I pasted our database usage screen and asked whether this could stay free.</span></li>
+        <li data-r style="--d:.08s"><b>Wireframe in low fidelity</b><span>Annotated with numbered pins and a motion spec, then critique and cut. Four rounds.</span></li>
+        <li data-r style="--d:.12s"><b>Design it in Figma</b><span>On the game&rsquo;s kit: section 14, four lanes, with the motion notes carried over.</span></li>
+        <li data-r style="--d:.16s"><b>Build, play it on a preview, fix</b><span>And count every step on GoatCounter from the first day.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec" id="walls" aria-labelledby="walls-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="walls-h" data-r>The walls I <b>designed against</b></h2>
+      </div>
+      <div class="walls">
+        <div data-r><h3><span class="when">Cost.</span> A free database tier</h3><p>The game runs on Upstash Redis. When we started it had used 143K of its 500K free monthly commands, about 12K a day. Every feature had to be designed in commands, the way you&rsquo;d design in pixels.</p></div>
+        <div data-r style="--d:.06s"><h3><span class="when">Trust.</span> Security came first</h3><p>While mapping what a profile could show, Claude noticed that every board row was sending the internal player id the server trusts as proof of who is writing. The night before profiles went live, the boards switched to a one-way handle. Profiles open by that handle.</p></div>
+        <div data-r><h3><span class="when">Play.</span> The scoreboard is sacred</h3><p>The in-game scoreboard stays exactly as it is: same fields, layout, look and motion. Anything a chase needs lives beside it, never in it.</p></div>
+        <div data-r style="--d:.06s"><h3><span class="when">Audience.</span> Many players are young</h3><p>Anything a player writes for others to read must never be usable as a way to contact someone.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="wickets" aria-labelledby="wickets-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="wickets-h" data-r>Ten ideas that <b>didn&rsquo;t survive</b></h2>
+        <p class="lede" data-r style="--d:.08s">A cricket scorecard records every wicket in the order it fell. This is the same record for the ideas, in the order I cut them, with what replaced each one.</p>
+      </div>
+      <nav class="fow" data-r aria-label="Fall of wickets">
+        <p class="fow-t">Fall of wickets</p>
+        <ol>
+          <li class="g1"><a href="#w1">1</a></li><li class="g1"><a href="#w2">2</a></li><li class="g1"><a href="#w3">3</a></li><li class="g1"><a href="#w4">4</a></li><li class="g1"><a href="#w5">5</a></li><li class="g1"><a href="#w6">6</a></li>
+          <li class="g2"><a href="#w7">7</a></li><li class="g2"><a href="#w8">8</a></li>
+          <li class="g3"><a href="#w9">9</a></li><li class="g3"><a href="#w10">10</a></li>
+        </ol>
+        <div class="fow-k"><span class="g1">Six in the wireframes</span><span class="g2">Two in Figma</span><span class="g3">Two in the build</span></div>
+      </nav>
+<h3 class="stage" id="stage-wf" data-r>In the wireframes <span>18 Oct</span></h3>
+        <article class="wkt" id="w1" data-r>
+          <div class="wkt-n"><b>1</b><span>Out first</span></div>
+          <div class="wkt-b">
+            <h4>Challenge them to a Rival Match</h4>
+            <p>My original idea. A Rival Match is played by link, so &ldquo;challenge&rdquo; on a stranger&rsquo;s profile meant inventing an inbox, spam limits, a decline flow and an opt-out. And most of the fifty players on any board aren&rsquo;t playing on any given day.</p>
+            
+            <div class="verdict"><div class="o"><b>Why it went</b>It depends on the other player turning up, and needs an inbox before it works at all.</div><div class="k"><b>What replaced it</b><strong>Chase their best.</strong> A normal innings with their best as the target. Works against every row on day one and costs nothing on the server.</div></div>
+          </div>
+        </article>
+        <article class="wkt" id="w2" data-r>
+          <div class="wkt-n"><b>2</b><span>Out on a detail</span></div>
+          <div class="wkt-b">
+            <h4>&ldquo;12 runs to pass Dhruv&rdquo;</h4>
+            <p>The innings boards rank your best single innings. If his best is 187 and yours is 175, 12 more runs doesn&rsquo;t pass him. You need one innings of 188. Only the career ladders add up.</p>
+            
+            <div class="verdict"><div class="o"><b>Why it went</b>The copy promised arithmetic the board doesn&rsquo;t do.</div><div class="k"><b>What replaced it</b>&ldquo;Beat 187&rdquo; for a best innings, which also covers ties the tiebreak decides. &ldquo;12 runs to pass&rdquo; only for a career total.</div></div>
+          </div>
+        </article>
+        <article class="wkt" id="w3" data-r>
+          <div class="wkt-n"><b>3</b><span>Drawn, then cut</span></div>
+          <div class="wkt-b">
+            <h4>The nemesis on the cover</h4>
+            <p>The first wireframes put your nemesis on the cover: a line in the board widget and, on a return visit, an orange &ldquo;Meera passed you&rdquo; panel with its own key. I cut it once I saw it drawn. The cover is the front door to every mode, and a rival&rsquo;s face on it every visit turns the welcome into a nag.</p>
+            <div class="wkt-pics"><figure><div class="ph fig"><img src="../../../public/img/hitman/profiles/w-x-c1-cover-nemesis.webp" alt="Rejected wireframe: the cover with a line reading 12 runs to pass Meera inside the board widget" width="720" height="1560" loading="lazy"></div><figcaption><span class="pill before">Cut &middot; nemesis line</span></figcaption></figure><figure><div class="ph fig"><img src="../../../public/img/hitman/profiles/w-x-c2-cover-passed.webp" alt="Rejected wireframe: the cover with an orange panel reading Meera passed you, with a Win it back key" width="720" height="1560" loading="lazy"></div><figcaption><span class="pill before">Cut &middot; passed-you panel</span></figcaption></figure></div>
+            <div class="verdict"><div class="o"><b>Why it went</b>A rival&rsquo;s face and a second orange key competed with PLAY.</div><div class="k"><b>What replaced it</b>Activity moved to the player&rsquo;s own profile, where looking at your rivals is a choice.</div></div>
+          </div>
+        </article>
+        <article class="wkt" id="w4" data-r>
+          <div class="wkt-n"><b>4</b><span>Out on privacy</span></div>
+          <div class="wkt-b">
+            <h4>&ldquo;Kabir and Meera viewed your profile&rdquo;</h4>
+            <p>Named visitors are the strongest curiosity hook a profile can have, and they cost the most trust. If looking tells them you looked, people stop looking, and the profiles stop doing their job.</p>
+            
+            <div class="verdict"><div class="o"><b>Why it went</b>It punishes the behaviour the feature exists to encourage.</div><div class="k"><b>What replaced it</b>A rule: <strong>looking is private, acting is public.</strong> Views are a count. A chase or a pass carries your name, like a score on a board.</div></div>
+          </div>
+        </article>
+        <article class="wkt" id="w5" data-r>
+          <div class="wkt-n"><b>5</b><span>Out to reuse</span></div>
+          <div class="wkt-b">
+            <h4>A new widget for activity</h4>
+            <p>Something still had to say &ldquo;something happened&rdquo; from the cover. The cover already had an activity widget turning over your best, the leader and a big recent score, so new activity became another line in it.</p>
+            <div class="wkt-pics"><figure><div class="ph fig"><img src="../../../public/img/hitman/profiles/w-c1-activity.webp" alt="Wireframe: the cover widget&rsquo;s line reading Kabir chased your 187, 6 short" width="720" height="1560" loading="lazy"></div><figcaption><span class="pill proto">Wireframe</span></figcaption></figure><figure><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-c1-cover.webp" alt="Figma: the cover with a Rank down line in the existing widget" width="402" height="874" loading="lazy"></div><figcaption><span class="pill after">Figma &middot; as shipped</span></figcaption></figure></div>
+            <div class="verdict"><div class="o"><b>Why it went</b>A second container for the same kind of news makes the cover louder and teaches nothing.</div><div class="k"><b>What replaced it</b>New line types in the existing widget, new ones first on a visit, each opening My profile.</div></div>
+          </div>
+        </article>
+        <article class="wkt" id="w6" data-r>
+          <div class="wkt-n"><b>6</b><span>Out in review</span></div>
+          <div class="wkt-b">
+            <h4>CHASE BACK on every event</h4>
+            <p>If Meera chased your 187 and fell 6 short, you&rsquo;re still ahead of her. A key to chase her lower score means nothing.</p>
+            
+            <div class="verdict"><div class="o"><b>Why it went</b>A key on every row means the key means nothing.</div><div class="k"><b>What replaced it</b>WIN IT BACK only where they&rsquo;re ahead of you. A row you&rsquo;ve settled dims and says &ldquo;You won it back&rdquo;.</div></div>
+          </div>
+        </article>
+<h3 class="stage" data-r>In Figma <span>18&ndash;19 Oct &middot; section 14</span></h3>
+        <article class="wkt" id="w7" data-r>
+          <div class="wkt-n"><b>7</b><span>Four tries</span></div>
+          <div class="wkt-b">
+            <h4>Career cards, poster tabs, segmented tabs</h4>
+            <p>My profile needed a way to switch between the three games. I tried three options on one board first: <strong>career cards</strong> (a small card per game with your rung and figure), <strong>poster tabs</strong> (the mode posters cut down), and <strong>quiet tabs</strong> (words and a small badge, the pick underlined in its colour). Then segmented tabs as a fourth.</p>
+            <div class="wkt-pics"><figure><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-c2c-segmented.webp" alt="Figma: My profile with segmented mode tabs" width="402" height="934" loading="lazy"></div><figcaption><span class="pill before">Segmented</span></figcaption></figure><figure><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-c2e-poster.webp" alt="Figma: My profile with poster tabs showing a picture for each mode" width="402" height="960" loading="lazy"></div><figcaption><span class="pill before">Poster tabs</span></figcaption></figure><figure><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-c2-quiet.webp" alt="Figma: My profile with quiet tabs, the Blast underlined" width="318" height="733" loading="lazy"></div><figcaption><span class="pill after">Quiet tabs &middot; chosen</span></figcaption></figure></div>
+            <div class="verdict"><div class="o"><b>Why it went</b>Under a hero already themed to your rung, posters and cards were a second loud thing. The segmented control looked like a settings screen.</div><div class="k"><b>What replaced it</b>Quiet tabs: the calmest, and they keep the eye on the face. They say least about the other two games, which is fine on a page about you.</div></div>
+          </div>
+        </article>
+        <article class="wkt" id="w8" data-r>
+          <div class="wkt-n"><b>8</b><span>Out on tone</span></div>
+          <div class="wkt-b">
+            <h4>&ldquo;Meera passed you&rdquo; as the headline</h4>
+            <p>The wireframes led My profile with who took your place. In Figma that read as a grudge with a name on it. The headline became <strong>Rank down</strong>: about you, the line your place fell across, and what happened, without the name. Who did it stays one tap down in the activity sheet, with WIN IT BACK. It stands for two days at most, and playing the WIN IT BACK innings takes it down sooner.</p>
+            
+            <div class="verdict"><div class="o"><b>Why it went</b>Leading with another player&rsquo;s name made the first thing you see about someone else.</div><div class="k"><b>What replaced it</b>&ldquo;Rank down &middot; You&rsquo;re #5 now &middot; Someone beat your 187 in the Blast.&rdquo;</div></div>
+          </div>
+        </article>
+<h3 class="stage" data-r>In the build <span>19 Oct &middot; first play on the preview</span></h3>
+        <article class="wkt" id="w9" data-r>
+          <div class="wkt-n"><b>9</b><span>Out on the rules</span></div>
+          <div class="wkt-b">
+            <h4>Chasing their runs in Test Survival</h4>
+            <p>Survival isn&rsquo;t ranked on runs. A win ranks on fewest balls, a draw on most runs, a loss on how long it lasted. Chasing someone&rsquo;s runs there chased the wrong thing. The chase follows what they did: win faster than their win, outscore their draw, or outlast their loss.</p>
+            
+            <div class="verdict"><div class="o"><b>Why it went</b>The target didn&rsquo;t match the board it came from.</div><div class="k"><b>What replaced it</b>OUTLAST KABIR, &ldquo;41 balls to outlast&rdquo;, &ldquo;Survive 13 more&rdquo;, &ldquo;You outlasted Kabir by 6 balls&rdquo;.</div></div>
+          </div>
+        </article>
+        <article class="wkt" id="w10" data-r>
+          <div class="wkt-n"><b>10</b><span>Out on the phone</span></div>
+          <div class="wkt-b">
+            <h4>The chip that stayed, and names that didn&rsquo;t fit</h4>
+            <p>The wireframe kept the target chip on screen after you&rsquo;d passed them, reading &ldquo;Passed Kabir&rdquo;. In play it was clutter once the job was done, so the chip now leaves and the passed moment takes its place. And a name runs to fourteen letters, which ran CHASE &hellip;&rsquo;S 216 off the key.</p>
+            
+            <div class="verdict"><div class="o"><b>Why it went</b>Both only showed up on a real phone, with real names.</div><div class="k"><b>What replaced it</b>The chip goes once passed. Every line that names them has a short form (CHASE THEIR 216), swapped in only where the name doesn&rsquo;t fit.</div></div>
+          </div>
+        </article>
+    </div>
+  </section>
+
+  <section class="sec tint" id="wireframes" aria-labelledby="wf-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="wf-h" data-r>Four flows, <b>fifteen frames</b></h2>
+        <p class="lede" data-r style="--d:.08s">Low fidelity on purpose: layout, content, order and behaviour. Blue pins number each requirement, and every frame that moves carries a motion spec.</p>
+      </div>
+      <h3 class="sub hl" data-r style="margin-top:0">A &middot; See <b>another player</b></h3>
+      <div class="wfs">
+        <figure class="wf" data-r style="--d:0.00s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-a1-board.webp" alt="Leaderboard wireframe with a pressed row, a dashed guest row and your own row in the dock" width="720" height="1560" loading="lazy"></div><figcaption><b>A1 &middot; Board</b>Every named row is one tap target.</figcaption></figure>
+        <figure class="wf" data-r style="--d:0.05s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-a2-profile.webp" alt="Profile sheet wireframe with a CHASE KABIR&rsquo;S 187 key" width="720" height="1560" loading="lazy"></div><figcaption><b>A2 &middot; Profile</b>One orange key: the chase.</figcaption></figure>
+        <figure class="wf" data-r style="--d:0.10s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-a3-marathon.webp" alt="Profile sheet on the Marathon tab with two targets" width="720" height="1560" loading="lazy"></div><figcaption><b>A3 &middot; Marathon</b>The team total, or their best batter.</figcaption></figure>
+      </div>
+      <h3 class="sub hl" data-r>B &middot; Chase <b>their best</b></h3>
+      <div class="wfs">
+        <figure class="wf" data-r style="--d:0.00s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-b1-intro.webp" alt="Chase intro wireframe: 187 to beat off 30 balls" width="720" height="1560" loading="lazy"></div><figcaption><b>B1 &middot; Intro</b>The target and the place you&rsquo;d take.</figcaption></figure>
+        <figure class="wf" data-r style="--d:0.05s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-b2-chip.webp" alt="In-play wireframe: the scoreboard marked unchanged, a chip below it" width="720" height="1560" loading="lazy"></div><figcaption><b>B2 &middot; Chip</b>Separate from the untouched scoreboard.</figcaption></figure>
+        <figure class="wf" data-r style="--d:0.10s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-b4-beat.webp" alt="End card wireframe: you beat Kabir by 9" width="720" height="1560" loading="lazy"></div><figcaption><b>B4 &middot; Beat them</b>The place, then the next name.</figcaption></figure>
+        <figure class="wf" data-r style="--d:0.15s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-b5-short.webp" alt="End card wireframe: 23 short of Kabir" width="720" height="1560" loading="lazy"></div><figcaption><b>B5 &middot; Fell short</b>No red. CHASE AGAIN.</figcaption></figure>
+      </div>
+      <h3 class="sub hl" data-r>C &middot; Your profile activity, <b>D &middot; Bio</b></h3>
+      <div class="wfs">
+        <figure class="wf" data-r style="--d:0.00s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-c2-mystats.webp" alt="My Stats wireframe with a Your profile card" width="720" height="1560" loading="lazy"></div><figcaption><b>C2 &middot; My Stats</b>Views as a count, events by name.</figcaption></figure>
+        <figure class="wf" data-r style="--d:0.05s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-c4-list.webp" alt="Who chased you sheet wireframe" width="720" height="1560" loading="lazy"></div><figcaption><b>C4 &middot; Who chased you</b>WIN IT BACK only where they&rsquo;re ahead.</figcaption></figure>
+        <figure class="wf" data-r style="--d:0.10s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-c3-next.webp" alt="End card wireframe: who you passed, who&rsquo;s next" width="720" height="1560" loading="lazy"></div><figcaption><b>C3 &middot; Next to beat</b>Who you passed, and who&rsquo;s next.</figcaption></figure>
+        <figure class="wf" data-r style="--d:0.15s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-d1-bio.webp" alt="Your details wireframe with a bio field and 39 of 80 counter" width="720" height="1560" loading="lazy"></div><figcaption><b>D1 &middot; Bio</b>Optional, 80 characters.</figcaption></figure>
+      </div>
+      <h3 class="sub hl" data-r>States and <b>motion specs</b></h3>
+      <div class="wfs wide3">
+        <figure class="wf wide" data-r style="--d:0.00s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-a4-states.webp" alt="Loading, empty and offline states of the profile sheet" width="1600" height="1342" loading="lazy"></div><figcaption><b>A4 &middot; States</b>Offline keeps CHASE: the target came from the row.</figcaption></figure>
+        <figure class="wf wide" data-r style="--d:0.05s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-b3-passed-board.webp" alt="Passed moment wireframe with its notes and motion spec" width="1600" height="2029" loading="lazy"></div><figcaption><b>B3 &middot; Passed</b>With its notes and motion spec.</figcaption></figure>
+        <figure class="wf wide" data-r style="--d:0.10s"><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-d2-states.webp" alt="Bio states: empty, near the limit, refused" width="1600" height="1342" loading="lazy"></div><figcaption><b>D2 &middot; States</b>A refusal that never shakes.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="figma" aria-labelledby="figma-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="figma-h" data-r>The same flows, <b>on the game&rsquo;s kit</b></h2>
+        <p class="lede" data-r style="--d:.08s">Section 14 of the Figma file, &ldquo;Player profiles&rdquo;. The structure held from the wireframes; what changed was material and voice.</p>
+      </div>
+      <div class="versus" data-r>
+        <figure><div class="wf-img"><img src="../../../public/img/hitman/profiles/w-a2-profile.webp" alt="Wireframe of the profile sheet" width="720" height="1560" loading="lazy"></div><figcaption><b>Wireframe</b>Layout and behaviour.</figcaption></figure>
+        <svg class="bt-arrow" width="56" height="14" viewBox="0 0 56 14" fill="none" aria-hidden="true"><path d="M1 7h52M47 1.5 53 7l-6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <figure><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-a2-star.webp" alt="Figma profile sheet for Kabir, a Star, with stats and a CHASE KABIR&rsquo;S 187 key" width="402" height="874" loading="lazy"></div><figcaption><b>Figma</b>Same order. The face became the hero, the stats tiles mark the target.</figcaption></figure>
+      </div>
+
+      <div class="tiers">
+        <div class="tiers-h">
+          <h3 class="sub hl" data-r style="margin:0">One sheet, <b>four materials</b></h3>
+          <p data-r>The profile&rsquo;s hero takes the metal of the player&rsquo;s rung, so a debutant and a Hitman look different before you read a number.</p>
+        </div>
+        <div class="phones c4">
+          <figure data-r style="--d:0.00s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-a2a-debutant.webp" alt="Profile of Arjun, a Debutant, on a navy ground" width="402" height="874" loading="lazy"></div><figcaption><b>Debutant</b>Navy</figcaption></figure>
+          <figure data-r style="--d:0.05s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-a2b-emerging.webp" alt="Profile of Meera, Emerging, on a bronze ground" width="402" height="874" loading="lazy"></div><figcaption><b>Emerging</b>Brushed bronze</figcaption></figure>
+          <figure data-r style="--d:0.10s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-a2-star.webp" alt="Profile of Kabir, a Star, on a black and chrome ground" width="402" height="874" loading="lazy"></div><figcaption><b>Star</b>Black with chrome</figcaption></figure>
+          <figure data-r style="--d:0.15s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-a2c-hitman.webp" alt="Profile of Riya, a Hitman, on a black and gold ground" width="402" height="874" loading="lazy"></div><figcaption><b>Hitman</b>Black and gold</figcaption></figure>
+        </div>
+      </div>
+
+      <h3 class="sub hl" data-r>The <b>chase</b></h3>
+      <div class="phones c4">
+        <figure data-r style="--d:0.00s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-b2-chip.webp" alt="Figma in play: the scoreboard as it was, and a chip below reading need 65 off 18" width="402" height="874" loading="lazy"></div><figcaption><b>B2 &middot; Chip</b>The scoreboard untouched.</figcaption></figure>
+        <figure data-r style="--d:0.05s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-b3-surpassed.webp" alt="Figma passed moment: SURPASSED KABIR, you number 4, Kabir number 5" width="402" height="874" loading="lazy"></div><figcaption><b>B3 &middot; Surpassed</b>The one big beat, on the dead ball.</figcaption></figure>
+        <figure data-r style="--d:0.10s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-b4-beat.webp" alt="Figma end card: you beat Kabir by 9, now number 4" width="402" height="874" loading="lazy"></div><figcaption><b>B4 &middot; Beat them</b>The chase folds into the place card.</figcaption></figure>
+        <figure data-r style="--d:0.15s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-b5-short.webp" alt="Figma end card: 23 short of Kabir, CHASE 187 AGAIN" width="402" height="874" loading="lazy"></div><figcaption><b>B5 &middot; Fell short</b>A target, not a defeat.</figcaption></figure>
+      </div>
+
+      <h3 class="sub hl" data-r>My profile <b>and the bio</b></h3>
+      <div class="phones c4">
+        <figure data-r style="--d:0.00s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-c2-quiet.webp" alt="Figma My profile with a Rank down card and quiet tabs" width="318" height="733" loading="lazy"></div><figcaption><b>C2 &middot; My profile</b>Rank down leads.</figcaption></figure>
+        <figure data-r style="--d:0.05s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-c4-list.webp" alt="Figma activity sheet: 14 views, who chased you, WIN IT BACK" width="402" height="874" loading="lazy"></div><figcaption><b>C4 &middot; Your profile</b>Who looked stays private.</figcaption></figure>
+        <figure data-r style="--d:0.10s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-c3-next.webp" alt="Figma end card: you are number 6, you surpassed Zoya, Arnav and 1 other, next Meera" width="402" height="874" loading="lazy"></div><figcaption><b>C3 &middot; Next to beat</b>Where you are, what changed.</figcaption></figure>
+        <figure data-r style="--d:0.15s"><div class="ph fig"><img src="../../../public/img/hitman/profiles/f-d1-bio.webp" alt="Figma Your details with a bio field, 39 of 80" width="402" height="874" loading="lazy"></div><figcaption><b>D1 &middot; Bio</b>Under the name, 80 characters.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="cost" aria-labelledby="cost-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="cost-h" data-r>Designed to <b>stay free</b></h2>
+        <p class="lede" data-r style="--d:.08s">The free tier allows 500K Redis commands a month, and we were on course for about 310K in October. A profile that fetched everything on every tap would have spent a third of that at a thousand opens a day, so I used what the phone already had.</p>
+      </div>
+      <div class="cost" data-r>
+        <table>
+          <thead><tr><th scope="col">Part</th><th scope="col">Extra commands</th><th scope="col">Why</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Chase their best</th><td class="n z">0</td><td>The target is in the board row already on the phone.</td></tr>
+            <tr><th scope="row">You vs them</th><td class="n z">0</td><td>Kept on your own phone.</td></tr>
+            <tr><th scope="row">Opening a profile</th><td class="n">~6</td><td>One round trip, cached at the edge for a minute.</td></tr>
+            <tr><th scope="row">Bio on a profile</th><td class="n">+1</td><td>In the same round trip.</td></tr>
+            <tr><th scope="row">A view counted</th><td class="n">~2</td><td>Once per viewer per profile per day.</td></tr>
+            <tr><th scope="row">A chase result sent</th><td class="n">~2</td><td>The last 10 events per player.</td></tr>
+          </tbody>
+        </table>
+        <p class="cap">At 56 profile opens in nine days, profiles have used a few hundred commands so far.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="results" aria-labelledby="results-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="results-h" data-r>Nine days <b>in</b></h2>
+        <p class="lede" data-r style="--d:.08s">Live from 16:01 IST on 19 October; every number is from GoatCounter&rsquo;s export at 18:08 IST on 28 October. The base is small: about 40 visits and 35 innings started a day. I set the measures before launch, so they couldn&rsquo;t be chosen afterwards.</p>
+      </div>
+      <div class="panel" data-r>
+        <h3>From a board to a chase, 19&ndash;28 Oct</h3>
+        <p class="ph3">A third looked. A third of those chased. <b>Nobody won.</b></p>
+        <ol class="funnel">
+          <li style="--w:100%"><span class="nm">Board opened</span><span class="tr"><i></i></span><span class="v">181</span></li>
+          <li style="--w:30.9%"><span class="nm">Profile opened</span><span class="tr"><i></i></span><span class="v">56<small>31% of boards</small></span></li>
+          <li style="--w:9.4%"><span class="nm">Chase started</span><span class="tr"><i></i></span><span class="v">17<small>30% of profiles</small></span></li>
+          <li style="--w:8.3%"><span class="nm">Chase finished</span><span class="tr"><i></i></span><span class="v">15<small>88% of chases</small></span></li>
+          <li class="zero"><span class="nm">Chase won</span><span class="tr"><i></i></span><span class="v">0<small>0 of 15</small></span></li>
+        </ol>
+        <p class="cap">Profile opens by entry point: 35 from the podium (the top three), 21 from a list row, none from the folded chips. No profile failed to load. One player backed out at the chase intro.</p>
+      </div>
+      <div class="r2" style="margin-top:14px">
+        <div class="panel" data-r>
+          <h3>Per day, IST</h3>
+          <p class="ph3">Interest peaked <b>on day two</b></p>
+          <div class="legend"><span><i style="background:var(--ch-cool)"></i>Profiles opened</span><span><i style="background:var(--ch-after)"></i>Chases started</span></div>
+          <div class="daily" role="img" aria-label="Daily profile opens and chases started, 19 to 28 October: 5 and 2, 14 and 3, 9 and 3, 8 and 1, 3 and 1, 5 and 2, 4 and 2, 6 and 2, 2 and 1, 0 and 0"><div class="dd" title="19 Oct: 5 profiles, 2 chases"><i class="a" style="--h:31.2%"></i><i class="c" style="--h:12.5%"></i><span>19</span></div><div class="dd" title="20 Oct: 14 profiles, 3 chases"><i class="a" style="--h:87.5%"></i><i class="c" style="--h:18.8%"></i><span>20</span></div><div class="dd" title="21 Oct: 9 profiles, 3 chases"><i class="a" style="--h:56.2%"></i><i class="c" style="--h:18.8%"></i><span>21</span></div><div class="dd" title="22 Oct: 8 profiles, 1 chases"><i class="a" style="--h:50.0%"></i><i class="c" style="--h:6.2%"></i><span>22</span></div><div class="dd" title="23 Oct: 3 profiles, 1 chases"><i class="a" style="--h:18.8%"></i><i class="c" style="--h:6.2%"></i><span>23</span></div><div class="dd" title="24 Oct: 5 profiles, 2 chases"><i class="a" style="--h:31.2%"></i><i class="c" style="--h:12.5%"></i><span>24</span></div><div class="dd" title="25 Oct: 4 profiles, 2 chases"><i class="a" style="--h:25.0%"></i><i class="c" style="--h:12.5%"></i><span>25</span></div><div class="dd" title="26 Oct: 6 profiles, 2 chases"><i class="a" style="--h:37.5%"></i><i class="c" style="--h:12.5%"></i><span>26</span></div><div class="dd" title="27 Oct: 2 profiles, 1 chases"><i class="a" style="--h:12.5%"></i><i class="c" style="--h:6.2%"></i><span>27</span></div><div class="dd" title="28 Oct: 0 profiles, 0 chases"><i class="a" style="--h:0.0%"></i><i class="c" style="--h:0.0%"></i><span>28</span></div></div>
+          <p class="cap">14 profiles opened on 20 October, then 2 to 9 a day. Chases held steadier, at 1 to 3 a day.</p>
+        </div>
+        <div class="panel" data-r style="--d:.06s">
+          <h3>My profile, 19&ndash;28 Oct</h3>
+          <p class="ph3">Rank down brought people back. <b>Not to a win.</b></p>
+          <dl class="mini">
+            <div><dt>22</dt><dd>times My profile opened on Rank down</dd></div>
+            <div><dt>23</dt><dd>activity sheets opened</dd></div>
+            <div><dt>4</dt><dd>WIN IT BACK taps, about 1 in 5 Rank downs</dd></div>
+            <div><dt>0</dt><dd>places won back, from 5 finished tries</dd></div>
+          </dl>
+          <p class="cap">Bios: 2 saved, both on launch day while I was testing. In practice nobody has written one yet.</p>
+        </div>
+      </div>
+      <div class="panel" data-r style="margin-top:14px">
+        <h3>The game around it, per visit: 9 days before vs 9 days after</h3>
+        <p class="ph3">Deeper visits, <b>fewer of them</b></p>
+        <div class="legend"><span><i style="background:var(--ch-before-dot)"></i>Before &middot; 10&ndash;18 Oct</span><span><i style="background:var(--ch-after)"></i>After &middot; 19&ndash;27 Oct</span></div>
+        <div class="scroll-x"><table class="ba">
+          <thead><tr><th scope="col">Measure</th><th scope="col">Before</th><th scope="col">After</th><th scope="col">Change</th><th scope="col"><span class="sr">Before and after on one scale</span></th></tr></thead>
+          <tbody><tr><th scope="row">Visits to the game</th><td class="n">465</td><td class="n a">390</td><td class="d">&minus;16%</td><td><div class="dumb" role="img" aria-label="465 to 390"><i class="b" style="left:93%"></i><i class="a" style="left:78%"></i></div></td></tr><tr><th scope="row">New visitors</th><td class="n">75</td><td class="n a">36</td><td class="d">&minus;52%</td><td><div class="dumb" role="img" aria-label="75 to 36"><i class="b" style="left:75%"></i><i class="a" style="left:36%"></i></div></td></tr><tr><th scope="row">Innings started per visit</th><td class="n">1.00</td><td class="n a">1.23</td><td class="d">+24%</td><td><div class="dumb" role="img" aria-label="1.00 to 1.23"><i class="b" style="left:66.7%"></i><i class="a" style="left:82%"></i></div></td></tr><tr><th scope="row">Board opens per visit</th><td class="n">0.38</td><td class="n a">0.45</td><td class="d">+17%</td><td><div class="dumb" role="img" aria-label="0.38 to 0.45"><i class="b" style="left:63.5%"></i><i class="a" style="left:74.3%"></i></div></td></tr><tr><th scope="row">My Stats / My profile per visit</th><td class="n">0.15</td><td class="n a">0.19</td><td class="d">+28%</td><td><div class="dumb" role="img" aria-label="0.15 to 0.19"><i class="b" style="left:49.3%"></i><i class="a" style="left:63.3%"></i></div></td></tr><tr><th scope="row">Visits that played 5+ minutes</th><td class="n">29%</td><td class="n a">40%</td><td class="d">+11 pts</td><td><div class="dumb" role="img" aria-label="29% to 40%"><i class="b" style="left:28.6%"></i><i class="a" style="left:40.3%"></i></div></td></tr><tr><th scope="row">Visits that played 10+ minutes</th><td class="n">18%</td><td class="n a">26%</td><td class="d">+8 pts</td><td><div class="dumb" role="img" aria-label="18% to 26%"><i class="b" style="left:18.3%"></i><i class="a" style="left:26.4%"></i></div></td></tr><tr><th scope="row">Returning visitors back next day</th><td class="n">25%</td><td class="n a">27%</td><td class="d">+2 pts</td><td><div class="dumb" role="img" aria-label="25% to 27%"><i class="b" style="left:24.7%"></i><i class="a" style="left:26.9%"></i></div></td></tr><tr><th scope="row">Innings completed per visit</th><td class="n">0.70</td><td class="n a">0.55</td><td class="d">&minus;22%</td><td><div class="dumb" role="img" aria-label="0.70 to 0.55"><i class="b" style="left:70.3%"></i><i class="a" style="left:54.6%"></i></div></td></tr></tbody>
+        </table></div>
+        <p class="cap">Each row has its own scale: counts against 500, per-visit figures against 1.5, shares against 100%.</p>
+      </div>
+      <div class="note" data-r style="max-width:52rem">
+        <p><b>What this can and can&rsquo;t say.</b> Profiles were used, and that&rsquo;s direct: 31% of board opens became a profile, against a target of 20%, and 30% of those became a chase. These events only exist because the feature does.</p>
+        <p>The game-wide shifts can&rsquo;t be credited to profiles. The same nine days had the flick&rsquo;s new versions, the end of the new strokes&rsquo; launch week, Super10&rsquo;s &ldquo;coming soon&rdquo; card, new link previews and the walk-on. There&rsquo;s no control group, and 56 profile opens is too few to move a game-wide average on their own. Test Marathon starts fell from about 15 a day to about 8 from 23 October, which doesn&rsquo;t line up with the profile events. GoatCounter counts visitors, not every tap, and launch evening includes my own testing.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="learned" aria-labelledby="learned-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="learned-h" data-r>The data&rsquo;s <b>first lesson</b></h2>
+      </div>
+      <div class="learn">
+        <div data-r><h3>People chase the podium, and lose</h3><p>35 of 56 profile opens came from the top three, and none of 15 chases was won. The design pointed at reachable targets on the end card (&ldquo;Next: Meera &middot; beat 183&rdquo;), but the most-tapped way in is the hardest one.</p></div>
+        <div data-r style="--d:.06s"><h3>Rank down works as a pull</h3><p>22 players opened My profile on a Rank down and 4 tapped WIN IT BACK. That&rsquo;s the return loop I wanted, with the same problem at its end: no wins yet.</p></div>
+        <div data-r><h3>The bio needs a reason</h3><p>The ask comes after your first views, and almost nobody has views yet. It may need a moment of its own, such as the first time someone chases you.</p></div>
+        <div data-r style="--d:.06s"><h3>Measure from the first hour</h3><p>Every step had a GoatCounter event the day it shipped, which is why this page has numbers instead of a placeholder.</p></div>
+      </div>
+      <h3 class="sub hl" data-r>Designing with an AI <b>in the room</b></h3>
+      <div class="learn">
+        <div data-r><h3>It made the brainstorm honest</h3><p>Because Claude was reading the code, every idea came back with what it would touch and what it would cost. The security gap only surfaced because the conversation went from &ldquo;what could a profile show&rdquo; to &ldquo;where does that data come from&rdquo;.</p></div>
+        <div data-r style="--d:.06s"><h3>Cheap drawing made cutting cheap</h3><p>Fifteen annotated frames in one session meant I could see the nemesis on the cover and reject it the same afternoon. When drawing is slow, you defend what you drew.</p></div>
+        <div data-r><h3>The judgement stayed mine</h3><p>The first plan put the strongest hook on the cover and named the people who viewed you. Both were defensible and both were wrong for this game. The constraints that shaped the result were mine; the AI&rsquo;s value was writing them onto every frame once I&rsquo;d said them.</p></div>
+      </div>
+      <h3 class="sub hl" data-r>What happens <b>now</b></h3>
+      <ol class="steps">
+        <li data-r><b>Steer chases toward winnable targets</b><span>The player just above you, shown on every profile and the intro.</span></li>
+        <li data-r style="--d:.04s"><b>Make a lost chase that sets a new best feel like progress</b><span>On the end card and on My profile.</span></li>
+        <li data-r style="--d:.08s"><b>Run the server-side report</b><span>And add its looks, beats and passes to this page.</span></li>
+        <li data-r style="--d:.12s"><b>Find the bio its moment</b><span>And measure the fill rate again after 30 days.</span></li>
+      </ol>
+      <div class="next">
+        <a href="../" data-r><span class="label">Back to</span><b>Hitman Cricket: <strong>all seven stories</strong></b><p>Leaderboards, identity, the UI revamp, Super10 and more.</p></a>
+        <a href="../dressing-room/" data-r style="--d:.06s"><span class="label">Read next</span><b>Play. Earn. Wear: <strong>The Dressing Room</strong></b><p>Kits and bats earned, never bought, and an unlock you&rsquo;d want to show someone.</p></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-in">
+      <div>
+        <h2 class="hl">Go and chase <b>someone&rsquo;s best.</b></h2>
+        <p>Tap any name on a Hitman Cricket leaderboard. It&rsquo;s free, and it&rsquo;s best on a phone.</p>
+        <div class="row">
+          <a class="btn" href="https://hitmancricket.in/" target="_blank" rel="noopener">Play Hitman Cricket
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="link" href="../">All Hitman Cricket stories</a>
+        </div>
+        <p class="foot-note">Player names and figures in the frames are design examples. Results from GoatCounter, exported 28 October 2026.</p>
+      </div>
+      <div class="foot-play" aria-hidden="true">
+        <div class="ph fig"><img src="../../../public/img/hitman/profiles/f-b3-surpassed.webp" alt="" width="402" height="874" loading="lazy"></div>
+        <div class="ph fig"><img src="../../../public/img/hitman/profiles/f-b4-beat.webp" alt="" width="402" height="874" loading="lazy"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../../../assets/js/case.js" defer></script>
+</body>
+</html>

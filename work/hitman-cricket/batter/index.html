@@ -38,31 +38,24 @@
       <p class="lede" data-r style="--d:.12s">How I rebuilt the batting in my browser cricket game by sending slow-motion clips to an AI, reviewing every stroke in a live preview, and saying what was wrong in plain cricket words.</p>
       <dl class="meta" data-r style="--d:.18s">
         <div><dt>My role</dt><dd>Product designer: the reference, the review, every call on what looks right</dd></div>
-        <div><dt>Built with</dt><dd>Claude Code, three.js, my phone&rsquo;s camera roll</dd></div>
-        <div><dt>Timeline</dt><dd>14&ndash;21 Oct 2026, eight days</dd></div>
-        <div><dt>The rig</dt><dd>A 3D batter built entirely in code, no animator</dd></div>
+        <div><dt>Timeline</dt><dd>14&ndash;21 Oct 2026, eight days, with Claude Code</dd></div>
+      </dl>
+      <dl class="facts" data-r style="--d:.22s">
+        <div><dt>20+</dt><dd>strokes rebuilt or new</dd></div>
+        <div><dt>16</dt><dd>pull requests merged</dd></div>
+        <div><dt>2,261</dt><dd>tests holding them</dd></div>
       </dl>
     </div>
-    <ul class="strokes" data-r style="--d:.1s" aria-label="Ten of the strokes, at their finish">
-        <li><img src="../../../public/img/hitman/rigs/h-cover.jpg" alt="The batter at the finish of the cover drive" width="360" height="398"><span>Cover drive</span></li>
-        <li><img src="../../../public/img/hitman/rigs/h-loft.jpg" alt="The batter at the finish of the straight six" width="360" height="398"><span>Straight six</span></li>
-        <li><img src="../../../public/img/hitman/rigs/h-charge.jpg" alt="The batter at the finish of the charge over cover" width="360" height="398"><span>Charge over cover</span></li>
-        <li><img src="../../../public/img/hitman/rigs/h-hook.jpg" alt="The batter at the finish of the hook" width="360" height="398"><span>Hook</span></li>
-        <li><img src="../../../public/img/hitman/rigs/h-pull.jpg" alt="The batter at the finish of the pull" width="360" height="398"><span>Pull</span></li>
-        <li><img src="../../../public/img/hitman/rigs/h-slog.jpg" alt="The batter at the finish of the slog sweep" width="360" height="398"><span>Slog sweep</span></li>
-        <li><img src="../../../public/img/hitman/rigs/h-cut.jpg" alt="The batter at the finish of the square cut" width="360" height="398"><span>Square cut</span></li>
-        <li><img src="../../../public/img/hitman/rigs/h-punch.jpg" alt="The batter at the finish of the back-foot punch" width="360" height="398"><span>Back-foot punch</span></li>
-        <li><img src="../../../public/img/hitman/rigs/h-spincut.jpg" alt="The batter at the finish of the cut off spin" width="360" height="398"><span>Cut off spin</span></li>
-        <li><img src="../../../public/img/hitman/rigs/h-latecut.jpg" alt="The batter at the finish of the late cut" width="360" height="398"><span>Late cut</span></li>
-    </ul>
-  </div>
-  <div class="wrap">
-    <div class="score s5" data-r>
-      <div><em>20+</em><span>strokes rebuilt or new</span></div>
-      <div><em>16</em><span>pull requests merged into production</span></div>
-      <div><em>8</em><span>days, start to finish</span></div>
-      <div><em>2,261</em><span>automated tests passing</span></div>
-      <div><em>1&ndash;3</em><span>review rounds per stroke</span></div>
+    <div class="bt-pair" data-r style="--d:.1s">
+      <figure>
+        <div class="bt-frame"><img src="../../../public/img/hitman/rigs/net-18.webp" alt="Me in the nets, frame 18 of a 1.27-second clip: the cut off the spinner at contact" width="281" height="394"></div>
+        <figcaption><b>Net clip</b>My phone, 30 frames a second</figcaption>
+      </figure>
+      <svg class="bt-arrow" width="56" height="14" viewBox="0 0 56 14" fill="none" aria-hidden="true"><path d="M1 7h52M47 1.5 53 7l-6 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <figure>
+        <div class="bt-frame"><video src="../../../public/video/hitman/spincut.mp4" poster="../../../public/img/hitman/rigs/spincut-poster.jpg" muted loop playsinline autoplay preload="metadata" width="420" height="494" aria-label="The same stroke in the game, slowed down"></video></div>
+        <figcaption><b>Game stroke</b>The batter, posed from it</figcaption>
+      </figure>
     </div>
   </div>
 </header>
@@ -92,20 +85,19 @@
   <section class="sec" id="problem" aria-labelledby="problem-h">
     <div class="wrap">
       <div class="sec-head">
-        <p class="label" data-r>The problem</p>
         <h2 class="h2 hl" id="problem-h" data-r style="--d:.06s">The batter didn&rsquo;t bat <b>like a cricketer</b></h2>
         <p class="lede" data-r style="--d:.12s">The game&rsquo;s batter is a 3D rig built entirely in code: every stroke is a handful of poses on a millisecond clock. Nobody on the project is an animator, so strokes were guessed.</p>
       </div>
       <div class="prob">
-        <ul class="faults">
+        <figure data-r>
+          <img src="../../../public/img/hitman/rigs/flick2-before.jpg" alt="The flick&rsquo;s finish at 326 ms: the side edge of the bat faces the helmet" width="420" height="570" loading="lazy">
+          <figcaption class="cap">My review screenshot, 326&nbsp;ms into the flick: the bat&rsquo;s side edge towards the helmet.</figcaption>
+        </figure>
+        <ol class="faults">
           <li data-r><b>The bat turned in his hands like a fan</b><span>After the ball, the blade kept spinning between his wrists.</span></li>
           <li data-r style="--d:.06s"><b>The wrong side of the blade met the ball</b><span>The curved back or the edge, where every real stroke uses the flat face.</span></li>
           <li data-r style="--d:.12s"><b>Follow-throughs went through his own helmet</b><span>On the way round, the bat passed straight through the body.</span></li>
-        </ul>
-        <figure data-r style="--d:.08s">
-          <img src="../../../public/img/hitman/rigs/flick2-before.jpg" alt="The flick&rsquo;s finish at 326 ms: the side edge of the bat faces the helmet" width="420" height="570" loading="lazy">
-          <figcaption class="cap">One of my review screenshots, 326&nbsp;ms into the flick: the bat&rsquo;s side edge towards the helmet.</figcaption>
-        </figure>
+        </ol>
       </div>
     </div>
   </section>
@@ -114,7 +106,6 @@
   <section class="sec tint" id="loop" aria-labelledby="loop-h">
     <div class="wrap">
       <div class="sec-head">
-        <p class="label" data-r>The loop</p>
         <h2 class="h2 hl" id="loop-h" data-r style="--d:.06s">One stroke at a time, <b>same eight steps</b></h2>
         <p class="lede" data-r style="--d:.12s">I bring the reference and the eye. Claude Code studies, poses, publishes and tests. Every stroke went round the same loop.</p>
       </div>
@@ -128,7 +119,7 @@
         <li class="rep" data-r style="--d:.08s"><span class="who">Claude</span><b>Fix it and add a test</b><p>Every rejected behaviour becomes a check, so it can&rsquo;t come back.</p></li>
         <li class="me" data-r style="--d:.12s"><span class="who">Me</span><b>&ldquo;Open the PR and merge it&rdquo;</b><p>Merged into production, the branch reset, on to the next stroke.</p></li>
       </ol>
-      <p class="repeat" data-r>Steps 4 to 7 repeat until it looks right: usually two or three rounds.</p>
+      <p class="repeat" data-r><span>Steps <b>4 to 7</b> repeat until it looks right: usually two or three rounds.</span></p>
     </div>
   </section>
 
@@ -136,7 +127,6 @@
   <section class="sec" id="vocab" aria-labelledby="vocab-h">
     <div class="wrap">
       <div class="sec-head">
-        <p class="label" data-r>Shared vocabulary</p>
         <h2 class="h2 hl" id="vocab-h" data-r style="--d:.06s">Three words fixed <b>half the bugs</b></h2>
         <p class="lede" data-r style="--d:.12s">Most of my feedback was about which side of the bat faced where. Once we used the same three names, a one-line note was enough.</p>
       </div>
@@ -168,15 +158,14 @@
   <section class="sec" id="strokes" aria-labelledby="strokes-h">
     <div class="wrap">
       <div class="sec-head" style="margin-bottom:0">
-        <p class="label" data-r>Iterations</p>
         <h2 class="h2 hl" id="strokes-h" data-r style="--d:.06s">Five strokes, <b>round by round</b></h2>
         <p class="lede" data-r style="--d:.12s">My actual feedback, word for word, and what changed after it.</p>
       </div>
 
       <article class="stroke" id="spincut" aria-labelledby="spincut-h">
         <div class="stroke-h">
-          <div><p class="k" data-r>New stroke, from my own net video</p><h3 id="spincut-h" data-r>Cut off the spinner</h3></div>
-          <div class="tags" data-r><span class="tag">2 rounds</span><span class="tag">PR #55</span></div>
+          <h3 id="spincut-h" data-r>Cut off the spinner</h3>
+          <div class="tags" data-r><span class="tag">New stroke, from my own net video</span><span class="tag">2 rounds</span><span class="tag">PR #55</span></div>
         </div>
         <figure data-r>
           <div class="scroll-x"><div class="plate"><img src="../../../public/img/hitman/rigs/spin-diagram.jpg" alt="The cut off the spinner, frame by frame: five frames of me in the nets above the game&rsquo;s batter at the same moment, with his skeleton drawn over him" width="1600" height="1124" loading="lazy"></div></div>
@@ -201,8 +190,8 @@
 
       <article class="stroke" id="squarecut" aria-labelledby="squarecut-h">
         <div class="stroke-h">
-          <div><p class="k" data-r>Rebuilt from a net clip</p><h3 id="squarecut-h" data-r>Square cut</h3></div>
-          <div class="tags" data-r><span class="tag">3 rounds</span><span class="tag">PR #69</span></div>
+          <h3 id="squarecut-h" data-r>Square cut</h3>
+          <div class="tags" data-r><span class="tag">Rebuilt from a net clip</span><span class="tag">3 rounds</span><span class="tag">PR #69</span></div>
         </div>
         <div class="st-grid">
           <div class="st-side">
@@ -220,8 +209,8 @@
 
       <article class="stroke" id="coverdrive" aria-labelledby="cover-h">
         <div class="stroke-h">
-          <div><p class="k" data-r>One stroke, three versions</p><h3 id="cover-h" data-r>Cover drive</h3></div>
-          <div class="tags" data-r><span class="tag">Several rounds</span><span class="tag">PR #53</span></div>
+          <h3 id="cover-h" data-r>Cover drive</h3>
+          <div class="tags" data-r><span class="tag">One stroke, three versions</span><span class="tag">Several rounds</span><span class="tag">PR #53</span></div>
         </div>
         <div class="st-grid wide-l">
           <div class="cv" data-r>
@@ -259,8 +248,8 @@
 
       <article class="stroke" id="charge" aria-labelledby="charge-h">
         <div class="stroke-h">
-          <div><p class="k" data-r>A held wrap</p><h3 id="charge-h" data-r>Straight charge six</h3></div>
-          <div class="tags" data-r><span class="tag">3 rounds</span><span class="tag">PR #80</span></div>
+          <h3 id="charge-h" data-r>Straight charge six</h3>
+          <div class="tags" data-r><span class="tag">A held wrap</span><span class="tag">3 rounds</span><span class="tag">PR #80</span></div>
         </div>
         <div class="st-grid">
           <div class="st-side">
@@ -278,8 +267,8 @@
 
       <article class="stroke" id="flick" aria-labelledby="flick-h">
         <div class="stroke-h">
-          <div><p class="k" data-r>One screenshot, one round</p><h3 id="flick-h" data-r>Flick, version 2</h3></div>
-          <div class="tags" data-r><span class="tag">1 round</span><span class="tag">PR #82</span></div>
+          <h3 id="flick-h" data-r>Flick, version 2</h3>
+          <div class="tags" data-r><span class="tag">One screenshot, one round</span><span class="tag">1 round</span><span class="tag">PR #82</span></div>
         </div>
         <div class="st-grid">
           <div class="st-side">
@@ -299,7 +288,6 @@
   <section class="sec tint" id="guard" aria-labelledby="guard-h">
     <div class="wrap">
       <div class="sec-head">
-        <p class="label" data-r>Guardrails</p>
         <h2 class="h2 hl" id="guard-h" data-r style="--d:.06s">Tests hold <b>the taste</b></h2>
         <p class="lede" data-r style="--d:.12s">The rig has nine invisible spheres: helmet, shoulders, elbows, hips and knees. Every stroke is swept every 4&nbsp;ms to check the blade never enters one. A preview shows what looks wrong. The tests catch what I&rsquo;d never spot at full speed.</p>
       </div>
@@ -341,7 +329,6 @@
   <section class="sec" id="week" aria-labelledby="week-h">
     <div class="wrap">
       <div class="sec-head">
-        <p class="label" data-r>The week, 14&ndash;21 Oct</p>
         <h2 class="h2 hl" id="week-h" data-r style="--d:.06s">Sixteen merges <b>into production</b></h2>
       </div>
       <div class="wk" data-r>
@@ -375,7 +362,6 @@
   <section class="sec" id="lessons" aria-labelledby="lessons-h">
     <div class="wrap">
       <div class="sec-head">
-        <p class="label" data-r>What I&rsquo;d tell another designer</p>
         <h2 class="h2 hl" id="lessons-h" data-r style="--d:.06s">How to direct an AI <b>on motion</b></h2>
       </div>
       <div class="lessons">
