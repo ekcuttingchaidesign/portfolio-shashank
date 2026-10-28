@@ -700,7 +700,7 @@ a.sc:hover .sc-art .ph:nth-child(2) { transform: translateX(8%) rotate(6deg) tra
    current one long and vermilion. Hover or focus it and the names come out on
    the nav's own glass. It keeps out of the way of the hero and the footer. */
 .side { position: fixed; z-index: 50; left: 12px; top: 50%; translate: 0 -50%; display: none; opacity: 0; pointer-events: none; transition: opacity .4s var(--sx-ease); }
-@media (min-width: 1200px) { .js .side { display: block; } }
+@media (min-width: 1360px) { .js .side { display: block; } }
 .side.show { opacity: 1; pointer-events: auto; }
 .side-in { padding: 14px 16px 14px 12px; border-radius: 24px; transition: background-color .3s var(--sx-ease), box-shadow .3s var(--sx-ease); }
 .side:hover .side-in, .side:focus-within .side-in {
@@ -725,7 +725,7 @@ a.sc:hover .sc-art .ph:nth-child(2) { transform: translateX(8%) rotate(6deg) tra
 /* On a phone or tablet: one pill at the foot of the screen naming where you
    are, with a bar for how far through you are. Tap it for every section. */
 .jump { position: fixed; z-index: 55; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); translate: -50% 0; display: none; opacity: 0; pointer-events: none; transition: opacity .35s var(--sx-ease); }
-@media (max-width: 1199px) { .js .jump { display: block; } }
+@media (max-width: 1359px) { .js .jump { display: block; } }
 .jump.show { opacity: 1; pointer-events: auto; }
 .jump summary {
   position: relative; overflow: hidden; list-style: none; cursor: pointer;
@@ -1217,3 +1217,31 @@ a.sc:hover .sc-art .stk:nth-child(3) { transform: translateX(24%) rotate(9deg) t
   .fow a { min-height: 44px; font-size: 1.15rem; }
   .fow ol { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
+
+/* lessons, each beside the screen it was learned on */
+.lessons-v { display: grid; gap: clamp(28px, 3vw, 44px) clamp(28px, 4vw, 64px); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 860px) { .lessons-v { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.lv { display: grid; grid-template-columns: clamp(104px, 11vw, 148px) minmax(0, 1fr); gap: clamp(18px, 2vw, 28px); align-items: start; padding: clamp(18px, 2vw, 24px); border-radius: var(--r-card); background: var(--sx-surface); transition: background-color .3s var(--sx-ease); }
+.lv:hover { background: var(--sx-raise); }
+.lv-pic { overflow: hidden; aspect-ratio: 3 / 4; border-radius: 16px; background: #000; box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
+.lv-pic img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+.lv h3 { margin-top: 4px; font-size: clamp(1.25rem, 1.8vw, 1.5rem); line-height: 1.2; font-weight: 700; letter-spacing: -.01em; }
+.lv p { margin-top: 10px; color: var(--sx-ink-2); font-size: 1.0625rem; line-height: 1.55; }
+
+/* lessons from the data: each one led by its number */
+.figs { display: grid; gap: clamp(28px, 3vw, 40px) clamp(24px, 3vw, 48px); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 700px) { .figs { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .figs { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.figs article { display: grid; gap: 10px; align-content: start; padding-top: 22px; box-shadow: inset 0 2px 0 var(--ch-after); }
+.fig-n { font-size: clamp(3rem, 5vw, 4.5rem); line-height: .9; font-weight: 900; font-style: italic; letter-spacing: -.035em; color: var(--sx-key-2); font-variant-numeric: tabular-nums; }
+.fig-n small { font-size: .45em; letter-spacing: 0; color: var(--sx-ink-3); }
+.fig-u { font-size: .9375rem; color: var(--sx-ink-3); }
+.figs h3 { margin-top: 8px; font-size: 1.25rem; line-height: 1.25; font-weight: 700; }
+.figs p:last-child { color: var(--sx-ink-2); font-size: 1rem; line-height: 1.55; }
+
+/* what working with an AI taught me: said large */
+.says { display: grid; }
+.says article { display: grid; gap: 14px 64px; grid-template-columns: minmax(0, 1fr); padding: clamp(28px, 3vw, 40px) 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+@media (min-width: 960px) { .says article { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: baseline; } }
+.says h3 { font-size: clamp(1.75rem, 3.2vw, 2.75rem); line-height: 1.08; letter-spacing: -.025em; font-weight: 300; }
+.says p { color: var(--sx-ink-2); font-size: 1.125rem; line-height: 1.6; max-width: 36rem; }
