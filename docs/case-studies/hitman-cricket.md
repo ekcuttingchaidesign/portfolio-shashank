@@ -11,7 +11,16 @@ per day, so figures are **player-days** unless marked exact. Lines marked
 | --- | --- | --- | --- |
 | 2026 | Solo — design, build, ship | 7 | ~10 min |
 
-## Chapters
+## Structure (28 Oct)
+
+The project is now an overview page plus seven case studies, in this order:
+Leaderboards, Identity without accounts, The Dressing Room (with bat skins),
+UI revamp, Super10 (in progress), Designing the batter (rigs and shots), and
+Test Marathon. The Dressing Room is written and live at
+`work/hitman-cricket/dressing-room/`. The chapter notes below are the raw
+material for the others; the identity chapter is drafted in full.
+
+## Chapters (earlier single-page draft)
 
 1. **An experiment that wouldn't stop.** A test of ChatGPT Astra on 7 Sep;
    the base was good enough to keep, so I carried on with Claude. 765 commits

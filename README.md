@@ -29,9 +29,10 @@ just dived into.
 | `public/video/motion/` | The thirteen films on the Things That Move reel, plus a poster each. Built from `assets/motion_videos/` (masters, not committed) by `tools/prep-motion.py`. |
 | `public/img/` | The portrait, the three headline objects, and project covers. |
 | `docs/pending-art.md` | What each More Stories slot holds, the brief for the projectionist mascot, and how to drop films into the reel. |
-| `work/hitman-cricket/index.html` | The Hitman Cricket case study, the first page under `/work/`. Featured Work's first card links to it; the other cards' **View** still says the page is not built yet. |
-| `assets/css/case.css` | Styles for case-study pages: the landing page's ground, ink and accent, copied rather than imported, and nothing that moves on its own. |
-| `public/img/hitman/`, `public/video/hitman/` | The case study's screens (exported from the Hitman Cricket Figma handover at 1×), its card cover, its share image, and the Dressing Room's unlock film. |
+| `work/hitman-cricket/index.html` | The Hitman Cricket overview: the game, its numbers, its seven case studies and the build week by week. Featured Work's first card links to it; the other cards' **View** still says the page is not built yet. |
+| `work/hitman-cricket/dressing-room/index.html` | The first of the seven case studies. The other six are cards on the overview until they are written. |
+| `assets/css/case.css` | Styles for every page under `/work/`. It copies the landing page's tokens rather than loading sections.css, and rebuilds its look: the glass pill nav, Light-with-Black headlines, the outlined VIEW pill, cards lit in their project's colour, the green rail. |
+| `public/img/hitman/`, `public/video/hitman/` | Hitman Cricket's pictures and films. `dressing-room/` holds that case study's screens; `game/` is the game's own artwork, used for the overview's cards; the `ch*-` screens at the top level are Figma exports kept for the case studies still being written. |
 | `docs/case-studies/` | The written draft behind each case study, with where every number comes from. |
 | `portfolio-content.html` | The hi-fi content wireframe all the copy below the hero comes from. Reference, not shipped. |
 | `portfolio_spec.md` | The written spec behind the same. Reference, not shipped. |
