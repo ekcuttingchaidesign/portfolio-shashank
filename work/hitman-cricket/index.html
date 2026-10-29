@@ -12,7 +12,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/Satoshi-Light.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../../assets/fonts/Satoshi-Black.woff2" crossorigin>
-<link rel="stylesheet" href="../../assets/css/case.css?v=20261029">
+<link rel="stylesheet" href="../../assets/css/case.css?v=20261029b">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
@@ -119,7 +119,7 @@
         <div class="st-a">
           <a class="sc sc-dr" href="dressing-room/" data-r>
             <img class="sc-art" src="../../public/img/hitman/cards/dressing-room.webp" alt="" width="940" height="1200" loading="lazy">
-            <span class="sc-open" aria-hidden="true"><svg width="18" height="10" viewBox="0 0 18 10" fill="none"><path d="M.8 5h15.4M11.7 1.1 16.2 5l-4.5 3.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="sc-open" aria-hidden="true"><span class="sc-open-l">Read the case study</span><svg width="18" height="10" viewBox="0 0 18 10" fill="none"><path d="M.8 5h15.4M11.7 1.1 16.2 5l-4.5 3.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             <div class="sc-txt">
               <h3>Dressing Room</h3>
               <p>Kits and bats earned, never bought. Skins drawn in Figma, wrapped onto 3D, built in three days.</p>
@@ -156,7 +156,7 @@
         <div class="st-b">
           <a class="sc sc-rig" href="batter/" data-r>
             <img class="sc-art" src="../../public/img/hitman/cards/rigging.webp" alt="" width="940" height="960" loading="lazy">
-            <span class="sc-open" aria-hidden="true"><svg width="18" height="10" viewBox="0 0 18 10" fill="none"><path d="M.8 5h15.4M11.7 1.1 16.2 5l-4.5 3.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="sc-open" aria-hidden="true"><span class="sc-open-l">Read the case study</span><svg width="18" height="10" viewBox="0 0 18 10" fill="none"><path d="M.8 5h15.4M11.7 1.1 16.2 5l-4.5 3.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             <div class="sc-txt">
               <h3>Rigging the<br>Cricket Shots</h3>
               <p>Twenty strokes rebuilt from slow-motion clips, reviewed at the millisecond and held by tests.</p>
@@ -165,7 +165,7 @@
 
           <a class="sc sc-pf" href="profiles/" data-r style="--d:.06s">
             <img class="sc-art" src="../../public/img/hitman/cards/profiles.webp" alt="" width="784" height="960" loading="lazy">
-            <span class="sc-open" aria-hidden="true"><svg width="18" height="10" viewBox="0 0 18 10" fill="none"><path d="M.8 5h15.4M11.7 1.1 16.2 5l-4.5 3.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="sc-open" aria-hidden="true"><span class="sc-open-l">Read the case study</span><svg width="18" height="10" viewBox="0 0 18 10" fill="none"><path d="M.8 5h15.4M11.7 1.1 16.2 5l-4.5 3.9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             <div class="sc-txt">
               <h3>User<br>profiles</h3>
               <p>Every name on the board opens a profile you can chase. Designed one day, live the next.</p>
@@ -254,6 +254,31 @@
     els.forEach(e => io.observe(e));
   } else els.forEach(e => e.classList.add('in'));
   if (reduce) document.querySelectorAll('video').forEach(v => { v.removeAttribute('autoplay'); v.pause(); });
+  // the three open cards lean toward the pointer and carry a light with it
+  if (!reduce && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const keys = ['--ax', '--ay', '--ang', '--px', '--py', '--mx', '--my'];
+    document.querySelectorAll('a.sc').forEach(card => {
+      let raf = 0;
+      card.addEventListener('pointermove', e => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          card.classList.add('is-tilting');
+          const s = card.style;
+          s.setProperty('--ax', (-y).toFixed(3)); s.setProperty('--ay', x.toFixed(3));
+          s.setProperty('--ang', (Math.hypot(x, y) * 9).toFixed(2) + 'deg');
+          s.setProperty('--px', (x * 2).toFixed(3)); s.setProperty('--py', (y * 2).toFixed(3));
+          s.setProperty('--mx', ((x + .5) * 100).toFixed(1) + '%'); s.setProperty('--my', ((y + .5) * 100).toFixed(1) + '%');
+        });
+      });
+      card.addEventListener('pointerleave', () => {
+        cancelAnimationFrame(raf);
+        card.classList.remove('is-tilting');
+        keys.forEach(k => card.style.removeProperty(k));
+      });
+    });
+  }
 })();
 </script>
 </body>

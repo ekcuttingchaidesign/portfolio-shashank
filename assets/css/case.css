@@ -312,30 +312,65 @@ b, strong { font-weight: 700; }
   position: relative; isolation: isolate; overflow: hidden; display: block; container-type: inline-size;
   aspect-ratio: var(--w) / var(--h); border-radius: var(--r-card);
   color: var(--ink); text-decoration: none; background: var(--bg);
-  transition: transform .5s var(--sx-ease);
 }
-.sc-art { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; object-fit: cover; transition: transform .9s var(--sx-ease); }
-.sc-txt { position: absolute; left: calc(var(--u) * 28); right: calc(var(--u) * 28); bottom: calc(var(--u) * var(--b, 28)); display: grid; gap: calc(var(--u) * 10); }
+.sc-art { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; object-fit: cover; transition: transform .9s var(--sx-ease-out); }
+.sc-txt { position: absolute; z-index: 1; left: calc(var(--u) * 28); right: calc(var(--u) * 28); bottom: calc(var(--u) * var(--b, 28)); display: grid; gap: calc(var(--u) * 10); }
 .sc h3 { font-family: var(--jaro); font-weight: 400; font-size: calc(var(--u) * var(--ts)); line-height: var(--tl, .86); text-transform: uppercase; color: var(--ink); }
 .sc p { max-width: calc(var(--u) * var(--dw)); font-size: max(14px, calc(var(--u) * 15)); line-height: 1.45; font-weight: 500; color: color-mix(in srgb, var(--ink) var(--dop, 78%), transparent); }
 .sc-open {
-  position: absolute; top: calc(var(--u) * 20); right: calc(var(--u) * 20);
-  display: grid; place-items: center; width: max(40px, calc(var(--u) * 52)); aspect-ratio: 1; border-radius: 50%;
+  --s: max(40px, calc(var(--u) * 52));
+  position: absolute; z-index: 1; top: calc(var(--u) * 20); right: calc(var(--u) * 20);
+  display: flex; align-items: center; height: var(--s); min-width: var(--s); border-radius: 999px;
   background: var(--ob); color: var(--of);
 }
-.sc-open svg { width: 35%; height: auto; transition: transform .35s var(--sx-ease); }
-a.sc:hover { transform: translateY(-6px); }
-a.sc:hover .sc-art { transform: scale(1.025); }
-a.sc:hover .sc-open svg { transform: translateX(3px); }
+.sc-open-l {
+  max-width: 0; overflow: hidden; opacity: 0; white-space: nowrap;
+  font-size: .8125rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+  transition: max-width .6s var(--sx-ease-out), margin .6s var(--sx-ease-out), opacity .3s var(--sx-ease);
+}
+.sc-open svg { flex: none; width: calc(var(--s) * .35); height: auto; margin-inline: calc(var(--s) * .325); transition: transform .45s var(--sx-ease-out); }
+
+/* Hover, on the three you can open: the card leans toward the pointer and
+   lifts on a glow of its own colour, the art drifts the other way under a
+   soft light that follows the cursor, and the round button opens into what
+   it does. The page's scroll-in owns `transform` on [data-r], so the lean
+   lives on the individual properties instead. */
+.st-a, .st-b, .st-stack { perspective: 1400px; }
+.studies a.sc {
+  --ax: 0; --ay: 1; --ang: 0deg; --px: 0; --py: 0; --mx: 50%; --my: 30%;
+  rotate: var(--ax) var(--ay) 0 var(--ang);
+  box-shadow: 0 0 0 0 transparent;
+  transition: opacity .9s var(--sx-ease-out), transform .9s var(--sx-ease-out), translate .7s var(--sx-ease-out), scale .7s var(--sx-ease-out), rotate .7s var(--sx-ease-out), box-shadow .7s var(--sx-ease-out);
+  transition-delay: var(--d, 0s), var(--d, 0s), 0s, 0s, 0s, 0s;
+}
+.studies a.sc.is-tilting { transition-duration: .9s, .9s, .7s, .7s, .18s, .7s; }
+a.sc::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit;
+  background: radial-gradient(55% 45% at var(--mx) var(--my), rgba(255,255,255,.28), transparent 70%);
+  mix-blend-mode: soft-light; opacity: 0; transition: opacity .5s var(--sx-ease);
+}
+.studies a.sc:is(:hover, :focus-visible) {
+  translate: 0 -8px; scale: 1.012;
+  box-shadow: 0 34px 70px -30px var(--glow, var(--bg));
+}
+a.sc:is(:hover, :focus-visible)::after { opacity: 1; }
+a.sc:is(:hover, :focus-visible) .sc-art { transform: scale(1.07) translate(calc(var(--px) * -12px), calc(var(--py) * -12px)); }
+a.sc:is(:hover, :focus-visible) .sc-open-l { max-width: 14em; opacity: 1; margin-left: calc(var(--s) * .42); }
+a.sc:is(:hover, :focus-visible) .sc-open svg { transform: translateX(2px); }
+a.sc.is-tilting .sc-art { transition-duration: .18s; }
 a.sc:focus-visible { outline-offset: 6px; border-radius: var(--r-card); }
+@media (prefers-reduced-motion: reduce) {
+  .studies a.sc:is(:hover, :focus-visible) { translate: none; scale: none; rotate: none; }
+  a.sc:is(:hover, :focus-visible) .sc-art { transform: none; }
+}
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-.sc-dr  { --w: 470; --h: 600; --bg: #8F2D0E; --ink: #F4F1EC; --ts: 58; --tl: .9; --dw: 400; --b: 24; --dop: 90%; --ob: #F4F1EC; --of: #E0542A; }
+.sc-dr  { --w: 470; --h: 600; --bg: #8F2D0E; --ink: #F4F1EC; --ts: 58; --tl: .9; --dw: 400; --b: 24; --dop: 90%; --ob: #F4F1EC; --of: #E0542A; --glow: #E0542A; }
 .sc-lb  { --w: 349; --h: 600; --bg: #FEE3C1; --ink: #0A0A0A; --ts: 44; --dw: 290; }
 .sc-s10 { --w: 417; --h: 292; --bg: #1B0B45; --ink: #F4F1EC; --ts: 52; --dw: 280; --dop: 82%; }
 .sc-id  { --w: 417; --h: 292; --bg: #3C5AC6; --ink: #FFFFFF; --ts: 34; --tl: .92; --dw: 290; --dop: 85%; }
-.sc-rig { --w: 470; --h: 480; --bg: #4FA3F7; --ink: #0A0A0A; --ts: 52; --tl: .88; --dw: 380; --ob: #0A0A0A; --of: #F4F1EC; }
-.sc-pf  { --w: 392; --h: 480; --bg: #F3EEE6; --ink: #10163A; --ts: 58; --dw: 200; --b: 88; --dop: 72%; --ob: #10163A; --of: #FFFFFF; }
+.sc-rig { --w: 470; --h: 480; --bg: #4FA3F7; --ink: #0A0A0A; --ts: 52; --tl: .88; --dw: 380; --ob: #0A0A0A; --of: #F4F1EC; --glow: #4FA3F7; }
+.sc-pf  { --w: 392; --h: 480; --bg: #F3EEE6; --ink: #10163A; --ts: 58; --dw: 200; --b: 88; --dop: 72%; --ob: #10163A; --of: #FFFFFF; --glow: #E0598B; }
 .sc-ui  { --w: 374; --h: 480; --bg: #60D23D; --ink: #0A0A0A; --ts: 52; --dw: 290; }
 
 /* one card wide on phones; the Figma rows from 900px */
@@ -366,7 +401,7 @@ a.sc:focus-visible { outline-offset: 6px; border-radius: var(--r-card); }
 }
 .ticker:hover .ticker-track { animation-play-state: paused; }
 @keyframes tick { to { transform: translateX(-50%); } }
-@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } a.sc:hover, a.sc:hover .sc-art { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ticker-track { animation: none; } }
 
 .tag {
   flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 30px; padding: 0 12px; border-radius: 999px;
@@ -1074,15 +1109,6 @@ a.sc:focus-visible { outline-offset: 6px; border-radius: var(--r-card); }
 .lessons h3 { font-size: clamp(1.3rem, 1.9vw, 1.55rem); font-weight: 700; letter-spacing: -.01em; }
 .lessons p { color: var(--sx-ink-2); font-size: 1.0625rem; line-height: 1.55; }
 .lessons q { display: block; margin-top: 4px; padding: 12px 14px; border-radius: 12px; background: rgba(224,84,42,.1); color: var(--sx-ink); font-size: .9688rem; line-height: 1.45; quotes: "\201C" "\201D"; }
-
-/* the overview's card for this study: three finishes fanned */
-.sc-art .stk { position: absolute; top: 34px; left: 50%; width: 40%; max-width: 170px; aspect-ratio: 360 / 398; object-fit: cover; border-radius: 18px; box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 20px 40px rgba(0,0,0,.5); transition: transform .7s var(--sx-ease); }
-.sc-art .stk:nth-child(1) { transform: translateX(-118%) rotate(-7deg); top: 46px; }
-.sc-art .stk:nth-child(2) { transform: translateX(-50%); z-index: 2; }
-.sc-art .stk:nth-child(3) { transform: translateX(18%) rotate(7deg); top: 46px; }
-a.sc:hover .sc-art .stk:nth-child(1) { transform: translateX(-124%) rotate(-9deg) translateY(-8px); }
-a.sc:hover .sc-art .stk:nth-child(2) { transform: translateX(-50%) translateY(-14px); }
-a.sc:hover .sc-art .stk:nth-child(3) { transform: translateX(24%) rotate(9deg) translateY(-8px); }
 
 /* =========================================================================
    User profiles: /work/hitman-cricket/profiles/
