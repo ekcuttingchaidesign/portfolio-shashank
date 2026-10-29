@@ -315,7 +315,7 @@ b, strong { font-weight: 700; }
 }
 .sc-art { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; object-fit: cover; transition: transform .9s var(--sx-ease-out); }
 .sc-txt { position: absolute; z-index: 1; left: calc(var(--u) * 28); right: calc(var(--u) * 28); bottom: calc(var(--u) * var(--b, 28)); display: grid; gap: calc(var(--u) * 10); }
-.sc h3 { font-family: var(--jaro); font-weight: 400; font-size: calc(var(--u) * var(--ts)); line-height: var(--tl, .86); text-transform: uppercase; color: var(--ink); }
+.sc h3 { font-weight: 900; font-size: calc(var(--u) * var(--ts)); line-height: var(--tl, .96); letter-spacing: -.025em; color: var(--ink); }
 .sc p { max-width: calc(var(--u) * var(--dw)); font-size: max(14px, calc(var(--u) * 15)); line-height: 1.45; font-weight: 500; color: color-mix(in srgb, var(--ink) var(--dop, 78%), transparent); }
 .sc-open {
   --s: max(40px, calc(var(--u) * 52));
@@ -365,13 +365,13 @@ a.sc:focus-visible { outline-offset: 6px; border-radius: var(--r-card); }
 }
 .vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
-.sc-dr  { --w: 470; --h: 600; --bg: #8F2D0E; --ink: #F4F1EC; --ts: 58; --tl: .9; --dw: 400; --b: 24; --dop: 90%; --ob: #F4F1EC; --of: #E0542A; --glow: #E0542A; }
-.sc-lb  { --w: 349; --h: 600; --bg: #FEE3C1; --ink: #0A0A0A; --ts: 44; --dw: 290; }
-.sc-s10 { --w: 417; --h: 292; --bg: #1B0B45; --ink: #F4F1EC; --ts: 52; --dw: 280; --dop: 82%; }
-.sc-id  { --w: 417; --h: 292; --bg: #3C5AC6; --ink: #FFFFFF; --ts: 34; --tl: .92; --dw: 290; --dop: 85%; }
-.sc-rig { --w: 470; --h: 480; --bg: #4FA3F7; --ink: #0A0A0A; --ts: 52; --tl: .88; --dw: 380; --ob: #0A0A0A; --of: #F4F1EC; --glow: #4FA3F7; }
-.sc-pf  { --w: 392; --h: 480; --bg: #F3EEE6; --ink: #10163A; --ts: 58; --dw: 200; --b: 88; --dop: 72%; --ob: #10163A; --of: #FFFFFF; --glow: #E0598B; }
-.sc-ui  { --w: 374; --h: 480; --bg: #60D23D; --ink: #0A0A0A; --ts: 52; --dw: 290; }
+.sc-dr  { --w: 470; --h: 600; --bg: #8F2D0E; --ink: #F4F1EC; --ts: 48; --dw: 400; --b: 24; --dop: 90%; --ob: #F4F1EC; --of: #E0542A; --glow: #E0542A; }
+.sc-lb  { --w: 349; --h: 600; --bg: #FEE3C1; --ink: #0A0A0A; --ts: 40; --dw: 290; }
+.sc-s10 { --w: 417; --h: 292; --bg: #1B0B45; --ink: #F4F1EC; --ts: 48; --dw: 280; --dop: 82%; }
+.sc-id  { --w: 417; --h: 292; --bg: #3C5AC6; --ink: #FFFFFF; --ts: 32; --tl: 1; --dw: 290; --dop: 85%; }
+.sc-rig { --w: 470; --h: 480; --bg: #4FA3F7; --ink: #0A0A0A; --ts: 46; --dw: 380; --ob: #0A0A0A; --of: #F4F1EC; --glow: #4FA3F7; }
+.sc-pf  { --w: 392; --h: 480; --bg: #F3EEE6; --ink: #10163A; --ts: 46; --dw: 200; --b: 88; --dop: 72%; --ob: #10163A; --of: #FFFFFF; --glow: #E0598B; }
+.sc-ui  { --w: 374; --h: 480; --bg: #60D23D; --ink: #0A0A0A; --ts: 48; --dw: 290; }
 
 /* one card wide on phones; the Figma rows from 900px */
 .studies { max-width: 560px; margin-inline: auto; }
@@ -393,7 +393,7 @@ a.sc:focus-visible { outline-offset: 6px; border-radius: var(--r-card); }
 .ticker { padding-left: 32px; }
 .ticker-track { display: flex; flex: none; animation: tick 46s linear infinite; }
 .ticker ul { display: flex; flex: none; align-items: center; list-style: none; }
-.ticker li { display: flex; align-items: center; gap: 22px; padding-right: 22px; font-family: var(--jaro); font-size: clamp(22px, 2.2vw, 30px); line-height: 1; text-transform: uppercase; white-space: nowrap; }
+.ticker li { display: flex; align-items: center; gap: 24px; padding-right: 24px; font-size: clamp(17px, 1.7vw, 23px); font-weight: 900; line-height: 1; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
 .ticker li::after {
   content: ""; width: 18px; height: 18px; background: var(--sx-key);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.2 16.8 11.1 24 12C16.8 12.9 12.9 16.8 12 24C11.1 16.8 7.2 12.9 0 12C7.2 11.1 11.1 7.2 12 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
