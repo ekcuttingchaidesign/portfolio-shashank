@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Super10 · Hitman Cricket · Shashank</title>
+<meta name="description" content="Designing Super10, a ten-over cricket mode for a phone game: the field, the steering, the brand, a new night stadium, six team kits and the motion. Designed and directed with Claude Code, live in nine days.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ten overs, full charge — designing Super10 for Hitman Cricket">
+<meta property="og:description" content="A ten-over mode under lights, from first board to live in nine days: about 120 commits, 15 Figma sections and 2,429 tests passing at launch.">
+<meta property="og:image" content="https://ekcuttingchaidesign.github.io/portfolio-shashank/public/img/hitman/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Light.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Black.woff2" crossorigin>
+<link rel="stylesheet" href="../../../assets/css/case.css?v=20261030a">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body class="s10-page">
+<a class="skip" href="#main">Skip to the case study</a>
+
+<nav class="nav" aria-label="Site">
+  <a class="me" href="../../../prototype/" aria-label="Shashank — home"><img src="../../../public/img/profile.jpeg" alt="" width="64" height="64"></a>
+  <a class="on" href="../../../prototype/#sx-work" aria-current="page">Work</a>
+  <a href="../../../prototype/#sx-exp">Experience</a>
+  <a class="hide-xs" href="../../../prototype/#s-exit">Outside work</a>
+  <a href="../../../prototype/#sx-contact">Contact</a>
+</nav>
+
+<header class="s10-hero">
+  <div class="wrap pf-grid">
+    <div>
+      <a class="crumb" href="../" data-r>
+        <svg width="16" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true"><path d="M17.2 5H1.8M6.3 1.1 1.8 5l4.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Hitman Cricket
+      </a>
+      <img class="s10-logo" src="../../../public/img/hitman/super10/logo.svg" alt="Super10" width="300" height="144" data-r style="--d:.04s">
+      <h1 class="hl" data-r style="--d:.08s">Ten overs, <b>full charge</b></h1>
+      <p class="lede" data-r style="--d:.12s">A ten-over cricket mode for a phone game. I designed it, directed the build with Claude Code, and took it live in nine days.</p>
+      <ol class="overs10" data-r style="--d:.18s" aria-label="The ten overs and who bowls them">
+        <li class="pp"><b>1</b><span>Swing</span></li>
+        <li class="pp"><b>2</b><span>Seam</span></li>
+        <li class="pp"><b>3</b><span>Swing</span></li>
+        <li class="mid"><b>4</b><span>Spin</span></li>
+        <li class="mid"><b>5</b><span>Sling</span></li>
+        <li class="mid surge"><b>6</b><span>Spin</span></li>
+        <li class="mid surge"><b>7</b><span>Seam</span></li>
+        <li class="death surge"><b>8</b><span>Death</span></li>
+        <li class="death"><b>9</b><span>Sling</span></li>
+        <li class="death"><b>10</b><span>Death</span></li>
+      </ol>
+      <div class="phase" data-r style="--d:.22s"><span style="--c:var(--s-volt)"><i></i>Powerplay</span><span style="--c:var(--s-violet-2)"><i></i>Middle overs</span><span style="--c:#fff"><i></i>Death overs</span><span style="--c:var(--s-gold)"><i></i>Power Surge window</span></div>
+    </div>
+    <div class="s10-duo" data-r style="--d:.1s">
+      <div class="ph tall back"><img src="../../../public/img/hitman/super10/lockup.webp" alt="The Super10 lockup: the batter in a spotlight under the logo, with Ten overs of real T10" width="540" height="960"></div>
+      <div class="ph tall front"><img src="../../../public/img/hitman/super10/stadium.webp" alt="Super10 at night: the batter in purple at the crease, SIX on the big screen over the stands, fireworks above" width="1080" height="1920"></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <dl class="credits" data-r>
+    <div><dt>My role</dt><dd>Product design, motion and art direction</dd></div>
+    <div><dt>Timeline</dt><dd>21&ndash;29 Oct 2026, nine days</dd></div>
+    <div><dt>Team</dt><dd>Me and Claude Code</dd></div>
+    <div><dt>Tools</dt><dd>Figma, Illustrator, Remotion, Claude Code</dd></div>
+  </dl>
+</div>
+
+<nav class="side" aria-label="Sections of this case study">
+  <div class="side-in">
+    <p class="side-t">Super10</p>
+    <ol>
+      <li><a href="#start"><i></i><span>Where it started</span></a></li>
+      <li><a href="#how"><i></i><span>How I worked</span></a></li>
+      <li><a href="#days"><i></i><span>Nine days</span></a></li>
+      <li><a href="#mode"><i></i><span>The mode</span></a></li>
+      <li><a href="#field"><i></i><span>The field</span></a></li>
+      <li><a href="#brand"><i></i><span>The brand</span></a></li>
+      <li><a href="#stadium"><i></i><span>The stadium</span></a></li>
+      <li><a href="#kits"><i></i><span>Team kits</span></a></li>
+      <li><a href="#motion"><i></i><span>Motion</span></a></li>
+      <li><a href="#craft"><i></i><span>Speed and tuning</span></a></li>
+      <li><a href="#cut"><i></i><span>Tried, then cut</span></a></li>
+      <li><a href="#learned"><i></i><span>What I learned</span></a></li>
+    </ol>
+  </div>
+</nav>
+
+<main id="main">
+
+  <section class="sec" id="start" aria-labelledby="start-h">
+    <div class="wrap split">
+      <div>
+        <div class="sec-head" style="margin-bottom:0">
+          <h2 class="h2 hl" id="start-h" data-r>A gap between <b>two modes</b></h2>
+          <p class="lede" data-r style="--d:.08s">Hitman Cricket had the Blast, five overs of arcade hitting, and the Test modes, long and slow. There was nothing in between.</p>
+        </div>
+        <p class="prose" data-r style="margin-top:22px">Players wanted a short match that still feels like a real T20 night: bowlers changing, a field that moves, and a reason to think before swinging.</p>
+        <p class="chips-h" data-r>Three goals</p>
+        <ul class="chips volt" data-r><li>Feel like a real match under lights</li><li>Make the field part of the game</li><li>Give players something to chase</li></ul>
+        <p class="chips-h" data-r>Limits I designed for</p>
+        <ul class="chips" data-r><li>A phone held upright</li><li>One thumb</li><li>Plays in a browser</li><li>60 fps on an iPhone</li><li>No new controls to learn</li></ul>
+      </div>
+      <figure class="clip" data-r>
+        <div class="ph fig"><img src="../../../public/img/hitman/super10/start-screenshot.webp" alt="The Blast before Super10: a day game in the blue kit" width="500" height="1087" loading="lazy"></div>
+        <figcaption>The screenshot I started from: the Blast by day. Super10 had to feel like a different night out, with the same controls.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec tint" id="how" aria-labelledby="how-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="how-h" data-r>How I worked <b>with Claude Code</b></h2>
+        <p class="lede" data-r style="--d:.08s">I worked as designer and director. Claude Code was my build partner: it wrote the game code, and it drafted boards into my Figma file through the Figma connection. Every day ran the same loop, often several times an hour.</p>
+      </div>
+      <ol class="cycle">
+        <li data-r><span class="who me">Me</span><b>Reference</b><p>Slow-motion clips, photos, a console game&rsquo;s field screens.</p></li>
+        <li data-r style="--d:.04s"><span class="who cc">Claude drafts, I edit</span><b>Figma board</b><p>Options laid out to choose from.</p></li>
+        <li data-r style="--d:.08s"><span class="who cc">Claude Code</span><b>Built in the game</b><p>3D, rules and screens, behind tests.</p></li>
+        <li data-r style="--d:.12s"><span class="who me">Me</span><b>Played on my iPhone</b><p>Every build, under the floodlights.</p></li>
+        <li data-r style="--d:.16s"><span class="who me">Me</span><b>Feedback</b><p>Notes down to the hex code, then round again.</p></li>
+      </ol>
+      <div class="lists">
+        <div class="panel me" data-r><h3>What I did</h3><ul><li>Set the direction and made every taste call</li><li>Designed the screens, brand and motion in Figma and Illustrator</li><li>Brought references: slow-motion bowling clips, a console game&rsquo;s field screens, a stadium photo, AI concept art for the kits</li><li>Played every build on my phone and gave notes, down to the hex code</li></ul></div>
+        <div class="panel cc" data-r style="--d:.06s"><h3>What Claude Code did</h3><ul><li>Built my designs into the real game: 3D, rules, screens</li><li>Drafted Figma boards from my direction for me to edit and choose from</li><li>Ran a simulated player to tune how hard the mode is</li><li>Wrote browser checks so new work never broke old work</li></ul></div>
+      </div>
+      <div class="measures">
+        <div data-r><b>9</b><span>days, idea to live</span></div>
+        <div data-r style="--d:.04s"><b>~120</b><span>commits on Super10</span></div>
+        <div data-r style="--d:.08s"><b>15</b><span>Figma sections</span></div>
+        <div data-r style="--d:.12s"><b>2,429</b><span>automated tests passing at launch</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="days" aria-labelledby="days-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="days-h" data-r>Nine <b>days</b></h2>
+      </div>
+      <ol class="days9" data-r tabindex="0" aria-label="Day by day; scrolls sideways">
+        <li><b>21</b><time datetime="2026-10-21">October</time><p>The mode, five bowlers, a new death bowler and the first field.</p></li>
+        <li><b>22</b><time datetime="2026-10-22">October</time><p>The field book and field map. Logo colour, brand sheet, LED stumps, a first night ground.</p></li>
+        <li><b>23</b><time datetime="2026-10-23">October</time><p>A new stadium, the canopy, and its big screen.</p></li>
+        <li><b>24</b><time datetime="2026-10-24">October</time><p>Coming-soon card, Super10&rsquo;s end card, smoothness on iPhone.</p></li>
+        <li><b>25</b><time datetime="2026-10-25">October</time><p>Six team kits. Its own leaderboard, career and tiers.</p></li>
+        <li><b>26</b><time datetime="2026-10-26">October</time><p>Launch review: what is missing before it can go live.</p></li>
+        <li><b>27</b><time datetime="2026-10-27">October</time><p>PLAY card motion, the announcement film, tier cards, rules cards.</p></li>
+        <li><b>28</b><time datetime="2026-10-28">October</time><p>Feedback round from my playtests. COMING TOMORROW goes up.</p></li>
+        <li class="live"><b>29</b><time datetime="2026-10-29">October</time><p>Live for every player.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec" id="mode" aria-labelledby="mode-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="mode-h" data-r>Super10 <b>in one look</b></h2>
+      </div>
+      <div class="tiles5">
+        <div data-r><b>10</b><span>overs</span></div>
+        <div data-r style="--d:.04s"><b>5</b><span>wickets, five batters</span></div>
+        <div data-r style="--d:.08s"><b>5</b><span>bowlers, two overs each</span></div>
+        <div data-r style="--d:.12s"><b>9</b><span>fielders who set up for each bowler</span></div>
+        <div class="v" data-r style="--d:.16s"><b>1</b><span>Power Surge, your choice of over</span></div>
+      </div>
+      <div data-r>
+        <ol class="overs10 big" aria-label="Who bowls each over">
+          <li class="pp"><b>1</b><span>Swing</span></li><li class="pp"><b>2</b><span>Seam</span></li><li class="pp"><b>3</b><span>Swing</span></li>
+          <li class="mid"><b>4</b><span>Spin</span></li><li class="mid"><b>5</b><span>Sling</span></li><li class="mid"><b>6</b><span>Spin or seam</span></li><li class="mid"><b>7</b><span>Seam or spin</span></li>
+          <li class="death"><b>8</b><span>Death</span></li><li class="death"><b>9</b><span>Sling</span></li><li class="death"><b>10</b><span>Death</span></li>
+        </ol>
+        <div class="surge-band" aria-hidden="true"><span>Power Surge: take it in 6, 7 or 8</span></div>
+        <div class="phase"><span style="--c:var(--s-volt)"><i></i>Powerplay</span><span style="--c:var(--s-violet-2)"><i></i>Middle overs</span><span style="--c:#fff"><i></i>Death overs</span><span style="--c:var(--s-gold)"><i></i>Power Surge, or it comes on its own</span></div>
+      </div>
+      <p class="note" data-r>No bowler is ever named. Players tell them apart by their actions and the speed gun, which shows on every ball.</p>
+    </div>
+  </section>
+
+  <section class="sec tint" id="field" aria-labelledby="field-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="field-h" data-r>The field <b>is the game</b></h2>
+        <p class="lede" data-r style="--d:.08s">In T20 the field decides where the runs are. On a phone you stand behind the batter and can&rsquo;t see most of the fielders. So the first job was a field that is real, and a way to read it at a glance.</p>
+      </div>
+
+      <h3 class="sub hl" data-r style="margin-top:0">Step one: <b>study real fields</b></h3>
+      <p class="prose" data-r>I photographed the field screens of a console cricket game. 19 photos became 18 field cards, turned so you are always in the middle and the bowler is up the screen.</p>
+      <figure class="board" data-r><div><img src="../../../public/img/hitman/super10/fields-18.webp" alt="Eighteen field cards in three rows: two out, three out and four out" width="1800" height="1192" loading="lazy"></div><figcaption><b>Figma: eighteen fields, one map.</b> Each card names every man and says what the field leaves open.</figcaption></figure>
+
+      <h3 class="sub hl" data-r>Step two: <b>give every bowler a plan</b></h3>
+      <p class="prose" data-r>Next came a T20 field book of 14 fields, each with the situation it is for. Each bowler gets two: his first field, and another for when you keep hitting the same gap.</p>
+      <ul class="chips" data-r><li><b>Swing</b> &middot; New-ball attack / Square riders</li><li><b>Spinner</b> &middot; Leg-spin strike / Spinner attacking</li><li><b>Sling</b> &middot; Short-ball field / Cutters</li><li><b>Death</b> &middot; Wide yorker / Straight field</li></ul>
+
+      <h3 class="sub hl" data-r>Step three: <b>show it without covering the pitch</b></h3>
+      <div class="opts">
+        <div class="opt no" data-r><div><span class="pill dn">Not chosen</span><h4>A &middot; Always there</h4><p>A see-through map over the foot of the pitch. Always visible, but it sat on the ground the player watches.</p></div><img src="../../../public/img/hitman/super10/map-always-row.webp" alt="Version A: the field map always visible over the pitch" width="1800" height="432" loading="lazy"></div>
+        <div class="opt no" data-r><div><span class="pill dn">Not chosen</span><h4>B &middot; Hidden until asked</h4><p>A pill that opens a sheet. Clean, but nobody opens a sheet in the middle of an over.</p></div><div class="ghost-sheet">A tap-to-open sheet, drawn as a lane in the first Figma section</div></div>
+        <div class="opt pick" data-r><div><span class="pill vt">Chosen &middot; my idea</span><h4>C &middot; Two corners</h4><p>A small live map bottom right, Power Surge bottom left. One tap grows the map out of its corner. The pitch stays as clear as the Blast&rsquo;s.</p></div><img src="../../../public/img/hitman/super10/map-corners-row.webp" alt="Version C: a small field map bottom right and Power Surge bottom left, from first ball to the surge" width="1800" height="432" loading="lazy"></div>
+      </div>
+
+      <div class="phones c3" style="margin-top:clamp(40px,5vw,64px)">
+        <figure data-r><div class="ph fig"><img src="../../../public/img/hitman/super10/game-play.webp" alt="Super10 in play with the small map in the bottom right corner" width="620" height="1342" loading="lazy"></div><figcaption><b>In play</b>The map is only the ground and the dots, never on a panel.</figcaption></figure>
+        <figure data-r style="--d:.05s"><div class="ph fig"><img src="../../../public/img/hitman/super10/game-map-big.webp" alt="The field map enlarged from its corner" width="620" height="1342" loading="lazy"></div><figcaption><b>One tap</b>It grows out of its corner and stays until tapped again.</figcaption></figure>
+        <figure data-r style="--d:.1s"><div class="ph fig"><img src="../../../public/img/hitman/super10/game-modes-poster.webp" alt="Choose a mode with the Super10 poster centred on the rail" width="620" height="1342" loading="lazy"></div><figcaption><b>Choose a mode</b>Super10&rsquo;s poster on the rail, its PLAY card below.</figcaption></figure>
+      </div>
+      <ul class="chips" data-r style="margin-top:24px"><li>Fielders red, you blue, whatever the kits</li><li>A field is set once an over</li><li>Men stand still on their marks</li><li>The bowler signals a field change</li></ul>
+
+      <div class="split" style="margin-top:clamp(64px,8vw,112px)">
+        <div>
+          <h3 class="sub hl" data-r style="margin-top:0">Your swipe <b>steers the ball</b></h3>
+          <p class="prose" data-r>A field only matters if you can aim at the gaps. In Super10 the same swipe that plays a stroke also steers it. Where your thumb lands inside the stroke&rsquo;s zone is where the ball goes along its arc. Aim too wide and you stretch for it: half the time it comes off the toe of the bat, and the call says so.</p>
+          <ul class="chips" data-r><li>Same swipes as every mode</li><li>Keys play the middle of the arc</li><li>STRETCHED &middot; OFF THE TOE</li></ul>
+        </div>
+        <div class="steer panel" data-r>
+          <svg viewBox="0 0 460 340" role="img" aria-labelledby="steer-t"><title id="steer-t">A stroke&rsquo;s arc with two fielders, the ball steered into the gap between them, and the wide ends marked as a stretch</title>
+            <path d="M60 250 A190 190 0 0 1 400 250" fill="none" stroke="#ffffff30" stroke-width="2" stroke-dasharray="6 8"/>
+            <path d="M60 250 A190 190 0 0 1 118 135" fill="none" stroke="#FF2E63" stroke-width="10" stroke-linecap="round" opacity=".55"/>
+            <path d="M342 135 A190 190 0 0 1 400 250" fill="none" stroke="#FF2E63" stroke-width="10" stroke-linecap="round" opacity=".55"/>
+            <line x1="230" y1="300" x2="268" y2="66" stroke="#C6FF1A" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="230" cy="300" r="12" fill="#3F88F2" stroke="#fff" stroke-width="3"/>
+            <circle cx="172" cy="78" r="13" fill="#FF4B4B" stroke="#fff" stroke-width="3"/>
+            <circle cx="330" cy="92" r="13" fill="#FF4B4B" stroke="#fff" stroke-width="3"/>
+            <text x="230" y="332" fill="#B9A3FF" font-family="Satoshi, sans-serif" font-size="15" font-weight="500" text-anchor="middle">you</text>
+            <text x="52" y="122" fill="#FF8AA6" font-family="Satoshi, sans-serif" font-size="14" font-weight="500">stretch</text>
+            <text x="350" y="122" fill="#FF8AA6" font-family="Satoshi, sans-serif" font-size="14" font-weight="500">stretch</text>
+            <text x="282" y="58" fill="#C6FF1A" font-family="Satoshi, sans-serif" font-size="15" font-weight="700">the gap</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="brand" aria-labelledby="brand-h">
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <div class="sec-head" style="margin-bottom:0">
+            <h2 class="h2 hl" id="brand-h" data-r>Ten overs. <b>Full charge.</b></h2>
+            <p class="lede" data-r style="--d:.08s">The logo started as a pink and cyan drawing. I traced it to a vector in Illustrator, then tried it in seven colourways on the game&rsquo;s black and on cream.</p>
+          </div>
+          <p class="prose" data-r style="margin-top:22px">I picked <strong>Volt</strong>: lime and violet on deep purple. Test Green and Inferno looked good too, but they clashed with the Test modes and with the grass. Then a brand sheet, so every later screen had rules to follow.</p>
+        </div>
+        <figure class="board" data-r style="margin-top:0"><div><img src="../../../public/img/hitman/super10/logo-colours.webp" alt="The Super10 logo in seven colourways" width="1100" height="1290" loading="lazy"></div><figcaption><b>Seven colourways.</b> Volt, middle right, won.</figcaption></figure>
+      </div>
+
+      <h3 class="sub hl" data-r>The <b>brand sheet</b></h3>
+      <div class="stack">
+        <figure class="board" data-r style="margin-top:0"><div><img src="../../../public/img/hitman/super10/brand-hero.webp" alt="Brand sheet header: the Super10 mark, TEN OVERS. FULL CHARGE., and Electric, Fast, Under the lights" width="1400" height="265" loading="lazy"></div></figure>
+        <figure class="board" data-r style="margin-top:0"><div><img src="../../../public/img/hitman/super10/brand-marks.webp" alt="The mark on ink, on light, and in one colour white, lime and ink" width="1400" height="159" loading="lazy"></div></figure>
+        <figure class="board" data-r style="margin-top:0"><div><img src="../../../public/img/hitman/super10/brand-colours.webp" alt="Colour tokens: Ink, Plate, Violet, Volt, Volt deep, White, Mist and Wicket, with a budget bar" width="1400" height="176" loading="lazy"></div><figcaption><b>Colour with a budget:</b> ink 55%, plate 20%, violet 12%, lime 8%, white 5%. Raspberry only when a batter is out.</figcaption></figure>
+        <figure class="board" data-r style="margin-top:0"><div><img src="../../../public/img/hitman/super10/brand-stings.webp" alt="The stings: FOUR, SIX, BOWLED, OUT and DUCK" width="1400" height="106" loading="lazy"></div><figcaption><b>The stings for the big screen.</b> Each one strikes in, slams, crackles, settles and leaves.</figcaption></figure>
+        <figure class="board" data-r style="margin-top:0"><div><img src="../../../public/img/hitman/super10/brand-boards.webp" alt="LED board states: idle, four, six and wicket" width="1400" height="55" loading="lazy"></div><figcaption><b>The boards along the rope:</b> idle, FOUR +4, SIX MAXIMUM, WICKET.</figcaption></figure>
+      </div>
+      <p class="chips-h" data-r>Five ground rules</p>
+      <ul class="chips" data-r><li><b>Light, not paint.</b> Grass, pitch and kits stay true</li><li><b>Keep the eyeline dark</b></li><li><b>Lime is a budget.</b> A tenth of any view at most</li><li><b>No strobe.</b> Three flashes a second at most</li><li><b>Wicket means out</b></li></ul>
+      <p class="cap" data-r>This page keeps the same rules.</p>
+    </div>
+  </section>
+
+  <section class="sec tint" id="stadium" aria-labelledby="stadium-h">
+    <div class="wrap">
+      <div class="split">
+        <div>
+          <div class="sec-head" style="margin-bottom:0">
+            <h2 class="h2 hl" id="stadium-h" data-r>A night ground, <b>built twice</b></h2>
+            <p class="lede" data-r style="--d:.08s">The first night ground was branded all over. Every addition made it worse, and I took each one down.</p>
+          </div>
+          <ul class="struck" data-r>
+            <li>A violet LED halo along the roof</li><li>A violet sky</li><li>The crowd in two sides&rsquo; yellow and blue</li><li>A dark sightscreen</li><li>Six searchlights over the far end</li><li>A white ball</li><li>Greener grass with a darker strip</li>
+          </ul>
+          <p class="prose" data-r style="margin-top:22px">The plain night stadium looked better than all of it. So I gave Claude Code a photo of a modern ground and we built a new one, the canopy: roofs lit from inside, VIP boxes, a big screen, LED floodlights and a city behind it.</p>
+          <p class="cap" data-r>A flat roof read as two planks from the crease. A shell stood on end is the one shape a phone camera sees face on.</p>
+        </div>
+        <div class="phones" style="align-self:start">
+          <figure data-r><div class="ph fig"><img src="../../../public/img/hitman/super10/game-six.webp" alt="SIX on the big screen and on the boards along the rope" width="620" height="1342" loading="lazy"></div><figcaption><b>A six</b>The screen and the whole rope.</figcaption></figure>
+          <figure data-r style="--d:.05s"><div class="ph fig"><img src="../../../public/img/hitman/super10/game-bowled.webp" alt="BOWLED on the big screen in raspberry" width="620" height="1342" loading="lazy"></div><figcaption><b>A wicket</b>Raspberry, and only then.</figcaption></figure>
+        </div>
+      </div>
+
+      <h3 class="sub hl" data-r>LED <b>stumps</b></h3>
+      <p class="prose" data-r>Dark plate-violet timber so the ball stands out, SUPER10 reading up each stump, and the light only in the crown, two rings and the bails. They go raspberry the moment a bail lifts.</p>
+      <div class="stack" style="margin-top:20px">
+        <figure class="board" data-r style="margin-top:0"><div><img src="../../../public/img/hitman/super10/stumps-set.webp" alt="LED stumps at rest, lit raspberry when bowled, and their sizes" width="1400" height="459" loading="lazy"></div></figure>
+        <figure class="board" data-r style="margin-top:0"><div><img src="../../../public/img/hitman/super10/stumps-light.webp" alt="The light ball by ball: rest, strike, raspberry, dip, hold, out" width="1400" height="219" loading="lazy"></div><figcaption><b>The light, frame by frame:</b> strike, raspberry, one dip, hold, back to rest.</figcaption></figure>
+      </div>
+
+      <h3 class="sub hl" data-r>The death bowler: <b>three builds of one action</b></h3>
+      <p class="prose" data-r>Super10 needed a bowler for the last overs, famous for his action. I sent slow-motion clips from behind and side on. It took three builds.</p>
+      <div class="rounds" data-r>
+        <div><span class="r">Build 1</span><p><s>The arm dropped back and whipped over. Half a turn.</s></p></div>
+        <div><span class="r">Build 2</span><p><s>The front arm held out level, then turned behind him like a windmill. Not his.</s></p></div>
+        <div class="win"><span class="r">Build 3 &middot; kept</span><p>A short choppy run, the ball arm looping wide and up before a low hop, both arms up, then one full straight turn, quickening to the release.</p></div>
+      </div>
+      <p class="cap" data-r>His over is planned like a real death over: two yorkers, a dipping slower ball, often a slower bouncer, the rest full and quick.</p>
+    </div>
+  </section>
+
+  <section class="sec" id="kits" aria-labelledby="kits-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="kits-h" data-r>Six teams <b>to earn</b></h2>
+        <p class="lede" data-r style="--d:.08s">In Super10 you bat in a team kit. I made concept sheets with an image model, then we built each kit on the 3D batter and tuned it on my phone.</p>
+      </div>
+      <div class="split" style="align-items:start">
+        <figure class="board" data-r style="margin-top:0"><div><img src="../../../public/img/hitman/super10/kit-concepts.webp" alt="AI concept sheets for the first two kits, front, side and back, with fabric and colour details" width="780" height="515" loading="lazy"></div><figcaption><b>Concept sheets.</b> Followed for colour and where the bolts sit, not stroke for stroke.</figcaption></figure>
+        <div>
+          <h3 class="sub hl" data-r style="margin-top:0">Five purples <b>in one afternoon</b></h3>
+          <p class="prose" data-r>The base purple changed five times, checked on my iPhone under the floodlights each time.</p>
+          <div class="swatches" data-r aria-label="The purple, from first to kept">
+            <span class="sw" style="--s:#200C6D"><i></i>#200C6D</span><span class="sw-to" aria-hidden="true">&rarr;</span>
+            <span class="sw" style="--s:#140941"><i></i>#140941</span><span class="sw-to" aria-hidden="true">&rarr;</span>
+            <span class="sw" style="--s:#1B0D55"><i></i>#1B0D55</span><span class="sw-to" aria-hidden="true">&rarr;</span>
+            <span class="sw" style="--s:#221067"><i></i>#221067</span><span class="sw-to" aria-hidden="true">&rarr;</span>
+            <span class="sw kept" style="--s:#271473"><i></i>#271473</span>
+          </div>
+          <div class="iter" data-r>
+            <div><b>Apex Vipers</b><s>diamondback</s><s>angular blocks</s><s>yoke stripes</s><em>lightning, streaks and slashes</em></div>
+            <div><b>Aura Farmers</b><s>three arcs</s><s>half navy</s><s>diagonal band</s><em>squares fading up the front</em></div>
+            <div><b>Royal Mavericks</b><s>band of crown points</s><s>sash</s><em>teal waves all over</em></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kits" data-r>
+        <div class="kit-stage"><img id="kit-img" src="../../../public/img/hitman/super10/kit-0.webp" alt="The Midnight Panthers kit on the batter" width="480" height="832"></div>
+        <div>
+          <h3 class="sub hl" style="margin:0 0 18px">Pick <b>a team</b></h3>
+          <div class="kit-pick" role="group" aria-label="Pick a team to see its kit">
+            <button type="button" data-k="0" aria-pressed="true" style="--k:#271473"><i></i><b>Midnight Panthers</b><small>Free from the first innings</small></button>
+            <button type="button" data-k="1" aria-pressed="false" style="--k:#B8E830"><i></i><b>Apex Vipers</b><small>10 innings</small></button>
+            <button type="button" data-k="2" aria-pressed="false" style="--k:#F3E2A0"><i></i><b>Nova Kings</b><small>50 sixes + 1,500 runs</small></button>
+            <button type="button" data-k="3" aria-pressed="false" style="--k:#E92568"><i></i><b>Frontier Falcons</b><small>10 innings of 100+</small></button>
+            <button type="button" data-k="4" aria-pressed="false" style="--k:#F07A1A"><i></i><b>Aura Farmers</b><small>5,000 runs</small></button>
+            <button type="button" data-k="5" aria-pressed="false" style="--k:#178C89"><i></i><b>Royal Mavericks</b><small>A 200+ innings + 10,000 runs</small></button>
+          </div>
+          <p class="cap">Earned on team totals, never one batter&rsquo;s score. The patterns are printed onto the cloth by a shader, so six kits cost the phone nothing extra to draw.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec tint" id="motion" aria-labelledby="motion-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="motion-h" data-r>Motion that charges, <b>then rests</b></h2>
+      </div>
+
+      <h3 class="sub hl" data-r style="margin-top:0">The <b>PLAY card</b></h3>
+      <p class="prose" data-r>Before launch the card said COMING SOON. I tried two pictures and chose the charged bat, then designed a four-second loop in Figma, keyframe by keyframe.</p>
+      <figure class="board" data-r><div><img src="../../../public/img/hitman/super10/coming-soon-cards.webp" alt="Two coming-soon card options: the full swing and the charged bat" width="1500" height="738" loading="lazy"></div><figcaption><b>V1, the full swing, and V2, the charged bat.</b> V2 won: the lime glow is the biggest thing on the card.</figcaption></figure>
+      <div class="split" style="margin-top:clamp(40px,5vw,64px)">
+        <figure class="clip" data-r>
+          <div class="ph card"><video src="../../../public/video/hitman/super10-playcard.mp4" poster="../../../public/img/hitman/super10/poster-playcard.webp" muted loop playsinline autoplay preload="metadata" width="780" height="1040" aria-label="Recording: the Super10 PLAY card charging and striking on Choose a mode"></video></div>
+          <figcaption>Recorded from the game.</figcaption>
+        </figure>
+        <div>
+          <p class="prose" data-r>The bat charges with lime arcs, one arc strikes the PLAY key, the key flashes and a ring pulses out, sparks float off, then it rests. Every four seconds, only while the screen is open.</p>
+          <div data-r>
+            <div class="loop4" role="img" aria-label="The four-second loop: rest, charge, hit, pulse, settle, rest">
+              <span style="--c:#3A1A78;--t:#E4E1F2;flex:.4">Rest</span><span style="--c:var(--s-violet);flex:.5">Charge</span><span style="--c:var(--s-volt);flex:.2">Hit</span><span style="--c:#D9FF6E;flex:.5">Pulse</span><span style="--c:#6D4BD1;--t:#fff;flex:.8">Settle</span><span style="--c:#2A0E5C;--t:#B9A3FF;flex:1.6">Rest</span>
+            </div>
+            <div class="loop4-ax" aria-hidden="true"><span>0 s</span><span>1 s</span><span>2 s</span><span>3 s</span><span>4 s</span></div>
+          </div>
+          <ul class="chips" data-r><li>Arcs redrawn every second frame</li><li>Never more than three flashes a second</li><li>Still under reduced motion</li><li>Slams in with a ring of arcs the first time you see it</li></ul>
+        </div>
+      </div>
+      <figure class="board" data-r><div><img src="../../../public/img/hitman/super10/playcard.webp" alt="Figma: the PLAY card in its states and five keyframes, rest, charge, strike, pulse and settle" width="1600" height="773" loading="lazy"></div><figcaption><b>Figma:</b> the card new and played, and the five keyframes with a motion note.</figcaption></figure>
+
+      <h3 class="sub hl" data-r>The <b>announcement film</b></h3>
+      <div class="split">
+        <div>
+          <p class="prose" data-r>The first storyboard was flat vector shapes, to be built as a Lottie. I turned it down: it looked like an explainer, not a night match. The film that shipped was made in Remotion with the real game. The kits were filmed on the Dressing Room&rsquo;s turntable, and the stadium shot comes from the game&rsquo;s own camera.</p>
+          <ul class="chips" data-r><li>Lightning strikes on frame one</li><li>The mark is built inside the first second</li><li>10 OVERS &middot; NEW STADIUM &middot; POWER SURGE</li><li>Team kits sweep on</li><li>Held on the lockup</li></ul>
+          <p class="cap" data-r>After my first viewing, the 5 BOWLERS beat became NEW STADIUM and the intro got faster.</p>
+        </div>
+        <figure class="clip" data-r>
+          <div class="ph film"><video src="../../../public/video/hitman/super10-film.mp4" poster="../../../public/img/hitman/super10/poster-film.webp" controls muted playsinline preload="none" width="720" height="1280" aria-label="The Super10 announcement film, fifteen seconds"></video></div>
+          <figcaption>Shipped: 15 seconds, 2.8 MB, shown twice to every player and then never.</figcaption>
+        </figure>
+      </div>
+      <figure class="board dim" data-r><div><img src="../../../public/img/hitman/super10/film-storyboard.webp" alt="The first storyboard: seven flat vector story frames" width="1600" height="796" loading="lazy"></div><figcaption><span class="pill dn" style="margin:0 8px 0 0">Not used</span>The first storyboard, seven flat frames.</figcaption></figure>
+
+      <h3 class="sub hl" data-r>Tier <b>cards</b></h3>
+      <p class="prose" data-r>Super10 has its own career ladder, and each rung has its own card material: matte ink, anodised violet, black chrome with lightning, and gold foil. My first Hitman card was Volt foil. Gold won, because gold reads as the top in every mode.</p>
+      <figure class="board" data-r><div><img src="../../../public/img/hitman/super10/tiers.webp" alt="Four Super10 tier cards: Debutant, Emerging Player, Star and Hitman" width="1500" height="314" loading="lazy"></div></figure>
+    </div>
+  </section>
+
+  <section class="sec" id="craft" aria-labelledby="craft-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="craft-h" data-r>Smooth on a phone, <b>tuned by a simulated player</b></h2>
+      </div>
+      <div class="r2">
+        <div class="panel" data-r>
+          <h3>Frames a second, during a special shot</h3>
+          <p class="ph3">A big moment that drops frames <b>feels cheap</b></p>
+          <div class="hb">
+            <div><span>Before</span><div class="tr"><i style="--c:var(--s-wicket);--w:55%;color:#12052B">29&ndash;40</i></div></div>
+            <div><span>After</span><div class="tr"><i style="--c:var(--s-volt);--w:97%">58</i></div></div>
+          </div>
+          <ul class="chips"><li>Glass blur behind the score bar &rarr; a solid bar</li><li>Big-screen stings at 15 fps, not every refresh</li><li>No layout work in the middle of a ball</li><li>The ball&rsquo;s streak spaced in time, not distance</li></ul>
+          <p class="cap">On my iPhone; 60 is the top. Nobody can see 15 fps on a screen that small and far away. Everybody feels a dropped frame.</p>
+        </div>
+        <div class="panel" data-r style="--d:.06s">
+          <h3>Average team total over ten overs</h3>
+          <p class="ph3">Five batters <b>felt right</b></p>
+          <div class="hb">
+            <div><span>Pro</span><div class="tr"><i style="--c:#6F6893;--w:65%;color:#fff">172</i><i style="--c:#A59FC4;--w:59%">155</i><i style="--c:var(--s-volt);--w:74%">196</i></div></div>
+            <div><span>Regular</span><div class="tr"><i style="--c:#6F6893;--w:33%;color:#fff">86</i><i style="--c:#A59FC4;--w:22%">59</i><i style="--c:var(--s-volt);--w:37%">98</i></div></div>
+            <div><span>Beginner</span><div class="tr"><i style="--c:#6F6893;--w:11%;color:#fff">28</i><i style="--c:#A59FC4;--w:8%">20</i><i style="--c:var(--s-volt);--w:14%">36</i></div></div>
+          </div>
+          <div class="legend s10"><span><i style="--c:#6F6893"></i>3 wickets, narrow six</span><span><i style="--c:#A59FC4"></i>3 wickets, Marathon timing</span><span><i style="--c:var(--s-volt)"></i>Shipped: 5 wickets</span></div>
+          <p class="cap">Claude Code played thousands of innings as three kinds of player. Three wickets felt too strict once the field was in; five batters with the Test Marathon&rsquo;s timing felt right. The best pro innings came near 255.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="cut" aria-labelledby="cut-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="cut-h" data-r>Tried, <b>then cut</b></h2>
+        <p class="lede" data-r style="--d:.08s">Most of the craft was taking things out. These are the ones that taught me the most.</p>
+      </div>
+      <div class="cuts">
+        <article data-r><h3>The field</h3><p class="was">Fielders moved every ball to plug the last gap.</p><p class="now">A field set once an over. Men stand still.</p></article>
+        <article data-r style="--d:.04s"><h3>The field map</h3><p class="was">A big white pill named the field every over.</p><p class="now">A quiet glass chip, only when the field changes.</p></article>
+        <article data-r style="--d:.08s"><h3>The enlarged map</h3><p class="was">It closed itself as the bowler ran in.</p><p class="now">It stays up until you tap it.</p></article>
+        <article data-r><h3>Map colours</h3><p class="was">Dots in each kit&rsquo;s colours.</p><p class="now">Fielders red, you blue, always.</p></article>
+        <article data-r style="--d:.04s"><h3>Fielders out of sight</h3><p class="was">Mid-off and mid-on at the book&rsquo;s angle, never on screen.</p><p class="now">Moved in a little so the camera sees them.</p></article>
+        <article data-r style="--d:.08s"><h3>The Super10 page</h3><p class="was">A full Super10 re-skin of the mode page.</p><p class="now">The game&rsquo;s own UI, with Super10 colour as accents.</p></article>
+        <article data-r><h3>Before launch</h3><p class="was">A coming-soon page with an I&rsquo;M EXCITED key.</p><p class="now">Replaced at launch by the PLAY card.</p></article>
+        <article data-r style="--d:.04s"><h3>The score bar</h3><p class="was">Frosted glass over the 3D.</p><p class="now">Solid ink with a violet edge. Same look, smoother.</p></article>
+        <article data-r style="--d:.08s"><h3>My profile</h3><p class="was">Mode tabs in a grid of three; Super10 wrapped to a new line.</p><p class="now">One line that scrolls. Found in my last playtest.</p></article>
+      </div>
+
+      <div class="split" style="margin-top:clamp(96px,12vw,180px)">
+        <div>
+          <div class="sec-head" style="margin-bottom:0">
+            <h2 class="h2 hl" data-r>Live on <b>29 October</b></h2>
+            <p class="lede" data-r style="--d:.08s">I played the final preview on my phone. One change, the My profile tabs. Then Super10 went live for every player on hitmancricket.in.</p>
+          </div>
+          <ul class="chips volt" data-r style="margin-top:24px"><li>Its own leaderboard</li><li>Career runs board</li><li>Tier ladder: 750 / 7,500 / 25,000</li><li>Six kits in the Dressing Room</li><li>Rules cards on a first innings</li><li>Star rating prompt</li></ul>
+        </div>
+        <figure class="clip" data-r>
+          <div class="ph fig"><img src="../../../public/img/hitman/super10/game-modes.webp" alt="Choose a mode on launch day, with the Super10 PLAY card" width="620" height="1342" loading="lazy"></div>
+          <figcaption>Choose a mode on launch day.</figcaption>
+        </figure>
+      </div>
+
+      <h3 class="sub hl" data-r>Numbers, <b>coming soon</b></h3>
+      <p class="prose" data-r>Super10 went live on 29 October 2026. I&rsquo;ll add numbers here once it has a few weeks of play.</p>
+      <div class="soon" data-r style="margin-top:20px">
+        <div><b>&mdash;</b>Players who tried Super10</div>
+        <div><b>&mdash;</b>Innings played</div>
+        <div><b>&mdash;</b>Players who came back for a second</div>
+        <div><b>&mdash;</b>Team kits earned</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="learned" aria-labelledby="learned-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="learned-h" data-r>Four things <b>I&rsquo;ll keep</b></h2>
+      </div>
+      <div class="says">
+        <article data-r><h3 class="hl">Show, <b>don&rsquo;t describe</b></h3><p>Slow-motion clips, photos and concept art got the bowler, the field and the kits right far faster than any written brief.</p></article>
+        <article data-r><h3 class="hl">Decide on <b>the real phone</b></h3><p>Colours, motion and the field map all changed after I played them on my iPhone. Figma got me close; the phone decided.</p></article>
+        <article data-r><h3 class="hl">Write <b>the rules down</b></h3><p>The brand sheet&rsquo;s five ground rules kept every new screen on brand, even ones I never drew.</p></article>
+        <article data-r><h3 class="hl">Cut <b>the loud version</b></h3><p>Searchlights, halos, white pills, a violet sky. The quiet version won every time.</p></article>
+      </div>
+
+      <div class="next">
+        <a href="../" data-r><span class="label">Back to</span><b>Hitman Cricket: <strong>all seven stories</strong></b><p>The Dressing Room, the batter, profiles, identity and more.</p></a>
+        <a href="../dressing-room/" data-r style="--d:.06s"><span class="label">Read next</span><b>Play. Earn. Wear: <strong>The Dressing Room</strong></b><p>Where Super10&rsquo;s six team kits are earned and worn.</p></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-in">
+      <div>
+        <h2 class="hl">Ten overs. <b>Under the lights.</b></h2>
+        <p>Super10 is live in Hitman Cricket. It&rsquo;s free, and it&rsquo;s best on a phone.</p>
+        <div class="row">
+          <a class="btn" href="https://hitmancricket.in/" target="_blank" rel="noopener">Play Super10
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="link" href="../">All Hitman Cricket stories</a>
+        </div>
+        <p class="foot-note">Screens are from the live game and from the Super10 Figma file. Super10 &middot; Hitman Cricket &middot; designed by Shashank, built with Claude Code, October 2026.</p>
+      </div>
+      <div class="foot-play" aria-hidden="true">
+        <div class="ph fig"><img src="../../../public/img/hitman/super10/game-six.webp" alt="" width="620" height="1342" loading="lazy"></div>
+        <div class="ph fig"><img src="../../../public/img/hitman/super10/game-play.webp" alt="" width="620" height="1342" loading="lazy"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../../../assets/js/case.js" defer></script>
+<script>
+/* The team picker: choose a kit and the batter wears it. */
+(() => {
+  const img = document.getElementById('kit-img');
+  const keys = [...document.querySelectorAll('.kit-pick button')];
+  if (!img || !keys.length) return;
+  const base = '../../../public/img/hitman/super10/kit-';
+  const warm = () => keys.forEach((_, i) => { const p = new Image(); p.src = base + i + '.webp'; });
+  if ('requestIdleCallback' in window) requestIdleCallback(warm); else setTimeout(warm, 1500);
+  keys.forEach(key => key.addEventListener('click', () => {
+    if (key.getAttribute('aria-pressed') === 'true') return;
+    const k = key.dataset.k;
+    keys.forEach(o => o.setAttribute('aria-pressed', String(o === key)));
+    img.classList.add('swap');
+    setTimeout(() => {
+      img.src = base + k + '.webp';
+      img.alt = 'The ' + key.querySelector('b').textContent + ' kit on the batter';
+      const done = () => img.classList.remove('swap');
+      if (img.complete) done(); else img.addEventListener('load', done, { once: true });
+    }, 160);
+  }));
+})();
+</script>
+</body>
+</html>
