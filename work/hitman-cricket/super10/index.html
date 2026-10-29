@@ -12,7 +12,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Light.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Black.woff2" crossorigin>
-<link rel="stylesheet" href="../../../assets/css/case.css?v=20261030a">
+<link rel="stylesheet" href="../../../assets/css/case.css?v=20261030b">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body class="s10-page">
@@ -324,18 +324,27 @@
       </div>
 
       <div class="kits" data-r>
-        <div class="kit-stage"><img id="kit-img" src="../../../public/img/hitman/super10/kit-0.webp" alt="The Midnight Panthers kit on the batter" width="480" height="832"></div>
-        <div>
-          <h3 class="sub hl" style="margin:0 0 18px">Pick <b>a team</b></h3>
-          <div class="kit-pick" role="group" aria-label="Pick a team to see its kit">
-            <button type="button" data-k="0" aria-pressed="true" style="--k:#271473"><i></i><b>Midnight Panthers</b><small>Free from the first innings</small></button>
-            <button type="button" data-k="1" aria-pressed="false" style="--k:#B8E830"><i></i><b>Apex Vipers</b><small>10 innings</small></button>
-            <button type="button" data-k="2" aria-pressed="false" style="--k:#F3E2A0"><i></i><b>Nova Kings</b><small>50 sixes + 1,500 runs</small></button>
-            <button type="button" data-k="3" aria-pressed="false" style="--k:#E92568"><i></i><b>Frontier Falcons</b><small>10 innings of 100+</small></button>
-            <button type="button" data-k="4" aria-pressed="false" style="--k:#F07A1A"><i></i><b>Aura Farmers</b><small>5,000 runs</small></button>
-            <button type="button" data-k="5" aria-pressed="false" style="--k:#178C89"><i></i><b>Royal Mavericks</b><small>A 200+ innings + 10,000 runs</small></button>
-          </div>
+        <div class="kits-head">
+          <h3 class="sub hl">The six <b>teams</b></h3>
           <p class="cap">Earned on team totals, never one batter&rsquo;s score. The patterns are printed onto the cloth by a shader, so six kits cost the phone nothing extra to draw.</p>
+        </div>
+        <div class="kit-rail">
+          <ul class="kit-track">
+          <li style="--k:#8B5CF6"><img src="../../../public/img/hitman/super10/kit-0.webp" alt="The Midnight Panthers kit on the batter" width="480" height="832" loading="lazy"><div><b>Midnight Panthers</b><em>Free</em><small>Free from the first innings</small></div></li>
+          <li style="--k:#B8E830"><img src="../../../public/img/hitman/super10/kit-1.webp" alt="The Apex Vipers kit on the batter" width="480" height="832" loading="lazy"><div><b>Apex Vipers</b><small>10 innings</small></div></li>
+          <li style="--k:#F3E2A0"><img src="../../../public/img/hitman/super10/kit-2.webp" alt="The Nova Kings kit on the batter" width="480" height="832" loading="lazy"><div><b>Nova Kings</b><small>50 sixes + 1,500 runs</small></div></li>
+          <li style="--k:#E92568"><img src="../../../public/img/hitman/super10/kit-3.webp" alt="The Frontier Falcons kit on the batter" width="480" height="832" loading="lazy"><div><b>Frontier Falcons</b><small>10 innings of 100+</small></div></li>
+          <li style="--k:#F07A1A"><img src="../../../public/img/hitman/super10/kit-4.webp" alt="The Aura Farmers kit on the batter" width="480" height="832" loading="lazy"><div><b>Aura Farmers</b><small>5,000 runs</small></div></li>
+          <li style="--k:#2FC4BF"><img src="../../../public/img/hitman/super10/kit-5.webp" alt="The Royal Mavericks kit on the batter" width="480" height="832" loading="lazy"><div><b>Royal Mavericks</b><small>A 200+ innings + 10,000 runs</small></div></li>
+          </ul>
+          <ul class="kit-track" aria-hidden="true">
+          <li style="--k:#8B5CF6"><img src="../../../public/img/hitman/super10/kit-0.webp" alt="" width="480" height="832" loading="lazy"><div><b>Midnight Panthers</b><em>Free</em><small>Free from the first innings</small></div></li>
+          <li style="--k:#B8E830"><img src="../../../public/img/hitman/super10/kit-1.webp" alt="" width="480" height="832" loading="lazy"><div><b>Apex Vipers</b><small>10 innings</small></div></li>
+          <li style="--k:#F3E2A0"><img src="../../../public/img/hitman/super10/kit-2.webp" alt="" width="480" height="832" loading="lazy"><div><b>Nova Kings</b><small>50 sixes + 1,500 runs</small></div></li>
+          <li style="--k:#E92568"><img src="../../../public/img/hitman/super10/kit-3.webp" alt="" width="480" height="832" loading="lazy"><div><b>Frontier Falcons</b><small>10 innings of 100+</small></div></li>
+          <li style="--k:#F07A1A"><img src="../../../public/img/hitman/super10/kit-4.webp" alt="" width="480" height="832" loading="lazy"><div><b>Aura Farmers</b><small>5,000 runs</small></div></li>
+          <li style="--k:#2FC4BF"><img src="../../../public/img/hitman/super10/kit-5.webp" alt="" width="480" height="832" loading="lazy"><div><b>Royal Mavericks</b><small>A 200+ innings + 10,000 runs</small></div></li>
+          </ul>
         </div>
       </div>
     </div>
@@ -504,28 +513,5 @@
 </footer>
 
 <script src="../../../assets/js/case.js" defer></script>
-<script>
-/* The team picker: choose a kit and the batter wears it. */
-(() => {
-  const img = document.getElementById('kit-img');
-  const keys = [...document.querySelectorAll('.kit-pick button')];
-  if (!img || !keys.length) return;
-  const base = '../../../public/img/hitman/super10/kit-';
-  const warm = () => keys.forEach((_, i) => { const p = new Image(); p.src = base + i + '.webp'; });
-  if ('requestIdleCallback' in window) requestIdleCallback(warm); else setTimeout(warm, 1500);
-  keys.forEach(key => key.addEventListener('click', () => {
-    if (key.getAttribute('aria-pressed') === 'true') return;
-    const k = key.dataset.k;
-    keys.forEach(o => o.setAttribute('aria-pressed', String(o === key)));
-    img.classList.add('swap');
-    setTimeout(() => {
-      img.src = base + k + '.webp';
-      img.alt = 'The ' + key.querySelector('b').textContent + ' kit on the batter';
-      const done = () => img.classList.remove('swap');
-      if (img.complete) done(); else img.addEventListener('load', done, { once: true });
-    }, 160);
-  }));
-})();
-</script>
 </body>
 </html>
