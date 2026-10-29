@@ -12,7 +12,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Light.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Black.woff2" crossorigin>
-<link rel="stylesheet" href="../../../assets/css/case.css?v=20261030b">
+<link rel="stylesheet" href="../../../assets/css/case.css?v=20261030c">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body class="s10-page">
@@ -328,7 +328,7 @@
           <h3 class="sub hl">The six <b>teams</b></h3>
           <p class="cap">Earned on team totals, never one batter&rsquo;s score. The patterns are printed onto the cloth by a shader, so six kits cost the phone nothing extra to draw.</p>
         </div>
-        <div class="kit-rail">
+        <div class="kit-rail" tabindex="0" role="region" aria-label="The six team kits. Drag, scroll or use the arrow keys to move along.">
           <ul class="kit-track">
           <li style="--k:#8B5CF6"><img src="../../../public/img/hitman/super10/kit-0.webp" alt="The Midnight Panthers kit on the batter" width="480" height="832" loading="lazy"><div><b>Midnight Panthers</b><em>Free</em><small>Free from the first innings</small></div></li>
           <li style="--k:#B8E830"><img src="../../../public/img/hitman/super10/kit-1.webp" alt="The Apex Vipers kit on the batter" width="480" height="832" loading="lazy"><div><b>Apex Vipers</b><small>10 innings</small></div></li>
@@ -513,5 +513,44 @@
 </footer>
 
 <script src="../../../assets/js/case.js" defer></script>
+<script>
+/* The kit rail drifts on its own; drag it, wheel it or swipe it and it follows, then drifts on. */
+(() => {
+  const rail = document.querySelector('.kit-rail');
+  const track = rail && rail.querySelector('.kit-track');
+  if (!rail || !track) return;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const speed = 40; // px a second
+  let x = 1, last = 0, rest = 0, hover = false, drag = null;
+  const half = () => track.offsetWidth;
+  const wrap = () => { const h = half(); if (x >= h) x -= h; else if (x <= 0) x += h; };
+  const hold = (ms) => { rest = performance.now() + ms; };
+  const tick = (t) => {
+    const dt = last ? Math.min(t - last, 64) / 1000 : 0; last = t;
+    if (Math.abs(rail.scrollLeft - x) > 2) x = rail.scrollLeft; // someone swiped or used the keys
+    if (!still && !hover && !drag && t > rest) x += speed * dt;
+    wrap(); rail.scrollLeft = x;
+    requestAnimationFrame(tick);
+  };
+  rail.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') hover = true; });
+  rail.addEventListener('pointerleave', () => { hover = false; });
+  rail.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    drag = { from: e.clientX, at: x }; rail.classList.add('drag'); rail.setPointerCapture(e.pointerId);
+  });
+  rail.addEventListener('pointermove', e => { if (drag) { x = drag.at - (e.clientX - drag.from); wrap(); rail.scrollLeft = x; } });
+  const drop = () => { if (!drag) return; drag = null; rail.classList.remove('drag'); hold(1200); };
+  rail.addEventListener('pointerup', drop);
+  rail.addEventListener('pointercancel', drop);
+  rail.addEventListener('wheel', e => {
+    const d = (Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX) * (e.deltaMode === 1 ? 40 : 1);
+    if (!d) return;
+    e.preventDefault(); x += d; wrap(); rail.scrollLeft = x; hold(1500);
+  }, { passive: false });
+  rail.addEventListener('touchstart', () => hold(2500), { passive: true });
+  rail.addEventListener('keydown', () => hold(2500));
+  requestAnimationFrame(tick);
+})();
+</script>
 </body>
 </html>
