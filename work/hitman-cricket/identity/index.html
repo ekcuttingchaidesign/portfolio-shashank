@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Identity without accounts · Hitman Cricket · Shashank</title>
+<meta name="description" content="Account recovery for a cricket game with no sign-up: a career key players didn&rsquo;t keep, then a password their phone keeps for them. Five weeks, measured from the first day.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Don&rsquo;t lose your runs — a Hitman Cricket case study">
+<meta property="og:description" content="62% of players left the career key sheet without saving it. With passwords, 5 of 5 tries to come back worked.">
+<meta property="og:image" content="https://ekcuttingchaidesign.github.io/portfolio-shashank/public/img/hitman/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Light.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Black.woff2" crossorigin>
+<link rel="stylesheet" href="../../../assets/css/case.css?v=20261029d">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the case study</a>
+
+<nav class="nav" aria-label="Site">
+  <a class="me" href="../../../prototype/" aria-label="Shashank — home"><img src="../../../public/img/profile.jpeg" alt="" width="64" height="64"></a>
+  <a class="on" href="../../../prototype/#sx-work" aria-current="page">Work</a>
+  <a href="../../../prototype/#sx-exp">Experience</a>
+  <a class="hide-xs" href="../../../prototype/#s-exit">Outside work</a>
+  <a href="../../../prototype/#sx-contact">Contact</a>
+</nav>
+
+<header class="id-hero">
+  <div class="wrap pf-grid">
+    <div>
+      <a class="crumb" href="../" data-r>
+        <svg width="16" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true"><path d="M17.2 5H1.8M6.3 1.1 1.8 5l4.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Hitman Cricket
+      </a>
+      <h1 class="hl" data-r style="--d:.06s">Don&rsquo;t lose <b>your runs</b></h1>
+      <p class="lede" data-r style="--d:.12s">How I designed account recovery for a cricket game that has no sign-up. First with a career key that players didn&rsquo;t keep, then with a password their phone keeps for them.</p>
+      <dl class="meta" data-r style="--d:.18s">
+        <div><dt>My role</dt><dd>Product designer: research, UX, UI, copy and analytics</dd></div>
+        <div><dt>Built with</dt><dd>Claude Code as my engineering partner</dd></div>
+        <div><dt>Timeline</dt><dd>22 Sep &ndash; 28 Oct 2026, five weeks</dd></div>
+        <div><dt>Platform</dt><dd>A phone-browser game: no app, no sign-up</dd></div>
+      </dl>
+      <dl class="facts" data-r style="--d:.22s">
+        <div><dt>62%</dt><dd>left the key sheet without saving</dd></div>
+        <div><dt>8<small style="font-size:1rem">/17</small></dt><dd>key comebacks turned away</dd></div>
+        <div><dt>5<small style="font-size:1rem">/5</small></dt><dd>password comebacks worked</dd></div>
+      </dl>
+    </div>
+    <div class="id-swap" data-r style="--d:.1s">
+      <figure>
+        <div class="ph fig"><img src="../../../public/img/hitman/identity/key-sheet.webp" alt="Version 1, the Save your career key sheet: the key pulled-jumps-record-44 on a foil plate, with Screenshot this screen, Save as image, WhatsApp and Copy" width="804" height="1748"></div>
+        <figcaption><span class="pill key">Version 1 &middot; Career key</span></figcaption>
+      </figure>
+      <figure>
+        <div class="ph fig"><img src="../../../public/img/hitman/identity/pw-sheet-filled.webp" alt="Version 2, the Set a password sheet: batting as GauravRana, the password and its confirmation filled, three rules ticked green" width="804" height="1748"></div>
+        <figcaption><span class="pill pw">Version 2 &middot; Career password</span></figcaption>
+      </figure>
+      <p class="plate" aria-label="A career key: pulled-jumps-record-44"><span>pulled</span><i>-</i><span>jumps</span><i>-</i><span>record</span><i>-</i><span>44</span></p>
+    </div>
+  </div>
+</header>
+
+<nav class="side" aria-label="Sections of this case study">
+  <div class="side-in">
+    <p class="side-t">Identity without accounts</p>
+    <ol>
+      <li><a href="#problem"><i></i><span>The problem</span></a></li>
+      <li><a href="#key"><i></i><span>The career key</span></a></li>
+      <li><a href="#kept"><i></i><span>What happened</span></a></li>
+      <li><a href="#rethink"><i></i><span>The rethink</span></a></li>
+      <li><a href="#rules"><i></i><span>Four rules</span></a></li>
+      <li><a href="#asking"><i></i><span>When to ask</span></a></li>
+      <li><a href="#sheet"><i></i><span>The sheet</span></a></li>
+      <li><a href="#back"><i></i><span>Coming back</span></a></li>
+      <li><a href="#results"><i></i><span>Results</span></a></li>
+      <li><a href="#learned"><i></i><span>What I learned</span></a></li>
+    </ol>
+  </div>
+</nav>
+
+<main id="main">
+
+  <section class="sec" id="problem" aria-labelledby="problem-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="problem-h" data-r>The browser <b>forgets you</b></h2>
+        <p class="lede" data-r style="--d:.08s">Hitman Cricket is played in your phone&rsquo;s browser. There is no sign-up: you tap PLAY and you&rsquo;re batting in seconds. That was a deliberate choice, and it came with a hidden cost.</p>
+      </div>
+      <div class="walls">
+        <div data-r><h3>Who you are lives in the browser</h3><p>Each player is a random ID stored on their phone. No email, no password, no account. The game knows you only because your browser remembers that ID.</p></div>
+        <div data-r style="--d:.06s"><h3>Careers made forgetting expensive</h3><p>Once the game added careers, tiers and leaderboards, a lost ID stopped costing one high score. It cost everything: every run, every unlock, your place on the board. The longer you played, the more you had to lose.</p></div>
+      </div>
+
+      <h3 class="sub hl" data-r>Where the ID <b>survives</b></h3>
+      <div class="cost wide scroll-x" data-r>
+        <table>
+          <thead><tr><th scope="col">What happens</th><th scope="col" class="c">Browser storage</th><th scope="col" class="c">A cookie the game writes</th><th scope="col" class="c">A cookie the server sets</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">An iPhone, a week without playing<span class="why-n">Safari clears the site&rsquo;s data</span></th><td class="c g">Gone</td><td class="c g">Gone</td><td class="c k">Kept</td></tr>
+            <tr><th scope="row">The player clears their browser</th><td class="c g">Gone</td><td class="c g">Gone</td><td class="c g">Gone</td></tr>
+            <tr><th scope="row">A new phone</th><td class="c g">Gone</td><td class="c g">Gone</td><td class="c g">Gone</td></tr>
+            <tr><th scope="row">The link opened inside WhatsApp or Instagram</th><td class="c g">Separate</td><td class="c g">Separate</td><td class="c g">Separate</td></tr>
+          </tbody>
+        </table>
+        <p class="cap">We kept the ID in several places so one loss wouldn&rsquo;t cost a career, and a server-set cookie quietly brought 8 players back after Safari cleared them. But in three of these four cases, the only thing that survives is <b>something the player carries with them</b>.</p>
+      </div>
+
+      <h3 class="sub hl" data-r>Three walls <b>to design against</b></h3>
+      <div class="walls">
+        <div data-r><h3><span class="when">Play.</span> No sign-up wall</h3><p>One tap to play is the product. A form before the first ball would lose players before they ever hit a six.</p></div>
+        <div data-r style="--d:.06s"><h3><span class="when">Cost.</span> No email, no SMS</h3><p>No budget for one-time codes, no mail server, and no wish to collect personal data for a casual game.</p></div>
+        <div data-r><h3><span class="when">Trust.</span> Names are public</h3><p>Every name is printed on the leaderboard. So a name alone can never prove who you are.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec tint" id="key" aria-labelledby="key-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="key-h" data-r>Version one: <b>the career key</b></h2>
+        <p class="lede" data-r style="--d:.08s">My first answer was a key the game hands you once. Your name plus your key brings your career back on any phone.</p>
+      </div>
+      <div class="anat" data-r>
+        <p class="plate" aria-label="A career key, taken apart: pulled-jumps-record-44"><span>pulled</span><i>-</i><span>jumps</span><i>-</i><span>record</span><i>-</i><span>44</span></p>
+        <ul>
+          <li><b>Cricket words, not random letters</b>Easier to read aloud, copy by hand and spot a typo in. It also feels like part of the game.</li>
+          <li><b>Three words and two digits</b>About 1.7 billion keys. Tries are limited per phone and per name, so guessing doesn&rsquo;t work.</li>
+          <li><b>Always with the name</b>Names are public, so the name alone opens nothing, and the key alone points at nobody.</li>
+          <li><b>Shown once, never stored</b>We keep only a scrambled hash. Nobody can leak it, including us.</li>
+        </ul>
+      </div>
+
+      <h3 class="sub hl" data-r>Where the key <b>lived</b></h3>
+      <div class="phones c4">
+        <figure data-r style="--d:0s"><div class="ph fig"><img src="../../../public/img/hitman/identity/key-endcard-key.webp" alt="The end of an innings with the career key card under the score" width="804" height="1748" loading="lazy"></div><figcaption><b>On the end card</b>The key sat under your score after every innings.</figcaption></figure>
+        <figure data-r style="--d:.05s"><div class="ph fig"><img src="../../../public/img/hitman/identity/key-sheet.webp" alt="The save sheet, leading with Screenshot this screen" width="804" height="1748" loading="lazy"></div><figcaption><b>One save sheet</b>Every placement opened the same sheet, with the screenshot as the hero.</figcaption></figure>
+        <figure data-r style="--d:.1s"><div class="ph fig"><img src="../../../public/img/hitman/identity/key-stats.webp" alt="My Stats with the career key as a ticket stub at its foot" width="804" height="1748" loading="lazy"></div><figcaption><b>A ticket on My Stats</b>Always there, styled like a match ticket you keep.</figcaption></figure>
+        <figure data-r style="--d:.15s"><div class="ph fig"><img src="../../../public/img/hitman/identity/key-restore-wrong.webp" alt="Bring your record back: the name and key fields, with the key refused" width="804" height="1748" loading="lazy"></div><figcaption><b>Coming back</b>Name and key together. One answer for every failure, so it can&rsquo;t be used to check which names exist.</figcaption></figure>
+      </div>
+
+      <h3 class="sub hl" data-r>The calls <b>behind it</b></h3>
+      <div class="dec">
+        <div data-r><h3>Screenshot first, buttons second</h3><p>A screenshot is the one save every phone can do, and nothing can fail. So the sheet led with &ldquo;Screenshot this screen&rdquo;, then Save as image, WhatsApp to yourself, and Copy.</p><p class="why">The clipboard holds one thing. The next copy wipes the key, and the player never knows.</p></div>
+        <div data-r style="--d:.06s"><h3>Save as image carries the name too</h3><p>The game paints a clean card with the name and the key, ready for the camera roll.</p><img class="saved" src="../../../public/img/hitman/identity/key-image.webp" alt="The painted card: the name GauravRana above the key pulled-jumps-record-44, with Both together bring my record back on any phone" width="720" height="720" loading="lazy"><p class="why">A key found in a gallery a year later with no name beside it is a riddle, not a record.</p></div>
+        <div data-r><h3>No one-tap copy on the widget</h3><p>A copy button on the card looked kinder, but people tap by reflex. We&rsquo;d have counted a save while they held nothing.</p><p class="why">A fake &ldquo;saved&rdquo; is worse than no save: it stops every reminder.</p></div>
+        <div data-r style="--d:.06s"><h3>Give old players a key on sight</h3><p>A player sitting 4th with 2,000 runs told us they&rsquo;d never been given a key. Keys were only made when a name was claimed, so the game now asks for one quietly the moment an old player opens it.</p><p class="why">The people with the most to lose were the last to be protected.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="kept" aria-labelledby="kept-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="kept-h" data-r>People didn&rsquo;t <b>keep it</b></h2>
+        <p class="lede" data-r style="--d:.08s">I measured every step: who saw the sheet, who saved, how, and who came back. Over 24 days the pattern was clear.</p>
+      </div>
+      <div class="r2">
+        <div class="panel" data-r>
+          <h3>The save sheet, 22 Sep &ndash; 16 Oct</h3>
+          <p class="ph3">Most people <b>left with nothing</b></p>
+          <ol class="funnel key">
+            <li style="--w:100%"><span class="nm">Keys issued</span><span class="tr"><i></i></span><span class="v">88</span></li>
+            <li style="--w:60.2%"><span class="nm">Sheet opened</span><span class="tr"><i></i></span><span class="v">53</span></li>
+            <li class="ghost" style="--w:37.5%"><span class="nm">Left without saving</span><span class="tr"><i></i></span><span class="v">33<small>62% of opens</small></span></li>
+            <li style="--w:13.6%"><span class="nm">Saved as image</span><span class="tr"><i></i></span><span class="v">12</span></li>
+            <li style="--w:12.5%"><span class="nm">Sent to WhatsApp</span><span class="tr"><i></i></span><span class="v">11</span></li>
+            <li style="--w:9.1%"><span class="nm">Copied</span><span class="tr"><i></i></span><span class="v">8</span></li>
+          </ol>
+        </div>
+        <div class="panel" data-r style="--d:.06s">
+          <h3>Coming back with a key</h3>
+          <p class="ph3">Nearly half <b>turned away</b></p>
+          <div class="versus-bar">
+            <div><span>Every try</span><div class="sbar" role="img" aria-label="9 comebacks worked, 8 were turned away"><i class="k" style="flex:9">9 worked</i><i class="x" style="flex:8">8 turned away</i></div></div>
+          </div>
+          <ol class="funnel key dim">
+            <li class="ghost" style="--w:37.5%"><span class="nm">Half-typed key</span><span class="tr"><i></i></span><span class="v">3</span></li>
+            <li class="ghost" style="--w:25%"><span class="nm">Wrong key</span><span class="tr"><i></i></span><span class="v">2</span></li>
+            <li class="ghost" style="--w:37.5%"><span class="nm">Other refusals</span><span class="tr"><i></i></span><span class="v">3</span></li>
+            <li style="--w:87.5%"><span class="nm">Gave up, made a new key</span><span class="tr"><i></i></span><span class="v">7</span></li>
+          </ol>
+          <p class="cap">&ldquo;Other refusals&rdquo; were counted before refusals were split by reason.</p>
+        </div>
+      </div>
+
+      <p class="goal" data-r>The key was <b>homework</b>. We asked players to do the saving, at the exact moment they wanted to hit PLAY AGAIN.</p>
+
+      <div class="walls" style="margin-top:clamp(40px,5vw,64px)">
+        <div data-r><span class="pill psy">Present bias</span><h3>The loss felt far away</h3><p>Losing a career is a maybe, someday. Playing again is right now. People pick now.</p></div>
+        <div data-r style="--d:.06s"><span class="pill psy">Generation effect</span><h3>Our words, not theirs</h3><p>People remember what they choose much better than what they&rsquo;re given. Nobody remembers &ldquo;pulled-jumps-record-44&rdquo;.</p></div>
+        <div data-r><span class="pill psy">Recall vs recognition</span><h3>Coming back was a test</h3><p>To return you had to find a screenshot among thousands of photos and type it perfectly. Recall under pressure, at the worst time.</p></div>
+        <div data-r style="--d:.06s"><span class="pill psy">Wrong moment</span><h3>Asked after the innings</h3><p>The end card is where people decide to play again. A save task there competes with the most exciting button in the game.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec tint" id="rethink" aria-labelledby="rethink-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="rethink-h" data-r>Who should carry <b>the secret?</b></h2>
+        <p class="lede" data-r style="--d:.08s">The real question wasn&rsquo;t &ldquo;how do we make people save the key&rdquo;. It was who does the remembering. With the key, the player did all of it. Phones already have a tool for exactly this job.</p>
+      </div>
+      <div class="relay">
+        <div class="lane" data-r>
+          <div class="lane-h"><h3>Career <b>key</b></h3><span class="pill no">8 of 17 tries turned away</span></div>
+          <ol>
+            <li class="g">The game makes a key<span>pulled-jumps-record-44</span></li>
+            <li class="p">The player saves it<span>Screenshot, WhatsApp or copy</span></li>
+            <li class="p">Weeks later, finds it<span>Somewhere in the camera roll</span></li>
+            <li class="p">Types name and key<span>Perfectly, from memory or a photo</span></li>
+          </ol>
+        </div>
+        <div class="lane" data-r style="--d:.06s">
+          <div class="lane-h"><h3>Career <b>password</b></h3><span class="pill ok">5 of 5 tries worked</span></div>
+          <ol>
+            <li class="p">The player picks it, once<span>In their own words</span></li>
+            <li class="f">The phone saves it<span>iCloud Keychain or Google</span></li>
+            <li class="f">The phone carries it over<span>Synced to a new phone</span></li>
+            <li class="f">Pick yourself, the phone fills it<span>A few letters, then a tap</span></li>
+          </ol>
+        </div>
+      </div>
+      <div class="legend" data-r><span><i class="lp"></i>The player does the work</span><span><i class="lf"></i>The phone does the work</span><span><i class="lg"></i>The game does the work</span></div>
+
+      <h3 class="sub hl" data-r>Options <b>I weighed</b></h3>
+      <div class="cost wide scroll-x" data-r>
+        <table>
+          <thead><tr><th scope="col">Option</th><th scope="col">Effort for the player</th><th scope="col">Cost and setup</th><th scope="col">Survives a new phone</th><th scope="col">Verdict</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Keep the career key</th><td>High: save it, find it, type it</td><td>Free</td><td>If they kept it</td><td>Kept as a backup</td></tr>
+            <tr><th scope="row">An email link</th><td>Type an email, open the inbox</td><td>A mail service, spam folders</td><td>Yes</td><td>A form feels wrong in a quick game</td></tr>
+            <tr><th scope="row">A phone one-time code</th><td>Low, and familiar in India</td><td>Pay per SMS, sender registration</td><td>Yes</td><td>Too costly for a free game</td></tr>
+            <tr><th scope="row">Sign in with Google</th><td>One tap</td><td>OAuth setup, shares personal data</td><td>Yes</td><td>Maybe later</td></tr>
+            <tr><th scope="row">Passkeys</th><td>One tap, very safe</td><td>Patchy in in-app browsers</td><td>Yes, synced</td><td>The next step</td></tr>
+            <tr class="pick"><th scope="row">A password</th><td>Pick once; the phone remembers</td><td>Free, works everywhere</td><td>Yes, synced by the phone</td><td><span class="pill ok" style="margin:0">Chosen</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="rules" aria-labelledby="rules-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="rules-h" data-r>Four rules for <b>version two</b></h2>
+      </div>
+      <div class="walls">
+        <div data-r><span class="pill psy">Endowment effect</span><h3>Ask when there&rsquo;s something to lose</h3><p>Never before the first ball. The game waits until your career passes 50 runs, about one or two innings. Then the runs feel like yours.</p></div>
+        <div data-r style="--d:.06s"><span class="pill psy">Reduce memory load</span><h3>Let the phone remember</h3><p>The form is built so Safari and Chrome offer to save the password against your name, then fill it in next time, even on a new phone.</p></div>
+        <div data-r><span class="pill psy">Recognition over recall</span><h3>Pick yourself, don&rsquo;t spell yourself</h3><p>Coming back, you type a few letters and pick yourself from a list, with your kit and innings count, so you know it&rsquo;s you.</p></div>
+        <div data-r style="--d:.06s"><span class="pill psy">Autonomy</span><h3>Never block the game</h3><p>No hard stop and no asks mid-innings. Players can always bat, with or without a password. Pressure breeds resentment, not passwords.</p></div>
+      </div>
+
+      <figure class="journey" data-r>
+        <div class="scroll-x"><img src="../../../public/img/hitman/identity/journey-a.webp" alt="Figma journey A, a new player from first visit to protected: cover, name, first innings with no nudge, My Stats with a Set a password card, the sheet, an optional question, the filled sheet and Career protected, with error branches for too easy, not matching and couldn&rsquo;t save" width="3200" height="1625" loading="lazy"></div>
+        <figcaption><b>Mapped in Figma first.</b> Journey A of five, read left to right: a new player from the first visit to a protected career, with the three ways the sheet can say no. <a href="../../../public/img/hitman/identity/journey-a.webp" target="_blank" rel="noopener">Open full size</a></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec tint" id="asking" aria-labelledby="asking-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="asking-h" data-r>When to ask, <b>and how often</b></h2>
+        <p class="lede" data-r style="--d:.08s">One rule for new and returning players alike: no password and 50+ career runs. Every existing player was already past it. New players get there in an innings or two.</p>
+      </div>
+      <div class="panel" data-r>
+        <h3>The asking, over a player&rsquo;s career</h3>
+        <p class="ph3">It grows only while the password is missing, and <b>stops for good</b> once it&rsquo;s set</p>
+        <div class="scroll-x">
+          <div class="cad" role="img" aria-label="The My Stats card is there from the first visit. From 50 career runs, the end card nudges after every innings. A bottom sheet comes after 3 ignored innings, then every 5: at innings 3, 8 and 13.">
+            <span></span>
+            <div class="ax"><span style="grid-column:1">First visit</span><span class="fl" style="grid-column:4">50 runs</span><span style="grid-column:5"></span><span style="grid-column:6"></span><span style="grid-column:7">3</span><span style="grid-column:8"></span><span style="grid-column:9"></span><span style="grid-column:10"></span><span style="grid-column:11"></span><span style="grid-column:12">8</span><span style="grid-column:13"></span><span style="grid-column:14"></span><span style="grid-column:15"></span><span style="grid-column:16"></span><span style="grid-column:17">13</span></div>
+            <span class="lb">My Stats card<span>Always there</span></span>
+            <span class="always">&ldquo;Protect your 105 runs&rdquo;, from day one until a password is set</span>
+            <span class="lb">End card nudge<span>After every innings</span></span>
+            <i class="blk" style="grid-column:6"></i><i class="blk" style="grid-column:7"></i><i class="blk" style="grid-column:8"></i><i class="blk" style="grid-column:9"></i><i class="blk" style="grid-column:10"></i><i class="blk" style="grid-column:11"></i><i class="blk" style="grid-column:12"></i><i class="blk" style="grid-column:13"></i><i class="blk" style="grid-column:14"></i><i class="blk" style="grid-column:15"></i><i class="blk" style="grid-column:16"></i><i class="blk" style="grid-column:17"></i><i class="blk" style="grid-column:18"></i>
+            <span class="lb">Bottom sheet<span>3 ignored, then every 5</span></span>
+            <i class="dot" style="grid-column:8"></i><span class="nt" style="grid-column:9 / span 4">never twice in a visit</span><i class="dot" style="grid-column:13"></i><i class="dot" style="grid-column:18"></i>
+          </div>
+        </div>
+        <p class="cap" style="margin-top:6px">The numbers along the top count innings after a player passes 50 runs. Each orange block is one end card; each gold dot is one bottom sheet.</p>
+        <p class="never"><b>Never:</b> on the name screen, mid-innings, as a hard stop, in a private window, or after a practice innings.</p>
+      </div>
+
+      <h3 class="sub hl" data-r>Three surfaces, <b>three strengths</b></h3>
+      <div class="phones c3 narrow">
+        <figure data-r style="--d:0s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-stats-card.webp" alt="My Profile with a Not protected card and a Set a password button" width="804" height="1748" loading="lazy"></div><figcaption><span class="pill time">Always on</span><b>My Stats card</b>For the motivated player. No pressure, always there.</figcaption></figure>
+        <figure data-r style="--d:.05s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-endcard-nudge.webp" alt="The end card with a card under the score: 105 runs, don&rsquo;t lose them, and a solid orange Create a password button" width="804" height="1748" loading="lazy"></div><figcaption><span class="pill pw">From 50 runs</span><b>End card nudge</b>Their own number, right after they earned it.</figcaption></figure>
+        <figure data-r style="--d:.1s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-nudge-sheet.webp" alt="A bottom sheet asking to protect the career, with Set a password and Later" width="804" height="1748" loading="lazy"></div><figcaption><span class="pill proto">3 ignored, then every 5</span><b>Bottom sheet</b>Asks outright, the way the rating prompt does. Never twice in a visit.</figcaption></figure>
+      </div>
+
+      <h3 class="sub hl" data-r>Why each <b>moment</b></h3>
+      <div class="cost wide scroll-x" data-r>
+        <table>
+          <thead><tr><th scope="col">Moment</th><th scope="col">Why here</th><th scope="col">The psychology</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">My Stats, always</th><td>People open My Stats to admire their progress. That is when they care most about keeping it.</td><td>Self-motivation, zero pressure</td></tr>
+            <tr><th scope="row">End card, from 50 runs</th><td>The emotional high of the game. The number they just made is on screen.</td><td>Loss aversion, the peak-end rule</td></tr>
+            <tr><th scope="row">After a new best</th><td>&ldquo;Your best ever, 87. Protect it.&rdquo; The proudest moment gets its own line.</td><td>Endowment effect</td></tr>
+            <tr><th scope="row">A sheet after 3 walked past</th><td>A card ignored three times has become wallpaper. A sheet breaks the pattern, then backs off.</td><td>Banner blindness, spaced reminders</td></tr>
+            <tr><th scope="row">Never mid-innings, never a wall</th><td>Batting is the product. An ask that stops play makes people resent it.</td><td>Reactance, autonomy</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sub hl" data-r>Copy that names <b>what&rsquo;s at stake</b></h3>
+      <div class="verdict big" data-r style="max-width:60rem">
+        <div class="o"><b>Generic</b><span class="say">&ldquo;Create a password to secure your account.&rdquo;</span>Talks about accounts. Players don&rsquo;t think they have one.</div>
+        <div class="k"><b>What shipped</b><span class="say">&ldquo;105 runs. Don&rsquo;t lose them.&rdquo;</span>Their number, their loss, in cricket words. Concrete beats abstract.</div>
+      </div>
+      <p class="note" data-r><b>A button that can&rsquo;t be mistaken for PLAY AGAIN.</b> The end card already has the game&rsquo;s biggest button. CREATE A PASSWORD is solid orange in a card of its own, straight under the score, so a thumb heading for PLAY AGAIN never lands on it by accident. The career key left the end card, so only one thing is asked at a time.</p>
+    </div>
+  </section>
+
+  <section class="sec" id="sheet" aria-labelledby="sheet-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="sheet-h" data-r>One sheet, <b>every way in</b></h2>
+        <p class="lede" data-r style="--d:.08s">Every nudge opens the same sheet. It is short, honest about its rules, and built so the phone can do the remembering.</p>
+      </div>
+      <div class="phones c5">
+        <figure data-r style="--d:0s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-sheet-empty.webp" alt="The empty Set a password sheet" width="804" height="1748" loading="lazy"></div><figcaption><b>Empty</b>&ldquo;Batting as&rdquo; is the name, so the phone saves it as the username.</figcaption></figure>
+        <figure data-r style="--d:.04s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-sheet-too-easy.webp" alt="The sheet with 123456 typed and Not too easy marked" width="804" height="1748" loading="lazy"></div><figcaption><b>Rules as you type</b>123456 is flagged before you press anything.</figcaption></figure>
+        <figure data-r style="--d:.08s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-questions.webp" alt="A list of eight security questions" width="804" height="1748" loading="lazy"></div><figcaption><b>An optional question</b>Eight, picked to be hard to guess.</figcaption></figure>
+        <figure data-r style="--d:.12s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-sheet-filled.webp" alt="The sheet filled in, every rule ticked green" width="804" height="1748" loading="lazy"></div><figcaption><b>Ready</b>Every rule turns green.</figcaption></figure>
+        <figure data-r style="--d:.16s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-protected.webp" alt="Career protected" width="804" height="1748" loading="lazy"></div><figcaption><b>Protected</b>The nudges stop for good.</figcaption></figure>
+      </div>
+      <div class="dec c3" style="margin-top:clamp(40px,5vw,64px)">
+        <div data-r><h3>Few rules, said up front</h3><p>Six or more characters, not too easy, and both match. Shown as a checklist that turns green, not an error after you submit.</p><p class="why">An error after the tap feels like a scolding. A checklist feels like progress.</p></div>
+        <div data-r style="--d:.05s"><h3>Block only what gets guessed</h3><p>No &ldquo;one capital, one symbol&rdquo; rules. We refuse 123456, abcdef, password and your exact name: <strong>GauravRana</strong> is refused, <strong>GauravRana07</strong> is fine.</p><p class="why">Your name is printed on the leaderboard. Everything else is your choice.</p></div>
+        <div data-r style="--d:.1s"><h3>Confirm, and a SHOW key</h3><p>Typed twice, with SHOW on both fields.</p><p class="why">One typo on a phone keyboard would lock a career away.</p></div>
+        <div data-r><h3>A security question, optional</h3><p>For a forgotten password. Eight questions, like &ldquo;Who did you first play gully cricket with?&rdquo;.</p><p class="why">I left out &ldquo;favourite cricketer&rdquo;: half of India would answer Virat.</p></div>
+        <div data-r style="--d:.05s"><h3>Forgiving answers</h3><p>Case, spaces and punctuation are ignored, so &ldquo;Rahul S.&rdquo; matches &ldquo;rahul s&rdquo;. Answers are stored hashed, like the password.</p><p class="why">The point is to let the right person in, not to test their typing.</p></div>
+        <div data-r style="--d:.1s"><h3>Change it any time</h3><p>Your details on My Stats has a password row with CHANGE. The card on My Stats disappears once a password is set.</p><p class="why">A finished task should leave the screen.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec tint" id="back" aria-labelledby="back-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="back-h" data-r>Coming back <b>on a new phone</b></h2>
+        <p class="lede" data-r style="--d:.08s">A wiped browser looks exactly like a brand-new player. So the very first screen a new player sees now offers a way back.</p>
+      </div>
+      <div class="phones c4">
+        <figure data-r style="--d:0s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-gate.webp" alt="The name screen with Played before? at the top" width="804" height="1748" loading="lazy"></div><figcaption><b>Played before?</b>On the name screen, for anyone the browser forgot.</figcaption></figure>
+        <figure data-r style="--d:.05s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-restore-list.webp" alt="Bring your record back: Gaur typed, GauravRana listed with kit and innings" width="804" height="1748" loading="lazy"></div><figcaption><b>Type &ldquo;Gaur&rdquo;, pick yourself</b>Your kit and innings count confirm it&rsquo;s you.</figcaption></figure>
+        <figure data-r style="--d:.1s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-forgot-question.webp" alt="Forgot password: the security question they chose" width="804" height="1748" loading="lazy"></div><figcaption><b>Forgot it?</b>Answer your question and set a new one.</figcaption></figure>
+        <figure data-r style="--d:.15s"><div class="ph fig"><img src="../../../public/img/hitman/identity/pw-welcome-back.webp" alt="Welcome back: the career restored" width="804" height="1748" loading="lazy"></div><figcaption><b>Welcome back</b>Every run, tier and place on the board.</figcaption></figure>
+      </div>
+      <div class="dec c3" style="margin-top:clamp(40px,5vw,64px)">
+        <div data-r><h3>Only players with a password are listed</h3><p>A name with nothing behind it to type is no way back, so it isn&rsquo;t shown.</p></div>
+        <div data-r style="--d:.05s"><h3>Never shows who you are inside</h3><p>The list gives a name, a kit and an innings count. Never the private ID that owns the career.</p></div>
+        <div data-r style="--d:.1s"><h3>Fallbacks, in order</h3><p>Password, then your security question, then your career key, then a message to the developer. Each is offered only when the one before it can&rsquo;t help.</p></div>
+      </div>
+      <figure class="journey" data-r>
+        <div class="scroll-x"><img src="../../../public/img/hitman/identity/journey-d.webp" alt="Figma journey D, back on a wiped or new browser: a taken name asks Is that you?, Bring it back by picking yourself, a wrong password, answering the question, setting a new password and Welcome back, with branches for nobody found, no question set, a wrong answer, too many tries and coming back with a career key" width="3200" height="1625" loading="lazy"></div>
+        <figcaption><b>Journey D, in Figma.</b> Back on a wiped or new browser, with every way it can go wrong and the fallback each one offers. <a href="../../../public/img/hitman/identity/journey-d.webp" target="_blank" rel="noopener">Open full size</a></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec" id="results" aria-labelledby="results-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="results-h" data-r>What <b>changed</b></h2>
+        <p class="lede" data-r style="--d:.08s">The first 13 days after launch, 16&ndash;28 October. Event counts from GoatCounter; the game is young and the numbers are small, so I read them as direction, not proof.</p>
+      </div>
+      <div class="r2">
+        <div class="panel" data-r>
+          <h3>Which nudge worked</h3>
+          <p class="ph3">The end card <b>carries it</b></p>
+          <p class="funnel-h">End card nudge</p>
+          <ol class="funnel">
+            <li style="--w:100%"><span class="nm">Seen</span><span class="tr"><i></i></span><span class="v">45</span></li>
+            <li style="--w:35.6%"><span class="nm">Opened</span><span class="tr"><i></i></span><span class="v">16<small>36% of views</small></span></li>
+            <li style="--w:22.2%"><span class="nm">Password set</span><span class="tr"><i></i></span><span class="v">10<small>63% of opens</small></span></li>
+          </ol>
+          <p class="funnel-h">Bottom sheet</p>
+          <ol class="funnel dim">
+            <li style="--w:64.4%"><span class="nm">Seen</span><span class="tr"><i></i></span><span class="v">29</span></li>
+            <li style="--w:4.4%"><span class="nm">Opened</span><span class="tr"><i></i></span><span class="v">2<small>24 put off</small></span></li>
+            <li style="--w:4.4%"><span class="nm">Password set</span><span class="tr"><i></i></span><span class="v">2</span></li>
+          </ol>
+          <p class="funnel-h">My Stats card</p>
+          <ol class="funnel dim">
+            <li style="--w:40%"><span class="nm">Seen</span><span class="tr"><i></i></span><span class="v">18</span></li>
+            <li style="--w:4.4%"><span class="nm">Opened</span><span class="tr"><i></i></span><span class="v">2</span></li>
+            <li style="--w:2.2%"><span class="nm">Password set</span><span class="tr"><i></i></span><span class="v">1</span></li>
+          </ol>
+        </div>
+        <div class="panel" data-r style="--d:.06s">
+          <h3>Coming back: key against password</h3>
+          <p class="ph3">Not one password <b>turned away</b></p>
+          <div class="versus-bar">
+            <div><span>Career key<br><small style="color:var(--sx-ink-3)">22 Sep &ndash; 16 Oct</small></span><div class="sbar" role="img" aria-label="Career key: 9 worked, 8 turned away"><i class="k" style="flex:9">9 worked</i><i class="x" style="flex:8">8 turned away</i></div></div>
+            <div><span>Password<br><small style="color:var(--sx-ink-3)">16 &ndash; 28 Oct</small></span><div class="sbar" role="img" aria-label="Password: 5 worked, none turned away"><i class="w" style="flex:5">5 worked</i><i style="flex:12;background:transparent"></i></div></div>
+          </div>
+          <dl class="mini">
+            <div><dt>0</dt><dd>password comebacks turned away</dd></div>
+            <div><dt>4<small style="font-size:1.125rem">/11</small></dt><dd>new passwords came with a security question</dd></div>
+          </dl>
+          <p class="cap">Both bars share one scale: 17 tries.</p>
+        </div>
+      </div>
+      <div class="verdict" data-r style="margin-top:14px">
+        <div class="k"><b>Worked</b><strong>The end card nudge carries it.</strong> 36% of views became a tap, and 63% of those taps finished. Asking at the moment of pride, with their own number, works.</div>
+        <div class="o"><b>Didn&rsquo;t work</b><strong>The bottom sheet mostly gets &ldquo;Later&rdquo;.</strong> 24 of 29 sheets were put off. By the time a player has walked past three cards, a sheet doesn&rsquo;t change their mind. This is the next thing to fix.</div>
+      </div>
+
+      <h3 class="sub hl" data-r>What I&rsquo;d do <b>next</b></h3>
+      <ol class="steps">
+        <li data-r><b>Move the sheet to the proudest moment</b><span>Show it after a new best or a Level Up instead of after three ignored cards, or retire it if it doesn&rsquo;t earn its place.</span></li>
+        <li data-r style="--d:.04s"><b>Passkeys</b><span>One tap, nothing to remember, synced by the phone. Waiting on better support inside WhatsApp and Instagram&rsquo;s browsers.</span></li>
+        <li data-r style="--d:.08s"><b>Help WhatsApp players out</b><span>In-app browsers don&rsquo;t save passwords. A gentle &ldquo;open in your browser&rdquo; hint would keep their career and their password together.</span></li>
+        <li data-r style="--d:.12s"><b>Measure autofill</b><span>How often does the phone fill the password in by itself? That is the real test of &ldquo;let the phone remember&rdquo;.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec" id="learned" aria-labelledby="learned-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="learned-h" data-r>What I <b>learned</b></h2>
+      </div>
+      <div class="says">
+        <article data-r><h3 class="hl">A safety net only works if it asks <b>nothing at the wrong moment</b></h3><p>The key was a good idea asked at the worst time. Moving the ask to after 50 runs, with the player&rsquo;s own number on it, mattered more than the method.</p></article>
+        <article data-r><h3 class="hl">Design the coming back, <b>not just the saving</b></h3><p>I spent my first round on how to save a key. The failures were all on the way back in. Picking yourself from a list fixed more than any save button did.</p></article>
+        <article data-r><h3 class="hl">Let the platform do <b>the remembering</b></h3><p>Phones already sync passwords across devices. The best design decision was building the form so they could do their job.</p></article>
+      </div>
+
+      <h3 class="sub hl" data-r>Five <b>weeks</b></h3>
+      <ol class="vrail" data-r>
+        <li class="k"><time datetime="2026-09-22">22 Sep</time><b>The career key ships</b><p>Name and key, the save sheet, the way back.</p></li>
+        <li class="k"><time datetime="2026-09-23">23 Sep</time><b>Fixes from the first reports</b><p>The screenshot becomes the hero. Save as image. Keys for players who never had one.</p></li>
+        <li class="k"><time datetime="2026-10-13">13 Oct</time><b>Owner tools</b><p>Keys sealed so I can read one back for a friend, and reset it.</p></li>
+        <li><time datetime="2026-10-15">15 Oct</time><b>Journeys mapped in Figma</b><p>A new player, the nudges, protected, a wiped browser, the edge cases.</p></li>
+        <li><time datetime="2026-10-16">16 Oct</time><b>Career passwords ship</b><p>Asked from 50 runs. The key moves to the end of My Stats.</p></li>
+        <li><time datetime="2026-10-28">28 Oct</time><b>The first read of the numbers</b><p>The end card works. The sheet needs rethinking.</p></li>
+      </ol>
+
+      <div class="next">
+        <a href="../" data-r><span class="label">Back to</span><b>Hitman Cricket: <strong>all seven stories</strong></b><p>Leaderboards, the Dressing Room, the batter, profiles and more.</p></a>
+        <a href="../profiles/" data-r style="--d:.06s"><span class="label">Read next</span><b>Someone to beat: <strong>User profiles</strong></b><p>Every name on the board opens a profile you can chase.</p></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-in">
+      <div>
+        <h2 class="hl">Bat, then <b>keep your runs.</b></h2>
+        <p>Play an innings or two, pass 50 runs, and set a password your phone will remember. It&rsquo;s free, and it&rsquo;s best on a phone.</p>
+        <div class="row">
+          <a class="btn" href="https://hitmancricket.in/" target="_blank" rel="noopener">Play Hitman Cricket
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="link" href="../">All Hitman Cricket stories</a>
+        </div>
+        <p class="foot-note">Screens are from the live game, captured on a 402 &times; 874 phone. Numbers are GoatCounter event counts, 16 Sep &ndash; 28 Oct 2026.</p>
+      </div>
+      <div class="foot-play" aria-hidden="true">
+        <div class="ph fig"><img src="../../../public/img/hitman/identity/pw-protected.webp" alt="" width="804" height="1748" loading="lazy"></div>
+        <div class="ph fig"><img src="../../../public/img/hitman/identity/pw-welcome-back.webp" alt="" width="804" height="1748" loading="lazy"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../../../assets/js/case.js" defer></script>
+</body>
+</html>
