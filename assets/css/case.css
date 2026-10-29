@@ -1315,8 +1315,22 @@ a.sc:focus-visible { outline-offset: 6px; border-radius: var(--r-card); }
 .id-swap figure:nth-of-type(2) { right: 4%; top: 0; rotate: 4deg; z-index: 2; }
 .id-swap .ph { width: 100%; border-radius: 26px; }
 .id-swap .plate { position: absolute; z-index: 3; left: 50%; bottom: 7%; translate: -50% 0; rotate: -5deg; flex-wrap: nowrap; font-size: clamp(.8rem, 1.2vw, 1.1rem); }
-.id-hero .facts { max-width: none; display: grid; grid-template-columns: repeat(3, minmax(0, max-content)); justify-content: start; gap: 18px clamp(20px, 3vw, 40px); }
-.id-hero .facts dd { max-width: 11rem; }
+/* the hero's one figure: the key against the password, side by side */
+.score2 { display: flex; align-items: stretch; gap: 12px; margin-top: clamp(28px, 3.4vw, 44px); max-width: 32rem; }
+.score2 > div { flex: 1 1 0; min-width: 0; display: grid; gap: 4px; align-content: start; padding: 18px 20px 20px; border-radius: 22px; }
+.score2 .pill { margin: 0 0 6px; justify-self: start; white-space: nowrap; }
+.score2 b { font-size: clamp(2.4rem, 3.6vw, 3.25rem); line-height: .9; font-weight: 900; font-style: italic; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.score2 b small { font-size: .42em; letter-spacing: 0; color: var(--sx-ink-3); }
+.score2 > div > span:last-child { font-size: .9375rem; line-height: 1.35; color: var(--sx-ink-2); }
+.s-key { background: rgba(142,162,245,.09); box-shadow: inset 0 0 0 1px rgba(142,162,245,.28); }
+.s-pw { background: rgba(224,84,42,.12); box-shadow: inset 0 0 0 1px rgba(240,160,124,.38); }
+.s-pw b { color: var(--sx-key-2); }
+.s-to { flex: none; align-self: center; color: var(--sx-ink-3); }
+/* who, what with, when, where: one quiet strip under the hero */
+.credits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 32px; margin: 0; padding-block: 24px; box-shadow: inset 0 1px 0 rgba(255,255,255,.1), inset 0 -1px 0 rgba(255,255,255,.1); }
+@media (min-width: 900px) { .credits { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.credits dt { font-size: var(--t-small); font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: var(--sx-ink-3); }
+.credits dd { margin: 6px 0 0; font-size: 1rem; line-height: 1.45; color: var(--sx-ink); font-weight: 400; }
 .pill.key { color: #C9D3FF; background: rgba(142,162,245,.16); }
 .pill.pw  { color: #FFC7AE; background: rgba(224,84,42,.16); }
 .pill.psy { color: #C9D3FF; background: rgba(142,162,245,.12); margin-bottom: 4px; justify-self: start; width: max-content; }
@@ -1434,3 +1448,21 @@ a.sc:focus-visible { outline-offset: 6px; border-radius: var(--r-card); }
   .id-swap .plate { position: static; grid-column: 1 / -1; justify-self: center; translate: none; rotate: none; font-size: .95rem; }
   .versus-bar > div { grid-template-columns: minmax(0, 1fr); gap: 6px; }
 }
+
+/* colour carries the roles, so the page scans: blue is the key, orange the
+   password, peach the labels that name what follows */
+.t-key { color: var(--id-key); font-weight: 500; }
+.t-pw { color: var(--sx-key-2); font-weight: 500; }
+.s-key b { color: var(--id-key); }
+.credits dt, .id-page .panel h3, .id-page .meta dt { color: var(--sx-key-2); }
+.credits dd { color: var(--sx-ink); }
+.id-page .funnel.key .v { color: #C9D3FF; }
+.id-page .funnel:not(.key) .v { color: var(--sx-key-2); }
+.id-page .funnel .v small { color: var(--sx-ink-3); }
+.id-page .mini dt { color: var(--id-phone); }
+.id-page .anat li b { color: #C9D3FF; }
+.id-page .lane-h h3 b { color: var(--id-key); }
+.id-page .lane + .lane .lane-h h3 b { color: var(--sx-key-2); }
+.id-page .dec h3, .id-page .walls h3 { color: var(--sx-ink); }
+.id-page .vrail li.k time { color: #C9D3FF; }
+.id-page .vrail li:not(.k) time { color: var(--sx-key-2); }
