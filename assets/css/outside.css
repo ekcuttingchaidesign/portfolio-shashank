@@ -973,7 +973,6 @@
   font-size: clamp(2.2rem, 5vw, 3.6rem);
   color: var(--lw-amber, #D08544);
 }
-.lw-stack-intro { margin: -1rem 0 2.5rem; color: rgba(244,241,236,.68); }
 .lw-stack .lw-stack-item {
   padding: clamp(3rem, 8vw, 6rem) clamp(1.25rem, 5vw, 5rem);
   border-top: 1px solid var(--sx-ink-4, rgba(244,241,236,.12));
@@ -1364,119 +1363,6 @@ html.lw-lb-open .lw-reel-track { animation-play-state: paused; }
    an obstruction), and station spacing tightens so the gaps stay under half
    a viewport. Those three are set in JS, from one breakpoint constant that
    this media query agrees with. */
-/* --- THE EVENING ------------------------------------------------------------
-   Three washes over the ground and under everything else, their opacities
-   written by outside.js from how far the camera has come (--lw-sun,
-   --lw-violet, --lw-night). The title is "beyond 9 to 5", so the stage opens
-   at 5pm: a low sunset off the bottom right, turning violet through the
-   middle stops and night with a few stars by the closing card. Opacity only,
-   so the change costs a composite and nothing else. */
-.lw-sky { position: absolute; inset: 0; pointer-events: none; }
-.lw-sky > span { position: absolute; inset: 0; }
-.lw-sky-sun {
-  opacity: var(--lw-sun, 1);
-  background:
-    radial-gradient(70% 55% at 78% 108%, rgba(255,120,56,.30), rgba(255,92,60,.12) 42%, transparent 72%),
-    radial-gradient(120% 60% at 50% 110%, rgba(255,150,90,.10), transparent 70%);
-}
-.lw-sky-dusk {
-  opacity: var(--lw-violet, 0);
-  background:
-    radial-gradient(80% 60% at 70% 110%, rgba(168,72,150,.22), rgba(96,62,180,.10) 45%, transparent 75%),
-    radial-gradient(90% 50% at 30% -10%, rgba(70,60,160,.12), transparent 70%);
-}
-.lw-sky-night {
-  opacity: var(--lw-night, 0);
-  background:
-    radial-gradient(1.2px 1.2px at 12% 18%, rgba(255,255,255,.75), transparent),
-    radial-gradient(1px 1px at 27% 8%, rgba(255,255,255,.55), transparent),
-    radial-gradient(1.4px 1.4px at 41% 22%, rgba(255,255,255,.7), transparent),
-    radial-gradient(1px 1px at 58% 11%, rgba(255,255,255,.5), transparent),
-    radial-gradient(1.2px 1.2px at 66% 27%, rgba(255,255,255,.6), transparent),
-    radial-gradient(1px 1px at 79% 6%, rgba(255,255,255,.55), transparent),
-    radial-gradient(1.5px 1.5px at 88% 19%, rgba(255,255,255,.8), transparent),
-    radial-gradient(1px 1px at 94% 34%, rgba(255,255,255,.45), transparent),
-    radial-gradient(1px 1px at 6% 38%, rgba(255,255,255,.45), transparent),
-    radial-gradient(1.2px 1.2px at 19% 46%, rgba(255,255,255,.5), transparent),
-    radial-gradient(1px 1px at 52% 4%, rgba(255,255,255,.6), transparent),
-    radial-gradient(1px 1px at 72% 41%, rgba(255,255,255,.4), transparent),
-    radial-gradient(120% 70% at 50% -20%, rgba(40,56,130,.20), transparent 70%);
-}
-
-/* The line under the title: plain, and quieter than either half of it. */
-.lw-intro {
-  margin: clamp(1rem, 1.6vw, 1.6rem) 0 0;
-  font-family: var(--sx-sans);
-  font-size: clamp(1rem, 1.25vw, 1.4rem);
-  line-height: 1.45;
-  color: rgba(244,241,236,.68);
-}
-
-/* --- THE ROUTE ----------------------------------------------------------------
-   Pinned to the foot of the stage: the hour on the left, then the three stops
-   on a track that fills as the camera travels (--lw-route-k, 0 at I play to 1
-   at I meme). The stop the camera is at carries aria-current and lights. */
-.lw-route {
-  position: absolute;
-  z-index: 4;
-  left: 50%;
-  bottom: max(22px, calc(env(safe-area-inset-bottom, 0px) + 14px));
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-  padding: 6px 8px 6px 16px;
-  border-radius: 999px;
-  background: rgba(14,14,16,.62);
-  border: 1px solid rgba(244,241,236,.10);
-  -webkit-backdrop-filter: blur(12px);
-          backdrop-filter: blur(12px);
-  font-family: var(--sx-sans);
-  font-size: .86rem;
-  white-space: nowrap;
-}
-.lw-clock {
-  min-width: 4.6em;
-  color: rgba(244,241,236,.6);
-  font-variant-numeric: tabular-nums;
-}
-.lw-route-stops {
-  position: relative;
-  display: flex;
-  gap: 2px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-/* The track under the stops, and how much of it the camera has covered. */
-.lw-route-stops::before,
-.lw-route-stops::after {
-  content: "";
-  position: absolute;
-  left: 14%; right: 14%;
-  bottom: 3px;
-  height: 2px;
-  border-radius: 2px;
-  background: rgba(244,241,236,.10);
-}
-.lw-route-stops::after {
-  right: auto;
-  width: calc(72% * var(--lw-route-k, 0));
-  background: #57C74B;
-}
-.lw-route a {
-  position: relative;
-  display: block;
-  padding: .55rem .9rem .75rem;
-  border-radius: 999px;
-  color: rgba(244,241,236,.55);
-  text-decoration: none;
-  transition: color .3s ease, background-color .3s ease;
-}
-.lw-route a:hover { color: #F4F1EC; }
-.lw-route a[aria-current] { color: #F4F1EC; font-weight: 500; }
-.lw-route a:focus-visible { outline: 2px solid #E0542A; outline-offset: -2px; }
-
 @media (max-width: 720px) {
   .lw-copy {
     left: 50%;
@@ -1488,8 +1374,6 @@ html.lw-lb-open .lw-reel-track { animation-play-state: paused; }
   .lw-copy p { max-width: none; }
   .lw-title h2 { font-size: clamp(2.6rem, 13vw, 4rem); }
   .lw-title .lw-title-tail { font-size: clamp(2.2rem, 11vw, 3.4rem); }
-  .lw-route { gap: .4rem; padding-left: 12px; font-size: .8rem; }
-  .lw-route a { padding: .55rem .6rem .75rem; }
 
   /* The last line stays FIXED here. A phone runs the live stage like a desktop
      does — the stack below is the reduced-motion layout, not the phone one —
