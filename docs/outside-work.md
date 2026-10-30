@@ -467,7 +467,11 @@ The title card's block carries a clock on its top face (`.lw-dial`, built in
 `outside.js` and appended inside the block's own node, so it inherits the
 block's position, drift and fade). It is drawn flat and scaled to the ground
 plane: a plan circle projects to `1.2215 x 0.7126` with 12 o'clock straight up,
-centred on the top face at `(357.5, 205.9)` of the 715x509 art. As the section
+centred on the top face at `(357.5, 205.9)` of the 715x509 art. It is a 300-unit
+circle (the face is 458 x 368 in plan, so that leaves a margin all round), lifted
+by half the case's depth so the whole clock sits in the middle of the face. A
+dark bezel with a shaded side, sixty minute ticks, tapered hands with a shadow
+and a glass highlight; at 5 a vermilion face fades up over the cream one. As the section
 runs from `p .035` to `.14` (the title's arrival and dwell) the hands go from
 9 to 5, the minute hand spinning the day away and a vermilion arc filling the
 hours worked; at 5 the dial gets `data-out` and lights up. All from scroll

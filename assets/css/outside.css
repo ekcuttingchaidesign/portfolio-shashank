@@ -1364,28 +1364,43 @@ html.lw-lb-open .lw-reel-track { animation-play-state: paused; }
    a viewport. Those three are set in JS, from one breakpoint constant that
    this media query agrees with. */
 /* --- THE CLOCK ON THE TITLE BLOCK -------------------------------------------
-   A dial lying on the block's top face. Drawn flat, then scaled to the ground
-   plane (a plan circle projects to 1.2215 x 0.7126), centred on the top face
-   at (357.5, 205.9) of the 715x509 art, sized to a 340-unit circle (the
-   face is 458 x 368 units in plan, so that leaves a margin all round). The edge
-   under it is the dial's thickness, in screen space so it always falls down.
-   outside.js turns the hands and fills the arc from 9 to 5, and sets
-   data-out at 5, when the dial lights up. */
+   A wall clock lying on the block's top face. Drawn flat, then scaled to the
+   ground plane (a plan circle projects to 1.2215 x 0.7126), centred on the top
+   face at (357.5, 205.9) of the 715x509 art.
+
+   Sized to a 300-unit circle. The face is 458 x 368 units in plan, so a bigger
+   dial nearly touched the front-left and back-right edges and read as off
+   centre; 300 leaves a visible margin on all four. The case's side (the edge
+   below) hangs down in screen space, so the whole clock is lifted by half its
+   depth to sit in the middle of the face rather than below it.
+
+   outside.js turns the hands and fills the arc from 9 to 5, and sets data-out
+   at 5, when the vermilion face fades up. */
 .lw-dial {
   position: absolute;
   left: 50%;
-  top: 40.46%;
-  width: 47.5%;
+  top: 38.9%;
+  width: 41.96%;
   aspect-ratio: 1;
   transform: translate(-50%, -50%) scale(1.2215, .7126);
   pointer-events: none;
 }
+/* Where it rests on the slab: a soft shadow, offset toward the front. */
+.lw-dial-shadow {
+  position: absolute;
+  inset: 2%;
+  border-radius: 50%;
+  background: rgba(0, 30, 12, .45);
+  transform: translate(3%, 12%);
+  filter: blur(7px);
+}
+/* The case's side: a short dark cylinder, lit from the left. */
 .lw-dial-edge {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: #0E4A2C;
-  transform: translateY(6%);
+  background: linear-gradient(90deg, #3A3A37 0%, #161615 38%, #0A0A09 70%, #1E1E1C 100%);
+  transform: translateY(7.5%);
 }
 .lw-dial-face {
   position: absolute;
@@ -1393,37 +1408,50 @@ html.lw-lb-open .lw-reel-track { animation-play-state: paused; }
   width: 100%;
   height: 100%;
   overflow: visible;
-  transition: filter .5s ease;
 }
-.lw-dial-bg   { fill: #F4F1EC; transition: fill .45s ease; }
-.lw-dial-arc  { fill: none; stroke: #E0542A; stroke-width: 9; stroke-dasharray: 0 360; opacity: .9; }
-.lw-dial-tick { stroke: #1B1B19; stroke-width: 3; stroke-linecap: round; transition: stroke .45s ease; }
-.lw-dial-tick.is-work { stroke: #E0542A; stroke-width: 5; }
+.lw-dial-lit { opacity: 0; transition: opacity .5s ease; }
+.lw-dial-arc {
+  fill: none;
+  stroke: #E0542A;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 0 360;
+  opacity: .85;
+  transition: stroke .45s ease, opacity .45s ease;
+}
+.lw-dial-tick { stroke: #A7A199; stroke-width: 1; stroke-linecap: round; transition: stroke .45s ease; }
+.lw-dial-tick.is-hour { stroke: #1B1B19; stroke-width: 2.6; }
+.lw-dial-tick.is-work { stroke: #E0542A; stroke-width: 3.4; }
 .lw-dial-n {
   font-family: var(--sx-sans, system-ui, sans-serif);
   font-weight: 700;
-  font-size: 17px;
+  font-size: 15px;
+  letter-spacing: -.02em;
   text-anchor: middle;
   dominant-baseline: central;
   fill: #1B1B19;
   transition: fill .45s ease;
 }
 .lw-dial-n.is-work { fill: #E0542A; }
-.lw-dial-h, .lw-dial-m { stroke: #1B1B19; stroke-linecap: round; transition: stroke .45s ease; }
-.lw-dial-h { stroke-width: 8; }
-.lw-dial-m { stroke-width: 4; }
-.lw-dial-cap { fill: #E0542A; transition: fill .45s ease; }
+.lw-dial-h, .lw-dial-m { fill: #1B1B19; transition: fill .45s ease; }
+.lw-dial-cap { fill: #1B1B19; transition: fill .45s ease; }
+.lw-dial-pin { fill: #E0542A; }
+.lw-dial-glass { pointer-events: none; }
 
-/* Five o'clock. The face goes vermilion and lights the slab around it;
-   everything printed on it turns cream. */
-.lw-dial[data-out] .lw-dial-face { filter: drop-shadow(0 0 22px rgba(224,84,42,.55)); }
-.lw-dial[data-out] .lw-dial-bg { fill: #E0542A; }
-.lw-dial[data-out] .lw-dial-tick,
-.lw-dial[data-out] .lw-dial-h,
-.lw-dial[data-out] .lw-dial-m { stroke: #F4F1EC; }
+/* Five o'clock: the vermilion face fades up and lights the slab; everything
+   printed on it turns cream. */
+.lw-dial-face { transition: filter .5s ease; }
+.lw-dial[data-out] .lw-dial-face { filter: drop-shadow(0 0 18px rgba(224,84,42,.55)); }
+.lw-dial[data-out] .lw-dial-lit { opacity: 1; }
+.lw-dial[data-out] .lw-dial-tick { stroke: rgba(244,241,236,.55); }
+.lw-dial[data-out] .lw-dial-tick.is-hour,
+.lw-dial[data-out] .lw-dial-tick.is-work { stroke: #F4F1EC; }
 .lw-dial[data-out] .lw-dial-n,
+.lw-dial[data-out] .lw-dial-h,
+.lw-dial[data-out] .lw-dial-m,
 .lw-dial[data-out] .lw-dial-cap { fill: #F4F1EC; }
-.lw-dial[data-out] .lw-dial-arc { stroke: #F4F1EC; opacity: .35; }
+.lw-dial[data-out] .lw-dial-pin { fill: #1B1B19; }
+.lw-dial[data-out] .lw-dial-arc { stroke: #F4F1EC; opacity: .4; }
 
 @media (max-width: 720px) {
   .lw-copy {
