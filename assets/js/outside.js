@@ -626,7 +626,7 @@
     /* An isometric puck, extruded like the blocks it stands on: a cream top
        face, a side in two flat tones (lit left, shaded right, the same light
        the green faces take) and a flat contact shadow. Everything on the
-       face — twelve chunky hour bars, 9 and 5 in vermilion, a soft wedge for
+       face — ten chunky hour bars and a vermilion 9 and 5 in place of theirs, a soft wedge for
        the hours worked, raised hands — is drawn in plan inside one group and
        projected onto the top ellipse, so it lies on the face rather than
        floating over it.
@@ -638,9 +638,10 @@
     const RX = 122.15, RY = 71.26, EXT = 26, W = RX * 2, H = RY * 2 + EXT;
     let bars = '';
     for (let i = 0; i < 12; i++) {
-      const work = i === 9 || i === 5;
-      bars += `<line x1="100" y1="${work ? 16 : 18}" x2="100" y2="${i % 3 ? 32 : 36}"` +
-              ` transform="rotate(${i * 30} 100 100)" class="lw-dial-bar${work ? ' is-work' : ''}"/>`;
+      /* 9 and 5 are numerals instead of bars — see below. */
+      if (i === 9 || i === 5) continue;
+      bars += `<line x1="100" y1="18" x2="100" y2="${i % 3 ? 32 : 36}"` +
+              ` transform="rotate(${i * 30} 100 100)" class="lw-dial-bar"/>`;
     }
     const plan = `translate(${RX} ${RY}) scale(${RX / 100} ${RY / 100}) translate(-100 -100)`;
     const sidePath = `M0 ${RY} L0 ${RY + EXT} A${RX} ${RY} 0 0 0 ${W} ${RY + EXT} L${W} ${RY} A${RX} ${RY} 0 0 1 0 ${RY} Z`;
@@ -656,11 +657,15 @@
         `<g transform="${plan}">` +
           `<path class="lw-dial-wedge" d=""/>` +
           bars +
+          /* The two hours the title is about, in place of their bars, out at
+             the bars' radius (73) so neither hand ever reaches them. */
+          `<text x="27" y="100" class="lw-dial-num">9</text>` +
+          `<text x="136.5" y="163.2" class="lw-dial-num">5</text>` +
           `<g class="lw-dial-hands-shadow" transform="translate(2.5 6)">` +
-            `<g class="lw-dial-hg"><line x1="100" y1="100" x2="100" y2="54" class="lw-dial-hs"/></g>` +
+            `<g class="lw-dial-hg"><line x1="100" y1="100" x2="100" y2="58" class="lw-dial-hs"/></g>` +
             `<g class="lw-dial-mg"><line x1="100" y1="100" x2="100" y2="32" class="lw-dial-ms"/></g>` +
           `</g>` +
-          `<g class="lw-dial-hg"><line x1="100" y1="100" x2="100" y2="54" class="lw-dial-h"/></g>` +
+          `<g class="lw-dial-hg"><line x1="100" y1="100" x2="100" y2="58" class="lw-dial-h"/></g>` +
           `<g class="lw-dial-mg"><line x1="100" y1="100" x2="100" y2="32" class="lw-dial-m"/></g>` +
           `<circle cx="100" cy="100" r="7" class="lw-dial-cap"/>` +
         `</g>` +

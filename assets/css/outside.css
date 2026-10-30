@@ -1396,7 +1396,15 @@ html.lw-lb-open .lw-reel-track { animation-play-state: paused; }
   stroke-linecap: round;
   transition: stroke .45s ease;
 }
-.lw-dial-bar.is-work { stroke: #E0542A; stroke-width: 8; }
+.lw-dial-num {
+  font-family: var(--sx-sans, system-ui, sans-serif);
+  font-weight: 900;
+  font-size: 36px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: #E0542A;
+  transition: fill .45s ease;
+}
 .lw-dial-h, .lw-dial-m, .lw-dial-hs, .lw-dial-ms { stroke-linecap: round; }
 .lw-dial-h  { stroke: #26241F; stroke-width: 11; transition: stroke .45s ease; }
 .lw-dial-m  { stroke: #26241F; stroke-width: 7;  transition: stroke .45s ease; }
@@ -1412,10 +1420,10 @@ html.lw-lb-open .lw-reel-track { animation-play-state: paused; }
 .lw-dial[data-out] .lw-dial-sideR { stop-color: #8C2C11; }
 .lw-dial[data-out] .lw-dial-wedge { opacity: 0; }
 .lw-dial[data-out] .lw-dial-bar,
-.lw-dial[data-out] .lw-dial-bar.is-work,
 .lw-dial[data-out] .lw-dial-h,
 .lw-dial[data-out] .lw-dial-m { stroke: #FBF7F1; }
-.lw-dial[data-out] .lw-dial-cap { fill: #FBF7F1; }
+.lw-dial[data-out] .lw-dial-cap,
+.lw-dial[data-out] .lw-dial-num { fill: #FBF7F1; }
 
 @media (max-width: 720px) {
   .lw-copy {

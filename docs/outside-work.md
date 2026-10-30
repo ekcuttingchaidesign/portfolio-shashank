@@ -467,7 +467,7 @@ The title card's block carries a clock (`.lw-dial`, built in `outside.js` and
 appended inside the block's own node, so it inherits the block's position,
 drift and fade). It is an isometric puck, flat-shaded like the blocks: cream
 top, a side in two flat tones lit from the left, a flat contact shadow. The
-face's contents (twelve hour bars with 9 and 5 in vermilion, a soft wedge for
+face's contents (ten hour bars, a vermilion 9 and 5 in place of theirs, a soft wedge for
 the hours worked, raised hands) are drawn in plan and projected onto the top
 ellipse (`1.2215 x 0.7126` per unit). A 300-unit circle, so it clears all four
 edges of the 458 x 368 top face, with its base centred on `(357.5, 205.9)` of
