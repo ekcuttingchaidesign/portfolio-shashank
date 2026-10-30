@@ -117,9 +117,7 @@ rail then walks back through the road that led there.
 **Every stop sits on the same quiet panel**: one flat step up from the wall,
 no outline, gradient or colour of its own; the one being read steps up once
 more. Airtel's five
-stints each show a piece of the work they produced, reusing pictures Featured
-Work and More Stories already load: rows on wide screens, a swipe rail on a
-phone. Nothing badges it as current: its years are green, the rail's
+stints are a plain list under its paragraph, separated by space alone. Nothing badges it as current: its years are green, the rail's
 colour, and green means "still running" everywhere in the section (IPTV's years
 too). The cards carry no outline, gradient, pill, monospace label above the
 name, or coloured side border; role and years sit on one line under the name,

@@ -2065,45 +2065,23 @@
 .sx-xp-stop h3 { font-size: var(--sx-xp-h3); }
 
 /* --- Airtel's five stints ---
-   The only stop that opens instead of closing. Each stint shows a piece of
-   the work it produced beside what it was, so the longest stop on the rail
-   is also the one with the most to look at. Rows on wide screens; the
-   current one is marked by its green years, the same way the stop's are. */
+   The only stop that opens instead of closing. A list under the paragraph,
+   separated by space alone: no rule down its side, no accent on any name.
+   The current one is marked by its years being green, the same way the
+   stop's own are. */
 .sx-xp-stints {
   list-style: none;
   margin: clamp(1.6rem, 3.5vh, 2.25rem) 0 0;
   padding: 0;
   display: grid;
-  gap: clamp(1rem, 2.4vh, 1.35rem);
+  gap: clamp(1.1rem, 2.6vh, 1.5rem);
 }
-.sx-xp-stints:focus-visible { outline: 2px solid var(--sx-xp-line); outline-offset: 4px; }
-.sx-xp-stints > li {
-  display: grid;
-  grid-template-columns: clamp(6.5rem, 9vw, 8.5rem) minmax(0, 1fr);
-  gap: clamp(.9rem, 1.6vw, 1.35rem);
-  align-items: start;
-}
-.sx-xp-stints > li > div { max-width: 46ch; }
-.sx-xp-thumb {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 4px;
-  background: #1b1b19;
-  transition: transform .5s var(--sx-ease-out), filter .5s var(--sx-ease-out);
-  filter: saturate(.85) brightness(.92);
-}
-@media (hover: hover) {
-  .sx-xp-stints > li:hover .sx-xp-thumb { transform: scale(1.035); filter: none; }
-}
-.sx-xp-stints > li[data-now] .sx-xp-thumb { filter: none; }
+.sx-xp-stints > li { max-width: 46ch; }
 .sx-xp-stint-h {
   display: flex;
   align-items: baseline;
   gap: .75rem;
-  margin: .1rem 0 .25rem;
+  margin: 0 0 .25rem;
   font-size: var(--sx-t-body);
 }
 .sx-xp-stint-h b {
@@ -2114,7 +2092,7 @@
   color: var(--sx-ink-3);
   font-variant-numeric: tabular-nums;
 }
-.sx-xp-stints > li p:last-child {
+.sx-xp-stints > li > p:last-child {
   margin: 0;
   color: var(--sx-ink-2);
   font-size: var(--sx-t-body);
@@ -2242,30 +2220,7 @@
      end of a line. Things That Move drops its ledge at its own breakpoint for
      the same reason. */
   .sx-xp-ledge { display: none; }
-
-  /* The stints become a rail you swipe: picture on top, words under it,
-     the next one showing at the edge so the swipe is obvious without being
-     announced. It bleeds into the panel's right padding to reach the edge. */
-  .sx-xp-stints {
-    grid-auto-flow: column;
-    grid-auto-columns: 72%;
-    gap: .9rem;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    margin-right: calc(var(--sx-xp-pad) * -1);
-    padding-right: var(--sx-xp-pad);
-    scroll-padding-inline: 0;
-  }
-  .sx-xp-stints::-webkit-scrollbar { display: none; }
-  .sx-xp-stints > li {
-    grid-template-columns: 1fr;
-    gap: .75rem;
-    scroll-snap-align: start;
-  }
-  .sx-xp-stints > li > div { max-width: none; }
-  .sx-xp-thumb { aspect-ratio: 16 / 11; border-radius: 6px; }
+  .sx-xp-stints > li { max-width: none; }
 }
 
 /* --- Reduced motion --------------------------------------------------------
@@ -2275,7 +2230,7 @@
    still reads as a timeline, it just does not perform one. */
 @media (prefers-reduced-motion: reduce) {
   .sx-xp-yr::before { animation: none; }
-  .sx-xp-cel, .sx-xp-stop, .sx-xp-pips li, .sx-xp-glow, .sx-xp-body, .sx-xp-thumb { transition: none; }
+  .sx-xp-cel, .sx-xp-stop, .sx-xp-pips li, .sx-xp-glow, .sx-xp-body { transition: none; }
   /* The aside still opens — it is content, not performance — it just arrives
      rather than rising into place, and he does not lift to introduce it. */
   .sx-xp-say { transition: none; transform: none; }
