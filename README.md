@@ -67,7 +67,7 @@ just dived into.
    stops, this arrives already running and slows down as you reach it.
 6. **`#sx-archive`** — Built with AI.
 7. **`#sx-exp`** — *No design degree / 10 years anyway.* Newest first: Airtel,
-   the current job, on a card of its own, then *Before Airtel* — Gamezop,
+   the current job, on a panel of its own, then *Before Airtel* — Gamezop,
    Appinventiv, MediaAgility — down one rail. On desktop a sticky stage beside
    it changes the character as you scroll; at 1080px and under each stop draws
    its own character beside its name instead (see **Experience on phones**).
@@ -111,9 +111,13 @@ Airtel carrying five stints, then three short stops — so the Airtel segment ru
 long and opens into five rather than closing into one line. The shape of the
 rail is the shape of the career.
 
-It runs **backwards**. The job he is in now comes first, drawn on the one card
-in the section with a live *Now* tag, and the rail then walks back through the
-road that led there. The first thing a reader meets is the current job, not a
+It runs **backwards**. The job he is in now comes first, set larger on the one
+flat step of tone in the section, and the rail then walks back through the road
+that led there. Nothing badges it as current: its years are green, the rail's
+colour, and green means "still running" everywhere in the section (IPTV's years
+too). The cards carry no outline, gradient, pill, monospace label above the
+name, or coloured side border; role and years sit on one line under the name,
+and the stints are separated by space alone. The first thing a reader meets is the current job, not a
 2016 banner gig four stops away from it. The room's warmth follows: brightest on
 Now, cooling as the rail runs back.
 
