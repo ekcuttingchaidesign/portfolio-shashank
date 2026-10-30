@@ -3509,7 +3509,7 @@
 }
 /* Everything the panel says sits above its own weather. */
 .sx-feat-kicker, .sx-feat-body, .sx-feat-note,
-.sx-feat-facts, .sx-feat-view { position: relative; z-index: 1; }
+.sx-feat-facts, .sx-feat-nda, .sx-feat-view { position: relative; z-index: 1; }
 /* The pointer sweep, same one the plates below use. --sx-mx/--sx-my come from
    sections.js; with no pointer it simply never fades in. */
 .sx-feat-side::before {
@@ -4821,6 +4821,34 @@ a.sx-feat-view { text-decoration: none; }
   }
 }
 
+/* --- the pill on a phone ----------------------------------------------------
+   Everything above shrinks the pill to fit, and on a phone that went too far:
+   9px labels in a 21px capsule, a nav you had to aim at. From here the labels
+   come back up to a readable size and each one carries its own padding, so the
+   pill is a 46px bar whose every stop is a full-height thumb target. The
+   capsule hugs the padded label (pad 0 — the padding IS the capsule's reach),
+   and the gap goes, because the padding now does that job. */
+@media (max-width: 560px) {
+  .sx-nav {
+    font-size: .68rem;
+    gap: 0;
+    --sx-nav-pad:   0em;
+    --sx-nav-inset: 0em;
+    padding: 4px;
+    top: max(12px, env(safe-area-inset-top, 0px));
+  }
+  .sx-nav-i {
+    padding: 1.2em .95em;
+    letter-spacing: .06em;
+    line-height: 1.1;
+  }
+  .sx-nav-glide { height: calc(100% - 8px); }
+}
+@media (max-width: 360px) {
+  .sx-nav { font-size: .63rem; }
+  .sx-nav-i { padding: 1.25em .8em; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sx-stamp svg.sx-stamp-ring { animation: none; }
   .sx-face { transform: none; }
@@ -5475,3 +5503,197 @@ a.sx-feat-view { text-decoration: none; }
    looks like a thing the page has. Recover them from git if the centred card
    is ever wanted back — the markup went in the same commit.
    ========================================================================== */
+
+
+/* ===========================================================================
+   NDA — the lock on six projects, and the gate they open
+   ===========================================================================
+   Client work under NDA keeps its card, and says so on it: a line above View
+   on the two featured cards, a tag in the corner of the four story cards.
+   Either one opens the gate, a small dialog with a password field and a way
+   to ask for access. Behaviour in sections.js ("The NDA gate"). */
+.sx-lock { flex: none; }
+
+.sx-feat-nda {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 0 0 .9rem;
+  font-family: var(--sx-ui);
+  font-size: .82rem;
+  color: var(--sx-ink-3);
+}
+.sx-feat-nda .sx-lock { color: var(--sx-key); }
+
+/* The whole story card is the control; the tag is only its label. Above the
+   copy and the card's inner light, under nothing. */
+.sx-st-nda {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.sx-st-nda:focus-visible { outline: 2px solid var(--sx-key); outline-offset: -4px; }
+.sx-nda-tag {
+  position: absolute;
+  top: clamp(10px, 5cqw, 18px);
+  right: clamp(10px, 5cqw, 18px);
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .36rem .62rem .36rem .55rem;
+  border-radius: 999px;
+  background: rgba(10,10,10,.62);
+  border: 1px solid rgba(244,241,236,.16);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+  font-family: var(--sx-ui);
+  font-weight: 600;
+  font-size: .68rem;
+  letter-spacing: .12em;
+  color: var(--sx-ink);
+  transition: background-color .3s var(--sx-ease), border-color .3s var(--sx-ease);
+}
+.sx-st-nda:hover .sx-nda-tag,
+.sx-st-nda:focus-visible .sx-nda-tag { background: rgba(10,10,10,.85); border-color: rgba(244,241,236,.32); }
+
+/* --- the gate --- */
+.sx-nda {
+  width: min(440px, calc(100vw - 32px));
+  max-width: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sx-ink);
+  overflow: visible;
+}
+.sx-nda::backdrop {
+  background: rgba(0,0,0,.68);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+}
+.sx-nda-card {
+  position: relative;
+  margin: 0;
+  padding: clamp(22px, 5vw, 32px);
+  border-radius: 18px;
+  background: #141413;
+  border: 1px solid rgba(244,241,236,.1);
+  box-shadow: 0 30px 80px -24px rgba(0,0,0,.85);
+  font-family: var(--sx-sans);
+}
+.sx-nda[open] .sx-nda-card { animation: sx-nda-in .34s var(--sx-ease-out); }
+@keyframes sx-nda-in { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+
+.sx-nda-x {
+  position: absolute;
+  top: 12px; right: 12px;
+  display: grid;
+  place-items: center;
+  width: 40px; height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sx-ink-3);
+  cursor: pointer;
+  transition: background-color .25s var(--sx-ease), color .25s var(--sx-ease);
+}
+.sx-nda-x:hover { background: rgba(244,241,236,.06); color: var(--sx-ink); }
+
+.sx-nda-icon {
+  display: grid;
+  place-items: center;
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: rgba(224,84,42,.12);
+  color: var(--sx-key);
+}
+.sx-nda-h {
+  margin: 20px 0 8px;
+  font-family: var(--sx-display);
+  font-weight: 700;
+  font-size: clamp(1.25rem, 3.6vw, 1.45rem);
+  line-height: 1.2;
+  letter-spacing: -.01em;
+  color: var(--sx-ink);
+}
+.sx-nda-p {
+  margin: 0 0 24px;
+  font-size: .96rem;
+  line-height: 1.55;
+  color: var(--sx-ink-2);
+}
+.sx-nda-label {
+  display: block;
+  margin: 0 0 8px;
+  font-size: .82rem;
+  color: var(--sx-ink-3);
+}
+.sx-nda-row { display: flex; gap: 8px; }
+.sx-nda-input {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(244,241,236,.14);
+  background: #0c0c0b;
+  color: var(--sx-ink);
+  font: inherit;
+  font-size: 1rem;
+  transition: border-color .2s var(--sx-ease), box-shadow .2s var(--sx-ease);
+}
+.sx-nda-input::placeholder { color: var(--sx-ink-3); }
+.sx-nda-input:focus { outline: none; border-color: var(--sx-key); box-shadow: 0 0 0 3px rgba(224,84,42,.22); }
+.sx-nda-input:disabled { opacity: .6; cursor: not-allowed; }
+.sx-nda-go {
+  height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--sx-key);
+  color: #160904;
+  font-family: var(--sx-ui);
+  font-weight: 700;
+  font-size: .92rem;
+  cursor: pointer;
+  transition: filter .2s var(--sx-ease);
+}
+.sx-nda-go:hover { filter: brightness(1.08); }
+.sx-nda-go:disabled { background: rgba(244,241,236,.08); color: var(--sx-ink-3); cursor: not-allowed; filter: none; }
+.sx-nda-msg { min-height: 1.3em; margin: 10px 0 0; font-size: .86rem; color: var(--sx-ink-3); }
+.sx-nda[data-state="bad"] .sx-nda-msg { color: #FF8A6A; }
+.sx-nda[data-state="ok"]  .sx-nda-msg { color: var(--sx-xp-line, #57C74B); }
+.sx-nda[data-state="bad"] .sx-nda-row { animation: sx-nda-no .32s var(--sx-ease); }
+@keyframes sx-nda-no { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+.sx-nda-ask {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  margin-top: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(244,241,236,.18);
+  color: var(--sx-ink);
+  font-family: var(--sx-ui);
+  font-weight: 600;
+  font-size: .92rem;
+  text-decoration: none;
+  transition: background-color .2s var(--sx-ease), border-color .2s var(--sx-ease);
+}
+.sx-nda-ask:hover { background: rgba(244,241,236,.05); border-color: rgba(244,241,236,.32); }
+.sx-nda-x:focus-visible, .sx-nda-go:focus-visible, .sx-nda-ask:focus-visible {
+  outline: 2px solid var(--sx-key);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sx-nda[open] .sx-nda-card, .sx-nda[data-state="bad"] .sx-nda-row { animation: none; }
+}

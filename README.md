@@ -29,7 +29,7 @@ just dived into.
 | `public/video/motion/` | The thirteen films on the Things That Move reel, plus a poster each. Built from `assets/motion_videos/` (masters, not committed) by `tools/prep-motion.py`. |
 | `public/img/` | The portrait, the three headline objects, and project covers. |
 | `docs/pending-art.md` | What each More Stories slot holds, the brief for the projectionist mascot, and how to drop films into the reel. |
-| `work/hitman-cricket/index.html` | The Hitman Cricket overview: the game, its numbers, its seven case studies and the build week by week. Featured Work's first card links to it; the other cards' **View** still says the page is not built yet. |
+| `work/hitman-cricket/index.html` | The Hitman Cricket overview: the game, its numbers, its seven case studies and the build week by week. Featured Work's first card links to it. |
 | `work/hitman-cricket/dressing-room/index.html` | The Dressing Room case study. Its hero is the room itself: the game's locker corridor, a lit pedestal, and a shelf of bats and kits to try on. |
 | `work/hitman-cricket/batter/index.html` | Designing the batter: twenty strokes rebuilt from slow-motion clips. |
 | `work/hitman-cricket/profiles/index.html` | User profiles: every name on the board became someone to chase, with the ten ideas cut on the way and nine days of results. It took Test Marathon's place among the seven; the other four studies are cards on the overview until they are written. |
@@ -60,8 +60,11 @@ just dived into.
    sentences and the objects crossfade inside it as it travels.
 3. **`#sx-work`** — Featured work. Three case studies stacked in Z on one
    sticky line, each receding as the next climbs over it.
+   Hitman Cricket links to its case study; Airtel Gaming and UPI Motion are
+   client work under NDA.
 4. **`#sx-stories`** — More Stories. Four smaller projects on one shelf, which
-   assembles from its own edges as the block comes up the screen.
+   assembles from its own edges as the block comes up the screen. All four are
+   under NDA.
 5. **`#sx-move`** — Things that move. The motion reel, and the one section that
    inverts the page's habit: everything else assembles out of stillness and
    stops, this arrives already running and slows down as you reach it.
@@ -163,6 +166,26 @@ the same way the page's accent was sampled from the portrait.
 
 Artwork below the hero is still placeholder: the labelled `.slab` boxes mark
 reserved frames. Swapping one for an `<img>` or `<video>` needs no other change.
+
+## The NDA gate
+
+Six projects are client work under NDA: Airtel Gaming and UPI Motion in
+Featured Work, and all four More Stories cards. Each card says so and opens a
+small dialog (`#sx-nda`, at the foot of `prototype/index.html`) with a password
+field and a **Request access by email** link pre-filled with the project's name.
+
+The site is static, so this keeps casual visitors out; it is not encryption.
+The password is never stored in the page. To set one:
+
+```sh
+printf '%s' 'your-password' | shasum -a 256
+```
+
+and put the hex in the dialog's `data-hash`. While `data-hash` is empty the
+field is disabled and only Request access works. When a project's page exists,
+add it to `data-routes` as `slug=path` (comma-separated, e.g.
+`airtel-gaming=../work/airtel-gaming/`); unlocking goes there. The slugs are the
+cards' `data-nda` values.
 
 ## Running it locally
 

@@ -3341,21 +3341,73 @@
      ---------------------------------------------------------------------- */
 
   /* ------------------------------------------------------------------------
-     Case study buttons.
-     The sheets aren't built yet. Rather than a dead button or a fake modal,
-     say so in the machine's own voice and leave the slug visible — the routes
-     are decided, only the pages are missing.
+     The NDA gate.
+     ------------------------------------------------------------------------
+     Six projects are client work under NDA, and their cards open a dialog
+     instead of a page: a password field and a request-access email.
+
+     The site is static, so this is a lock on the door rather than a vault.
+     The password itself is never in the page — the dialog carries its
+     SHA-256 in data-hash and the typed value is hashed and compared. While
+     data-hash is empty the field is disabled and only Request access works.
+     A project's page, once it exists, is listed in data-routes (slug=path,
+     comma-separated); unlocking a project with no page yet says so.
      ---------------------------------------------------------------------- */
-  root.querySelectorAll('[data-cs]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const label = btn.querySelector('.sx-cta-l');
-      if (!label || btn.dataset.busy) return;
-      const original = label.textContent;
-      btn.dataset.busy = '1';
-      label.textContent = '/work/' + btn.getAttribute('data-cs') + ' — not built yet';
-      setTimeout(() => { label.textContent = original; delete btn.dataset.busy; }, 2200);
-    });
-  });
+  (() => {
+    const gate = document.getElementById('sx-nda');
+    if (!gate || typeof gate.showModal !== 'function') return;
+    const nameEl = gate.querySelector('[data-nda-name]');
+    const input  = gate.querySelector('#sx-nda-pw');
+    const go     = gate.querySelector('[data-nda-unlock]');
+    const msg    = gate.querySelector('.sx-nda-msg');
+    const ask    = gate.querySelector('[data-nda-ask]');
+    const hash   = (gate.dataset.hash || '').trim().toLowerCase();
+    const routes = Object.fromEntries((gate.dataset.routes || '').split(',')
+      .map(r => r.split('=').map(x => x.trim())).filter(r => r[0] && r[1]));
+    const mail   = ask ? ask.getAttribute('href').split('?')[0] : '';
+    const canCheck = !!hash && !!(window.crypto && crypto.subtle);
+    let slug = '', opener = null;
+
+    input.disabled = go.disabled = !canCheck;
+    input.placeholder = canCheck ? '' : 'Sent on request';
+
+    const sha256 = async text => {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+      return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    };
+
+    const open = btn => {
+      slug = btn.getAttribute('data-nda');
+      const title = btn.getAttribute('data-nda-title') || 'This project';
+      opener = btn;
+      nameEl.textContent = title;
+      msg.textContent = '';
+      gate.removeAttribute('data-state');
+      input.value = '';
+      if (ask) ask.href = `${mail}?subject=${encodeURIComponent('Access to ' + title)}` +
+        `&body=${encodeURIComponent(`Hi Shashank, could you share the password for ${title}?`)}`;
+      gate.showModal();
+      (canCheck ? input : ask || gate).focus();
+    };
+
+    const unlock = async () => {
+      if (!canCheck || !input.value) return;
+      const ok = (await sha256(input.value)) === hash;
+      gate.setAttribute('data-state', ok ? 'ok' : 'bad');
+      if (!ok) { msg.textContent = 'That is not it. Try again, or ask me for it.'; input.select(); return; }
+      try { sessionStorage.setItem('sx-nda', '1'); } catch (e) {}
+      if (routes[slug]) { location.href = routes[slug]; return; }
+      msg.textContent = 'Unlocked. This write-up is still being put together.';
+    };
+
+    document.querySelectorAll('[data-nda]').forEach(btn =>
+      btn.addEventListener('click', () => open(btn)));
+    go.addEventListener('click', unlock);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); unlock(); } });
+    /* A click on the backdrop (the dialog box itself, outside the card) closes. */
+    gate.addEventListener('click', e => { if (e.target === gate) gate.close(); });
+    gate.addEventListener('close', () => { if (opener) opener.focus({ preventScroll: true }); });
+  })();
 
   /* ------------------------------------------------------------------------
      Hero — the things that answer the pointer.
