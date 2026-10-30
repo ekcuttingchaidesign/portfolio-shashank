@@ -13,7 +13,7 @@
 <link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Light.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Black.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Jaro-latin.woff2" crossorigin>
-<link rel="stylesheet" href="../../../assets/css/case.css?v=20261030g">
+<link rel="stylesheet" href="../../../assets/css/case.css?v=20261030h">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body class="lb-page">
@@ -37,15 +37,22 @@
       <h1 class="hl" data-r style="--d:.06s">A score that vanished became <b>a record worth keeping</b></h1>
       <p class="lede" data-r style="--d:.12s">How a Top 50 turned a five-over browser game into a place people came back to, and how the records it collected became the raw material for Tiers and the Dressing Room.</p>
     </div>
-    <div class="lb-stage" data-r style="--d:.1s">
-      <figure class="was">
-        <div class="ph fig"><img src="../../../public/img/hitman/leaderboards/o-blast-best.webp" alt="The first Top 50, as a sheet: mode tabs, ladder pills, ten rows with runs, sixes and fours, and a restore offer at the foot" width="540" height="1169"></div>
-        <figcaption><b>12 Sep</b>The first Top 50</figcaption>
-      </figure>
-      <figure class="now">
-        <div class="ph fig"><img src="../../../public/img/hitman/leaderboards/n-blast.webp" alt="The board in October: mode and ladder dropdowns, the top three on a lit podium, the list below, and 'You are #23 on the leaderboard' pinned above PLAY THE BLAST" width="804" height="1748"></div>
-        <figcaption><b>Oct</b>The board, redrawn</figcaption>
-      </figure>
+    <div class="lb-arena" data-r style="--d:.1s">
+      <div class="lb-scene" role="img" aria-label="The October board, live: Riya first with 164, Arjun second with 158, Kabir third with 150. Your row, pinned at 23rd with 118, posts a new best of 136 and climbs 18 places to 5th.">
+        <div class="lb-pod" aria-hidden="true">
+          <div class="p p2"><img class="spot" src="../../../public/img/hitman/leaderboards/spot3.svg" alt=""><span class="av"><img src="../../../public/img/hitman/leaderboards/av-arjun.webp" alt="" width="128" height="128"></span><b>Arjun</b><em>158</em><small>23 sixes</small><i>2</i></div>
+          <div class="p p1"><img class="spot" src="../../../public/img/hitman/leaderboards/spot1.svg" alt=""><img class="crown" src="../../../public/img/hitman/leaderboards/crown.svg" alt=""><span class="av"><img src="../../../public/img/hitman/leaderboards/av-riya.webp" alt="" width="128" height="128"></span><b>Riya</b><em>164</em><small>24 sixes</small><i>1</i></div>
+          <div class="p p3"><img class="spot" src="../../../public/img/hitman/leaderboards/spot2.svg" alt=""><span class="av"><img src="../../../public/img/hitman/leaderboards/av-kabir.webp" alt="" width="128" height="128"></span><b>Kabir</b><em>150</em><small>23 sixes</small><i>3</i></div>
+        </div>
+        <div class="lb-sheet" aria-hidden="true">
+          <div class="r r0"><span class="k">4</span><img src="../../../public/img/hitman/leaderboards/av-ishan.webp" alt="" width="128" height="128"><span class="w"><b>Ishan</b><small>15 sixes</small></span><em>139</em></div>
+          <div class="r s1"><span class="k" data-to="6">5</span><img src="../../../public/img/hitman/leaderboards/av-shreyas.webp" alt="" width="128" height="128"><span class="w"><b>Shreyas</b><small>15 sixes</small></span><em>135</em></div>
+          <div class="r s2"><span class="k" data-to="7">6</span><img src="../../../public/img/hitman/leaderboards/av-surya.webp" alt="" width="128" height="128"><span class="w"><b>Surya</b><small>14 sixes</small></span><em>131</em></div>
+          <div class="r s3"><span class="k" data-to="8">7</span><img src="../../../public/img/hitman/leaderboards/av-meera.webp" alt="" width="128" height="128"><span class="w"><b>Meera</b><small>14 sixes</small></span><em>130</em></div>
+          <div class="r you"><span class="k">#23</span><img src="../../../public/img/hitman/leaderboards/av-you.webp" alt="" width="128" height="128"><span class="w"><span class="ta"><b>You are <u>#23</u> on the leaderboard</b><small>118 runs &middot; 4 behind #22</small></span><span class="tb"><b>You <span class="climb"><svg width="8" height="7" viewBox="0 0 8 7" aria-hidden="true"><path d="M4 0 8 7H0z" fill="currentColor"/></svg>18</span></b><small>New best &middot; was 118</small></span></span><em>118</em></div>
+        </div>
+      </div>
+      <button class="lb-replay" type="button"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M2.2 7a4.8 4.8 0 1 0 1.4-3.4M2 1.8v2.6h2.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Replay the climb</button>
     </div>
   </div>
 
@@ -521,6 +528,39 @@
 
 <script src="../../../assets/js/case.js" defer></script>
 <script>
+/* The hero: the podium lights, then your pinned row posts a new best and
+   climbs from #23 to #5 while the rows below step down. Once on load, again
+   on Replay; with reduced motion it simply shows where you end up. */
+(() => {
+  const s = document.querySelector('.lb-scene'), btn = document.querySelector('.lb-replay');
+  if (!s) return;
+  const you = s.querySelector('.you'), yk = you.querySelector('.k'), ys = you.querySelector('em');
+  const shifts = [...s.querySelectorAll('[data-to]')].map(k => [k, k.textContent, k.dataset.to]);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let timers = [], raf;
+  const count = (el, a, b, ms, fmt = v => v) => {
+    let t0;
+    const step = t => { t0 ??= t; const k = Math.min(1, (t - t0) / ms), e = 1 - Math.pow(1 - k, 3); el.textContent = fmt(Math.round(a + (b - a) * e)); if (k < 1) raf = requestAnimationFrame(step); };
+    raf = requestAnimationFrame(step);
+  };
+  const end = () => { s.classList.add('on', 'best', 'up'); yk.textContent = '5'; ys.textContent = '136'; shifts.forEach(([k, , to]) => k.textContent = to); };
+  const play = () => {
+    timers.forEach(clearTimeout); cancelAnimationFrame(raf);
+    s.classList.remove('on', 'best', 'up'); s.classList.add('reset');
+    yk.textContent = '#23'; ys.textContent = '118'; shifts.forEach(([k, from]) => k.textContent = from);
+    void s.offsetWidth; s.classList.remove('reset');
+    if (reduce) return end();
+    timers = [
+      setTimeout(() => s.classList.add('on'), 60),
+      setTimeout(() => { s.classList.add('best'); count(ys, 118, 136, 700); }, 1700),
+      setTimeout(() => { s.classList.add('up'); count(yk, 23, 5, 900); timers.push(setTimeout(() => shifts.forEach(([k, , to]) => k.textContent = to), 300)); }, 2600)
+    ];
+  };
+  if ('IntersectionObserver' in window) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); play(); } }, { threshold: .55 }).observe(s);
+  else play();
+  if (btn) btn.addEventListener('click', play);
+})();
+
 /* The record: the number climbs with the line, once, when it comes into view. */
 (() => {
   const rec = document.querySelector('.lb-rec'), n = rec && rec.querySelector('.cnt');

@@ -1,0 +1,9 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="134" height="180.2" viewBox="0 0 134 180.2" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path id="Spotlight" d="M40.4 0H93.6L134 180.2H0L40.4 0Z" fill="url(#paint0_linear_0_10)"/>
+<defs>
+<linearGradient id="paint0_linear_0_10" x1="67" y1="0" x2="67" y2="180.2" gradientUnits="userSpaceOnUse">
+<stop stop-color="#3F88F2" stop-opacity="0.55"/>
+<stop offset="1" stop-color="#3F88F2" stop-opacity="0.02"/>
+</linearGradient>
+</defs>
+</svg>
