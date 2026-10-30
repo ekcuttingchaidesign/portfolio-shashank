@@ -463,17 +463,19 @@ requests, and no horizontal overflow at 390px.
 
 ## The clock on the title block
 
-The title card's block carries a clock on its top face (`.lw-dial`, built in
-`outside.js` and appended inside the block's own node, so it inherits the
-block's position, drift and fade). It is drawn flat and scaled to the ground
-plane: a plan circle projects to `1.2215 x 0.7126` with 12 o'clock straight up,
-centred on the top face at `(357.5, 205.9)` of the 715x509 art. It is a 300-unit
-circle (the face is 458 x 368 in plan, so that leaves a margin all round), lifted
-by half the case's depth so the whole clock sits in the middle of the face. A
-dark bezel with a shaded side, sixty minute ticks, tapered hands with a shadow
-and a glass highlight; at 5 a vermilion face fades up over the cream one. As the section
-runs from `p .035` to `.14` (the title's arrival and dwell) the hands go from
-9 to 5, the minute hand spinning the day away and a vermilion arc filling the
-hours worked; at 5 the dial gets `data-out` and lights up. All from scroll
-position, so it winds back on the way up. On a phone the block sits under the
-title (`pox/poy`) instead of off the right edge.
+The title card's block carries a clock (`.lw-dial`, built in `outside.js` and
+appended inside the block's own node, so it inherits the block's position,
+drift and fade). It is an isometric puck, flat-shaded like the blocks: cream
+top, a side in two flat tones lit from the left, a flat contact shadow. The
+face's contents (twelve hour bars with 9 and 5 in vermilion, a soft wedge for
+the hours worked, raised hands) are drawn in plan and projected onto the top
+ellipse (`1.2215 x 0.7126` per unit). A 300-unit circle, so it clears all four
+edges of the 458 x 368 top face, with its base centred on `(357.5, 205.9)` of
+the 715x509 art.
+
+As the section runs from `p .035` to `.14` (the title's arrival and dwell) the
+hands go from 9 to 5 and the wedge fills; at 5 the dial gets `data-out` and the
+whole puck turns vermilion. All from scroll position, so it winds back on the
+way up. An earlier version with a dark bezel, minute ticks and a ring read as a
+pressure gauge; flat tones and chunky bars are what keep it a clock. On a phone
+the block sits under the title (`pox/poy`) instead of off the right edge.

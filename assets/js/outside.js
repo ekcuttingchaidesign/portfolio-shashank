@@ -623,64 +623,54 @@
     const NS = 'http://www.w3.org/2000/svg';
     const wrap = document.createElement('div');
     wrap.className = 'lw-dial';
-    /* A real wall clock, lying down: a dark bezel, a softly shaded face,
-       sixty minute ticks with heavier hours (9 and 5 in vermilion), tapered
-       hands with a shadow under them, and a glass highlight. A second face,
-       vermilion, sits over the first at opacity 0 and fades up at 5 — a
-       gradient fill cannot transition, an opacity can. */
-    let ticks = '';
-    for (let i = 0; i < 60; i++) {
-      const hour = i % 5 === 0, h = i / 5, work = hour && (h === 9 || h === 5);
-      ticks += `<line x1="100" y1="${hour ? 15 : 15}" x2="100" y2="${hour ? (h % 3 ? 25 : 28) : 19}"` +
-               ` transform="rotate(${i * 6} 100 100)"` +
-               ` class="lw-dial-tick${hour ? ' is-hour' : ''}${work ? ' is-work' : ''}"/>`;
+    /* An isometric puck, extruded like the blocks it stands on: a cream top
+       face, a side in two flat tones (lit left, shaded right, the same light
+       the green faces take) and a flat contact shadow. Everything on the
+       face — twelve chunky hour bars, 9 and 5 in vermilion, a soft wedge for
+       the hours worked, raised hands — is drawn in plan inside one group and
+       projected onto the top ellipse, so it lies on the face rather than
+       floating over it.
+
+       Units: the plan circle is 200 across; the projection makes the top an
+       ellipse 244.3 x 142.5, and the puck stands EXT tall. The SVG is in
+       screen space and positioned by CSS so the BASE ellipse's centre lands
+       on the block's top-face centre. */
+    const RX = 122.15, RY = 71.26, EXT = 26, W = RX * 2, H = RY * 2 + EXT;
+    let bars = '';
+    for (let i = 0; i < 12; i++) {
+      const work = i === 9 || i === 5;
+      bars += `<line x1="100" y1="${work ? 16 : 18}" x2="100" y2="${i % 3 ? 32 : 36}"` +
+              ` transform="rotate(${i * 30} 100 100)" class="lw-dial-bar${work ? ' is-work' : ''}"/>`;
     }
-    const hands =
-      `<path class="lw-dial-h" d="M96.2 112 L98.6 56 Q100 51 101.4 56 L103.8 112 Z"/>` +
-      `<path class="lw-dial-m" d="M97.6 116 L99.3 30 Q100 26 100.7 30 L102.4 116 Z"/>`;
+    const plan = `translate(${RX} ${RY}) scale(${RX / 100} ${RY / 100}) translate(-100 -100)`;
+    const sidePath = `M0 ${RY} L0 ${RY + EXT} A${RX} ${RY} 0 0 0 ${W} ${RY + EXT} L${W} ${RY} A${RX} ${RY} 0 0 1 0 ${RY} Z`;
     wrap.innerHTML =
-      `<span class="lw-dial-shadow"></span>` +
-      `<span class="lw-dial-edge"></span>` +
-      `<svg class="lw-dial-face" viewBox="0 0 200 200" xmlns="${NS}" aria-hidden="true">` +
-        `<defs>` +
-          `<radialGradient id="lwdFace" cx="42%" cy="38%" r="70%">` +
-            `<stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E9E4DC"/></radialGradient>` +
-          `<radialGradient id="lwdLit" cx="42%" cy="38%" r="70%">` +
-            `<stop offset="0" stop-color="#FF7A45"/><stop offset="1" stop-color="#D2471F"/></radialGradient>` +
-          `<linearGradient id="lwdBezel" x1="0" y1="0" x2="1" y2="1">` +
-            `<stop offset="0" stop-color="#4A4A47"/><stop offset=".55" stop-color="#1A1A19"/>` +
-            `<stop offset="1" stop-color="#0B0B0A"/></linearGradient>` +
-          `<linearGradient id="lwdGlass" x1="0" y1="0" x2="0" y2="1">` +
-            `<stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>` +
-          `<filter id="lwdHandShadow" x="-50%" y="-50%" width="200%" height="200%">` +
-            `<feDropShadow dx="2.2" dy="3" stdDeviation="1.6" flood-color="#000" flood-opacity=".28"/></filter>` +
-        `</defs>` +
-        `<circle cx="100" cy="100" r="99" fill="url(#lwdBezel)"/>` +
-        `<circle cx="100" cy="100" r="91.5" fill="#0B0B0A"/>` +
-        `<circle cx="100" cy="100" r="90" fill="url(#lwdFace)"/>` +
-        `<circle cx="100" cy="100" r="90" fill="url(#lwdLit)" class="lw-dial-lit"/>` +
-        `<circle cx="100" cy="100" r="81" class="lw-dial-arc" pathLength="360"` +
-        ` transform="rotate(180 100 100)"/>` +
-        ticks +
-        `<text x="100" y="40" class="lw-dial-n">12</text>` +
-        `<text x="160" y="100" class="lw-dial-n">3</text>` +
-        `<text x="100" y="160" class="lw-dial-n">6</text>` +
-        `<text x="40" y="100" class="lw-dial-n is-work">9</text>` +
-        `<text x="130" y="152" class="lw-dial-n is-work">5</text>` +
-        `<g class="lw-dial-hands" filter="url(#lwdHandShadow)">` +
-          `<g class="lw-dial-hg">${hands.split('<path class="lw-dial-m"')[0]}</g>` +
-          `<g class="lw-dial-mg"><path class="lw-dial-m"${hands.split('<path class="lw-dial-m"')[1]}</g>` +
+      `<svg class="lw-dial-svg" viewBox="0 0 ${W.toFixed(2)} ${H.toFixed(2)}" xmlns="${NS}" aria-hidden="true">` +
+        `<defs><linearGradient id="lwdSide" x1="0" x2="1" y1="0" y2="0">` +
+          `<stop offset=".5" class="lw-dial-sideL"/><stop offset=".5" class="lw-dial-sideR"/>` +
+        `</linearGradient></defs>` +
+        /* contact shadow: the base ellipse, pushed toward the front-right */
+        `<ellipse cx="${RX + 10}" cy="${RY + EXT + 6}" rx="${RX}" ry="${RY}" class="lw-dial-shadow"/>` +
+        `<path d="${sidePath}" fill="url(#lwdSide)"/>` +
+        `<ellipse cx="${RX}" cy="${RY}" rx="${RX}" ry="${RY}" class="lw-dial-top"/>` +
+        `<g transform="${plan}">` +
+          `<path class="lw-dial-wedge" d=""/>` +
+          bars +
+          `<g class="lw-dial-hands-shadow" transform="translate(2.5 6)">` +
+            `<g class="lw-dial-hg"><line x1="100" y1="100" x2="100" y2="54" class="lw-dial-hs"/></g>` +
+            `<g class="lw-dial-mg"><line x1="100" y1="100" x2="100" y2="32" class="lw-dial-ms"/></g>` +
+          `</g>` +
+          `<g class="lw-dial-hg"><line x1="100" y1="100" x2="100" y2="54" class="lw-dial-h"/></g>` +
+          `<g class="lw-dial-mg"><line x1="100" y1="100" x2="100" y2="32" class="lw-dial-m"/></g>` +
+          `<circle cx="100" cy="100" r="7" class="lw-dial-cap"/>` +
         `</g>` +
-        `<circle cx="100" cy="100" r="5.2" class="lw-dial-cap"/>` +
-        `<circle cx="100" cy="100" r="2" class="lw-dial-pin"/>` +
-        `<path d="M30 70 A76 76 0 0 1 128 26 A92 92 0 0 0 30 70 Z" fill="url(#lwdGlass)" class="lw-dial-glass"/>` +
       `</svg>`;
     titleBlock.el.appendChild(wrap);
     dial = {
       el: wrap,
-      h: wrap.querySelector('.lw-dial-hg'),
-      m: wrap.querySelector('.lw-dial-mg'),
-      arc: wrap.querySelector('.lw-dial-arc'),
+      h: [...wrap.querySelectorAll('.lw-dial-hg')],
+      m: [...wrap.querySelectorAll('.lw-dial-mg')],
+      wedge: wrap.querySelector('.lw-dial-wedge'),
       last: -1
     };
   }
@@ -1338,12 +1328,13 @@
       if (q !== dial.last) {
         dial.last = q;
         const hAng = ((hrs % 12) / 12) * 360, mAng = (hrs % 1) * 360;
-        dial.h.setAttribute('transform', `rotate(${hAng.toFixed(2)} 100 100)`);
-        dial.m.setAttribute('transform', `rotate(${mAng.toFixed(2)} 100 100)`);
-        /* The arc starts at 9 (drawn from the circle's 3 o'clock, turned
-           180) and covers the hours worked: 240 of its 360 at 5. */
-        const worked = (hrs - 9) * 30;
-        dial.arc.style.strokeDasharray = `${worked.toFixed(2)} 360`;
+        dial.h.forEach(g => g.setAttribute('transform', `rotate(${hAng.toFixed(2)} 100 100)`));
+        dial.m.forEach(g => g.setAttribute('transform', `rotate(${mAng.toFixed(2)} 100 100)`));
+        /* The hours worked, as a flat wedge from 9 round to the hour hand. */
+        const a0 = 270, a1 = 270 + (hrs - 9) * 30, r = 76;
+        const pt = d => `${(100 + r * Math.sin(d * Math.PI / 180)).toFixed(2)} ${(100 - r * Math.cos(d * Math.PI / 180)).toFixed(2)}`;
+        dial.wedge.setAttribute('d', a1 - a0 < .5 ? '' :
+          `M100 100 L${pt(a0)} A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${pt(a1)} Z`);
         dial.el.toggleAttribute('data-out', hrs >= 16.995);
       }
     }
