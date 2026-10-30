@@ -563,10 +563,6 @@
       if (elSay)   elSay.textContent   = s.getAttribute('data-say') || '';
       pips.forEach((p, n) => n <= i ? p.setAttribute('data-on', '')
                                     : p.removeAttribute('data-on'));
-      /* The bloom he stands in takes the colour of what he is wearing at
-         this stop — the same key his panel lights in. */
-      const key = s.style.getPropertyValue('--sx-xp-key').trim();
-      if (xp && key) xp.style.setProperty('--sx-xp-tint', key);
       /* The room is warmest on the job he is in now, and cools as the rail
          runs back through the ones before it. */
       if (xp) xp.style.setProperty('--sx-xp-heat',

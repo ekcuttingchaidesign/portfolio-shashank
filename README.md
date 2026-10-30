@@ -114,14 +114,9 @@ rail is the shape of the career.
 It runs **backwards**. The job he is in now comes first, set larger, and the
 rail then walks back through the road that led there.
 
-**Every stop is a panel, lit in what he wears there.** Each stop carries two
-colours sampled from the character's outfit at that job (`--sx-xp-key` and
-`--sx-xp-field`, inline on the stop): Airtel's orange hoodie, Gamezop's red
-spider suit, Appinventiv's denim, MediaAgility's slate plaid. At rest a panel is
-one flat step up from the wall; the one being read lights in its field colour
-with a light rising from the floor in its corner (one registered number,
-`--sx-xp-lit`, eased), and the desktop stage's bloom shifts to the same key.
-Read down the rail and the section cools as it goes back in time. Airtel's five
+**Every stop sits on the same quiet panel**: one flat step up from the wall,
+no outline, gradient or colour of its own; the one being read steps up once
+more. Airtel's five
 stints each show a piece of the work they produced, reusing pictures Featured
 Work and More Stories already load: rows on wide screens, a swipe rail on a
 phone. Nothing badges it as current: its years are green, the rail's

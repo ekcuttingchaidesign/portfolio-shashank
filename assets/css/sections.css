@@ -1649,11 +1649,8 @@
   --sx-xp-rp: clamp(1.35rem, 3vw, 2.25rem);
   --sx-xp-pad: clamp(1.25rem, 2.4vw, 2rem);
   /* The Now panel: one step up from the wall, flat. */
-  --sx-xp-now-bg: #131312;
-  /* The stage's bloom takes the colour of whichever stop is live. Script
-     writes it; registered below so it can be transitioned. */
-  --sx-xp-tint: #FF7A3D;
-  transition: --sx-xp-tint .9s var(--sx-ease-out);
+  --sx-xp-panel: #111110;
+  --sx-xp-panel-on: #161615;
   /* The company name's size, which the rail's node is centred against. */
   --sx-xp-h3: var(--sx-t-head);
 }
@@ -1769,10 +1766,10 @@
      than with however tall the readout under him happens to be. */
   aspect-ratio: 1 / 1;
   background: radial-gradient(58% 50% at 50% 58%,
-    color-mix(in srgb, var(--sx-xp-tint) calc((5.2% + var(--sx-xp-heat, 0) * 5.5%) * 1.6), transparent) 0%,
-    color-mix(in srgb, var(--sx-xp-tint) calc((3.4% + var(--sx-xp-heat, 0) * 3.8%) * 1.6), transparent) 32%,
-    color-mix(in srgb, var(--sx-xp-tint) calc((1.4% + var(--sx-xp-heat, 0) * 1.8%) * 1.6), transparent) 58%,
-    transparent 82%);
+    rgba(224,84,42, calc(.052 + var(--sx-xp-heat, 0) * .055)) 0%,
+    rgba(224,84,42, calc(.034 + var(--sx-xp-heat, 0) * .038)) 32%,
+    rgba(224,84,42, calc(.014 + var(--sx-xp-heat, 0) * .018)) 58%,
+    rgba(224,84,42, 0) 82%);
   transition: background .9s var(--sx-ease-out);
   pointer-events: none;
   z-index: 0;
@@ -2035,7 +2032,7 @@
   margin: .6rem 0 0;
   font-size: var(--sx-t-body);
 }
-.sx-xp-role { color: var(--sx-xp-key, var(--sx-key)); }
+.sx-xp-role { color: var(--sx-key); }
 .sx-xp-yrs {
   color: var(--sx-ink-3);
   font-variant-numeric: tabular-nums;
@@ -2051,40 +2048,17 @@
 }
 
 /* --- the panels ------------------------------------------------------------
-   Every stop is a panel, and every panel carries two colours taken from what
-   the character wears at that job, written on the stop as --sx-xp-key and
-   --sx-xp-field: the orange hoodie at Airtel, the red spider suit at
-   Gamezop, the denim at Appinventiv, the slate plaid at MediaAgility. Read
-   down the rail and the section cools as it goes back in time.
-
-   At rest a panel is one flat step up from the wall. The one being read
-   LIGHTS: its ground turns to the field colour and a light comes up from
-   the floor in the corner he stands in, the way a stage takes a gel when a
-   performer walks on. One registered number, --sx-xp-lit, drives both, so
-   the change is a single eased transition rather than a swap. */
-@property --sx-xp-lit {
-  syntax: "<number>";
-  inherits: false;
-  initial-value: 0;
-}
-@property --sx-xp-tint {
-  syntax: "<color>";
-  inherits: true;
-  initial-value: #FF7A3D;
-}
+   Every stop sits on the same panel: one flat step up from the wall, no
+   outline, no gradient, no colour of its own. The one being read steps up
+   once more, which is the whole of the highlight. */
 .sx-xp-body {
-  --sx-xp-lit: 0;
   position: relative;
   padding: var(--sx-xp-pad);
   border-radius: 6px;
-  background:
-    radial-gradient(85% 75% at 92% 112%,
-      color-mix(in srgb, var(--sx-xp-key) calc(var(--sx-xp-lit) * 30%), transparent) 0%,
-      transparent 70%),
-    color-mix(in srgb, var(--sx-xp-field) calc(var(--sx-xp-lit) * 100%), var(--sx-xp-now-bg));
-  transition: --sx-xp-lit .8s var(--sx-ease-out);
+  background: var(--sx-xp-panel);
+  transition: background-color .6s var(--sx-ease-out);
 }
-.sx-xp-stop[data-active="1"] .sx-xp-body { --sx-xp-lit: 1; }
+.sx-xp-stop[data-active="1"] .sx-xp-body { background-color: var(--sx-xp-panel-on); }
 
 /* The name is the panel's one large thing, and Now's is larger still. */
 .sx-xp-stop[data-current] { --sx-xp-h3: calc(var(--sx-t-head) * 1.18); }
@@ -2297,12 +2271,11 @@
 /* --- Reduced motion --------------------------------------------------------
    Everything that MOVES stops; everything that COMMUNICATES stays. The
    character holds his standing frame instead of cycling, the re-render never
-   runs, and the panels change colour without easing into it — so the section
+   runs, and the panels change tone without easing into it — so the section
    still reads as a timeline, it just does not perform one. */
 @media (prefers-reduced-motion: reduce) {
   .sx-xp-yr::before { animation: none; }
   .sx-xp-cel, .sx-xp-stop, .sx-xp-pips li, .sx-xp-glow, .sx-xp-body, .sx-xp-thumb { transition: none; }
-  #sx-exp { transition: none; }
   /* The aside still opens — it is content, not performance — it just arrives
      rather than rising into place, and he does not lift to introduce it. */
   .sx-xp-say { transition: none; transform: none; }
