@@ -3364,7 +3364,8 @@
     const hash   = (gate.dataset.hash || '').trim().toLowerCase();
     const routes = Object.fromEntries((gate.dataset.routes || '').split(',')
       .map(r => r.split('=').map(x => x.trim())).filter(r => r[0] && r[1]));
-    const mail   = ask ? ask.getAttribute('href').split('?')[0] : '';
+    const mailto = gate.querySelector('[data-nda-mailto]');
+    const to     = 'ekcuttingchaidesign@gmail.com';
     const canCheck = !!hash && !!(window.crypto && crypto.subtle);
     let slug = '', opener = null;
 
@@ -3384,8 +3385,10 @@
       msg.textContent = '';
       gate.removeAttribute('data-state');
       input.value = '';
-      if (ask) ask.href = `${mail}?subject=${encodeURIComponent('Access to ' + title)}` +
-        `&body=${encodeURIComponent(`Hi Shashank, could you share the password for ${title}?`)}`;
+      const su = encodeURIComponent('Access to ' + title);
+      const body = encodeURIComponent(`Hi Shashank, could you share the password for ${title}?`);
+      if (ask) ask.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${su}&body=${body}`;
+      if (mailto) mailto.href = `mailto:${to}?subject=${su}&body=${body}`;
       gate.showModal();
       (canCheck ? input : ask || gate).focus();
     };

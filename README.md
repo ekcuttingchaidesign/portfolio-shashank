@@ -172,7 +172,9 @@ reserved frames. Swapping one for an `<img>` or `<video>` needs no other change.
 Six projects are client work under NDA: Airtel Gaming and UPI Motion in
 Featured Work, and all four More Stories cards. Each card says so and opens a
 small dialog (`#sx-nda`, at the foot of `prototype/index.html`) with a password
-field and a **Request access by email** link pre-filled with the project's name.
+field, a **Request access on Gmail** button that opens Gmail's compose window in
+a new tab pre-filled with the project's name, and a plain mailto underneath for
+anyone not on Gmail.
 
 The site is static, so this keeps casual visitors out; it is not encryption.
 The password is never stored in the page. To set one:
@@ -181,8 +183,8 @@ The password is never stored in the page. To set one:
 printf '%s' 'your-password' | shasum -a 256
 ```
 
-and put the hex in the dialog's `data-hash`. While `data-hash` is empty the
-field is disabled and only Request access works. When a project's page exists,
+and put the hex in the dialog's `data-hash` (one is set). While `data-hash` is
+empty the field is disabled and only Request access works. When a project's page exists,
 add it to `data-routes` as `slug=path` (comma-separated, e.g.
 `airtel-gaming=../work/airtel-gaming/`); unlocking goes there. The slugs are the
 cards' `data-nda` values.

@@ -5689,6 +5689,14 @@ a.sx-feat-view { text-decoration: none; }
   transition: background-color .2s var(--sx-ease), border-color .2s var(--sx-ease);
 }
 .sx-nda-ask:hover { background: rgba(244,241,236,.05); border-color: rgba(244,241,236,.32); }
+.sx-nda-alt {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: .84rem;
+  color: var(--sx-ink-3);
+}
+.sx-nda-alt a { color: var(--sx-ink-2); text-underline-offset: 3px; }
+.sx-nda-alt a:hover { color: var(--sx-ink); }
 .sx-nda-x:focus-visible, .sx-nda-go:focus-visible, .sx-nda-ask:focus-visible {
   outline: 2px solid var(--sx-key);
   outline-offset: 2px;

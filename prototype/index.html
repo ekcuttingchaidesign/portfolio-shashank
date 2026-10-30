@@ -2160,7 +2160,7 @@
      while it is empty the field stays disabled and only Request access works.
      Each project's page, once it exists, goes in data-routes as slug=path. -->
 <dialog class="sx-nda" id="sx-nda" aria-labelledby="sx-nda-h"
-        data-hash=""
+        data-hash="b86c2b055e1ad38aa02be7831a5897f6b544b7994fac38a830e837c5226c2378"
         data-routes="">
   <form class="sx-nda-card" method="dialog" novalidate>
     <button class="sx-nda-x" type="submit" value="close" aria-label="Close">
@@ -2179,7 +2179,12 @@
       </div>
       <p class="sx-nda-msg" role="status" aria-live="polite"></p>
     </div>
-    <a class="sx-nda-ask" href="mailto:ekcuttingchaidesign@gmail.com" data-nda-ask>Request access by email</a>
+    <!-- Gmail's own compose window, in a new tab, rather than mailto: — a
+         mailto does nothing on a machine with no mail app set up, which is
+         most work laptops. The mailto stays as the fallback underneath. -->
+    <a class="sx-nda-ask" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=ekcuttingchaidesign@gmail.com"
+       target="_blank" rel="noopener" data-nda-ask>Request access on Gmail</a>
+    <p class="sx-nda-alt">or <a href="mailto:ekcuttingchaidesign@gmail.com" data-nda-mailto>use your email app</a></p>
   </form>
 </dialog>
 
