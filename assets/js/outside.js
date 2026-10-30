@@ -306,7 +306,10 @@
 
     /* the title card's own block — the focal object of that frame, so it
        keeps the full palette the way a station's master does */
-    { t:  -900, ox:  474, oy:  315, variant: 'master', tier: 'stage', k: .78 },
+    { t:  -900, ox:  474, oy:  315, variant: 'master', tier: 'stage', k: .78,
+      /* On a phone it sits under the title rather than beside it: beside,
+         it ran off the right edge and took the cast standing on it too. */
+      pox: 40, poy: 760 },
     { t:  -900, ox:  641, oy:  -75, variant: 'amb_3',  tier: 'bg'   },
     { t:  -900, ox:  904, oy:  180, variant: 'amb_4',  tier: 'near' },
     { t:  -900, ox:  836, oy:  480, variant: 'amb_2',  tier: 'bg'   },
@@ -601,6 +604,32 @@
   AMBIENT.forEach((a, i) => addBlock(
     Object.assign({ kind: 'block', win: AMB_WIN[a.tier] || 1400, ai: i }, a)));
 
+  /* THE CAST. The title card's block used to stand empty for its whole
+     dwell. Now all three of him stand on it — on the couch, with the camera,
+     the meme pair — a cast photo beside the title. As the camera leaves for
+     I play they hop off one by one up the travel axis, toward the stops
+     they are going to: the meme pair first (furthest to go), the gamer last.
+
+     They are ordinary mascot nodes standing on an ambient block rather than
+     on a station: same ridge maths, the block's own phase so they ride its
+     drift, `k` so they scale with the .78 it is drawn at, `rx/ry` to spread
+     them across its top face, `hk` to fit three on one plinth. `cast` is the
+     hop-off, which render() reads; everything else is the station path. */
+  const titleBlock = nodes.find(n => n.variant === 'master' && n.t === -900);
+  if (titleBlock) {
+    const CAST = [
+      { file: 'iplay.png',  rx: -.30, ry: -.02, hk: .56, leaveAt: 230 },
+      { file: 'iShoot.png', rx:  .24, ry: -.12, hk: .56, leaveAt: 130 },
+      { file: 'iMeme.png',  rx:  .01, ry:  .07, hk: .56, leaveAt:  30 }
+    ];
+    CAST.forEach(c => addMascot(Object.assign({
+      kind: 'mascot', t: titleBlock.t, ox: titleBlock.ox, oy: titleBlock.oy,
+      pox: titleBlock.pox, poy: titleBlock.poy,
+      k: titleBlock.k, tier: 'stage', phase: titleBlock.phase,
+      master: BLOCKS.master, win: 620, delay: .18, cast: true
+    }, c)));
+  }
+
   let contactFigure = null;
   STATIONS.forEach((st, i) => {
     const m = BLOCKS[st.master];
@@ -703,6 +732,12 @@
 
   const titleEl = sec.querySelector('.lw-title');
 
+  /* The route at the foot of the stage, and the sky behind everything. */
+  const route = sec.querySelector('.lw-route');
+  const clockEl = route && route.querySelector('.lw-clock');
+  const routeLinks = route ? [...route.querySelectorAll('[data-route]')] : [];
+  let lastClock = '', lastActive = '';
+
   /* Words, not lines. Each one is its own token so they can arrive on a
      stagger — the flourish is in six things landing in sequence, not in one
      block of type sliding. Split from JS so the markup stays plain text. */
@@ -713,7 +748,9 @@
       serif.innerHTML = serif.textContent.trim().split(/\s+/)
         .map(w => `<span class="lw-w">${w}</span>`).join(' ');
     }
-    return [...titleEl.querySelectorAll('.lw-w, .lw-num, .lw-to')];
+    /* The intro line arrives last, as one more token, so it never shows
+       before the words it follows. */
+    return [...titleEl.querySelectorAll('.lw-w, .lw-num, .lw-to, .lw-intro')];
   })();
 
   /* Stitch the per-word gradients back into one sweep: each word gets the
@@ -1024,6 +1061,18 @@
   const FACE_DELAY = { top: 0, left: .05, right: .10 };
   const FACE_FROM  = { top: [0, -40], left: [-26, 0], right: [26, 0] };
 
+  /* The route's stops scroll to their station: the first camera key that
+     arrives at its t, a hair into the dwell, on the section's own travel. */
+  routeLinks.forEach(a => a.addEventListener('click', e => {
+    const st = STATIONS.find(s => s.id === a.dataset.route);
+    const key = st && KEYS.find(k => k[1] === st.t);
+    if (!key) return;
+    e.preventDefault();
+    const top = sec.getBoundingClientRect().top + scrollY;
+    const travel = sec.offsetHeight - innerHeight;
+    scrollTo({ top: top + (key[0] + .02) * travel, behavior: 'smooth' });
+  }));
+
   /* ==========================================================================
      10 · RENDER
      ====================================================================== */
@@ -1122,7 +1171,8 @@
          also where the phone layout moves the block out from under the
          copy, and a station opting out of one is opting out of both. */
       let nox, noy;
-      if (!n.station)          { nox = n.ox;   noy = n.oy;  }
+      if (!n.station)          { nox = phone && n.pox != null ? n.pox : n.ox;
+                                 noy = phone && n.poy != null ? n.poy : n.oy; }
       else if (n.sox == null)  { nox = stOx;   noy = stOy;  }
       else if (phone)          { nox = n.psox; noy = n.psoy; }
       /* `bleed` says this node's plinth must stay welded to the right edge, so
@@ -1155,8 +1205,8 @@
            front ridge line is the difference between standing on the block and
            floating over it. The mascot's own anchor is its soles. */
         const m = n.master;
-        const bw = m.nw * TIER.stage.scale * worldScale;
-        const bh = m.nh * TIER.stage.scale * worldScale;
+        const bw = m.nw * TIER.stage.scale * worldScale * (n.k || 1);
+        const bh = m.nh * TIER.stage.scale * worldScale * (n.k || 1);
         if (!m.ridge) continue;                    // nothing to stand on
         const dM = (n.t * spacing - camT) *
                    (n.kind === 'mascot' ? MASCOT_PARALLAX : TIER.stage.parallax);
@@ -1164,9 +1214,9 @@
            plinth rather than hovering independently over it. */
         const fl = floatOf(n, now);
         x = cx + dM * ISO.AX * worldScale + nox * worldScale
-              + (m.ridge.x - m.origin.x) * bw + fl.x;
+              + (m.ridge.x - m.origin.x + (n.rx || 0)) * bw + fl.x;
         y = cy + dM * ISO.AY * worldScale + noy * worldScale
-              + (m.ridge.y - m.origin.y) * bh + fl.y;
+              + (m.ridge.y - m.origin.y + (n.ry || 0)) * bh + fl.y;
 
         if (n.kind === 'shadow') {
           /* A rhombus matching the ground plane, built from a square: rotate
@@ -1191,15 +1241,31 @@
            the ridge maths above. Scaled on the ink's height, not the canvas's,
            so the padding around each figure cannot change how big it looks. */
         const M = MASCOTS[n.file];
-        const k  = M ? (bh * M.h3) / M.contentH : (bh * MASCOT_H) / 600;
+        const k  = (M ? (bh * M.h3) / M.contentH : (bh * MASCOT_H) / 600) * (n.hk || 1);
         const mw = (M ? M.w : 240) * k;
         const mh = (M ? M.h : 320) * k;
         if (n.lastW !== mw) { n.el.style.width = mw + 'px'; n.lastW = mw; }
+
+        /* The cast's hop-off: once the camera is `leaveAt` past the title,
+           the figure jumps up and right — up the travel axis, where the
+           stops are — on a quick rising arc and fades as it goes. A pure
+           function of camera distance, so it lands back on the plinth when
+           you scroll up. */
+        let hx = 0, hy = 0, ho = 1;
+        if (n.cast) {
+          const L = clamp01((camT - n.t * spacing - n.leaveAt * spacing) / (300 * spacing));
+          if (L > 0) {
+            const arc = Math.sin(Math.min(L / .5, 1) * Math.PI / 2);
+            hx = L * 190 * worldScale;
+            hy = -(arc * 120 + L * L * 220) * worldScale;
+            ho = 1 - clamp01((L - .2) / .55);
+          }
+        }
         n.el.style.transform =
-          `translate3d(${(x - (M ? M.ax : .5) * mw).toFixed(1)}px,` +
-          `${(y - (M ? M.ay : .96) * mh).toFixed(1)}px,0)` +
+          `translate3d(${(x + hx - (M ? M.ax : .5) * mw).toFixed(1)}px,` +
+          `${(y + hy - (M ? M.ay : .96) * mh).toFixed(1)}px,0)` +
           ` translateY(${((1 - e) * 18).toFixed(1)}px)`;
-        n.el.style.opacity = e.toFixed(3);
+        n.el.style.opacity = (e * ho).toFixed(3);
         continue;
       }
 
@@ -1302,6 +1368,42 @@
     if (END_REVEAL.length && !reduced) {
       if (!endPlayed && p >= END_PLAY_AT)      { endPlayed = true;  endPlay(); }
       else if (endPlayed && p < END_RESET_AT)  { endPlayed = false; endHide(); }
+    }
+
+    /* --- the evening, and the route -------------------------------------
+       One number for both: how far the camera is from the title card toward
+       Contact, 0 to 1. The sky reads it as the hour — sunset on the title,
+       violet through the middle stops, night by the end — and the clock on
+       the route prints it. */
+    {
+      const raw = camT / spacing;
+      const tp = clamp01((raw + 900) / (4350 + 900));
+      const ss = v => { v = clamp01(v); return v * v * (3 - 2 * v); };
+      sec.style.setProperty('--lw-sun',    (1 - ss(tp / .45)).toFixed(3));
+      sec.style.setProperty('--lw-violet', Math.max(0, 1 - Math.abs(tp - .42) / .36).toFixed(3));
+      sec.style.setProperty('--lw-night',  ss((tp - .35) / .5).toFixed(3));
+
+      if (route) {
+        const show = clamp01((raw + 1250) / 300) * (1 - clamp01((raw - 3300) / 500));
+        route.style.opacity = show.toFixed(3);
+        route.style.visibility = show < .01 ? 'hidden' : '';
+        route.style.setProperty('--lw-route-k', clamp01(raw / 2900).toFixed(4));
+        let active = '';
+        for (const st of STATIONS) {
+          if (st.id !== 'contact' && Math.abs(raw - st.t) < 520) active = st.id;
+        }
+        if (active !== lastActive) {
+          lastActive = active;
+          routeLinks.forEach(a => a.dataset.route === active
+            ? a.setAttribute('aria-current', 'step') : a.removeAttribute('aria-current'));
+        }
+        if (clockEl) {
+          const mins = 17 * 60 + Math.round(tp * (6 * 60 + 58));
+          const h = Math.floor(mins / 60), mm = mins % 60;
+          const txt = `${h > 12 ? h - 12 : h}:${String(mm).padStart(2, '0')} pm`;
+          if (txt !== lastClock) { clockEl.textContent = txt; lastClock = txt; }
+        }
+      }
     }
 
     /* The title is NOT on the travel axis, and that is the point.

@@ -460,3 +460,28 @@ At 1440×900: 47 nodes total, **45 painting at the peak**, the rest
 does not need pre-composing yet. Nothing is fetched with the page; every
 variant and mascot is warmed when the section comes within a screen. No failed
 requests, and no horizontal overflow at 390px.
+
+## The title card's cast, the route and the evening
+
+Three additions so the title card is not a heading beside an empty plinth:
+
+- **The cast.** All three figures stand on the title card's own block
+  (`AMBIENT`'s `master` at `t -900`), as ordinary mascot nodes: same ridge
+  maths as a station, the block's own phase so they ride its drift, `k` to
+  match its `.78`, `rx/ry` to spread them across the top face and `hk` to fit
+  three on one plinth. As the camera leaves for I play they hop off up the
+  travel axis one at a time (`leaveAt`: meme pair first, gamer last). On a
+  phone the block moves under the title (`pox/poy`) instead of running off the
+  right edge. Tune in `CAST` in `outside.js`.
+- **The route.** `.lw-route`, pinned to the foot of the stage from the title
+  card to the last stop: the hour, then I play · I click · I meme on a track
+  that fills as the camera travels. The stop being dwelt on carries
+  `aria-current`; each is a link that scrolls to its station's dwell. Under the
+  title, `.lw-intro` ("What happens after the laptop shuts.") arrives as the
+  last of the title's tokens.
+- **The evening.** `.lw-sky`: a sunset low on the right at the title card,
+  violet through the middle stops, night with a few stars by Contact. Three
+  layers whose opacities (`--lw-sun`, `--lw-violet`, `--lw-night`) are written
+  from the same 0-1 camera progress the route's clock prints, 5:00 pm to
+  11:58 pm. All of it is a function of camera position, so it runs backwards
+  on the way up.
