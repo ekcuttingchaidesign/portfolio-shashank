@@ -1363,6 +1363,68 @@ html.lw-lb-open .lw-reel-track { animation-play-state: paused; }
    an obstruction), and station spacing tightens so the gaps stay under half
    a viewport. Those three are set in JS, from one breakpoint constant that
    this media query agrees with. */
+/* --- THE CLOCK ON THE TITLE BLOCK -------------------------------------------
+   A dial lying on the block's top face. Drawn flat, then scaled to the ground
+   plane (a plan circle projects to 1.2215 x 0.7126), centred on the top face
+   at (357.5, 205.9) of the 715x509 art, sized to a 340-unit circle (the
+   face is 458 x 368 units in plan, so that leaves a margin all round). The edge
+   under it is the dial's thickness, in screen space so it always falls down.
+   outside.js turns the hands and fills the arc from 9 to 5, and sets
+   data-out at 5, when the dial lights up. */
+.lw-dial {
+  position: absolute;
+  left: 50%;
+  top: 40.46%;
+  width: 47.5%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) scale(1.2215, .7126);
+  pointer-events: none;
+}
+.lw-dial-edge {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #0E4A2C;
+  transform: translateY(6%);
+}
+.lw-dial-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transition: filter .5s ease;
+}
+.lw-dial-bg   { fill: #F4F1EC; transition: fill .45s ease; }
+.lw-dial-arc  { fill: none; stroke: #E0542A; stroke-width: 9; stroke-dasharray: 0 360; opacity: .9; }
+.lw-dial-tick { stroke: #1B1B19; stroke-width: 3; stroke-linecap: round; transition: stroke .45s ease; }
+.lw-dial-tick.is-work { stroke: #E0542A; stroke-width: 5; }
+.lw-dial-n {
+  font-family: var(--sx-sans, system-ui, sans-serif);
+  font-weight: 700;
+  font-size: 17px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  fill: #1B1B19;
+  transition: fill .45s ease;
+}
+.lw-dial-n.is-work { fill: #E0542A; }
+.lw-dial-h, .lw-dial-m { stroke: #1B1B19; stroke-linecap: round; transition: stroke .45s ease; }
+.lw-dial-h { stroke-width: 8; }
+.lw-dial-m { stroke-width: 4; }
+.lw-dial-cap { fill: #E0542A; transition: fill .45s ease; }
+
+/* Five o'clock. The face goes vermilion and lights the slab around it;
+   everything printed on it turns cream. */
+.lw-dial[data-out] .lw-dial-face { filter: drop-shadow(0 0 22px rgba(224,84,42,.55)); }
+.lw-dial[data-out] .lw-dial-bg { fill: #E0542A; }
+.lw-dial[data-out] .lw-dial-tick,
+.lw-dial[data-out] .lw-dial-h,
+.lw-dial[data-out] .lw-dial-m { stroke: #F4F1EC; }
+.lw-dial[data-out] .lw-dial-n,
+.lw-dial[data-out] .lw-dial-cap { fill: #F4F1EC; }
+.lw-dial[data-out] .lw-dial-arc { stroke: #F4F1EC; opacity: .35; }
+
 @media (max-width: 720px) {
   .lw-copy {
     left: 50%;

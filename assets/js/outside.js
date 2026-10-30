@@ -306,7 +306,10 @@
 
     /* the title card's own block — the focal object of that frame, so it
        keeps the full palette the way a station's master does */
-    { t:  -900, ox:  474, oy:  315, variant: 'master', tier: 'stage', k: .78 },
+    { t:  -900, ox:  474, oy:  315, variant: 'master', tier: 'stage', k: .78,
+      /* On a phone it sits under the title rather than beside it: beside,
+         it ran off the right edge and cut the clock on it in half. */
+      pox: 40, poy: 760 },
     { t:  -900, ox:  641, oy:  -75, variant: 'amb_3',  tier: 'bg'   },
     { t:  -900, ox:  904, oy:  180, variant: 'amb_4',  tier: 'near' },
     { t:  -900, ox:  836, oy:  480, variant: 'amb_2',  tier: 'bg'   },
@@ -600,6 +603,57 @@
   const AMB_WIN = { bg: 1400, mid: 1400, near: 620, stage: 620, fg: 620 };
   AMBIENT.forEach((a, i) => addBlock(
     Object.assign({ kind: 'block', win: AMB_WIN[a.tier] || 1400, ai: i }, a)));
+
+  /* THE CLOCK. The title card's block used to stand empty. Now a clock
+     lies on its top face, and as you scroll through the title card its
+     hands run from 9 to 5 — the minute hand spinning the day away, a
+     vermilion arc filling the hours worked. At 5 the dial lights up: clocked
+     out, and the camera moves on to what happens after.
+
+     It lives INSIDE the block's own element, so it inherits the block's
+     position, drift, entrance and fade with no maths of its own. Placed at
+     the top face's centre, (357.5, 205.9) of the 715x509 art, and drawn flat
+     then scaled to the ground plane: a plan circle projects to an ellipse
+     1.2215 wide by 0.7126 tall with 12 o'clock straight up, so no rotation
+     is needed. Hands, arc and the lit state are written by render() from
+     the section's own progress, so scrolling back up winds it back. */
+  const titleBlock = nodes.find(n => n.variant === 'master' && n.t === -900);
+  let dial = null;
+  if (titleBlock) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const wrap = document.createElement('div');
+    wrap.className = 'lw-dial';
+    let ticks = '';
+    for (let i = 0; i < 12; i++) {
+      const a = i * 30, work = i === 9 || i === 5;
+      ticks += `<line x1="100" y1="${work ? 18 : 20}" x2="100" y2="${i % 3 ? 30 : 34}"` +
+               ` transform="rotate(${a} 100 100)" class="lw-dial-tick${work ? ' is-work' : ''}"/>`;
+    }
+    wrap.innerHTML =
+      `<span class="lw-dial-edge"></span>` +
+      `<svg class="lw-dial-face" viewBox="0 0 200 200" xmlns="${NS}" aria-hidden="true">` +
+        `<circle cx="100" cy="100" r="96" class="lw-dial-bg"/>` +
+        `<circle cx="100" cy="100" r="89" class="lw-dial-arc" pathLength="360"` +
+        ` transform="rotate(180 100 100)"/>` +
+        ticks +
+        `<text x="100" y="50" class="lw-dial-n">12</text>` +
+        `<text x="150" y="100" class="lw-dial-n">3</text>` +
+        `<text x="100" y="150" class="lw-dial-n">6</text>` +
+        `<text x="50" y="100" class="lw-dial-n is-work">9</text>` +
+        `<text x="125" y="143" class="lw-dial-n is-work">5</text>` +
+        `<line x1="100" y1="100" x2="100" y2="58" class="lw-dial-h"/>` +
+        `<line x1="100" y1="112" x2="100" y2="34" class="lw-dial-m"/>` +
+        `<circle cx="100" cy="100" r="6" class="lw-dial-cap"/>` +
+      `</svg>`;
+    titleBlock.el.appendChild(wrap);
+    dial = {
+      el: wrap,
+      h: wrap.querySelector('.lw-dial-h'),
+      m: wrap.querySelector('.lw-dial-m'),
+      arc: wrap.querySelector('.lw-dial-arc'),
+      last: -1
+    };
+  }
 
   let contactFigure = null;
   STATIONS.forEach((st, i) => {
@@ -1122,7 +1176,8 @@
          also where the phone layout moves the block out from under the
          copy, and a station opting out of one is opting out of both. */
       let nox, noy;
-      if (!n.station)          { nox = n.ox;   noy = n.oy;  }
+      if (!n.station)          { nox = phone && n.pox != null ? n.pox : n.ox;
+                                 noy = phone && n.poy != null ? n.poy : n.oy; }
       else if (n.sox == null)  { nox = stOx;   noy = stOy;  }
       else if (phone)          { nox = n.psox; noy = n.psoy; }
       /* `bleed` says this node's plinth must stay welded to the right edge, so
@@ -1239,6 +1294,27 @@
             `translate(${(fx * (1 - ee)).toFixed(2)} ${(fy * (1 - ee)).toFixed(2)})`);
           f.style.opacity = ee.toFixed(3);
         }
+      }
+    }
+
+    /* The clock's hours: 9 to 5 across the title card's arrival and dwell,
+       held at 5 once the camera starts to leave. Quarter-minute steps so it
+       only touches the DOM when something visible changes. */
+    if (dial) {
+      const kk = clamp01((p - .035) / .105);
+      const ee = kk < .5 ? 2 * kk * kk : 1 - Math.pow(-2 * kk + 2, 2) / 2;
+      const hrs = 9 + 8 * ee;
+      const q = Math.round(hrs * 240);
+      if (q !== dial.last) {
+        dial.last = q;
+        const hAng = ((hrs % 12) / 12) * 360, mAng = (hrs % 1) * 360;
+        dial.h.setAttribute('transform', `rotate(${hAng.toFixed(2)} 100 100)`);
+        dial.m.setAttribute('transform', `rotate(${mAng.toFixed(2)} 100 100)`);
+        /* The arc starts at 9 (drawn from the circle's 3 o'clock, turned
+           180) and covers the hours worked: 240 of its 360 at 5. */
+        const worked = (hrs - 9) * 30;
+        dial.arc.style.strokeDasharray = `${worked.toFixed(2)} 360`;
+        dial.el.toggleAttribute('data-out', hrs >= 16.995);
       }
     }
 

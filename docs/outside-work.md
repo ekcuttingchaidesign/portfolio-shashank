@@ -460,3 +460,16 @@ At 1440×900: 47 nodes total, **45 painting at the peak**, the rest
 does not need pre-composing yet. Nothing is fetched with the page; every
 variant and mascot is warmed when the section comes within a screen. No failed
 requests, and no horizontal overflow at 390px.
+
+## The clock on the title block
+
+The title card's block carries a clock on its top face (`.lw-dial`, built in
+`outside.js` and appended inside the block's own node, so it inherits the
+block's position, drift and fade). It is drawn flat and scaled to the ground
+plane: a plan circle projects to `1.2215 x 0.7126` with 12 o'clock straight up,
+centred on the top face at `(357.5, 205.9)` of the 715x509 art. As the section
+runs from `p .035` to `.14` (the title's arrival and dwell) the hands go from
+9 to 5, the minute hand spinning the day away and a vermilion arc filling the
+hours worked; at 5 the dial gets `data-out` and lights up. All from scroll
+position, so it winds back on the way up. On a phone the block sits under the
+title (`pox/poy`) instead of off the right edge.
