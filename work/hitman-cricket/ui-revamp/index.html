@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UI v1 · Hitman Cricket · Shashank</title>
+<meta name="description" content="Redesigning every screen around the innings in Hitman Cricket, a phone cricket game: cover, mode select, name entry, innings end, leaderboard and My Stats. Players now stay longer.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redrawn around the innings — the Hitman Cricket UI revamp">
+<meta property="og:description" content="Ten journeys, about 120 frames, handover to live in three days. 37% of play sessions now pass ten minutes, up from 21%.">
+<meta property="og:image" content="https://ekcuttingchaidesign.github.io/portfolio-shashank/public/img/hitman/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Light.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="../../../assets/fonts/Satoshi-Black.woff2" crossorigin>
+<link rel="stylesheet" href="../../../assets/css/case.css?v=20261030f">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body class="uv-page">
+<a class="skip" href="#main">Skip to the case study</a>
+
+<nav class="nav" aria-label="Site">
+  <a class="me" href="../../../prototype/" aria-label="Shashank — home"><img src="../../../public/img/profile.jpeg" alt="" width="64" height="64"></a>
+  <a class="on" href="../../../prototype/#sx-work" aria-current="page">Work</a>
+  <a href="../../../prototype/#sx-exp">Experience</a>
+  <a class="hide-xs" href="../../../prototype/#s-exit">Outside work</a>
+  <a href="../../../prototype/#sx-contact">Contact</a>
+</nav>
+
+<header class="uv-hero">
+  <div class="wrap pf-grid">
+    <div>
+      <a class="crumb" href="../" data-r>
+        <svg width="16" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true"><path d="M17.2 5H1.8M6.3 1.1 1.8 5l4.5 3.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Hitman Cricket
+      </a>
+      <h1 class="hl" data-r style="--d:.06s">Redrawn around <b>the innings</b></h1>
+      <p class="lede" data-r style="--d:.12s">People kept playing Hitman Cricket, but the screens around the batting looked like a prototype. I redrew every one, from the cover to the leaderboard. Players now stay longer.</p>
+      <p class="uv-hint" data-r style="--d:.18s"><svg width="20" height="12" viewBox="0 0 20 12" fill="none" aria-hidden="true"><path d="M6 1.5 1.5 6 6 10.5M14 1.5 18.5 6 14 10.5M1.5 6h17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Drag the line on the phone to compare the old innings-end card with the new one.</p>
+    </div>
+    <div class="uv-stage" data-r style="--d:.1s">
+      <div class="ph fig back l" aria-hidden="true"><img src="../../../public/img/hitman/revamp/after-modes.webp" alt="" width="402" height="874"></div>
+      <div class="ph fig back r" aria-hidden="true"><img src="../../../public/img/hitman/revamp/after-stats.webp" alt="" width="402" height="874"></div>
+      <div class="ph fig uv-wipe" style="--x:50%">
+        <img src="../../../public/img/hitman/revamp/after-end.webp" alt="After: the new innings end card. 105 for 2 in a Blast-blue panel with over-by-over bars, a rank card, the career key, and MODE, PLAY AGAIN and challenge keys" width="402" height="874">
+        <div class="uv-before"><img src="../../../public/img/hitman/revamp/before-end.webp" alt="Before: the old innings end card. A strip of ball bars, a register block and seven stacked actions running below the fold" width="603" height="1311"></div>
+        <span class="uv-tag b">Before</span><span class="uv-tag a">After</span>
+        <span class="uv-handle" aria-hidden="true"><i><svg width="18" height="10" viewBox="0 0 20 12" fill="none"><path d="M6 1.5 1.5 6 6 10.5M14 1.5 18.5 6 14 10.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i></span>
+        <input type="range" min="0" max="100" value="50" aria-label="Compare before and after: slide left to see more of the new design">
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="uv-score" data-r style="--d:.2s" aria-label="Results after the redesign">
+      <div><b>37<small>%</small></b><span>of play sessions now pass 10 minutes, up from <em>21%</em></span></div>
+      <div><b>2.9<small>&times;</small></b><span>more sessions a day pass 20 minutes, 1.8 to 5.1</span></div>
+      <div><b>+59<small>%</small></b><span>career card opens a day, after the My Stats redesign</span></div>
+      <div><b>4.7<small>/5</small></b><span>average rating since the star prompt arrived. 15 of 20 were five stars</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <dl class="credits" data-r>
+    <div><dt>My role</dt><dd>Product design: UX, visual design, motion, handover</dd></div>
+    <div><dt>Shipped</dt><dd>9&ndash;11 Oct 2026, celebrations 14&ndash;19 Oct</dd></div>
+    <div><dt>Scope</dt><dd>10 journeys, about 120 frames</dd></div>
+    <div><dt>Platform</dt><dd>Mobile web, 402 &times; 874 first</dd></div>
+  </dl>
+</div>
+
+<nav class="side" aria-label="Sections of this case study">
+  <div class="side-in">
+    <p class="side-t">UI v1</p>
+    <ol>
+      <li><a href="#players"><i></i><span>The players</span></a></li>
+      <li><a href="#problem"><i></i><span>What wasn&rsquo;t working</span></a></li>
+      <li><a href="#rules"><i></i><span>Six rules</span></a></li>
+      <li><a href="#journey"><i></i><span>The journey</span></a></li>
+      <li><a href="#language"><i></i><span>Design language</span></a></li>
+      <li><a href="#screens"><i></i><span>Before and after</span></a></li>
+      <li><a href="#endings"><i></i><span>Every ending</span></a></li>
+      <li><a href="#motion"><i></i><span>Motion</span></a></li>
+      <li><a href="#handover"><i></i><span>Handover</span></a></li>
+      <li><a href="#results"><i></i><span>Results</span></a></li>
+      <li><a href="#learned"><i></i><span>What I learned</span></a></li>
+    </ol>
+  </div>
+</nav>
+
+<main id="main">
+
+  <section class="sec" id="players" aria-labelledby="players-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="players-h" data-r>Built for <b>one hand on a phone</b></h2>
+        <p class="lede" data-r style="--d:.08s">Hitman Cricket is a free 3D batting game. You swipe to hit. There are three modes: the Blast (5 overs), Test Marathon (one long innings) and Test Survival (last man in). The data said exactly who I was designing for.</p>
+      </div>
+      <div class="uv-who">
+        <div data-r><b>1,993</b><span>visits from 16 Sep to 28 Oct</span></div>
+        <div data-r style="--d:.04s"><b>95%</b><span>on a phone-sized screen</span><i style="--w:95%"></i></div>
+        <div data-r style="--d:.08s"><b>68%</b><span>on iOS. Android 27%</span><i style="--w:68%"></i></div>
+        <div data-r style="--d:.12s"><b>97%</b><span>from India</span><i style="--w:97%"></i></div>
+      </div>
+      <p class="cap" data-r>So every frame is an iPhone 16 Pro, 402 &times; 874. On a desktop the game shows the same phone layout in a tall column, with a QR code beside it.</p>
+    </div>
+  </section>
+
+  <section class="sec" id="problem" aria-labelledby="problem-h">
+    <div class="wrap uv-problem">
+      <figure class="uv-pins" data-r>
+        <div class="ph fig"><img src="../../../public/img/hitman/revamp/before-end.webp" alt="The old innings end card: 105 for 2 with a strip of ball bars, a leaderboard block asking to register, career stats, restore, play again, challenge and change mode stacked down the screen" width="603" height="1311" loading="lazy"></div>
+        <span class="pin" style="left:103%;top:20%">1</span>
+        <span class="pin" style="left:103%;top:59%">2</span>
+        <span class="pin" style="left:-3%;top:72%">3</span>
+        <span class="pin" style="left:-3%;top:93%">4</span>
+        <figcaption>The innings end card, live on 9 October.</figcaption>
+      </figure>
+      <div>
+        <div class="sec-head">
+          <h2 class="h2 hl" id="problem-h" data-r>The innings was good. <b>The screens around it weren&rsquo;t.</b></h2>
+          <p class="lede" data-r style="--d:.08s">The game grew fast: new modes, careers, rivals and keys. Each feature added a card or a button wherever it fit. The end of an innings shows the problem best.</p>
+        </div>
+        <ol class="uv-issues">
+          <li data-r><span class="n">1</span><div><h3>Hard to read at a glance</h3><p>Thirty bars in a row, with no overs and no key. The shape of the innings was there, but you had to work it out.</p></div></li>
+          <li data-r><span class="n">2</span><div><h3>Your place, behind a form</h3><p>The rank was there, but the biggest block on the card asked you to register to keep it, right when you wanted to bat again.</p></div></li>
+          <li data-r><span class="n">3</span><div><h3>Everything was a card</h3><p>Register, career stats and restore were all full-width cards of the same weight. Nothing told you what mattered.</p></div></li>
+          <li data-r><span class="n">4</span><div><h3>Play again below the fold</h3><p>Seven actions in one long scroll. On a phone, the challenge and change-mode keys fell off the bottom of the screen.</p></div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec tint" id="rules" aria-labelledby="rules-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="rules-h" data-r>Six rules <b>I held every screen to</b></h2>
+        <p class="lede" data-r style="--d:.08s">Before I drew anything, I wrote these down. Whenever two ideas fought, the rule decided.</p>
+      </div>
+      <div class="uv-rules">
+        <article data-r><h3>Design routes, <b>not screens</b></h3><p>I mapped every way into and out of each screen, then drew the screens. That is how the empty, loading and offline states got designed instead of forgotten.</p></article>
+        <article data-r style="--d:.04s"><h3>One button <b>wins</b></h3><p>PLAY, PLAY AGAIN or LET&rsquo;S BAT. Everything else moves to a smaller key or a row inside a card.</p><span class="uv-key ledge">Orange ledge = the main action</span></article>
+        <article data-r style="--d:.08s"><h3>Always show <b>where you stand</b></h3><p>Your rank, your best and your row appear wherever it helps: the cover, the end card and the board.</p><span class="uv-key"><i style="--c:var(--u-you)"></i>Orange always means you</span></article>
+        <article data-r><h3>Colour <b>is the mode</b></h3><p>Each mode gets one colour that carries through its card, its end screen and its board, so you always know which game you&rsquo;re in.</p><span class="uv-keys"><span class="uv-key"><i style="--c:var(--u-blast)"></i>Blast</span><span class="uv-key"><i style="--c:var(--u-marathon)"></i>Marathon</span><span class="uv-key"><i style="--c:var(--u-survival)"></i>Survival</span></span></article>
+        <article data-r style="--d:.04s"><h3>Make every tier <b>feel earned</b></h3><p>The four career tiers already existed as labels. I gave each its own material and badge, navy, bronze, carbon and gold, and a road that shows all four at once.</p><span class="uv-tiers" aria-hidden="true"><i style="--c:#2A4566"></i><i style="--c:#B9763F"></i><i style="--c:#3A3F46"></i><i style="--c:var(--u-gold)"></i></span></article>
+        <article data-r style="--d:.08s"><h3>Ask once, <b>at the right moment</b></h3><p>Name, avatar and batting hand come before the first innings, when players are curious, not after it, when they want to play again.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="journey" aria-labelledby="journey-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="journey-h" data-r>Every route <b>on one page</b></h2>
+        <p class="lede" data-r style="--d:.08s">Orange arrows are the main path. Grey dashed arrows are other routes or system events, like a timeout or a friend joining. Each node links to its own section in the handover.</p>
+      </div>
+      <figure class="board" data-r><div><img src="../../../public/img/hitman/revamp/journey.webp" alt="Journey map: cover to mode select to name entry, how to play, innings end, leaderboard, My Stats, career key, Rivals, rating and feedback" width="1748" height="1518" loading="lazy"></div></figure>
+      <div class="uv-facts">
+        <div data-r><b>10</b><span>journey sections, from the first visit to the feedback form</span></div>
+        <div data-r style="--d:.04s"><b>~120</b><span>frames, including loading, empty, offline and 14-character names</span></div>
+        <div data-r style="--d:.08s"><b>12</b><span>innings endings: every mode, first innings or returning player</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="language" aria-labelledby="language-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="language-h" data-r>The <b>pit wall</b></h2>
+        <p class="lede" data-r style="--d:.08s">I wanted it to feel like a broadcast scoreboard: dark cards, bold numbers, and colour only where it means something. Every value is a Figma variable, so the build could match it exactly.</p>
+      </div>
+      <div class="uv-sw">
+        <div data-r><h3>Surfaces and ink</h3>
+          <p><i style="--c:#0A0B0D"></i><b>Page</b><code>#0A0B0D</code></p>
+          <p><i style="--c:#1B2027"></i><b>Card</b><code>#1B2027</code></p>
+          <p><i style="--c:#F5EFE6"></i><b>Text</b><code>#F5EFE6</code></p>
+          <p><i style="--c:#A3B3BD"></i><b>Text, quiet</b><code>#A3B3BD</code></p>
+        </div>
+        <div data-r style="--d:.04s"><h3>You and action</h3>
+          <p><i style="--c:#ED7044"></i><b>You</b><code>#ED7044</code></p>
+          <p><i style="--c:#E9582B"></i><b>Button ledge</b><code>#E9582B</code></p>
+          <p><i style="--c:#12924A"></i><b>Share green</b><code>#12924A</code></p>
+          <p><i style="--c:#F5B83D"></i><b>Gold</b><code>#F5B83D</code></p>
+        </div>
+        <div data-r style="--d:.08s"><h3>Modes</h3>
+          <p><i style="--c:#3F88F2"></i><b>The Blast</b><code>#3F88F2</code></p>
+          <p><i style="--c:#004225"></i><b>Test Marathon</b><code>#004225</code></p>
+          <p><i style="--c:#FF5A4E"></i><b>Test Survival</b><code>#FF5A4E</code></p>
+        </div>
+        <div data-r style="--d:.12s"><h3>Outcomes</h3>
+          <p><i style="--c:#5BD08F"></i><b>Win</b><code>#5BD08F</code></p>
+          <p><i style="--c:#F2B544"></i><b>Draw</b><code>#F2B544</code></p>
+          <p><i style="--c:#FF6B5E"></i><b>Loss</b><code>#FF6B5E</code></p>
+        </div>
+      </div>
+
+      <div class="uv-type">
+        <div data-r><p class="jaro" aria-hidden="true">PLAY AGAIN &middot; 158</p><p><b>Jaro</b> for titles, poster numbers and buttons. Condensed and loud, like a stadium screen.</p></div>
+        <div data-r style="--d:.06s"><p class="sat" aria-hidden="true">You are #2</p><p><b>Satoshi</b> for everything you read. Black for numbers, medium for sentences.</p></div>
+      </div>
+
+      <div class="uv-comp" data-r aria-label="Components">
+        <div><span>Buttons</span><div tabindex="0"><img src="../../../public/img/hitman/revamp/found-ctas.webp" alt="Buttons: PLAY AGAIN with an orange ledge, MODE, share, challenge, PLAY, HOW TO PLAY, BRAG ABOUT MY STATS, back" width="810" height="34" loading="lazy"></div></div>
+        <div><span>Controls</span><div tabindex="0"><img src="../../../public/img/hitman/revamp/found-controls.webp" alt="Dropdown pills, tabs and chips in their states" width="658" height="28" loading="lazy"></div></div>
+        <div><span>Rank and key</span><div tabindex="0"><img src="../../../public/img/hitman/revamp/found-rank.webp" alt="Rank header, actions row and career key ticket" width="792" height="48" loading="lazy"></div></div>
+        <div><span>Tier badges</span><div tabindex="0"><img src="../../../public/img/hitman/revamp/found-badges.webp" alt="Debutant, Emerging, Star and Hitman badges, earned and locked" width="476" height="52" loading="lazy"></div></div>
+        <div><span>Road to Hitman</span><div tabindex="0"><img src="../../../public/img/hitman/revamp/found-road.webp" alt="Road to Hitman progress in three states" width="571" height="93" loading="lazy"></div></div>
+        <div><span>Career cards</span><div tabindex="0"><img src="../../../public/img/hitman/revamp/found-cards.webp" alt="Career cards in navy, bronze, carbon and gold" width="764" height="111" loading="lazy"></div></div>
+      </div>
+
+      <div class="measures">
+        <div data-r><b>44px</b><span>smallest touch target</span></div>
+        <div data-r style="--d:.04s"><b>4.5:1</b><span>text contrast on every card</span></div>
+        <div data-r style="--d:.08s"><b>3 cues</b><span>for your row: tint, rule and a YOU, NEW or BEST tag. Never colour alone</span></div>
+        <div data-r style="--d:.12s"><b>Still</b><span>Reduced motion makes the cover a still image and removes the swipe hints</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec tint" id="screens" aria-labelledby="screens-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="screens-h" data-r>Before <b>and after</b></h2>
+        <p class="lede" data-r style="--d:.08s">Six screens a player sees in their first session. Before is the live game on 9 October. After is the design that shipped two days later.</p>
+      </div>
+
+      <article class="uv-pair" data-r>
+        <div class="ph fig was"><img src="../../../public/img/hitman/revamp/before-cover.webp" alt="Before: logo, batter, top of the board, PLAY and HOW TO PLAY" width="603" height="1311" loading="lazy"></div>
+        <div class="ph fig now"><img src="../../../public/img/hitman/revamp/after-cover.webp" alt="After: the batter as a motion poster, a My stats chip, your best and rank, PLAY, HOW TO PLAY and a feedback link" width="402" height="874" loading="lazy"></div>
+        <div class="uv-why"><h3 class="hl">Cover: <b>from a title screen to a motion poster</b></h3><ul>
+          <li><b>The batter walks out.</b> Shot from behind, number 45 on his back, under floodlights. A poster, not a gameplay frame.</li>
+          <li><b>Your best, on the front.</b> &ldquo;158 runs &middot; You are #2&rdquo; replaces someone else&rsquo;s top score.</li>
+          <li><b>My stats from the corner.</b> Your avatar opens your career from every top bar.</li>
+        </ul></div>
+      </article>
+
+      <article class="uv-pair" data-r>
+        <div class="ph fig was"><img src="../../../public/img/hitman/revamp/before-modes.webp" alt="Before: Select Mode, five cards of different sizes and styles" width="603" height="1311" loading="lazy"></div>
+        <div class="ph fig now"><img src="../../../public/img/hitman/revamp/after-modes.webp" alt="After: Choose a mode, Marathon and Blast side by side, Survival below, leaderboard and My Stats widgets, a Rivals bar" width="402" height="874" loading="lazy"></div>
+        <div class="uv-why"><h3 class="hl">Mode select: <b>from a list of cards to a home screen</b></h3><ul>
+          <li><b>Three modes, one system.</b> Same card shape, each in its own colour, each with your best and rank on it.</li>
+          <li><b>Widgets that tell you something.</b> The podium shows the top 3. The bronze card shows your career runs and tier.</li>
+          <li><b>Rivals has its own bar,</b> with your win and loss record against friends.</li>
+        </ul></div>
+      </article>
+
+      <article class="uv-pair" data-r>
+        <div class="ph fig was"><img src="../../../public/img/hitman/revamp/before-name.webp" alt="Before: avatar, name field, batting hand and a disabled LET'S BAT" width="603" height="1311" loading="lazy"></div>
+        <div class="ph fig now"><img src="../../../public/img/hitman/revamp/after-name.webp" alt="After: a large avatar with a ring, the name with tags, an avatar rail, a name field showing Available, hand toggles and LET'S BAT" width="402" height="874" loading="lazy"></div>
+        <div class="uv-why"><h3 class="hl">Name entry: <b>&ldquo;Who&rsquo;s walking out to bat?&rdquo;</b></h3><ul>
+          <li><b>You see yourself first.</b> The avatar and name build a player card live as you type.</li>
+          <li><b>Instant answers.</b> &ldquo;Available&rdquo; shows in the field, so nobody gets a surprise later.</li>
+          <li><b>The rules up front.</b> One line says what you can change, and how often.</li>
+        </ul></div>
+      </article>
+
+      <article class="uv-pair" data-r>
+        <div class="ph fig was"><img src="../../../public/img/hitman/revamp/before-end.webp" alt="Before: 105 for 2, a ball strip, a register block and seven stacked actions running below the fold" width="603" height="1311" loading="lazy"></div>
+        <div class="ph fig now"><img src="../../../public/img/hitman/revamp/after-end.webp" alt="After: the score in a Blast-blue panel, over-by-over bars, a rank card with a new best, the career key, and MODE, PLAY AGAIN and challenge keys" width="402" height="874" loading="lazy"></div>
+        <div class="uv-why"><h3 class="hl">Innings end: <b>the score tells the story</b></h3><ul>
+          <li><b>Over by over.</b> The balls are grouped into overs, with a key for sixes, fours and wickets.</li>
+          <li><b>&ldquo;You are #5 &middot; up 18 places&rdquo;.</b> The rank card is the reward. Leaderboard and career are one tap away.</li>
+          <li><b>Seven actions become three keys.</b> PLAY AGAIN in the middle, MODE and Challenge either side, all in thumb reach.</li>
+        </ul></div>
+      </article>
+
+      <article class="uv-pair" data-r>
+        <div class="ph fig was"><img src="../../../public/img/hitman/revamp/before-board.webp" alt="Before: a sheet over the cover with mode tabs, ladder pills and a Top 50 list where your row is highlighted inside the list" width="603" height="1311" loading="lazy"></div>
+        <div class="ph fig now"><img src="../../../public/img/hitman/revamp/after-board.webp" alt="After: mode and ladder dropdowns, a spotlit podium for the top 3, a ranked list, and your row pinned at the foot" width="402" height="874" loading="lazy"></div>
+        <div class="uv-why"><h3 class="hl">Leaderboard: <b>a podium, and you pinned to the bottom</b></h3><ul>
+          <li><b>Two dropdowns replace two rows of tabs:</b> one for the mode, one for the ladder.</li>
+          <li><b>The top 3 get a stage.</b> Spotlights and a crown. The art fades as the list scrolls up.</li>
+          <li><b>Your row never scrolls away.</b> &ldquo;You are #23 &middot; 4 behind #22&rdquo; gives you a next goal.</li>
+        </ul></div>
+      </article>
+
+      <article class="uv-pair" data-r>
+        <div class="ph fig was"><img src="../../../public/img/hitman/revamp/before-stats.webp" alt="Before: My Stats as a tab inside the leaderboard sheet, a brown Emerging Player card, a Rivals record and a green share button" width="603" height="1311" loading="lazy"></div>
+        <div class="ph fig now"><img src="../../../public/img/hitman/revamp/after-stats.webp" alt="After: a bronze Emerging Player card, Road to Hitman progress, six stat tiles, the career key and SHARE MY CARD" width="402" height="874" loading="lazy"></div>
+        <div class="uv-why"><h3 class="hl">My Stats: <b>a career you&rsquo;d want to share</b></h3><ul>
+          <li><b>The card is made of your tier.</b> Before, the tier was a label on a tinted card. Now it&rsquo;s brushed bronze for Emerging, carbon for Star and gold for Hitman.</li>
+          <li><b>The whole road, not just the next stop.</b> Road to Hitman shows all four badges, and where you are between them.</li>
+          <li><b>Its own screen.</b> No longer a tab inside the leaderboard sheet, with the cover showing through behind it.</li>
+        </ul></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec" id="endings" aria-labelledby="endings-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="endings-h" data-r>Twelve endings, <b>four building blocks</b></h2>
+        <p class="lede" data-r style="--d:.08s">Three modes, four Survival outcomes, first innings or returning. Instead of twelve layouts, I built every end screen from the same four widgets. Only the top one changes with the game. The others change state.</p>
+      </div>
+
+      <div class="uv-anat">
+        <figure class="uv-pins" data-r>
+          <div class="ph fig"><img src="../../../public/img/hitman/revamp/after-end.webp" alt="The Blast end screen, made of a hero widget, player card, career key and action bar" width="402" height="874" loading="lazy"></div>
+          <span class="pin" style="left:103%;top:20%">1</span>
+          <span class="pin" style="left:103%;top:51%">2</span>
+          <span class="pin" style="left:103%;top:68%">3</span>
+          <span class="pin" style="left:103%;top:92%">4</span>
+        </figure>
+        <ol class="uv-issues parts">
+          <li data-r><span class="n">1</span><div><h3>Hero widget</h3><p>The score, told the way the mode is played. Changes with the mode and the outcome.</p></div></li>
+          <li data-r><span class="n">2</span><div><h3>Player card</h3><p>Your rank, and what this innings did to it. Changes with your story.</p></div></li>
+          <li data-r><span class="n">3</span><div><h3>Career key</h3><p>The same on every screen, so it&rsquo;s always in the same place.</p></div></li>
+          <li data-r><span class="n">4</span><div><h3>Action bar</h3><p>PLAY AGAIN always in the middle. The key beside it depends on the result.</p></div></li>
+        </ol>
+      </div>
+
+      <h3 class="sub hl" data-r>The hero widget <b>follows the game</b></h3>
+      <div class="uv-w three">
+        <figure data-r><div><img src="../../../public/img/hitman/revamp/w-hero-blast.webp" alt="The Blast hero: 105 for 2 in Blast blue with an over-by-over bar chart and four stats" width="362" height="351" loading="lazy"></div><figcaption><b style="--c:var(--u-blast)">The Blast</b>Five overs, so every ball is a bar, grouped by over.</figcaption></figure>
+        <figure data-r style="--d:.04s"><div><img src="../../../public/img/hitman/revamp/w-hero-marathon.webp" alt="Test Marathon hero: 194 all out in racing green with a run progression line and wicket dots" width="362" height="300" loading="lazy"></div><figcaption><b style="--c:#3FB97A">Test Marathon</b>No over limit, so a line shows how the runs built, with a dot for each wicket.</figcaption></figure>
+        <figure data-r style="--d:.08s"><div><img src="../../../public/img/hitman/revamp/w-batting.webp" alt="Test Marathon batting card: opener 62, number 3 101 with a 100 badge, tailender 31" width="362" height="150" loading="lazy"></div><figcaption><b style="--c:#3FB97A">Marathon only: batting card</b>Three batters, so each gets a line. A hundred earns a gold badge.</figcaption></figure>
+      </div>
+      <div class="uv-w four">
+        <figure data-r><div><img src="../../../public/img/hitman/revamp/w-hero-won.webp" alt="Survival won hero: You did the impossible, in win green, with a light injury ring" width="362" height="378" loading="lazy"></div><figcaption><b style="--c:var(--u-win)">Survival &middot; won</b>Green headline, confetti, injury ring nearly empty.</figcaption></figure>
+        <figure data-r style="--d:.04s"><div><img src="../../../public/img/hitman/revamp/w-hero-drawn.webp" alt="Survival drawn hero: That's warrior instincts, in draw amber" width="362" height="378" loading="lazy"></div><figcaption><b style="--c:#F2B544">Survival &middot; drawn</b>Amber. Survived to the last ball, so it&rsquo;s still a story.</figcaption></figure>
+        <figure data-r style="--d:.08s"><div><img src="../../../public/img/hitman/revamp/w-hero-lost.webp" alt="Survival lost hero: They got you, in loss red" width="362" height="378" loading="lazy"></div><figcaption><b style="--c:#FF6B5E">Survival &middot; lost</b>Red, with balls remaining shown to sting a little.</figcaption></figure>
+        <figure data-r style="--d:.12s"><div><img src="../../../public/img/hitman/revamp/w-hero-hurt.webp" alt="Survival retired hurt hero: Ouch! That hurts, with a severe injury ring" width="362" height="378" loading="lazy"></div><figcaption><b style="--c:#FF6B5E">Survival &middot; retired hurt</b>Carried off. The injury ring is full and blows taken turn red.</figcaption></figure>
+      </div>
+      <p class="cap" data-r>Survival keeps one layout for all four outcomes. The art, the headline colour and the injury ring do the talking.</p>
+
+      <div class="r2 uv-two">
+        <div>
+          <h3 class="sub hl" data-r>The player card <b>follows your story</b></h3>
+          <div class="uv-w stack">
+            <figure data-r><div><img src="../../../public/img/hitman/revamp/w-rank-first.webp" alt="Player card: a first innings tag, You are number 12 on the leaderboard" width="362" height="126" loading="lazy"></div><figcaption><b>First innings</b>A green tag welcomes you onto the board.</figcaption></figure>
+            <figure data-r><div><img src="../../../public/img/hitman/revamp/w-rank-newbest.webp" alt="Player card: You are number 6, a gold trophy, new best, first match saved" width="362" height="137" loading="lazy"></div><figcaption><b>New best</b>A gold line says what changed.</figcaption></figure>
+            <figure data-r><div><img src="../../../public/img/hitman/revamp/w-rank-stands.webp" alt="Player card: You are number 12, a green trophy, best still stands, 290 all out" width="362" height="137" loading="lazy"></div><figcaption><b>Best still stands</b>No new record, but a reminder of the one to beat.</figcaption></figure>
+          </div>
+        </div>
+        <div>
+          <h3 class="sub hl" data-r>The action bar <b>follows the result</b></h3>
+          <div class="uv-w stack">
+            <figure data-r><div><img src="../../../public/img/hitman/revamp/w-bar-challenge.webp" alt="Action bar: MODE, PLAY AGAIN and a blue challenge key" width="362" height="56" loading="lazy"></div><figcaption><b>The Blast</b>The mode friends challenge each other in, so the extra key starts a Rivals match.</figcaption></figure>
+            <figure data-r><div><img src="../../../public/img/hitman/revamp/w-bar-share.webp" alt="Action bar: MODE, PLAY AGAIN and a green WhatsApp share key" width="362" height="56" loading="lazy"></div><figcaption><b>Marathon, or a Survival win</b>Worth showing off, so the extra key shares to WhatsApp.</figcaption></figure>
+            <figure data-r><div><img src="../../../public/img/hitman/revamp/w-bar-plain.webp" alt="Action bar: MODE and a wide PLAY AGAIN" width="362" height="56" loading="lazy"></div><figcaption><b>A Survival loss, draw or retirement</b>Nobody shares a loss. PLAY AGAIN takes the space.</figcaption></figure>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="sub hl" data-r>Same language, <b>everywhere</b></h3>
+      <div class="phones c4">
+        <figure data-r><div class="ph fig"><img src="../../../public/img/hitman/revamp/after-howto.webp" alt="How to play: swipe lanes from the bat with stroke names" width="402" height="874" loading="lazy"></div><figcaption><b>How to play</b>Lanes come out of the bat, each named with its stroke.</figcaption></figure>
+        <figure data-r style="--d:.04s"><div class="ph fig"><img src="../../../public/img/hitman/revamp/after-rivals.webp" alt="Rivals result: YOU WIN with a crown on the winner" width="402" height="874" loading="lazy"></div><figcaption><b>Rivals result</b>The crown goes on the winner&rsquo;s face. RUB IT IN or REMATCH.</figcaption></figure>
+        <figure data-r style="--d:.08s"><div class="ph fig"><img src="../../../public/img/hitman/revamp/after-pause.webp" alt="Paused sheet with resume, restart, change mode and sound settings" width="402" height="874" loading="lazy"></div><figcaption><b>Pause</b>One big resume, and the settings in one card.</figcaption></figure>
+        <figure data-r style="--d:.12s"><div class="ph fig"><img src="../../../public/img/hitman/revamp/after-rating.webp" alt="Star rating sheet: How was Test Marathon? Five stars" width="402" height="874" loading="lazy"></div><figcaption><b>Rating</b>Asked after a finished innings, never during one.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec tint" id="motion" aria-labelledby="motion-h">
+    <div class="wrap">
+      <div class="split uv-motion">
+        <figure class="uv-poster" data-r>
+          <div class="ph fig"><img src="../../../public/img/hitman/revamp/after-cover.webp" alt="The cover as a motion poster: the batter under floodlights" width="402" height="874" loading="lazy"><span class="beam" aria-hidden="true"></span><span class="dust" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+        </figure>
+        <div>
+          <div class="sec-head" style="margin-bottom:28px">
+            <h2 class="h2 hl" id="motion-h" data-r>Movement <b>that means something</b></h2>
+            <p class="lede" data-r style="--d:.08s">The cover is a motion poster: the floodlights stay still, while the air, dust and depth move. Everything else moves only to tell you something changed.</p>
+          </div>
+          <dl class="uv-mlist">
+            <div data-r><dt>Motion poster <span>cover, looping</span></dt><dd>Still floodlights, moving air and depth. With reduced motion on, it&rsquo;s a still image.</dd></div>
+            <div data-r><dt>A hand that swipes <span>how to play, one lane at a time</span></dt><dd>A hand swipes each lane in turn, so you learn the strokes before the first ball.</dd></div>
+            <div data-r><dt>The art steps back <span>leaderboard, on scroll</span></dt><dd>The podium art fades as the list rises, so the rows are always easy to read.</dd></div>
+            <div data-r><dt>The winner&rsquo;s crown <span>rivals, on the result</span></dt><dd>The crown sits on the winner&rsquo;s face, with fire behind it.</dd></div>
+          </dl>
+        </div>
+      </div>
+
+      <h3 class="sub hl" data-r style="margin-top:clamp(96px,12vw,160px)">Level Up: <b>when a career climbs a tier</b></h3>
+      <p class="prose" data-r>Tiers turned runs into a goal, and reaching one needed a moment that felt earned. Level Up plays full screen when an innings carries your career onto a new rung, then hands back to the scorecard. It shipped on 14 October.</p>
+      <div class="phones c3 uv-films">
+        <figure data-r><div class="ph fig"><video muted loop playsinline preload="none" poster="../../../public/img/hitman/revamp/poster-levelup-emerging.webp" aria-label="Level Up to Emerging Player: the Road to Hitman fills, the medallion pops off the track and lands, the navy card flips to bronze"><source src="../../../public/video/hitman/revamp-levelup-emerging.mp4" type="video/mp4"></video></div><figcaption><b style="--c:#D9925A">Emerging Player &middot; the road</b>Your own Road to Hitman fills. The next medallion pops off the track like a coin, and lands in the middle.</figcaption></figure>
+        <figure data-r style="--d:.05s"><div class="ph fig"><video muted loop playsinline preload="none" poster="../../../public/img/hitman/revamp/poster-levelup-star.webp" aria-label="Level Up to Star: a ball flies in at full speed and hits the bronze card, which spins like a struck coin into the carbon Star card"><source src="../../../public/video/hitman/revamp-levelup-star.mp4" type="video/mp4"></video></div><figcaption><b style="--c:#C7CED6">Star &middot; the six</b>A ball comes in at full speed and hits the card square. It spins like a struck coin onto the new rung.</figcaption></figure>
+        <figure data-r style="--d:.1s"><div class="ph fig"><video muted loop playsinline preload="none" poster="../../../public/img/hitman/revamp/poster-levelup-hitman.webp" aria-label="Level Up to Hitman: gold chevrons charge and fire up the screen, uncover LEVEL UP, the card is pulled up and turns gold"><source src="../../../public/video/hitman/revamp-levelup-hitman.mp4" type="video/mp4"></video></div><figcaption><b style="--c:var(--u-gold)">Hitman &middot; the rush</b>The end card&rsquo;s chevron fires a train of gold chevrons. The biggest of the three: two waves of cannons and a gold shower.</figcaption></figure>
+      </div>
+      <p class="cap" data-r>Recorded from the game&rsquo;s code, frame by frame. All three end the same way: the card flips to the new tier, the figure counts on, then SHARE STATS CARD or GO TO SCORECARD.</p>
+
+      <h3 class="sub hl" data-r>Five versions <b>in one day</b></h3>
+      <ol class="uv-iter">
+        <li data-r><span class="v">v1</span><div><b>Everything at once</b><p>Arrows rushing, rays, confetti over the words.</p></div><span class="verdict-p">Too busy</span></li>
+        <li data-r><span class="v">v2</span><div><b>One card on a quiet ground</b><p>Three chevrons, one pop, nothing behind the words. Readable, but flat.</p></div><span class="verdict-p">Too quiet</span></li>
+        <li data-r><span class="v">v3</span><div><b>A 3D room of metal chevrons</b><p>A card you could tilt with the phone. Drawn shapes couldn&rsquo;t carry the realism the game has.</p></div><span class="verdict-p">Not real enough</span></li>
+        <li data-r><span class="v">v4</span><div><b>Played in the stadium</b><p>The batter&rsquo;s last shot sails into the floodlights while the crowd holds up your name.</p></div><span class="verdict-p">Rethought</span></li>
+        <li data-r class="yes"><span class="v">v5</span><div><b>A different opening for each rung</b><p>Built from the game&rsquo;s own pieces: the road, the six, the chevron.</p></div><span class="verdict-p">Shipped</span></li>
+      </ol>
+
+      <div class="r2 uv-two" style="margin-top:clamp(40px,5vw,64px)">
+        <div class="panel" data-r>
+          <h3>Effects by tier</h3>
+          <p class="ph3">Each tier is <b>a bigger occasion</b></p>
+          <p class="uv-small">The higher the rung, the more happens, with a ceiling so Hitman never becomes noise.</p>
+          <div class="uv-esc" role="table" aria-label="Effects by tier">
+            <div role="row" class="h"><span role="columnheader"></span><span role="columnheader">Emerging</span><span role="columnheader">Star</span><span role="columnheader">Hitman</span></div>
+            <div role="row"><span role="rowheader">Confetti</span><span role="cell"><i style="--w:53%"></i>80</span><span role="cell"><i style="--w:73%"></i>110</span><span role="cell"><i style="--w:100%"></i>150 &times;2</span></div>
+            <div role="row"><span role="rowheader">Shockwaves</span><span role="cell"><i style="--w:33%"></i>1</span><span role="cell"><i style="--w:67%"></i>2</span><span role="cell"><i style="--w:100%"></i>3</span></div>
+            <div role="row"><span role="rowheader">Flash</span><span role="cell"><i style="--w:54%"></i>35%</span><span role="cell"><i style="--w:77%"></i>50%</span><span role="cell"><i style="--w:100%"></i>65%</span></div>
+            <div role="row"><span role="rowheader">Screen shake</span><span role="cell"><i style="--w:40%"></i>2px</span><span role="cell"><i style="--w:80%"></i>4px</span><span role="cell"><i style="--w:100%"></i>5px</span></div>
+            <div role="row"><span role="rowheader">Gold shower</span><span role="cell" class="z">none</span><span role="cell" class="z">none</span><span role="cell"><i style="--w:100%"></i>90</span></div>
+            <div role="row"><span role="rowheader">Crowd</span><span role="cell" class="t">cheer</span><span role="cell" class="t">big cheer</span><span role="cell" class="t">big cheer + encore</span></div>
+          </div>
+          <p class="cap">Haptics follow the motion too: on the road, a tick for each step of the fill and a stronger buzz at the landing.</p>
+        </div>
+        <div class="panel" data-r style="--d:.06s">
+          <h3>Springs</h3>
+          <p class="ph3">Four springs, <b>set like a motion designer would</b></p>
+          <p class="uv-small">Every move is a spring, so things squash, overshoot and settle. Long moves get the softest spring, so a card flying up never overshoots onto the words.</p>
+          <div class="uv-springs" id="springs"></div>
+          <p class="cap">Stiffness / damping, mass 1. Curves drawn from the game&rsquo;s own spring formula over the first 1.2 seconds.</p>
+        </div>
+      </div>
+
+      <div class="measures">
+        <div data-r><b>1 clock</b><span>Every frame is worked out from time alone, so a tap jumps straight to the keys</span></div>
+        <div data-r style="--d:.04s"><b>Still</b><span>With reduced motion on, you see the last frame, standing still</span></div>
+        <div data-r style="--d:.08s"><b>15</b><span>tier climbs in the first two weeks: 8 to Emerging, 7 to Star</span></div>
+        <div data-r style="--d:.12s"><b>0</b><span>players at Hitman so far. The biggest moment is still waiting</span></div>
+      </div>
+
+      <div class="split uv-top">
+        <figure class="clip" data-r>
+          <div class="ph fig"><video muted loop playsinline preload="none" poster="../../../public/img/hitman/revamp/poster-topspot.webp" aria-label="New number 1: the board's rows rise, your row climbs past each one to the top, a crown lands, cannons fire, a foil number 1 and the podium appear"><source src="../../../public/video/hitman/revamp-topspot.mp4" type="video/mp4"></video></div>
+          <figcaption>Recorded from the game&rsquo;s preview, over the cover. In a real innings it plays over the end card.</figcaption>
+        </figure>
+        <div>
+          <h3 class="sub hl" data-r style="margin-top:0">New #1: <b>taking the top of the board</b></h3>
+          <p class="prose" data-r>The rarest moment in the game. It plays over the end card when your innings takes first place from somebody else. It shipped on 19 October, in four acts.</p>
+          <ol class="steps uv-acts">
+            <li data-r><b>Gather</b><span>The board&rsquo;s top rows rise into place, you among them.</span></li>
+            <li data-r><b>The climb</b><span>Your row climbs past each player and takes the top. The crowd roars.</span></li>
+            <li data-r><b>Crowned</b><span>The crown lands and the cannons fire.</span></li>
+            <li data-r><b>The lockup</b><span>A foil #1 and the podium, then the #1 flies down into the end card&rsquo;s own rank figure.</span></li>
+          </ol>
+          <p class="note" data-r><b>One celebration per innings.</b> If the same innings also unlocks a new bat, the unlock waits quietly in the Dressing Room. If it also climbs a tier, New #1 plays first and Level Up follows it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="handover" aria-labelledby="handover-h">
+    <div class="wrap split uv-hand">
+      <div class="sec-head" style="margin-bottom:0">
+        <h2 class="h2 hl" id="handover-h" data-r>Handover to live <b>in three days</b></h2>
+        <p class="lede" data-r style="--d:.08s">The handover held the tokens, the components, notes on the data, and every state. The game was built screen by screen from that file, with each part checked in a real browser before it shipped.</p>
+      </div>
+      <ol class="vrail">
+        <li data-r><time datetime="2026-10-09">9 Oct</time><b>Foundations</b><p>Colours, type and components in code, matching the Figma variables.</p></li>
+        <li data-r><time datetime="2026-10-10">10 Oct</time><b>Ranks</b><p>Every named innings gets a place, so &ldquo;You are #23&rdquo; is always true.</p></li>
+        <li data-r><time datetime="2026-10-11">11 Oct</time><b>Every screen</b><p>Cover, mode select, name entry, innings end, leaderboard, My Stats, Rivals, pause.</p></li>
+        <li data-r><time datetime="2026-10-11">11 Oct</time><b>Coaching</b><p>How to play, the star prompt and the feedback form.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec tint" id="results" aria-labelledby="results-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="results-h" data-r>People <b>play longer</b></h2>
+        <p class="lede" data-r style="--d:.08s">Visits stayed flat at about 47 a day, so the change shows in what people did once they arrived.</p>
+      </div>
+      <div class="r2 uv-two">
+        <div class="panel" data-r>
+          <h3>Sessions that pass 10 minutes</h3>
+          <p class="ph3">Share of sessions over a minute, <b>by week</b></p>
+          <ol class="uv-cols" aria-label="Weekly share of sessions passing 10 minutes">
+            <li class="b" style="--v:23"><b>23%</b><i></i><span>14 Sep</span></li>
+            <li class="b" style="--v:21"><b>21%</b><i></i><span>21 Sep</span></li>
+            <li class="b" style="--v:15"><b>15%</b><i></i><span>28 Sep</span></li>
+            <li class="l" style="--v:27"><b>27%</b><i></i><span>5 Oct<small>ships 9&ndash;11</small></span></li>
+            <li class="a" style="--v:34"><b>34%</b><i></i><span>12 Oct</span></li>
+            <li class="a" style="--v:41"><b>41%</b><i></i><span>19 Oct</span></li>
+          </ol>
+          <div class="legend"><span><i style="background:var(--u-before)"></i>Before</span><span><i style="background:#5B6670"></i>Launch week</span><span><i style="background:var(--u-after)"></i>With UI v1</span></div>
+        </div>
+        <div class="panel" data-r style="--d:.06s">
+          <h3>Average a day</h3>
+          <p class="ph3">Deeper play, <b>more career use</b></p>
+          <div class="uv-hb">
+            <div><span>20+ minute sessions</span><p><i class="b" style="--w:30%">1.8</i><i class="a" style="--w:85%">5.1</i></p></div>
+            <div><span>30+ minute sessions</span><p><i class="b" style="--w:12%">0.7</i><i class="a" style="--w:43%">2.6</i></p></div>
+            <div><span>Career card opens</span><p><i class="b" style="--w:60%">3.6</i><i class="a" style="--w:97%">5.8</i></p></div>
+            <div><span>Career keys issued</span><p><i class="b" style="--w:23%">1.4</i><i class="a" style="--w:60%">3.6</i></p></div>
+          </div>
+          <div class="legend"><span><i style="background:var(--u-before)"></i>Before, 16 Sep &ndash; 10 Oct</span><span><i style="background:var(--u-after)"></i>After, 11 &ndash; 27 Oct</span></div>
+        </div>
+      </div>
+
+      <div class="panel uv-rate" data-r>
+        <div><h3>What players said</h3><p class="uv-stars">4.7<small>/5</small></p><p class="uv-small">20 ratings from the star prompt after a finished innings</p></div>
+        <div class="uv-rrows" aria-label="Ratings: 15 five-star, 4 four-star, 1 three-star, none lower">
+          <p><span>5 stars</span><i style="--w:100%"></i><b>15</b></p>
+          <p><span>4 stars</span><i style="--w:26.7%"></i><b>4</b></p>
+          <p><span>3 stars</span><i style="--w:6.7%"></i><b>1</b></p>
+          <p><span>2 stars</span><i style="--w:0%"></i><b>0</b></p>
+          <p><span>1 star</span><i style="--w:0%"></i><b>0</b></p>
+        </div>
+      </div>
+
+      <h3 class="sub hl" data-r>What <b>didn&rsquo;t move</b></h3>
+      <div class="walls uv-flat">
+        <div data-r><h3>New players fell</h3><p>15 a day before, 6 after. An early-October spike in new players ended, so the &ldquo;after&rdquo; group is mostly regulars.</p></div>
+        <div data-r style="--d:.04s"><h3>Next-day returns held</h3><p>10 a day in both periods, even with 59% fewer newcomers coming in.</p></div>
+        <div data-r style="--d:.08s"><h3>Leaderboard opens stayed flat</h3><p>14.8 a day before, 13.8 after. The board got clearer, but wasn&rsquo;t opened more often.</p></div>
+      </div>
+      <p class="cap" data-r>This is not an A/B test. Level Up (14 Oct) and New #1 (19 Oct) from this work, plus the Dressing Room (12 Oct), player profiles (19 Oct) and new strokes (20 Oct), all shipped in the &ldquo;after&rdquo; period and will have played a part.</p>
+
+      <details class="uv-table" data-r>
+        <summary>See the numbers as a table</summary>
+        <div tabindex="0"><table class="ba">
+          <thead><tr><th scope="col">Measure, a day</th><th scope="col" class="n">Before</th><th scope="col" class="n">After</th><th scope="col" class="n">Change</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Visits to the game</th><td class="n">47.0</td><td class="n">46.9</td><td class="n">0%</td></tr>
+            <tr><th scope="row">Sessions past 1 minute</th><td class="n">30.6</td><td class="n">28.3</td><td class="n">&minus;7%</td></tr>
+            <tr><th scope="row">Sessions past 10 minutes</th><td class="n">6.5</td><td class="n">10.4</td><td class="n up">+60%</td></tr>
+            <tr><th scope="row">Sessions past 20 minutes</th><td class="n">1.8</td><td class="n">5.1</td><td class="n up">+187%</td></tr>
+            <tr><th scope="row">Sessions past 30 minutes</th><td class="n">0.7</td><td class="n">2.6</td><td class="n up">+268%</td></tr>
+            <tr><th scope="row">Career card opens*</th><td class="n">3.6</td><td class="n">5.8</td><td class="n up">+59%</td></tr>
+            <tr><th scope="row">Career keys issued*</th><td class="n">1.4</td><td class="n">3.6</td><td class="n up">+153%</td></tr>
+            <tr><th scope="row">Leaderboard opens</th><td class="n">14.8</td><td class="n">13.8</td><td class="n">&minus;7%</td></tr>
+            <tr><th scope="row">New players</th><td class="n">15.0</td><td class="n">6.2</td><td class="n">&minus;59%</td></tr>
+            <tr><th scope="row">Back the next day</th><td class="n">10.0</td><td class="n">10.1</td><td class="n">+1%</td></tr>
+          </tbody>
+        </table></div>
+        <p class="cap">Before: 16 Sep &ndash; 10 Oct, 25 days. After: 11 &ndash; 27 Oct, 17 days; 28 Oct is left out as a part day. *Counted from the day the event was first recorded, 20 and 22 Sep. Source: GoatCounter, which has no user IDs, so every figure is a count of events, not of people.</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="sec" id="learned" aria-labelledby="learned-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 class="h2 hl" id="learned-h" data-r>Three things <b>I&rsquo;d keep</b></h2>
+      </div>
+      <div class="says">
+        <article data-r><h3 class="hl">Rank is <b>the reward</b></h3><p>&ldquo;You are #5 &middot; up 18 places&rdquo; did more for replay than any animation. Show people where they stand, right when they&rsquo;ve earned it.</p></article>
+        <article data-r><h3 class="hl">Design <b>the edges</b></h3><p>Empty boards, long names, no network, a player with no name. Designing these up front meant the build had no guesswork.</p></article>
+        <article data-r><h3 class="hl">Measure <b>what changed</b></h3><p>Visits didn&rsquo;t move, but session length did. Pick the measure that matches the design goal before you ship.</p></article>
+      </div>
+
+      <div class="next">
+        <a href="../" data-r><span class="label">Back to</span><b>Hitman Cricket: <strong>all seven stories</strong></b><p>Super10, the Dressing Room, the batter, profiles and more.</p></a>
+        <a href="../identity/" data-r style="--d:.06s"><span class="label">Read next</span><b>Identity without accounts: <strong>don&rsquo;t lose your runs</strong></b><p>The career key on every end card, and the password that replaced it.</p></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-in">
+      <div>
+        <h2 class="hl">Every screen, <b>around the innings.</b></h2>
+        <p>Hitman Cricket is free and plays in a browser. It&rsquo;s best on a phone.</p>
+        <div class="row">
+          <a class="btn" href="https://hitmancricket.in/" target="_blank" rel="noopener">Play Hitman Cricket
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="link" href="../">All Hitman Cricket stories</a>
+        </div>
+        <p class="foot-note">&ldquo;After&rdquo; screens are the Figma handover frames. &ldquo;Before&rdquo; screens are the live game on 9 October. Names, scores and ranks in the mockups are examples. UI v1 &middot; Hitman Cricket &middot; designed by Shashank, October 2026.</p>
+      </div>
+      <div class="foot-play" aria-hidden="true">
+        <div class="ph fig"><img src="../../../public/img/hitman/revamp/after-board.webp" alt="" width="402" height="874" loading="lazy"></div>
+        <div class="ph fig"><img src="../../../public/img/hitman/revamp/after-cover.webp" alt="" width="402" height="874" loading="lazy"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="../../../assets/js/case.js" defer></script>
+<script>
+/* The hero compare: the line drifts across on its own until someone takes it. */
+(() => {
+  const w = document.querySelector('.uv-wipe');
+  if (!w) return;
+  const r = w.querySelector('input');
+  const set = v => { w.style.setProperty('--x', v + '%'); r.value = v; };
+  let auto = !matchMedia('(prefers-reduced-motion: reduce)').matches, t0;
+  const take = () => { auto = false; };
+  r.addEventListener('input', () => { take(); set(+r.value); });
+  ['pointerdown', 'keydown', 'touchstart'].forEach(e => r.addEventListener(e, take, { passive: true }));
+  const tick = t => {
+    if (!auto) return;
+    t0 ??= t;
+    set((50 + 38 * Math.sin((t - t0) / 1600)).toFixed(1));
+    requestAnimationFrame(tick);
+  };
+  if (auto) new IntersectionObserver(([e], o) => { if (e.isIntersecting) { requestAnimationFrame(tick); o.disconnect(); } }).observe(w);
+})();
+
+/* Springs: the game's own closed form, mass one. */
+(() => {
+  const host = document.getElementById('springs');
+  if (!host) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  const S = [['Snappy', 320, 22, 'Words and small rises: LEVEL UP, the tier name.'], ['Bouncy', 240, 13, 'The default. The card flip and most moves.'], ['Wobbly', 180, 9, 'The medallion’s pop and landing.'], ['Soft', 140, 18, 'Long travel: the card flying up the screen.']];
+  const spring = (ms, k, c) => { const t = ms / 1000, w0 = Math.sqrt(k), z = c / (2 * w0); if (z >= 1) return 1 - Math.exp(-w0 * t) * (1 + w0 * t); const wd = w0 * Math.sqrt(1 - z * z); return 1 - Math.exp(-z * w0 * t) * (Math.cos(wd * t) + z * w0 / wd * Math.sin(wd * t)); };
+  S.forEach(([name, k, c, use]) => {
+    const W = 220, H = 80, T = 6, B = H - 6, max = 1.5, y = v => B - (v / max) * (B - T);
+    let peak = 0; const pts = [];
+    for (let ms = 0; ms <= 1200; ms += 10) { const v = spring(ms, k, c); peak = Math.max(peak, v); pts.push((W * ms / 1200).toFixed(1) + ',' + y(v).toFixed(1)); }
+    const over = Math.round((peak - 1) * 100);
+    const d = document.createElement('div');
+    d.innerHTML = '<p><b>' + name + '</b> <span>' + k + ' / ' + c + ' &middot; overshoot ' + over + '%</span></p><p class="u">' + use + '</p>' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + name + ' spring, stiffness ' + k + ', damping ' + c + ', overshoots ' + over + ' percent">' +
+      '<line x1="0" x2="' + W + '" y1="' + y(1) + '" y2="' + y(1) + '" stroke="rgba(255,255,255,.18)" stroke-dasharray="3 4"/>' +
+      '<polyline points="' + pts.join(' ') + '" fill="none" stroke="var(--u-you)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg>';
+    host.appendChild(d);
+  });
+})();
+</script>
+</body>
+</html>
