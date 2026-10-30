@@ -1614,14 +1614,17 @@
        page spends its boldness on him changing and keeps the rail beside him
        quiet.
 
-       The rail is not decoration and it is not evenly divided. Three short
-       stops, then five years of Airtel carrying five stints inside it — so the
-       Airtel segment is long, thicker, and subdivided, and the first three are
-       short and single. The shape of the rail is the shape of the CV. -->
+       The rail is not decoration and it is not evenly divided. Five years of
+       Airtel carrying five stints inside it, then three short stops — so the
+       Airtel segment is long and subdivided, and the rest are short and
+       single. The shape of the rail is the shape of the CV.
+
+       Newest first: the job he is in now leads, on a card of its own, and the
+       rail walks back from there. -->
   <section id="sx-exp">
     <div class="sx-wrap">
       <header class="sx-sec-head" data-reveal>
-        <p class="sx-mono">Experience · 2016 → now</p>
+        <p class="sx-mono">Experience · now ← 2016</p>
         <!-- Two lines, two weights, and the break is structural rather than a
              <br>: the lines say different kinds of thing, so each one gets an
              element and the weight is a property of the line rather than a
@@ -1662,7 +1665,7 @@
              verb used to live only here; it has moved into the rail so nothing
              is lost by hiding this. -->
         <aside class="sx-xp-stage" id="sx-xp-stage" aria-hidden="true">
-          <div class="sx-xp-card">
+          <div class="sx-xp-card" data-current>
 
             <!-- The light he stands in, and it sits OUTSIDE the frame on
                  purpose. The frame clips — the re-render's bar has to end
@@ -1699,8 +1702,8 @@
                  so the block reads downward as one thing: this person, then
                  when, then where. The live dot rides the year, and only on the
                  stop that has not ended. -->
-            <p class="sx-xp-yr" id="sx-xp-yr">2016 — 17</p>
-            <p class="sx-xp-co" id="sx-xp-co">MediaAgility</p>
+            <p class="sx-xp-yr" id="sx-xp-yr">2021 — now</p>
+            <p class="sx-xp-co" id="sx-xp-co">Airtel</p>
 
             <!-- Four pips. Which stop you are on, and how many there are — the
                  one thing a scroll-driven section owes you that a static list
@@ -1712,77 +1715,100 @@
         </aside>
 
         <!-- ---- the rail ----
-             One ordered list, because it IS one: this is the only numbered
-             thing on the page where the order carries information the reader
-             needs. -->
+             One ordered list, because it IS one — and it now runs BACKWARDS.
+             Where he is now comes first, then the road that led there, so the
+             first thing a reader meets is the current job rather than a 2016
+             banner gig they have to scroll past four stops to get beyond.
+
+             Each stop carries its own small stage (.sx-xp-mini). Desktop hides
+             them and uses the one sticky stage beside the list; at 1080 and
+             under the sticky stage goes and these take over, so on a phone
+             every company is drawn next to its own name instead of in a 56px
+             bar pinned over the copy. -->
         <ol class="sx-xp-rail">
 
-          <li class="sx-xp-stop" data-stop="0" data-co="MediaAgility" data-say="Keen. Clueless. Both at once."
-              data-yr="2016 — 17" data-reveal>
-            <p class="sx-xp-when"><span>2016 — 17</span><i>the way in</i></p>
-            <h3>MediaAgility</h3>
-            <p class="sx-xp-role">Designer</p>
-            <p class="sx-xp-copy">The first job that paid for design, a year after teaching
-            myself the tools and walking out of engineering at TCS. Banners and creatives —
-            small work, and the whole point was that the pivot had landed.</p>
-          </li>
-
-          <li class="sx-xp-stop" data-stop="1" data-co="Appinventiv" data-say="Four hours commuting with design thoughts"
-              data-yr="2017 — 18" data-reveal>
-            <p class="sx-xp-when"><span>2017 — 18</span><i>execution</i></p>
-            <h3>Appinventiv</h3>
-            <p class="sx-xp-role">UI designer · agency</p>
-            <p class="sx-xp-copy">Ecommerce, healthcare, B2B — many clients and a great many
-            screens in a single year. Agencies teach you speed because they never give you
-            time, and this is where the hands got quick.</p>
-          </li>
-
-          <li class="sx-xp-stop" data-stop="2" data-co="Gamezop" data-say="First designer. Only designer."
-              data-yr="2018 — 21" data-reveal>
-            <p class="sx-xp-when"><span>2018 — 21</span><i>ownership</i></p>
-            <h3>Gamezop</h3>
-            <p class="sx-xp-role">First designer → design lead</p>
-            <p class="sx-xp-copy">Employee-designer number one, and Skillclash built from
-            nothing. The jump is not the title — it is going from executing a brief to owning
-            a product with no design function anywhere around you to check it against.</p>
-          </li>
-
-          <!-- Airtel is half the timeline and the rail says so: the segment
-               runs long, its rule is thicker, and it opens into five stints
-               rather than closing into one line of summary. -->
-          <li class="sx-xp-stop" data-stop="3" data-co="Airtel" data-say="Learned to think, then move"
+          <!-- NOW. Airtel is half the timeline and the current job, so it leads
+               and it is the only stop drawn on a ground of its own. Its five
+               stints run newest-first like the rail around them. -->
+          <li class="sx-xp-stop" data-stop="0" data-co="Airtel" data-say="Learned to think, then move"
               data-yr="2021 — now" data-current data-long data-reveal>
-            <p class="sx-xp-when"><span>2021 — now</span><i>lead</i></p>
-            <h3>Airtel</h3>
-            <p class="sx-xp-role">Senior → Lead Product Designer</p>
-            <p class="sx-xp-copy">Five years and five different jobs inside one company —
-            two core products, a nought-to-one, and a practice I ran on my own.</p>
+            <div class="sx-xp-body">
+              <span class="sx-xp-mini" aria-hidden="true"><span class="sx-xp-mini-cel"></span><span class="sx-xp-sweep"></span></span>
+              <p class="sx-xp-when"><b class="sx-xp-live">Now</b><span>2021 — now</span></p>
+              <h3>Airtel</h3>
+              <p class="sx-xp-role">Senior → Lead Product Designer</p>
+              <p class="sx-xp-copy">Five years and five different jobs inside one company —
+              two core products, a nought-to-one, and a practice I ran on my own.</p>
 
-            <ol class="sx-xp-stints">
-              <li>
-                <p class="sx-xp-stint-h"><b>Wynk Music</b><span>2022</span></p>
-                <p>The streaming experience, and the flagship of that year.</p>
-              </li>
-              <li data-key>
-                <p class="sx-xp-stint-h"><b>Airtel Gaming</b><span>0 → 1</span></p>
-                <p>Led it from nothing to launch. It was later shut down — and its
-                design language is still running, because it migrated into Xstream
-                and Wynk. That part outlived the product.</p>
-              </li>
-              <li>
-                <p class="sx-xp-stint-h"><b>Xstream</b><span>video</span></p>
-                <p>Back into a core product, on the video side.</p>
-              </li>
-              <li>
-                <p class="sx-xp-stint-h"><b>The motion pod</b><span>2024</span></p>
-                <p>A solo practice: in-product motion as a discipline the org did not
-                have yet, including the UPI payments work.</p>
-              </li>
-              <li data-now>
-                <p class="sx-xp-stint-h"><b>IPTV</b><span>2025 — now</span></p>
-                <p>Current. The bundling work is this year's.</p>
-              </li>
-            </ol>
+              <ol class="sx-xp-stints">
+                <li data-now>
+                  <p class="sx-xp-stint-h"><b>IPTV</b><span>2025 — now</span></p>
+                  <p>Current. The bundling work is this year's.</p>
+                </li>
+                <li>
+                  <p class="sx-xp-stint-h"><b>The motion pod</b><span>2024</span></p>
+                  <p>A solo practice: in-product motion as a discipline the org did not
+                  have yet, including the UPI payments work.</p>
+                </li>
+                <li>
+                  <p class="sx-xp-stint-h"><b>Xstream</b><span>video</span></p>
+                  <p>Back into a core product, on the video side.</p>
+                </li>
+                <li data-key>
+                  <p class="sx-xp-stint-h"><b>Airtel Gaming</b><span>0 → 1</span></p>
+                  <p>Led it from nothing to launch. It was later shut down — and its
+                  design language is still running, because it migrated into Xstream
+                  and Wynk. That part outlived the product.</p>
+                </li>
+                <li>
+                  <p class="sx-xp-stint-h"><b>Wynk Music</b><span>2022</span></p>
+                  <p>The streaming experience, and the flagship of that year.</p>
+                </li>
+              </ol>
+            </div>
+          </li>
+
+          <!-- Where the rail turns from the present into the past. Not a stop:
+               hidden from assistive tech so the list still counts four. -->
+          <li class="sx-xp-era" aria-hidden="true">Before Airtel · 2016 — 21</li>
+
+          <li class="sx-xp-stop" data-stop="1" data-co="Gamezop" data-say="First designer. Only designer."
+              data-yr="2018 — 21" data-reveal>
+            <div class="sx-xp-body">
+              <span class="sx-xp-mini" aria-hidden="true"><span class="sx-xp-mini-cel"></span><span class="sx-xp-sweep"></span></span>
+              <p class="sx-xp-when"><span>2018 — 21</span><i>ownership</i></p>
+              <h3>Gamezop</h3>
+              <p class="sx-xp-role">First designer → design lead</p>
+              <p class="sx-xp-copy">Employee-designer number one, and Skillclash built from
+              nothing. The jump is not the title — it is going from executing a brief to owning
+              a product with no design function anywhere around you to check it against.</p>
+            </div>
+          </li>
+
+          <li class="sx-xp-stop" data-stop="2" data-co="Appinventiv" data-say="Four hours commuting with design thoughts"
+              data-yr="2017 — 18" data-reveal>
+            <div class="sx-xp-body">
+              <span class="sx-xp-mini" aria-hidden="true"><span class="sx-xp-mini-cel"></span><span class="sx-xp-sweep"></span></span>
+              <p class="sx-xp-when"><span>2017 — 18</span><i>execution</i></p>
+              <h3>Appinventiv</h3>
+              <p class="sx-xp-role">UI designer · agency</p>
+              <p class="sx-xp-copy">Ecommerce, healthcare, B2B — many clients and a great many
+              screens in a single year. Agencies teach you speed because they never give you
+              time, and this is where the hands got quick.</p>
+            </div>
+          </li>
+
+          <li class="sx-xp-stop" data-stop="3" data-co="MediaAgility" data-say="Keen. Clueless. Both at once."
+              data-yr="2016 — 17" data-reveal>
+            <div class="sx-xp-body">
+              <span class="sx-xp-mini" aria-hidden="true"><span class="sx-xp-mini-cel"></span><span class="sx-xp-sweep"></span></span>
+              <p class="sx-xp-when"><span>2016 — 17</span><i>the way in</i></p>
+              <h3>MediaAgility</h3>
+              <p class="sx-xp-role">Designer</p>
+              <p class="sx-xp-copy">The first job that paid for design, a year after teaching
+              myself the tools and walking out of engineering at TCS. Banners and creatives —
+              small work, and the whole point was that the pivot had landed.</p>
+            </div>
           </li>
 
         </ol>

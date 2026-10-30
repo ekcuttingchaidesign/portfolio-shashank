@@ -371,16 +371,21 @@
        `cols` stays 5 for every sheet because the NORMALISER wrote them all onto
        one 5-cell grid — the step is a fifth of the sheet whatever we choose to
        play. */
+    /* In rail order, which is newest first: Airtel leads, MediaAgility closes. */
     const REELS = [
-      { file: 'fresher.webp',     cols: 5, frames: 4, cycle: 1150 },
-      { file: 'appinventiv.webp', cols: 5, frames: 4, cycle: 1000 },
-      { file: 'gamezop.webp',     cols: 5, frames: 4, cycle:  900 },
       { file: 'airtel_walk.webp', cols: 5, frames: 5, cycle:  820 },
+      { file: 'gamezop.webp',     cols: 5, frames: 4, cycle:  900 },
+      { file: 'appinventiv.webp', cols: 5, frames: 4, cycle: 1000 },
+      { file: 'fresher.webp',     cols: 5, frames: 4, cycle: 1150 },
     ];
-    /* The cycles shorten as the career runs. Not a gimmick — it is the one
+    /* The cycles lengthen as the rail runs back. Not a gimmick — it is the one
        thing the four sheets have in common that can carry the story: he is
-       standing still in 2016 and moving by 2021, and the tempo says so before
+       moving now and was standing still in 2016, and the tempo says so before
        any of the copy does. */
+
+    /* At 1080 and under the sticky stage is gone and every stop draws its own
+       character (.sx-xp-mini). Read live, so a rotated tablet switches over. */
+    const narrow = matchMedia('(max-width: 1080px)');
 
     /* Sheet URLs resolve against the DOCUMENT (this file is loaded from the
        page, not from the stylesheet), so they are written here rather than
@@ -558,9 +563,10 @@
       if (elSay)   elSay.textContent   = s.getAttribute('data-say') || '';
       pips.forEach((p, n) => n <= i ? p.setAttribute('data-on', '')
                                     : p.removeAttribute('data-on'));
-      /* The room warms as the career does. */
+      /* The room is warmest on the job he is in now, and cools as the rail
+         runs back through the ones before it. */
       if (xp) xp.style.setProperty('--sx-xp-heat',
-        (i / Math.max(xpStops.length - 1, 1)).toFixed(3));
+        (1 - i / Math.max(xpStops.length - 1, 1)).toFixed(3));
     };
 
     /* --- which stop is being read -------------------------------------- */
@@ -588,8 +594,110 @@
         xp.style.setProperty('--sx-xp-run', run.toFixed(4));
       }
 
+      /* The sticky stage is hidden on narrow screens, and the minis below
+         warm their own sheets as they come near — so neither the wipe nor the
+         look-ahead is worth paying for there. */
+      if (narrow.matches) return;
       showStop(live);
       warm(live + 1);            /* the next sheet, well before it is wanted */
+    }
+
+    /* --- the small stages, for narrow screens ---------------------------
+       Each stop draws its own character beside its name. The motion is the
+       desktop's re-render at the scale of one card: the first time a stop
+       comes properly onto the screen, the vermilion bar crosses its frame and
+       the character is uncovered behind it, already cycling. After that he
+       only loops while his card is on screen, so a phone is never running
+       four sprite loops for one visible card.
+
+       Sheets warm a screen ahead of the card that needs them, so the bar
+       never crosses an empty frame. */
+    const minis = xpStops.map((s, i) => {
+      const box = s.querySelector('.sx-xp-mini');
+      return box && {
+        i, box,
+        cel: box.querySelector('.sx-xp-mini-cel'),
+        bar: box.querySelector('.sx-xp-sweep'),
+        loop: null, shown: false, visible: false,
+      };
+    }).filter(Boolean);
+
+    const miniLoop = (m, on) => {
+      if (on && !m.loop && !reduced && m.cel.animate) {
+        m.loop = m.cel.animate(reelKeys(REELS[m.i]),
+          { duration: REELS[m.i].cycle, iterations: Infinity });
+      } else if (!on && m.loop) {
+        m.loop.cancel(); m.loop = null;
+        m.cel.style.backgroundPosition = '0% 50%';
+      }
+    };
+
+    const dressMini = m => {
+      if (m.box.hasAttribute('data-ready')) return;
+      m.cel.style.backgroundImage = `url("${sheetURL(REELS[m.i].file)}")`;
+      m.cel.style.backgroundSize = `${REELS[m.i].cols * 100}% 100%`;
+      m.box.setAttribute('data-ready', '');
+    };
+
+    const renderIn = m => {
+      if (m.shown) return;
+      m.shown = true;
+      m.box.setAttribute('data-in', '');
+      if (reduced || !m.cel.animate) return;
+      const ease = 'cubic-bezier(.22, 1, .36, 1)';
+      /* Same choreography as the stage: the bar leads, the reveal edge
+         follows it down, and the bar is brightest mid-frame. Held back until
+         the card's own reveal has mostly landed — run together, the bar
+         crossed a frame that was still blurred and fading in, and was lost. */
+      const t = { duration: 900, delay: 320, easing: ease };
+      m.cel.animate(
+        [{ clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 100% 0)', offset: .1 },
+         { clipPath: 'inset(0 0 0% 0)' }],
+        { ...t, fill: 'backwards' });
+      m.bar.animate(
+        [{ transform: 'translate3d(0, -100%, 0)', opacity: 0 },
+         { opacity: .95, offset: .4 },
+         { transform: 'translate3d(0, 400%, 0)', opacity: 0 }],
+        t);
+    };
+
+    if (minis.length && 'IntersectionObserver' in window) {
+      /* A screen ahead: dress the cel so the sheet is decoded by arrival. */
+      const near = new IntersectionObserver(es => es.forEach(e => {
+        if (!e.isIntersecting || !narrow.matches) return;
+        const m = minis.find(m => m.box === e.target);
+        near.unobserve(e.target);
+        warm(m.i).then(ok => ok && dressMini(m));
+      }), { rootMargin: '100% 0px' });
+
+      /* On screen: render in once, and loop only while visible. Waits on
+         the sheet, so a slow network delays the bar rather than wasting it. */
+      const seen = new IntersectionObserver(es => es.forEach(e => {
+        const m = minis.find(m => m.box === e.target);
+        m.visible = e.isIntersecting && narrow.matches;
+        if (!narrow.matches) { miniLoop(m, false); return; }
+        if (e.isIntersecting) {
+          warm(m.i).then(ok => {
+            /* Still on screen by the time the sheet answered? */
+            if (!ok || !m.visible) return;
+            dressMini(m);
+            renderIn(m);
+            miniLoop(m, true);
+          });
+        } else {
+          miniLoop(m, false);
+        }
+      }), { threshold: .45 });
+
+      minis.forEach(m => { near.observe(m.box); seen.observe(m.box); });
+
+      /* Crossing the breakpoint either way: re-run both observers so a
+         widened window stops the loops and a narrowed one starts them. */
+      const rewatch = () => minis.forEach(m => {
+        near.unobserve(m.box); seen.unobserve(m.box);
+        near.observe(m.box); seen.observe(m.box);
+      });
+      if (narrow.addEventListener) narrow.addEventListener('change', rewatch);
     }
 
     /* First paint, and the warm-up that pays for it.

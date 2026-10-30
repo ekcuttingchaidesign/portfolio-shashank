@@ -1644,6 +1644,10 @@
      above it rather than inventing a third hue. */
   --sx-xp-line: #57C74B;
   --sx-xp-line-dim: #2F6B27;
+  /* The rail's indent, and the Now card's inner padding. Named because the
+     node on the rail has to be placed against both. */
+  --sx-xp-rp: clamp(1.35rem, 3vw, 2.25rem);
+  --sx-xp-pad: clamp(1.1rem, 2.2vw, 1.75rem);
 }
 
 .sx-xp-layout {
@@ -2099,126 +2103,199 @@
 .sx-xp-stints > li[data-now] .sx-xp-stint-h b { color: var(--sx-key); }
 .sx-xp-stints > li[data-key] > p:last-child { color: var(--sx-ink-2); }
 
-/* --- Responsive ---------------------------------------------------------- */
+/* --- Now ----------------------------------------------------------------
+   The rail runs newest first, and the job he is in now is the one stop drawn
+   on a ground of its own. Barely there — a lift of the wall and a hairline —
+   because it only has to say "this one is different", and the live tag above
+   the name says what the difference is. */
+.sx-xp-stop[data-current] .sx-xp-body {
+  padding: var(--sx-xp-pad);
+  border-radius: 18px;
+  border: 1px solid var(--sx-ink-4);
+  background:
+    radial-gradient(120% 70% at 100% 0%, rgba(87,199,75,.06), transparent 60%),
+    rgba(244,241,236,.022);
+}
+/* The node rides the card's padding so it still sits level with the first
+   line rather than with the card's top edge. */
+.sx-xp-stop[data-current]::before { top: calc(var(--sx-xp-pad) + .55em); }
+
+/* The live tag. The one thing in the section that pulses, on the one fact
+   that is still happening. */
+.sx-xp-live {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .3rem .6rem .3rem .5rem;
+  border-radius: 999px;
+  background: rgba(87,199,75,.11);
+  color: var(--sx-xp-line);
+  font-weight: 500;
+}
+.sx-xp-live::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: sx-xp-live 2.4s var(--sx-ease) infinite;
+}
+
+/* Where the rail turns from now into the past. A tick off the rail rather
+   than a node: it marks a change of tense, not a stop. */
+.sx-xp-era {
+  position: relative;
+  font-family: var(--sx-mono);
+  font-size: var(--sx-t-mono);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3);
+  padding-bottom: clamp(1.75rem, 5vh, 3rem);
+}
+.sx-xp-era::before {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--sx-xp-rp));
+  top: .6em;
+  width: calc(var(--sx-xp-rp) - .6rem);
+  height: 1px;
+  background: var(--sx-ink-3);
+}
+
+/* Each stop's own small stage. Desktop has the sticky one beside the list,
+   so these only exist at the narrow breakpoint below. */
+.sx-xp-mini { display: none; }
+
+/* --- Responsive ----------------------------------------------------------
+   At 1080 and under there is no room beside the list for a stage, and the
+   old answer — the stage shrunk to a now-playing bar pinned to the bottom of
+   the window — spent the section's best asset on a 56px thumbnail and laid a
+   bar over the copy the reader was trying to get through.
+
+   So the stage goes, and every stop draws its own character, beside its own
+   name. Nothing is pinned and nothing overlaps; the motion is the desktop's
+   re-render at the scale of one card, run once as each card arrives (script,
+   "the small stages"), and the rail fills down the left as you read. */
 @media (max-width: 1080px) {
   .sx-xp-layout { grid-template-columns: 1fr; }
+  .sx-xp-stage { display: none; }
 
-  /* --- the now-playing bar ---
-     On a narrow screen the stage stops being a panel and becomes a bar. It
-     goes to the BOTTOM, and both halves of that are deliberate.
+  /* Every stop at full strength. Dimming the ones not being read is a desktop
+     idea — there a stage says which one is live. Here each card carries its
+     own character, and a phone reader should never have to read grey text. */
+  .sx-xp-stop[data-active="0"] { opacity: 1; }
 
-     The top is taken. The page's nav pill is fixed up there, and a second
-     floating bar under it stacked two pieces of chrome into the first 170px of
-     an 844px screen — a fifth of the viewport permanently spent, with the
-     company name landing behind the pill. Measured, not guessed: the pill sits
-     at y15 and runs 40px tall on a 390 screen.
-
-     And the bottom is where this belongs anyway. A small strip carrying a
-     picture, a title and a position is a now-playing bar, and half the work in
-     this section is Wynk and Xstream — the shape is borrowed from the products
-     the story is about rather than from a generic sticky header. */
-  /* Both children share ONE grid cell, and that is what makes the bar work at
-     all. A sticky element can only travel inside its containing block, and for
-     a grid item that block is its own grid AREA — so a stage sitting in its own
-     row had a containing block exactly its own height and could not move a
-     pixel. Measured: it scrolled away to y-427 instead of holding the bottom.
-     Overlaid on the rail, the stage is as tall as the whole list, and the card
-     inside it has the entire section to stick through. */
-  .sx-xp-stage, .sx-xp-rail { grid-area: 1 / 1; }
-  .sx-xp-stage {
-    position: relative;
-    top: auto;
-    /* The layout sets align-items:start for the desktop column, which stops
-       this stretching — so sharing the rail's cell was not enough on its own:
-       the stage stayed 80px tall and the card inside it still had exactly its
-       own height to travel through. Stretched, the stage is as tall as the
-       rail and the card can hold the viewport floor for the whole section. */
-    align-self: stretch;
-    /* The card is parked at the BOTTOM of the stage, and that is the whole
-       trick. Sticky `bottom` only ever pulls an element UP — it holds a thing
-       that would otherwise sit below the viewport floor at the floor instead;
-       it never pushes a thing down. Started at the top of the stage the card
-       simply tracked the stage's top edge off the screen, measured at every
-       scroll position. Parked at the bottom of a 1960px stage it is below the
-       fold from the moment the section opens, so sticky pulls it up to the
-       floor and holds it there until the stage's own bottom arrives. */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    z-index: 5;
-    /* It lies over the rail, and there is nothing in it to click — so the
-       reader's finger, and any selection they drag, go to the text underneath. */
-    pointer-events: none;
+  /* Much less travel: nothing is waiting on a trigger line to swap any more,
+     so the gap between stops is just a gap. */
+  .sx-xp-stop {
+    padding-bottom: clamp(2.5rem, 8vh, 4rem);
+    scroll-margin-top: 5.5rem;
+    --sx-xp-fig: clamp(112px, 31vw, 170px);
   }
-  .sx-xp-card {
-    position: sticky;
-    bottom: 0;
-    width: 100%;
-    /* Clear of the home indicator on a phone that has one. */
-    margin-bottom: env(safe-area-inset-bottom, 0px);
+  .sx-xp-stop[data-current] { --sx-xp-fig: clamp(132px, 34vw, 210px); }
+  /* The live tag and the years are one reading; they never break apart. */
+  .sx-xp-stop[data-current] .sx-xp-when { white-space: nowrap; }
+
+  /* Name block on the left, character on the right of it, and the copy and
+     stints run full width underneath. Placed by area, not by source order. */
+  .sx-xp-body {
     display: grid;
-    /* Placed explicitly rather than auto-flowed: auto-flow follows source
-       order, so any change to the column count silently reshuffles the cells. */
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) var(--sx-xp-fig);
     grid-template-areas:
-      "fig yr"
-      "fig co"
-      "fig pips";
-    align-items: center;
-    column-gap: clamp(.7rem, 3vw, 1.1rem);
-    row-gap: .15rem;
-    padding: .5rem .7rem;
-    border-radius: 10px 10px 0 0;
-    /* The desktop card is gone and the character stands free up there. Down
-         here he cannot: the bar floats over scrolling text, and without a
-         ground the copy runs straight through him. So the card comes back at
-         this width only, as chrome. */
-    background: var(--sx-raise);
-    box-shadow: 0 -18px 30px -22px rgba(0,0,0,.9);
+      "when when"
+      "name fig"
+      "role fig"
+      "copy copy"
+      "stints stints";
+    grid-template-rows: auto auto 1fr auto auto;
+    column-gap: .75rem;
+    /* On a tablet the full width would park him a hand's span from his own
+       name. A reading measure keeps the two together. */
+    max-width: 40rem;
   }
-  .sx-xp-yr { grid-area: yr; margin: 0; justify-content: flex-start; }
-  .sx-xp-frame {
+  .sx-xp-when   { grid-area: when; }
+  .sx-xp-body h3 { grid-area: name; align-self: end; }
+  .sx-xp-role   { grid-area: role; align-self: start; }
+  .sx-xp-copy   { grid-area: copy; }
+  .sx-xp-stints { grid-area: stints; }
+
+  .sx-xp-mini {
     grid-area: fig;
-    width: clamp(56px, 16vw, 76px);
+    display: block;
+    position: relative;
     aspect-ratio: 1 / 1;
-    /* The bar's own ground already does this; a second panel inside it reads
-       as a box in a box at this size. */
-    background: none;
+    align-self: end;
+    /* The re-render bar has to end somewhere. */
+    overflow: hidden;
+    /* The bloom he stands in, scaled to one card. Warmest on Now, in step
+       with the desktop room. */
+    background: radial-gradient(56% 50% at 50% 60%,
+      rgba(224,84,42,.10) 0%, rgba(224,84,42,.04) 45%, rgba(224,84,42,0) 72%);
+    /* His feet on the same line as the role under the name. */
+    margin-top: -.6rem;
   }
-  .sx-xp-co { grid-area: co; margin: 0; font-size: 1.02rem; line-height: 1.2; text-align: left; }
-  .sx-xp-pips { grid-area: pips; margin: .28rem 0 .1rem; }
+  .sx-xp-stop[data-current] .sx-xp-mini {
+    background: radial-gradient(56% 50% at 50% 60%,
+      rgba(224,84,42,.16) 0%, rgba(224,84,42,.07) 45%, rgba(224,84,42,0) 72%);
+  }
+  /* A floor shadow, there before he is, so the corner never reads as a hole
+     while the sheet is still arriving. */
+  .sx-xp-mini::after {
+    content: "";
+    position: absolute;
+    left: 28%; right: 28%; bottom: 5%;
+    height: 5%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(0,0,0,.55), transparent);
+  }
+  .sx-xp-mini-cel {
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 4%;
+    z-index: 1;
+    background-repeat: no-repeat;
+    background-position: 0% 50%;
+    background-size: 500% 100%;
+    opacity: 0;
+  }
+  .sx-xp-mini[data-in] .sx-xp-mini-cel { opacity: 1; }
+  .sx-xp-mini .sx-xp-sweep { z-index: 2; height: 26%; transform: translate3d(0, -100%, 0); }
 
-  /* And no bubble from here down. This is where the card stops being a stage
-     and becomes a 56-76px bar pinned to the bottom of the window: "beside his
-     head" addresses nothing at that size, the offsets are shares of a card that
-     is now the wrong shape entirely, and the rail scrolls OVER the bar — so the
-     character cannot be hovered here even if the bubble were placed well.
+  /* Now is laid out differently, and for room rather than for show. Beside a
+     figure this size the name column is barely 120px on a phone, and the role
+     broke over three lines. So the role and everything under it run full
+     width, and the character takes the card's top-right corner — standing
+     up out of it, over the hairline, rather than boxed in like a thumbnail.
+     The current job is the one that gets to break its frame. */
+  .sx-xp-stop[data-current] .sx-xp-body {
+    grid-template-areas:
+      "when fig"
+      "name fig"
+      "role role"
+      "copy copy"
+      "stints stints";
+    grid-template-rows: auto auto auto auto auto;
+    padding-right: .4rem;
+    margin-top: calc(var(--sx-xp-fig) * .3);
+  }
+  .sx-xp-stop[data-current] .sx-xp-mini {
+    margin-top: calc(var(--sx-xp-fig) * -.3 - var(--sx-xp-pad));
+    margin-bottom: -.35rem;
+    /* Unclipped once the bar has run, so the hood is not cut by the box. */
+    overflow: visible;
+  }
+  .sx-xp-stop[data-current] .sx-xp-mini:not([data-in]) { overflow: hidden; }
+  .sx-xp-stop[data-current]::before { top: calc(var(--sx-xp-fig) * .3 + var(--sx-xp-pad) + .55em); }
 
-     720 was where this first went, which was simply the wrong breakpoint: the
-     bar arrives at 1080. Between the two the bubble was being offered on a
-     figure the rail was sitting on top of. */
-  .sx-xp-say { display: none; }
-
-  /* The bar sits over the end of the rail, so the rail has to end above it. */
-  .sx-xp-rail { padding-bottom: 5.5rem; }
-  /* Anchoring and keyboard focus clear the nav pill at the top. */
-  .sx-xp-stop { scroll-margin-top: 5.5rem; }
+  .sx-xp-stints { margin-top: 1.25rem; }
 }
 
 @media (max-width: 720px) {
-  /* Less travel on a phone, and for a reason rather than to save pixels: the
-     stops are full-width here so they are already taller, and the stage is a
-     72px bar rather than a half-screen panel — there is far less to watch, so
-     holding a stop for four fifths of a tall screen is just empty scrolling. */
-  .sx-xp-stop { padding-bottom: clamp(3rem, 22vh, 9rem); }
   .sx-xp-copy, .sx-xp-stints > li { max-width: none; }
-  /* And the ledge goes with them, which is the direct consequence of the line
-     above. Releasing the copy's measure runs it to the gutter, so the corner
-     the ledge is bleeding out of stops being empty — at full strength it would
-     be an opaque slab over the end of a line rather than a shape in the corner
-     of the room. Things That Move drops its ledge at its own breakpoint for the
-     same reason. A decoration with no lane is not a decoration. */
+  /* The copy runs to the gutter here, so the corner the ledge bleeds out of
+     stops being empty — at full strength it would be an opaque slab over the
+     end of a line. Things That Move drops its ledge at its own breakpoint for
+     the same reason. */
   .sx-xp-ledge { display: none; }
+  .sx-xp-copy { font-size: var(--sx-t-body); }
 }
 
 /* --- Reduced motion --------------------------------------------------------
@@ -2238,6 +2315,7 @@
   .sx-xp-stop[data-active="0"] { opacity: 1; }
   .sx-xp-rail::after { transition: none; }
   .sx-xp-sweep { display: none; }
+  .sx-xp-live::before { animation: none; }
 }
 
 /* ---------------------------------------------------------------------------

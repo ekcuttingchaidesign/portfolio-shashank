@@ -66,9 +66,11 @@ just dived into.
    inverts the page's habit: everything else assembles out of stillness and
    stops, this arrives already running and slows down as you reach it.
 6. **`#sx-archive`** — Built with AI.
-7. **`#sx-exp`** — *No design degree / 10 years anyway.* Four stops down one
-   rail, with a sticky stage beside it where the character changes company as
-   you scroll.
+7. **`#sx-exp`** — *No design degree / 10 years anyway.* Newest first: Airtel,
+   the current job, on a card of its own, then *Before Airtel* — Gamezop,
+   Appinventiv, MediaAgility — down one rail. On desktop a sticky stage beside
+   it changes the character as you scroll; at 1080px and under each stop draws
+   its own character beside its name instead (see **Experience on phones**).
 8. **`#sx-hand`**, **`#s-exit`**, **`#s-connect`** — the handoff, the dive back
    out, and *Say hello.* The handoff is one line, 250px under Experience, and
    the pull-out starts straight after it.
@@ -104,10 +106,30 @@ timeline is drawn in the colour of the ground behind it, and vermilion stays
 what it has always been on this page: the one *type* accent. Structure in one,
 writing in the other, and no third hue invented for the job.
 
-The rail beside him is not evenly divided, because the CV is not. Three short
-stops, then five years of Airtel carrying five stints inside it — so the Airtel
-segment runs long, its rule is thicker, and it opens into five rather than
-closing into one line. The shape of the rail is the shape of the career.
+The rail beside him is not evenly divided, because the CV is not. Five years of
+Airtel carrying five stints, then three short stops — so the Airtel segment runs
+long and opens into five rather than closing into one line. The shape of the
+rail is the shape of the career.
+
+It runs **backwards**. The job he is in now comes first, drawn on the one card
+in the section with a live *Now* tag, and the rail then walks back through the
+road that led there. The first thing a reader meets is the current job, not a
+2016 banner gig four stops away from it. The room's warmth follows: brightest on
+Now, cooling as the rail runs back.
+
+### Experience on phones
+
+At 1080px and under there is no room beside the list for a stage. It used to
+shrink into a now-playing bar pinned to the bottom of the window, which spent the
+section's best asset on a 56px thumbnail and laid a bar over the copy. Now
+nothing is pinned. Every stop carries its own small stage (`.sx-xp-mini`) beside
+its name; the Airtel character stands up out of the top corner of the Now card.
+
+The motion is the desktop re-render at the scale of one card. A card's sheet
+warms a screen before it arrives; the first time the card is properly on screen
+the vermilion bar crosses its frame and uncovers the character, already cycling.
+After that he loops only while his card is visible, and the rail fills down the
+left as you read. Under reduced motion each character simply stands there.
 
 | | |
 | --- | --- |
