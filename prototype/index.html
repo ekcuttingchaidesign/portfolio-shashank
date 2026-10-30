@@ -1728,10 +1728,15 @@
         <ol class="sx-xp-rail">
 
           <!-- NOW. Airtel is half the timeline and the current job, so it leads,
-               set larger and on the one flat step of tone in the section. No
-               badge says "now": the green years under the name say it, in the
-               rail's own colour. Its five stints run newest first. -->
-          <li class="sx-xp-stop" data-stop="0" data-co="Airtel" data-say="Learned to think, then move"
+               set larger. No badge says "now": the green years under the name
+               say it, in the rail's own colour. Its five stints run newest
+               first.
+
+               Every stop is a panel, and each carries two colours taken from
+               what the character wears there (--sx-xp-key, --sx-xp-field): the
+               orange hoodie, the red spider suit, the denim, the slate plaid.
+               The panel being read lights up in them as he arrives. -->
+          <li class="sx-xp-stop" data-stop="0" style="--sx-xp-key:#FF7A3D; --sx-xp-field:#26120A" data-co="Airtel" data-say="Learned to think, then move"
               data-yr="2021 — now" data-current data-long data-reveal>
             <div class="sx-xp-body">
               <span class="sx-xp-mini" aria-hidden="true"><span class="sx-xp-mini-cel"></span><span class="sx-xp-sweep"></span></span>
@@ -1741,28 +1746,50 @@
               <p class="sx-xp-copy">Five years and five different jobs inside one company: two core
               products, a nought-to-one, and a practice I ran on my own.</p>
 
-              <ol class="sx-xp-stints">
+              <!-- Each stint shows a piece of the work it produced, using the
+                   same pictures Featured Work and More Stories already load,
+                   so they cost nothing new. A list of rows on wide screens; a
+                   rail you swipe through on a phone. -->
+              <ol class="sx-xp-stints" tabindex="0" aria-label="Five roles at Airtel">
                 <li data-now>
-                  <p class="sx-xp-stint-h"><b>IPTV</b><span>Since 2025</span></p>
-                  <p>Where I am now. This year’s work is the bundling.</p>
+                  <img class="sx-xp-thumb" src="../public/img/airtel_iptv_cover.png" alt="The IPTV bundle: a set-top box rising out of a gift box"
+                       width="400" height="300" loading="lazy" decoding="async">
+                  <div>
+                    <p class="sx-xp-stint-h"><b>IPTV</b><span>Since 2025</span></p>
+                    <p>Where I am now. This year’s work is the bundling.</p>
+                  </div>
                 </li>
                 <li>
-                  <p class="sx-xp-stint-h"><b>The motion pod</b><span>2024</span></p>
-                  <p>A solo practice: in-product motion as a discipline the org did not
-                  have yet, including the UPI payments work.</p>
+                  <img class="sx-xp-thumb" src="../public/img/airtel_upi_cover.png" alt="UPI payment screens from the motion work"
+                       width="400" height="300" loading="lazy" decoding="async" style="object-position:62% 50%">
+                  <div>
+                    <p class="sx-xp-stint-h"><b>The motion pod</b><span>2024</span></p>
+                    <p>A solo practice: in-product motion as a discipline the org did not have yet, including the UPI payments work.</p>
+                  </div>
                 </li>
                 <li>
-                  <p class="sx-xp-stint-h"><b>Xstream</b></p>
-                  <p>Back on a core product, on the video side.</p>
+                  <img class="sx-xp-thumb" src="../public/img/stories_parental_controls.png" alt="The Xstream TV box"
+                       width="400" height="300" loading="lazy" decoding="async" style="object-position:50% 72%">
+                  <div>
+                    <p class="sx-xp-stint-h"><b>Xstream</b></p>
+                    <p>Back on a core product, on the video side.</p>
+                  </div>
                 </li>
                 <li>
-                  <p class="sx-xp-stint-h"><b>Airtel Gaming</b></p>
-                  <p>I took it from nothing to launch. Airtel later shut it down, and its
-                  design language moved into Xstream and Wynk, where it still runs.</p>
+                  <img class="sx-xp-thumb" src="../public/img/airtel_gaming_cover.png" alt="Airtel Gaming screens: streams and leaderboards"
+                       width="400" height="300" loading="lazy" decoding="async">
+                  <div>
+                    <p class="sx-xp-stint-h"><b>Airtel Gaming</b></p>
+                    <p>I took it from nothing to launch. Airtel later shut it down, and its design language moved into Xstream and Wynk, where it still runs.</p>
+                  </div>
                 </li>
                 <li>
-                  <p class="sx-xp-stint-h"><b>Wynk Music</b><span>2022</span></p>
-                  <p>The streaming experience, and the flagship of that year.</p>
+                  <img class="sx-xp-thumb" src="../public/img/stories_wynk_rewind.png" alt="Wynk Music’s year-end rewind"
+                       width="400" height="300" loading="lazy" decoding="async">
+                  <div>
+                    <p class="sx-xp-stint-h"><b>Wynk Music</b><span>2022</span></p>
+                    <p>The streaming experience, and the flagship of that year.</p>
+                  </div>
                 </li>
               </ol>
             </div>
@@ -1772,7 +1799,7 @@
                hidden from assistive tech so the list still counts four. -->
           <li class="sx-xp-era" aria-hidden="true">Before Airtel · 2016 to 2021</li>
 
-          <li class="sx-xp-stop" data-stop="1" data-co="Gamezop" data-say="First designer. Only designer."
+          <li class="sx-xp-stop" data-stop="1" style="--sx-xp-key:#FF5A6E; --sx-xp-field:#260C14" data-co="Gamezop" data-say="First designer. Only designer."
               data-yr="2018 — 21" data-reveal>
             <div class="sx-xp-body">
               <span class="sx-xp-mini" aria-hidden="true"><span class="sx-xp-mini-cel"></span><span class="sx-xp-sweep"></span></span>
@@ -1785,7 +1812,7 @@
             </div>
           </li>
 
-          <li class="sx-xp-stop" data-stop="2" data-co="Appinventiv" data-say="Four hours commuting with design thoughts"
+          <li class="sx-xp-stop" data-stop="2" style="--sx-xp-key:#62A8FF; --sx-xp-field:#0D1B2C" data-co="Appinventiv" data-say="Four hours commuting with design thoughts"
               data-yr="2017 — 18" data-reveal>
             <div class="sx-xp-body">
               <span class="sx-xp-mini" aria-hidden="true"><span class="sx-xp-mini-cel"></span><span class="sx-xp-sweep"></span></span>
@@ -1798,7 +1825,7 @@
             </div>
           </li>
 
-          <li class="sx-xp-stop" data-stop="3" data-co="MediaAgility" data-say="Keen. Clueless. Both at once."
+          <li class="sx-xp-stop" data-stop="3" style="--sx-xp-key:#A3B6D6; --sx-xp-field:#161B26" data-co="MediaAgility" data-say="Keen. Clueless. Both at once."
               data-yr="2016 — 17" data-reveal>
             <div class="sx-xp-body">
               <span class="sx-xp-mini" aria-hidden="true"><span class="sx-xp-mini-cel"></span><span class="sx-xp-sweep"></span></span>

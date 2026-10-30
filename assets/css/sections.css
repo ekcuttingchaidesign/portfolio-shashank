@@ -1650,6 +1650,10 @@
   --sx-xp-pad: clamp(1.25rem, 2.4vw, 2rem);
   /* The Now panel: one step up from the wall, flat. */
   --sx-xp-now-bg: #131312;
+  /* The stage's bloom takes the colour of whichever stop is live. Script
+     writes it; registered below so it can be transitioned. */
+  --sx-xp-tint: #FF7A3D;
+  transition: --sx-xp-tint .9s var(--sx-ease-out);
   /* The company name's size, which the rail's node is centred against. */
   --sx-xp-h3: var(--sx-t-head);
 }
@@ -1765,10 +1769,10 @@
      than with however tall the readout under him happens to be. */
   aspect-ratio: 1 / 1;
   background: radial-gradient(58% 50% at 50% 58%,
-    rgba(224,84,42, calc(.052 + var(--sx-xp-heat, 0) * .055)) 0%,
-    rgba(224,84,42, calc(.034 + var(--sx-xp-heat, 0) * .038)) 32%,
-    rgba(224,84,42, calc(.014 + var(--sx-xp-heat, 0) * .018)) 58%,
-    rgba(224,84,42, 0) 82%);
+    color-mix(in srgb, var(--sx-xp-tint) calc((5.2% + var(--sx-xp-heat, 0) * 5.5%) * 1.6), transparent) 0%,
+    color-mix(in srgb, var(--sx-xp-tint) calc((3.4% + var(--sx-xp-heat, 0) * 3.8%) * 1.6), transparent) 32%,
+    color-mix(in srgb, var(--sx-xp-tint) calc((1.4% + var(--sx-xp-heat, 0) * 1.8%) * 1.6), transparent) 58%,
+    transparent 82%);
   transition: background .9s var(--sx-ease-out);
   pointer-events: none;
   z-index: 0;
@@ -1908,19 +1912,14 @@
   transition: opacity .55s var(--sx-ease);
 }
 .sx-xp-stop:last-child { padding-bottom: 0; }
-/* Quiet until it is the one being read. Never below .38 — a stop you cannot
-   read is a stop you cannot skim ahead to, and this is a CV. */
-.sx-xp-stop[data-active="0"] { opacity: .38; }
-.sx-xp-stop[data-active="1"] { opacity: 1; }
 
 /* The node on the rail. */
 .sx-xp-stop::before {
   content: "";
   position: absolute;
   left: calc(-1 * var(--sx-xp-rp) - 3.5px);
-  /* Level with the middle of the company name, now that nothing sits above
-     it. */
-  top: calc(var(--sx-xp-h3) * .5 - 4px);
+  /* Level with the middle of the company name, inside its panel. */
+  top: calc(var(--sx-xp-pad) + var(--sx-xp-h3) * .5 - 4px);
   width: 8px; height: 8px;
   border-radius: 50%;
   background: var(--sx-wall);
@@ -2036,7 +2035,7 @@
   margin: .6rem 0 0;
   font-size: var(--sx-t-body);
 }
-.sx-xp-role { color: var(--sx-key); }
+.sx-xp-role { color: var(--sx-xp-key, var(--sx-key)); }
 .sx-xp-yrs {
   color: var(--sx-ink-3);
   font-variant-numeric: tabular-nums;
@@ -2051,24 +2050,86 @@
   max-width: 46ch;
 }
 
+/* --- the panels ------------------------------------------------------------
+   Every stop is a panel, and every panel carries two colours taken from what
+   the character wears at that job, written on the stop as --sx-xp-key and
+   --sx-xp-field: the orange hoodie at Airtel, the red spider suit at
+   Gamezop, the denim at Appinventiv, the slate plaid at MediaAgility. Read
+   down the rail and the section cools as it goes back in time.
+
+   At rest a panel is one flat step up from the wall. The one being read
+   LIGHTS: its ground turns to the field colour and a light comes up from
+   the floor in the corner he stands in, the way a stage takes a gel when a
+   performer walks on. One registered number, --sx-xp-lit, drives both, so
+   the change is a single eased transition rather than a swap. */
+@property --sx-xp-lit {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+@property --sx-xp-tint {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #FF7A3D;
+}
+.sx-xp-body {
+  --sx-xp-lit: 0;
+  position: relative;
+  padding: var(--sx-xp-pad);
+  border-radius: 6px;
+  background:
+    radial-gradient(85% 75% at 92% 112%,
+      color-mix(in srgb, var(--sx-xp-key) calc(var(--sx-xp-lit) * 30%), transparent) 0%,
+      transparent 70%),
+    color-mix(in srgb, var(--sx-xp-field) calc(var(--sx-xp-lit) * 100%), var(--sx-xp-now-bg));
+  transition: --sx-xp-lit .8s var(--sx-ease-out);
+}
+.sx-xp-stop[data-active="1"] .sx-xp-body { --sx-xp-lit: 1; }
+
+/* The name is the panel's one large thing, and Now's is larger still. */
+.sx-xp-stop[data-current] { --sx-xp-h3: calc(var(--sx-t-head) * 1.18); }
+.sx-xp-stop h3 { font-size: var(--sx-xp-h3); }
+
 /* --- Airtel's five stints ---
-   The only stop that opens instead of closing. A list under the paragraph,
-   set in from it, separated by space alone: no rule down its side, no
-   accent on any name. The current one is marked by its years being green,
-   the same way the stop's own are. */
+   The only stop that opens instead of closing. Each stint shows a piece of
+   the work it produced beside what it was, so the longest stop on the rail
+   is also the one with the most to look at. Rows on wide screens; the
+   current one is marked by its green years, the same way the stop's are. */
 .sx-xp-stints {
   list-style: none;
   margin: clamp(1.6rem, 3.5vh, 2.25rem) 0 0;
   padding: 0;
   display: grid;
-  gap: clamp(1.1rem, 2.6vh, 1.5rem);
+  gap: clamp(1rem, 2.4vh, 1.35rem);
 }
-.sx-xp-stints > li { max-width: 46ch; }
+.sx-xp-stints:focus-visible { outline: 2px solid var(--sx-xp-line); outline-offset: 4px; }
+.sx-xp-stints > li {
+  display: grid;
+  grid-template-columns: clamp(6.5rem, 9vw, 8.5rem) minmax(0, 1fr);
+  gap: clamp(.9rem, 1.6vw, 1.35rem);
+  align-items: start;
+}
+.sx-xp-stints > li > div { max-width: 46ch; }
+.sx-xp-thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #1b1b19;
+  transition: transform .5s var(--sx-ease-out), filter .5s var(--sx-ease-out);
+  filter: saturate(.85) brightness(.92);
+}
+@media (hover: hover) {
+  .sx-xp-stints > li:hover .sx-xp-thumb { transform: scale(1.035); filter: none; }
+}
+.sx-xp-stints > li[data-now] .sx-xp-thumb { filter: none; }
 .sx-xp-stint-h {
   display: flex;
   align-items: baseline;
   gap: .75rem;
-  margin: 0 0 .25rem;
+  margin: .1rem 0 .25rem;
   font-size: var(--sx-t-body);
 }
 .sx-xp-stint-h b {
@@ -2079,29 +2140,11 @@
   color: var(--sx-ink-3);
   font-variant-numeric: tabular-nums;
 }
-.sx-xp-stints > li > p:last-child {
+.sx-xp-stints > li p:last-child {
   margin: 0;
   color: var(--sx-ink-2);
   font-size: var(--sx-t-body);
   line-height: 1.55;
-}
-
-/* --- Now ----------------------------------------------------------------
-   The rail runs newest first, and the job he is in now sits on the one flat
-   step of tone in the section: no outline, no gradient, no badge. The step,
-   a larger name and green years are the whole difference, and they are
-   enough. */
-.sx-xp-stop[data-current] {
-  --sx-xp-h3: calc(var(--sx-t-head) * 1.18);
-}
-.sx-xp-stop[data-current] .sx-xp-body {
-  padding: var(--sx-xp-pad);
-  border-radius: 4px;
-  background: var(--sx-xp-now-bg);
-}
-.sx-xp-stop[data-current] h3 { font-size: var(--sx-xp-h3); }
-.sx-xp-stop[data-current]::before {
-  top: calc(var(--sx-xp-pad) + var(--sx-xp-h3) * .5 - 4px);
 }
 
 /* Where the rail turns from now into the past. A tick off the rail rather
@@ -2134,48 +2177,42 @@
    the window — spent the section's best asset on a 56px thumbnail and laid a
    bar over the copy the reader was trying to get through.
 
-   So the stage goes, and every stop draws its own character, beside its own
-   name. Nothing is pinned and nothing overlaps; the motion is the desktop's
-   re-render at the scale of one card, run once as each card arrives (script,
-   "the small stages"), and the rail fills down the left as you read. */
+   So the stage goes, and every panel carries its own character, standing up
+   out of its top-right corner. Nothing is pinned and nothing overlaps; the
+   motion is the desktop's re-render at the scale of one panel, run once as
+   each arrives (script, "the small stages"), and the panel lights as you
+   read it, exactly as on desktop. */
 @media (max-width: 1080px) {
   .sx-xp-layout { grid-template-columns: 1fr; }
   .sx-xp-stage { display: none; }
 
-  /* Every stop at full strength. Dimming the ones not being read is a desktop
-     idea — there a stage says which one is live. Here each card carries its
-     own character, and a phone reader should never have to read grey text. */
-  .sx-xp-stop[data-active="0"] { opacity: 1; }
-
-  /* Much less travel: nothing is waiting on a trigger line to swap any more,
-     so the gap between stops is just a gap. */
   .sx-xp-stop {
     padding-bottom: clamp(2.5rem, 8vh, 4rem);
     scroll-margin-top: 5.5rem;
-    --sx-xp-fig: clamp(112px, 31vw, 170px);
+    --sx-xp-fig: clamp(112px, 30vw, 170px);
   }
   .sx-xp-stop[data-current] { --sx-xp-fig: clamp(132px, 34vw, 210px); }
 
-  /* Name block on the left, character on the right of it, and the copy and
-     stints run full width underneath. Placed by area, not by source order. */
+  /* Name beside the character; role, copy and stints full width under it.
+     The panel's top margin is the share of him that stands above it. */
   .sx-xp-body {
     display: grid;
     grid-template-columns: minmax(0, 1fr) var(--sx-xp-fig);
     grid-template-areas:
       "name fig"
-      "meta fig"
+      "meta meta"
       "copy copy"
       "stints stints";
-    grid-template-rows: auto 1fr auto auto;
     column-gap: .75rem;
+    margin-top: calc(var(--sx-xp-fig) * .3);
     /* On a tablet the full width would park him a hand's span from his own
        name. A reading measure keeps the two together. */
     max-width: 40rem;
   }
   .sx-xp-body h3 { grid-area: name; align-self: end; }
-  .sx-xp-meta   { grid-area: meta; align-self: start; flex-direction: column; gap: .1rem; }
+  .sx-xp-meta   { grid-area: meta; }
   .sx-xp-copy   { grid-area: copy; }
-  .sx-xp-stints { grid-area: stints; }
+  .sx-xp-stints { grid-area: stints; margin-top: 1.4rem; }
 
   .sx-xp-mini {
     grid-area: fig;
@@ -2183,19 +2220,16 @@
     position: relative;
     aspect-ratio: 1 / 1;
     align-self: end;
-    /* The re-render bar has to end somewhere. */
+    margin-top: calc(var(--sx-xp-fig) * -.3 - var(--sx-xp-pad));
+    margin-bottom: -.35rem;
+    /* Into the panel's right padding, so the text keeps its full inset and
+       he still stands in the corner. */
+    margin-right: calc(var(--sx-xp-pad) * -.6);
+    /* The re-render bar has to end somewhere; once it has run he is
+       unclipped, so his hood is never cut by the box. */
     overflow: hidden;
-    /* The bloom he stands in, scaled to one card. Warmest on Now, in step
-       with the desktop room. */
-    background: radial-gradient(56% 50% at 50% 60%,
-      rgba(224,84,42,.10) 0%, rgba(224,84,42,.04) 45%, rgba(224,84,42,0) 72%);
-    /* His feet on the same line as the role under the name. */
-    margin-top: -.6rem;
   }
-  .sx-xp-stop[data-current] .sx-xp-mini {
-    background: radial-gradient(56% 50% at 50% 60%,
-      rgba(224,84,42,.16) 0%, rgba(224,84,42,.07) 45%, rgba(224,84,42,0) 72%);
-  }
+  .sx-xp-mini[data-in] { overflow: visible; }
   /* A floor shadow, there before he is, so the corner never reads as a hole
      while the sheet is still arriving. */
   .sx-xp-mini::after {
@@ -2218,69 +2252,63 @@
   .sx-xp-mini[data-in] .sx-xp-mini-cel { opacity: 1; }
   .sx-xp-mini .sx-xp-sweep { z-index: 2; height: 26%; transform: translate3d(0, -100%, 0); }
 
-  /* Now is laid out differently, and for room rather than for show. Beside a
-     figure this size the name column is barely 120px on a phone, and the role
-     broke over three lines. So the role and everything under it run full
-     width, and the character takes the card's top-right corner — standing
-     up out of it, over the hairline, rather than boxed in like a thumbnail.
-     The current job is the one that gets to break its frame. */
-  .sx-xp-stop[data-current] .sx-xp-body {
-    grid-template-areas:
-      "name fig"
-      "meta meta"
-      "copy copy"
-      "stints stints";
-    grid-template-rows: auto auto auto auto;
-    margin-top: calc(var(--sx-xp-fig) * .3);
-  }
-  .sx-xp-stop[data-current] .sx-xp-mini {
-    margin-top: calc(var(--sx-xp-fig) * -.3 - var(--sx-xp-pad));
-    margin-bottom: -.35rem;
-    /* Into the panel's right padding, so the text keeps its full inset and
-       he still stands in the corner. */
-    margin-right: calc(var(--sx-xp-pad) * -.6);
-    /* Unclipped once the bar has run, so the hood is not cut by the box. */
-    overflow: visible;
-  }
-  .sx-xp-stop[data-current] .sx-xp-mini:not([data-in]) { overflow: hidden; }
-  .sx-xp-stop[data-current]::before {
-    /* The body's top margin collapses through the li, so the li starts where
-       the panel does; the name ends where his feet do (fig minus the share
-       standing above the panel, minus the feet's overhang). */
+  /* The node, level with the name. The body's top margin collapses through
+     the li, so the li starts where the panel does; the name ends where his
+     feet do (fig, minus the share standing above the panel, minus the feet's
+     overhang). */
+  .sx-xp-stop::before {
     top: calc(var(--sx-xp-fig) * .7 - .35rem - var(--sx-xp-h3) * .53 - 4px);
   }
-  /* Beside the figure the role and years stack; on Now they run full width
-     under the name, so they go back to one line. */
-  .sx-xp-stop[data-current] .sx-xp-meta { flex-direction: row; gap: .15rem 1rem; }
-
-  .sx-xp-stints { margin-top: 1.25rem; }
 }
 
 @media (max-width: 720px) {
-  .sx-xp-copy, .sx-xp-stints > li { max-width: none; }
+  .sx-xp-copy { max-width: none; font-size: var(--sx-t-body); }
   /* The copy runs to the gutter here, so the corner the ledge bleeds out of
      stops being empty — at full strength it would be an opaque slab over the
      end of a line. Things That Move drops its ledge at its own breakpoint for
      the same reason. */
   .sx-xp-ledge { display: none; }
-  .sx-xp-copy { font-size: var(--sx-t-body); }
+
+  /* The stints become a rail you swipe: picture on top, words under it,
+     the next one showing at the edge so the swipe is obvious without being
+     announced. It bleeds into the panel's right padding to reach the edge. */
+  .sx-xp-stints {
+    grid-auto-flow: column;
+    grid-auto-columns: 72%;
+    gap: .9rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    margin-right: calc(var(--sx-xp-pad) * -1);
+    padding-right: var(--sx-xp-pad);
+    scroll-padding-inline: 0;
+  }
+  .sx-xp-stints::-webkit-scrollbar { display: none; }
+  .sx-xp-stints > li {
+    grid-template-columns: 1fr;
+    gap: .75rem;
+    scroll-snap-align: start;
+  }
+  .sx-xp-stints > li > div { max-width: none; }
+  .sx-xp-thumb { aspect-ratio: 16 / 11; border-radius: 6px; }
 }
 
 /* --- Reduced motion --------------------------------------------------------
    Everything that MOVES stops; everything that COMMUNICATES stays. The
    character holds his standing frame instead of cycling, the re-render never
-   runs, and every stop is at full opacity — so the section still reads as a
-   timeline, it just does not perform one. */
+   runs, and the panels change colour without easing into it — so the section
+   still reads as a timeline, it just does not perform one. */
 @media (prefers-reduced-motion: reduce) {
   .sx-xp-yr::before { animation: none; }
-  .sx-xp-cel, .sx-xp-stop, .sx-xp-pips li, .sx-xp-glow { transition: none; }
+  .sx-xp-cel, .sx-xp-stop, .sx-xp-pips li, .sx-xp-glow, .sx-xp-body, .sx-xp-thumb { transition: none; }
+  #sx-exp { transition: none; }
   /* The aside still opens — it is content, not performance — it just arrives
      rather than rising into place, and he does not lift to introduce it. */
   .sx-xp-say { transition: none; transform: none; }
   .sx-xp-reel { transition: none; }
   .sx-xp-frame:hover .sx-xp-reel { transform: none; }
   .sx-xp-ledge { animation: none; }
-  .sx-xp-stop[data-active="0"] { opacity: 1; }
   .sx-xp-rail::after { transition: none; }
   .sx-xp-sweep { display: none; }
 }
