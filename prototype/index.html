@@ -13,6 +13,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Manrope:wght@300;400&family=Noto+Sans+Devanagari:wght@400&family=Noto+Serif+Devanagari:wght@400&display=swap" rel="stylesheet">
 <!-- Satoshi is self-hosted from assets/fonts (woff2, 259KB for ten cuts). -->
+<!-- The room, before the film that shows it has arrived. See #v-enter. -->
+<link rel="preload" as="image" type="image/webp" href="../public/video/into-the-screen_poster.webp" fetchpriority="high">
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/Satoshi-Light.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="../assets/fonts/Satoshi-BlackItalic.woff2" crossorigin>
 
@@ -159,6 +161,16 @@
     opacity: 0; will-change: opacity;
   }
   .film video.live { opacity: 1; }
+  /* The dive's first frame, as a still behind the film that plays it.
+
+     Until the film has decoded a frame a <video> paints nothing, so on a slow
+     connection the page opened on the name floating in black, with no room,
+     for however long 3.6MB took. This is that same frame at 46KB. It is the
+     element's own background and sized the way object-fit sizes the film, so
+     the two land on the same pixels and the first real frame simply replaces
+     it. It is only ever visible while #v-enter is .live and has nothing to
+     show. Re-export it if the film is re-rendered (README, The poster frame). */
+  #v-enter { background: #000 url("../public/video/into-the-screen_poster.webp") center / cover no-repeat; }
 
   .track { position: relative; z-index: 1; }
 
@@ -639,7 +651,7 @@
         <img class="sx-mascot-ledge" src="../public/img/right_side_ledge.svg"
              alt="" width="219" height="370" decoding="async">
 
-        <img class="sx-mascot-bot" src="../public/img/mascot.png" alt=""
+        <img class="sx-mascot-bot" src="../public/img/mascot.webp" alt=""
              width="450" height="436" decoding="async">
 
         <!-- Antenna ping and the thing it says. Both are hover-only and both
@@ -705,11 +717,11 @@
                circle would take the camera's strap, the monitor's corners and
                the spark marks off the first one. -->
           <span class="sx-face" id="sx-face" aria-hidden="true">
-            <img src="../public/img/craft_ideas.png" data-face="0"
+            <img src="../public/img/craft_ideas.webp" data-face="0"
                  alt="" width="512" height="512" decoding="async">
-            <img src="../public/img/pixels_move.png" data-face="1"
+            <img src="../public/img/pixels_move.webp" data-face="1"
                  alt="" width="512" height="512" decoding="async">
-            <img src="../public/img/capture_moments.png" data-face="2"
+            <img src="../public/img/capture_moments.webp" data-face="2"
                  alt="" width="512" height="512" decoding="async">
           </span>
         </div>
@@ -852,7 +864,7 @@
 
             <div class="sx-feat-cover" data-tile data-art="pending"
                  data-empty="Key visual — Airtel Gaming&#10;three shipped surfaces">
-              <img class="sx-feat-art" src="../public/img/airtel_gaming_cover.png"
+              <img class="sx-feat-art" src="../public/img/airtel_gaming_cover.webp"
                    alt="" width="928" height="718" decoding="async" loading="lazy">
               <span class="sx-feat-scrim" aria-hidden="true"></span>
               <div class="sx-feat-cover-foot">
@@ -904,7 +916,7 @@
 
             <div class="sx-feat-cover" data-tile data-art="pending"
                  data-empty="Key visual — Airtel UPI&#10;payment-confirmation motion">
-              <img class="sx-feat-art" src="../public/img/airtel_upi_cover.png"
+              <img class="sx-feat-art" src="../public/img/airtel_upi_cover.webp"
                    alt="" width="928" height="718" decoding="async" loading="lazy">
               <span class="sx-feat-scrim" aria-hidden="true"></span>
               <div class="sx-feat-cover-foot">
@@ -998,7 +1010,7 @@
             </button>
             <span class="sx-st-art" data-art="pending"
                   data-empty="Airtel Coins&#10;interaction render">
-              <img src="../public/img/stories_airtel_coins.png" alt=""
+              <img src="../public/img/stories_airtel_coins.webp" alt=""
                    width="978" height="1504" decoding="async" loading="lazy">
             </span>
             <div class="sx-st-copy">
@@ -1017,7 +1029,7 @@
             </button>
             <span class="sx-st-art" data-art="pending"
                   data-empty="Self-Serve IPTV&#10;set-top box render">
-              <img src="../public/img/stories_iptv_selfserve.png" alt=""
+              <img src="../public/img/stories_iptv_selfserve.webp" alt=""
                    width="1872" height="548" decoding="async" loading="lazy">
             </span>
             <div class="sx-st-copy">
@@ -1036,7 +1048,7 @@
             </button>
             <span class="sx-st-art" data-art="pending"
                   data-empty="Wynk Rewind&#10;2021 numerals">
-              <img src="../public/img/stories_wynk_rewind.png" alt=""
+              <img src="../public/img/stories_wynk_rewind.webp" alt=""
                    width="976" height="884" decoding="async" loading="lazy">
             </span>
             <div class="sx-st-copy">
@@ -1054,7 +1066,7 @@
             </button>
             <span class="sx-st-art" data-art="pending"
                   data-empty="Parental Controls&#10;set-top box render">
-              <img src="../public/img/stories_parental_controls.png" alt=""
+              <img src="../public/img/stories_parental_controls.webp" alt=""
                    width="824" height="884" decoding="async" loading="lazy">
             </span>
             <div class="sx-st-copy">
@@ -1529,7 +1541,7 @@
       <div class="cc-stage" aria-hidden="true">
         <img class="cc-ledge" src="../public/img/green_trio_ledge.svg" alt=""
              width="739" height="368" decoding="async" loading="lazy">
-        <img class="cc-crew" src="../public/img/mascot_meme.png" alt=""
+        <img class="cc-crew" src="../public/img/mascot_meme.webp" alt=""
              width="813" height="542" loading="lazy" decoding="async">
       </div>
     </div>
@@ -1543,7 +1555,7 @@
         <li class="cc-card" data-reveal>
           <a class="cc-card-in" href="#" aria-label="Poprush — mini time tickle game built in Rive">
             <span class="cc-shot">
-              <img src="../public/img/poprush%20new.png" alt="Poprush cover art"
+              <img src="../public/img/poprush-new.webp" alt="Poprush cover art"
                    width="1672" height="941" loading="lazy" decoding="async">
             </span>
             <span class="cc-meta">
@@ -1564,7 +1576,7 @@
              target="_blank" rel="noopener noreferrer"
              aria-label="upbusdriver.wtf — a jukebox that plays bollywood 90s bangers (opens in a new tab)">
             <span class="cc-shot">
-              <img src="../public/img/uproadways.png" alt="upbusdriver.wtf screenshot"
+              <img src="../public/img/uproadways.webp" alt="upbusdriver.wtf screenshot"
                    width="1200" height="630" loading="lazy" decoding="async">
             </span>
             <span class="cc-meta">
@@ -1855,7 +1867,7 @@
              cases is painted into the file, not a box drawn in CSS. So it is
              sized to the file's own 671x466 and left alone; anything laid over
              it would be a second plinth on top of the first. -->
-        <img class="lw-shelf" src="../public/img/game_collection.png"
+        <img class="lw-shelf" data-src="../public/img/game_collection.webp"
              alt="A stack of PS5 cases on a shelf: FC26, Uncharted 4, Marvel&rsquo;s Spider-Man, It Takes Two, Red Dead Redemption II and God of War."
              width="671" height="466" loading="lazy" decoding="async">
       </div>
@@ -1878,17 +1890,17 @@
              one. -->
         <div class="lw-reel" data-gallery="photography">
           <ul class="lw-reel-track">
-            <li><a class="lw-reel-i" href="../public/img/photography/photography_01.webp"><img src="../public/img/photography/photography_01_thumb.webp" alt="A thatched round hut alone in a green clearing, wooded hillside rising behind it." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/photography/photography_02.webp"><img src="../public/img/photography/photography_02_thumb.webp" alt="A seller walking a wet street behind an enormous bunch of red and blue balloons." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/photography/photography_03.webp"><img src="../public/img/photography/photography_03_thumb.webp" alt="The wheel and flank of a maroon car at night, city lights thrown out of focus behind it." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/photography/photography_04.webp"><img src="../public/img/photography/photography_04_thumb.webp" alt="A man standing in a dark field inside a painted circle of red light." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/photography/photography_05.webp"><img src="../public/img/photography/photography_05_thumb.webp" alt="Black and white: a moustachioed shopkeeper seated among rows of hanging embroidered juttis." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/photography/photography_06.webp"><img src="../public/img/photography/photography_06_thumb.webp" alt="An empty orange park bench under wet trees as someone walks out of frame." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/photography/photography_07.webp"><img src="../public/img/photography/photography_07_thumb.webp" alt="Clay water pots lined along the step of a veranda between carved pillars." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/photography/photography_08.webp"><img src="../public/img/photography/photography_08_thumb.webp" alt="Two camel riders crossing pale dunes under a wide pink and blue sky." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/photography/photography_09.webp"><img src="../public/img/photography/photography_09_thumb.webp" alt="Two people facing each other in silhouette against a sunset running orange to deep blue." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/photography/photography_10.webp"><img src="../public/img/photography/photography_10_thumb.webp" alt="A domed chhatri pavilion on a carved fort wall against a clouded blue sky." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/photography/photography_11.webp"><img src="../public/img/photography/photography_11_thumb.webp" alt="Black and white: a woman carrying stacked brass pots on her head past carved arches." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_01.webp"><img data-src="../public/img/photography/photography_01_thumb.webp" alt="A thatched round hut alone in a green clearing, wooded hillside rising behind it." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_02.webp"><img data-src="../public/img/photography/photography_02_thumb.webp" alt="A seller walking a wet street behind an enormous bunch of red and blue balloons." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_03.webp"><img data-src="../public/img/photography/photography_03_thumb.webp" alt="The wheel and flank of a maroon car at night, city lights thrown out of focus behind it." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_04.webp"><img data-src="../public/img/photography/photography_04_thumb.webp" alt="A man standing in a dark field inside a painted circle of red light." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_05.webp"><img data-src="../public/img/photography/photography_05_thumb.webp" alt="Black and white: a moustachioed shopkeeper seated among rows of hanging embroidered juttis." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_06.webp"><img data-src="../public/img/photography/photography_06_thumb.webp" alt="An empty orange park bench under wet trees as someone walks out of frame." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_07.webp"><img data-src="../public/img/photography/photography_07_thumb.webp" alt="Clay water pots lined along the step of a veranda between carved pillars." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_08.webp"><img data-src="../public/img/photography/photography_08_thumb.webp" alt="Two camel riders crossing pale dunes under a wide pink and blue sky." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_09.webp"><img data-src="../public/img/photography/photography_09_thumb.webp" alt="Two people facing each other in silhouette against a sunset running orange to deep blue." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_10.webp"><img data-src="../public/img/photography/photography_10_thumb.webp" alt="A domed chhatri pavilion on a carved fort wall against a clouded blue sky." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/photography/photography_11.webp"><img data-src="../public/img/photography/photography_11_thumb.webp" alt="Black and white: a woman carrying stacked brass pots on her head past carved arches." width="400" height="593" loading="lazy" decoding="async"></a></li>
           </ul>
         </div>
       </div>
@@ -1902,13 +1914,13 @@
              woman" would be a description of a meme with the meme removed. -->
         <div class="lw-reel" data-gallery="memes">
           <ul class="lw-reel-track">
-            <li><a class="lw-reel-i" href="../public/img/memes/meme_01.webp"><img src="../public/img/memes/meme_01_thumb.webp" alt="Meme: over a photo of a woman in tears, &ldquo;Looks at other&rsquo;s portfolio, developes major depression&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/memes/meme_02.webp"><img src="../public/img/memes/meme_02_thumb.webp" alt="Meme: a weeping figure tells Jesus &ldquo;Stop giving me your toughest battles&rdquo;; the reply is &ldquo;Branding team se approval hi to lena hai&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/memes/meme_03.webp"><img src="../public/img/memes/meme_03_thumb.webp" alt="Meme: a &lsquo;Types of Headaches&rsquo; chart — migraine, hypertension, stress — with a whole head shaded red, captioned &ldquo;Branding team trying to design&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/memes/meme_04.webp"><img src="../public/img/memes/meme_04_thumb.webp" alt="Meme: &ldquo;Me looking at my design on dev&rsquo;s build&rdquo;, over the Godfather still &ldquo;Look how they massacred my boy&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/memes/meme_05.webp"><img src="../public/img/memes/meme_05_thumb.webp" alt="Meme: the lone figure at the party comic — &ldquo;They don&rsquo;t know I name all my Figma layers&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/memes/meme_06.webp"><img src="../public/img/memes/meme_06_thumb.webp" alt="Meme: woman yelling at a cat — &ldquo;You copied this design from XYZ big company&rdquo;, answered with &ldquo;Jacob&rsquo;s Law&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
-            <li><a class="lw-reel-i" href="../public/img/memes/meme_07.webp"><img src="../public/img/memes/meme_07_thumb.webp" alt="Meme: &ldquo;Making fun of friends with US Clients like&rdquo; — laughing kids beside a downcast girl labelled &ldquo;Iski Diwali pe chutti nhi hai&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_01.webp"><img data-src="../public/img/memes/meme_01_thumb.webp" alt="Meme: over a photo of a woman in tears, &ldquo;Looks at other&rsquo;s portfolio, developes major depression&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_02.webp"><img data-src="../public/img/memes/meme_02_thumb.webp" alt="Meme: a weeping figure tells Jesus &ldquo;Stop giving me your toughest battles&rdquo;; the reply is &ldquo;Branding team se approval hi to lena hai&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_03.webp"><img data-src="../public/img/memes/meme_03_thumb.webp" alt="Meme: a &lsquo;Types of Headaches&rsquo; chart — migraine, hypertension, stress — with a whole head shaded red, captioned &ldquo;Branding team trying to design&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_04.webp"><img data-src="../public/img/memes/meme_04_thumb.webp" alt="Meme: &ldquo;Me looking at my design on dev&rsquo;s build&rdquo;, over the Godfather still &ldquo;Look how they massacred my boy&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_05.webp"><img data-src="../public/img/memes/meme_05_thumb.webp" alt="Meme: the lone figure at the party comic — &ldquo;They don&rsquo;t know I name all my Figma layers&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_06.webp"><img data-src="../public/img/memes/meme_06_thumb.webp" alt="Meme: woman yelling at a cat — &ldquo;You copied this design from XYZ big company&rdquo;, answered with &ldquo;Jacob&rsquo;s Law&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
+            <li><a class="lw-reel-i" href="../public/img/memes/meme_07.webp"><img data-src="../public/img/memes/meme_07_thumb.webp" alt="Meme: &ldquo;Making fun of friends with US Clients like&rdquo; — laughing kids beside a downcast girl labelled &ldquo;Iski Diwali pe chutti nhi hai&rdquo;." width="400" height="593" loading="lazy" decoding="async"></a></li>
           </ul>
         </div>
       </div>
@@ -1972,10 +1984,10 @@
              there — so both carry the links, and a change to one is a change
              owed to the other. -->
         <ul class="lw-end-social">
-          <li><a href="https://www.linkedin.com/in/shanksgee/" target="_blank" rel="noopener noreferrer" aria-label="Linkedin (opens in a new tab)"><img src="../public/img/lnkedin.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Linkedin</span></a></li>
-          <li><a href="https://www.instagram.com/ek_cutting_chai/" target="_blank" rel="noopener noreferrer" aria-label="Instagram (opens in a new tab)"><img src="../public/img/instagram.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Instagram</span></a></li>
-          <li><a href="https://dribbble.com/ek_cutting_chai" target="_blank" rel="noopener noreferrer" aria-label="Dribbble (opens in a new tab)"><img src="../public/img/dribbble.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Dribbble</span></a></li>
-          <li><a href="https://www.youtube.com/@ekcuttingchaidesign" target="_blank" rel="noopener noreferrer" aria-label="Youtube (opens in a new tab)"><img src="../public/img/youtube.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Youtube</span></a></li>
+          <li><a href="https://www.linkedin.com/in/shanksgee/" target="_blank" rel="noopener noreferrer" aria-label="Linkedin (opens in a new tab)"><img data-src="../public/img/lnkedin.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Linkedin</span></a></li>
+          <li><a href="https://www.instagram.com/ek_cutting_chai/" target="_blank" rel="noopener noreferrer" aria-label="Instagram (opens in a new tab)"><img data-src="../public/img/instagram.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Instagram</span></a></li>
+          <li><a href="https://dribbble.com/ek_cutting_chai" target="_blank" rel="noopener noreferrer" aria-label="Dribbble (opens in a new tab)"><img data-src="../public/img/dribbble.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Dribbble</span></a></li>
+          <li><a href="https://www.youtube.com/@ekcuttingchaidesign" target="_blank" rel="noopener noreferrer" aria-label="Youtube (opens in a new tab)"><img data-src="../public/img/youtube.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Youtube</span></a></li>
         </ul>
 
         <p class="lw-bubble">You are rare 0.2% of visitors who scrolled till here</p>
@@ -2033,10 +2045,10 @@
       <div class="lw-stack-item">
         <h3>I play <span class="lw-emoji" aria-hidden="true">&#127918;</span></h3>
         <p>FIFA, mostly. It&rsquo;s the only place United still win.</p>
-        <img class="lw-shelf" src="../public/img/game_collection.png"
+        <img class="lw-shelf" data-src="../public/img/game_collection.webp"
              alt="A stack of PS5 cases on a shelf: FC26, Uncharted 4, Marvel&rsquo;s Spider-Man, It Takes Two, Red Dead Redemption II and God of War."
              width="671" height="466" loading="lazy" decoding="async">
-        <img class="lw-stack-art" src="../public/img/iplay.png" alt="" loading="lazy" decoding="async">
+        <img class="lw-stack-art" data-src="../public/img/iplay.webp" alt="" loading="lazy" decoding="async">
       </div>
       <!-- The two dead "View Gallery" / "View Memes" pills that used to sit in
            these items are gone with the ones upstairs. In their place is a
@@ -2054,13 +2066,13 @@
         <h3>I click <span class="lw-emoji" aria-hidden="true">&#128247;</span></h3>
         <p>Forty thousand frames. Sixty I&rsquo;d show anyone.<br>That ratio has not improved.</p>
         <div class="lw-stack-gallery" data-gallery-mirror="photography"></div>
-        <img class="lw-stack-art" src="../public/img/iShoot.png" alt="" loading="lazy" decoding="async">
+        <img class="lw-stack-art" data-src="../public/img/iShoot.webp" alt="" loading="lazy" decoding="async">
       </div>
       <div class="lw-stack-item">
         <h3>I meme <span class="lw-emoji" aria-hidden="true">&#128526;</span></h3>
         <p>The only thing I&rsquo;ve ever shipped<br>with zero feedback rounds.</p>
         <div class="lw-stack-gallery" data-gallery-mirror="memes"></div>
-        <img class="lw-stack-art" src="../public/img/iMeme.png" alt="" loading="lazy" decoding="async">
+        <img class="lw-stack-art" data-src="../public/img/iMeme.webp" alt="" loading="lazy" decoding="async">
       </div>
 
       <!-- Contact, stacked. The stage's fourth stop with the camera taken
@@ -2074,16 +2086,52 @@
         <p>Open to product and motion work.</p>
         <a class="lw-end-mail" href="mailto:ekcuttingchaidesign@gmail.com">ekcuttingchaidesign@gmail.com</a>
         <ul class="lw-end-social">
-          <li><a href="https://www.linkedin.com/in/shanksgee/" target="_blank" rel="noopener noreferrer" aria-label="Linkedin (opens in a new tab)"><img src="../public/img/lnkedin.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Linkedin</span></a></li>
-          <li><a href="https://www.instagram.com/ek_cutting_chai/" target="_blank" rel="noopener noreferrer" aria-label="Instagram (opens in a new tab)"><img src="../public/img/instagram.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Instagram</span></a></li>
-          <li><a href="https://dribbble.com/ek_cutting_chai" target="_blank" rel="noopener noreferrer" aria-label="Dribbble (opens in a new tab)"><img src="../public/img/dribbble.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Dribbble</span></a></li>
-          <li><a href="https://www.youtube.com/@ekcuttingchaidesign" target="_blank" rel="noopener noreferrer" aria-label="Youtube (opens in a new tab)"><img src="../public/img/youtube.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Youtube</span></a></li>
+          <li><a href="https://www.linkedin.com/in/shanksgee/" target="_blank" rel="noopener noreferrer" aria-label="Linkedin (opens in a new tab)"><img data-src="../public/img/lnkedin.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Linkedin</span></a></li>
+          <li><a href="https://www.instagram.com/ek_cutting_chai/" target="_blank" rel="noopener noreferrer" aria-label="Instagram (opens in a new tab)"><img data-src="../public/img/instagram.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Instagram</span></a></li>
+          <li><a href="https://dribbble.com/ek_cutting_chai" target="_blank" rel="noopener noreferrer" aria-label="Dribbble (opens in a new tab)"><img data-src="../public/img/dribbble.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Dribbble</span></a></li>
+          <li><a href="https://www.youtube.com/@ekcuttingchaidesign" target="_blank" rel="noopener noreferrer" aria-label="Youtube (opens in a new tab)"><img data-src="../public/img/youtube.svg" alt="" width="24" height="24" loading="lazy" decoding="async"><span>Youtube</span></a></li>
         </ul>
         <p class="lw-stack-rare">You are rare 0.2% of visitors who scrolled till here</p>
-        <img class="lw-stack-art" src="../public/img/mascot_say_hi.png" alt="" loading="lazy" decoding="async">
+        <img class="lw-stack-art" data-src="../public/img/mascot_say_hi.webp" alt="" loading="lazy" decoding="async">
       </div>
     </div>
   </section>
+  <!-- Outside Work's pictures, held back until the section is a screen away.
+
+       They carry `data-src`, not `src`. `loading="lazy"` cannot do this job
+       here: .lw-stage is position:fixed over the whole window, so to the
+       browser every image in it is "in the viewport" from scroll 0 and is
+       fetched with the page — the mascots, the shelf and the first thumbnails
+       of each reel, for a section sixteen screens down.
+
+       Inline and on its own, rather than in outside.js or gallery.js, so it
+       cannot be skipped by either module returning early (reduced motion, a
+       missing API). The query runs when the section warms, so the clones the
+       gallery mirror makes are covered whichever order the two happen in.
+       outside.js listens for `lw:warm` to hand its injected mascots their
+       files at the same moment. -->
+  <script>
+  (function () {
+    var sec = document.getElementById('outside-work');
+    if (!sec) return;
+    function warm() {
+      if (sec.dataset.lwWarm) return;
+      sec.dataset.lwWarm = '1';
+      sec.querySelectorAll('img[data-src]').forEach(function (im) {
+        im.src = im.getAttribute('data-src');
+        im.removeAttribute('data-src');
+      });
+      sec.dispatchEvent(new CustomEvent('lw:warm'));
+    }
+    if (typeof IntersectionObserver !== 'function') { warm(); return; }
+    var io = new IntersectionObserver(function (es) {
+      if (!es.some(function (e) { return e.isIntersecting; })) return;
+      io.disconnect();
+      warm();
+    }, { rootMargin: '100% 0px' });
+    io.observe(sec);
+  })();
+  </script>
 
 
 </div>
@@ -2212,8 +2260,8 @@
        lives on the link rather than in the alt: inside a link an image's alt
        IS the link's name, and "Shashank" alone does not say where it goes. -->
   <a class="sx-nav-home" href="#s-enter" aria-label="Shashank — back to the top">
-    <img class="sx-nav-me" src="../public/img/profile.jpeg" alt=""
-         width="1024" height="1024" decoding="async">
+    <img class="sx-nav-me" src="../public/img/profile-nav.webp" alt=""
+         width="192" height="192" decoding="async">
   </a>
 
   <span class="sx-nav-glide" aria-hidden="true"></span>

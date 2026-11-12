@@ -213,6 +213,36 @@ you see locally is what Pages serves.
 that vendored copy is what the page loads; the npm dependency only exists so the
 bundle can be refreshed.
 
+## Images, the poster frame and late loading
+
+Raster art on the landing page ships as **WebP**. The PNG masters stay beside
+them in `public/img/` (the same arrangement the sprite sheets already use) but
+the page no longer requests any of them. To add or replace one, export the PNG
+and convert it at the same pixel size:
+
+```sh
+python3 -c "from PIL import Image; Image.open('x.png').save('x.webp', quality=86, method=6, alpha_quality=100)"
+```
+
+The nav portrait is `profile-nav.webp`, 192px; the case-study pages still use
+the full `profile.jpeg`.
+
+**The poster frame.** `public/video/into-the-screen_poster.webp` is frame 0 of
+the dive, set as `#v-enter`'s background and preloaded in `<head>`, so the room
+is on screen before the 3.6MB film is. If the film is re-rendered, re-export it
+or the still and the first frame will not match:
+
+```sh
+ffmpeg -ss 0 -i public/video/into-the-screen.mp4 -frames:v 1 -quality 80 public/video/into-the-screen_poster.webp
+```
+
+**Outside Work loads late.** Its `<img>`s carry `data-src`, and a small inline
+script after the section gives them their `src` when the section comes within a
+screen of the viewport. `loading="lazy"` cannot do it: the stage is
+`position: fixed` over the whole window, so the browser treats everything in it
+as visible from scroll 0. New images in that section should use `data-src` too.
+With scripting off those images do not load.
+
 ## Deployment
 
 GitHub Pages is configured to **deploy from a branch**: `main`, folder
