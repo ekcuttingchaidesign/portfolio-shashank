@@ -143,8 +143,8 @@
        iplay is then carried past its measured 0.53 on purpose: a couch is
        wider than a person, so matching its ink height left it with less
        presence on its block than the standing figures have on theirs. */
-    'iplay.png':  { w: 776, h: 631, contentH: 554, ax: 0.4407, ay: 0.9128, h3: 0.82 },
-    'iShoot.png': { w: 701, h: 728, contentH: 698, ax: 0.6683, ay: 0.9712, h3: 0.90 },
+    'iplay.webp':  { w: 776, h: 631, contentH: 554, ax: 0.4407, ay: 0.9128, h3: 0.82 },
+    'iShoot.webp': { w: 701, h: 728, contentH: 698, ax: 0.6683, ay: 0.9712, h3: 0.90 },
 
     /* iMeme is the one entry measure-mascots.mjs cannot be trusted on, and it
        is worth saying why rather than leaving the numbers looking hand-waved.
@@ -167,7 +167,7 @@
        the figures against 9% of empty haze and lands them a head shorter than
        the two beside them. ay is the lowest solid pixel for the same reason —
        0.9308 counts shadow below the shoe as figure and floats the pair. */
-    'iMeme.png':  { w: 954, h: 939, contentH: 758, ax: 0.4790, ay: 0.9042, h3: 0.90 },
+    'iMeme.webp':  { w: 954, h: 939, contentH: 758, ax: 0.4790, ay: 0.9042, h3: 0.90 },
 
     /* The closing figure. measure-mascots.mjs wants Playwright, which is not
        installed here, so this was read straight off the alpha channel with the
@@ -183,7 +183,7 @@
        h3 is against a 484-tall ledge rather than a 509-tall master block, so it
        is not comparable to the three above — it is the ink height the frame
        draws, as a share of the slab it stands on. */
-    'mascot_say_hi.png': { w: 373, h: 539, contentH: 507, ax: 0.5188, ay: 0.9814, h3: 0.58 }
+    'mascot_say_hi.webp': { w: 373, h: 539, contentH: 507, ax: 0.5188, ay: 0.9814, h3: 0.58 }
   };
 
   const MASCOT_H = 0.62;                 // only for a file with no entry above
@@ -251,11 +251,11 @@
      ====================================================================== */
   const STATIONS = [
     /* Filenames exactly as delivered. Two of the three are camel-cased and
-       Pages serves off a case-sensitive filesystem, so 'ishoot.png' is a 404
+       Pages serves off a case-sensitive filesystem, so 'ishoot.webp' is a 404
        there while resolving fine on a Mac. */
-    { id: 'play',  t: 0,    master: 'master', mascot: 'iplay.png'  },
-    { id: 'click', t: 1450, master: 'master', mascot: 'iShoot.png' },
-    { id: 'meme',  t: 2900, master: 'master', mascot: 'iMeme.png'  },
+    { id: 'play',  t: 0,    master: 'master', mascot: 'iplay.webp'  },
+    { id: 'click', t: 1450, master: 'master', mascot: 'iShoot.webp' },
+    { id: 'meme',  t: 2900, master: 'master', mascot: 'iMeme.webp'  },
 
     /* Contact, and it is a station now rather than the block of type that used
        to sit under the section. It reads in continuation of I meme because it
@@ -269,7 +269,7 @@
        off the frame rather than standing in the middle of it. assemble is off —
        last_ledge has no #top/#left/#right to fold together, and asking for them
        only earns a console warning and the fallback it would have used anyway. */
-    { id: 'contact', t: 4350, master: 'last_ledge', mascot: 'mascot_say_hi.png',
+    { id: 'contact', t: 4350, master: 'last_ledge', mascot: 'mascot_say_hi.webp',
       ox: 618, oy: 148, pox: -199, poy: 500, assemble: false, last: true,
       bleed: true }
   ];
@@ -322,7 +322,7 @@
        and the obvious fix is to put it back.
 
        This is the only stop that has to share its frame with two large opaque
-       things at once. The shelf render (game_collection.png, the cases on their
+       things at once. The shelf render (game_collection.webp, the cases on their
        own painted plinth) lives in the copy column and holds roughly a quarter
        of the frame for the entire dwell — and it is not a sprite with generous
        margins, its alpha is ink across 99.7% of its width. Meanwhile the title
@@ -566,7 +566,12 @@
     const img = document.createElement('img');
     img.alt = '';
     img.decoding = 'async';
-    img.src = IMG + spec.file;
+    /* Not fetched until the section warms (see the inline script after
+       #outside-work). Setting src here asked for every mascot with the page,
+       sixteen screens before any of them could be seen. */
+    const arm = () => { img.src = IMG + spec.file; };
+    if (sec.dataset.lwWarm) arm();
+    else sec.addEventListener('lw:warm', arm, { once: true });
     img.addEventListener('load', request);
     img.addEventListener('error', () => {
       n.el.dataset.missing = '1';
@@ -705,7 +710,7 @@
   });
 
   /* §11's figure riding the closing block, finally drawn: Say hello has
-     absorbed this stop, so mascot_say_hi.png is no longer pre-empting a design
+     absorbed this stop, so mascot_say_hi.webp is no longer pre-empting a design
      that had not been made yet. It is the fourth station's mascot above.
 
      The speech bubble rides it. The line is written in the markup, inside the
